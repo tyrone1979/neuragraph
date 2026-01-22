@@ -1,0 +1,31 @@
+{
+  "name": "Relationship verification",
+  "type": "LLM",
+  "inputs": [
+    "triples",
+    "head",
+    "tail"
+  ],
+  "outputs": {
+    "name": "result",
+    "type": "str"
+  },
+  "persistence": {
+    "columns": [
+      "head",
+      "head_mesh",
+      "relationship",
+      "tail",
+      "tail_mesh",
+      "result"
+    ],
+    "file_path": "./result",
+    "file_type": "csv"
+  },
+  "model": "gpt-oss_120b",
+  "prompt_template": {
+    "description": "Strict biomedical relation verifier based on triple list",
+    "system": "You are a biomedical relation specialist.",
+    "human": "Triples:\n{triples}\nTask: Decide if ANY triple implies that {head} is an inducer, cause, or biomarker of {tail} (includes mere correlation/indication). → output 1\n2. If the verb phrase contains uncertainty markers (may, might, could, possibly, can be a factor, etc.), treat the relation as uncertain and output 0.\n3.Otherwise → output 0.\n**Reasoning Rules:**\n1. Use 'is' triples for entity substitution: if A is B, then A and B are equivalent\n2. Follow entity chains: if triple mentions relation between X and Y, and Y is related to Z, then X is related to Z\n3. Correlation with a key aspect of a disease implies biomarker status for that disease\n4.No external knowledge or implicit medical knowledge.\n5.ONLY use the provided triple list for reasoning.\nOutput exactly one character: 1 or 0\n head={head}  tail={tail}"
+  }
+}

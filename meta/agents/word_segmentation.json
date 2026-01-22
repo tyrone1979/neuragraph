@@ -1,0 +1,18 @@
+{
+  "name": "Word Segmentation",
+  "type": "LLM",
+  "inputs": [
+    "text"
+  ],
+  "outputs": {
+    "name": "predicted",
+    "type": "text"
+  },
+  "model": "mistral-7b-instruct-q8_0",
+  "prompt_template": {
+    "description": "English word segmentation",
+    "system": "You are a NLP expert",
+    "human": "Perform medical text tokenization with symbol-level granularity:\n\n**Primary Rule: EVERY symbol gets its own token**\n- Hyphens: separate tokens\n- Parentheses/brackets: separate tokens\n- Slashes/dashes: separate tokens\n- All punctuation: separate tokens\n\n**Medical Term Handling:**\nEven established medical terms with hyphens should be split:\n- \"type-2 diabetes\" → type | - | 2 | diabetes\n- \"E-coli infection\" → E | - | coli | infection\n- \"pre-menopausal\" → pre | - | menopausal\n\n**Exception (if needed):**\nOnly keep together if explicitly requested: e.g., \"COVID-19\" as one token\n\n**Default: SPLIT ALL HYPHENS**\n\n**Text:**\n{text}\n\n**Output format:**\nTokens separated by |, including hyphens as tokens."
+  },
+  "tools": []
+}

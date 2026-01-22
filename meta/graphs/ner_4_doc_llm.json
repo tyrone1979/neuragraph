@@ -1,0 +1,28 @@
+{
+  "description": "",
+  "name": "NER Doc level by LLM",
+  "nodes": [
+    "sentence_split",
+    "sub_ner_llm",
+    "metrics"
+  ],
+  "edges": [
+    [
+      "START",
+      "sentence_split"
+    ],
+    [
+      "sentence_split",
+      "sub_ner_llm"
+    ],
+    [
+      "sub_ner_llm",
+      "metrics"
+    ],
+    [
+      "metrics",
+      "END"
+    ]
+  ],
+  "created_at": "2026-01-19T16:49:34.368814"
+}

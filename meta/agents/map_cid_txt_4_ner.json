@@ -1,0 +1,13 @@
+{
+  "name": "Maping CID to NER field",
+  "type": "PGM",
+  "inputs": [
+    "expected_entities"
+  ],
+  "outputs": {
+    "name": "expected",
+    "type": "dict"
+  },
+  "process": "__result__= state['expected_entities']",
+  "created_at": "2026-01-20T13:25:54.701306"
+}

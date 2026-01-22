@@ -1,0 +1,22 @@
+{
+  "name": "Build triples persistence",
+  "type": "PGM",
+  "inputs": [
+    "doc_id",
+    "triples",
+    "synonyms"
+  ],
+  "outputs": {
+    "name": "output",
+    "type": "list"
+  },
+  "persistence": {
+    "columns": [
+      "head",
+      "verb",
+      "tail"
+    ],
+    "file_path": "./result",
+    "file_type": "csv"
+  }
+}

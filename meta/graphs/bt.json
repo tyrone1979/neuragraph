@@ -1,0 +1,40 @@
+{
+  "description": "Build relation triples from a text",
+  "name": "build_triples",
+  "nodes": [
+    "synonym_extraction",
+    "sentence_split",
+    "sub_re",
+    "bt_persistence",
+    "coreference_resolution"
+  ],
+  "edges": [
+    [
+      "START",
+      "synonym_extraction"
+    ],
+    [
+      "START",
+      "coreference_resolution"
+    ],
+    [
+      "sentence_split",
+      "sub_re"
+    ],
+    [
+      [
+        "sub_re",
+        "synonym_extraction"
+      ],
+      "bt_persistence"
+    ],
+    [
+      "bt_persistence",
+      "END"
+    ],
+    [
+      "coreference_resolution",
+      "sentence_split"
+    ]
+  ]
+}

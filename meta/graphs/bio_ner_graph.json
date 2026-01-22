@@ -1,0 +1,23 @@
+{
+  "description": "NER for biomedical doc",
+  "name": "biology NER graph",
+  "nodes": [
+    "bio_ner",
+    "metrics"
+  ],
+  "edges": [
+    [
+      "START",
+      "bio_ner"
+    ],
+    [
+      "bio_ner",
+      "metrics"
+    ],
+    [
+      "metrics",
+      "END"
+    ]
+  ],
+  "created_at": "2026-01-19T17:22:10.737332"
+}

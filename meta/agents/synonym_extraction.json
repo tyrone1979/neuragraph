@@ -1,0 +1,21 @@
+{
+  "name": "Synonym extraction",
+  "type": "LLM",
+  "inputs": [
+    "text"
+  ],
+  "outputs": {
+    "name": "synonyms",
+    "type": "str"
+  },
+  "persistence": {
+    "file_path": "./result",
+    "file_type": "csv"
+  },
+  "model": "gpt-oss_120b",
+  "prompt_template": {
+    "description": "Biomedical abstract synonym extraction",
+    "system": "You are a biomedical synonym specialist.",
+    "human": "Task: 1. Identify every noun term/phrase in the abstract that has at least one exact biomedical synonym (abbreviations, CAS numbers, alternative names, plural forms all allowed).\n2. For each such term/phrase, generate one standalone declarative sentence of the form:\noriginal|is|synonym1\noriginal|is|synonym2\n...\n3. Output only those sentences, one per line, no header, no abstract.\n- **Do not add any introductory sentences like \"Here is the output...\n- **Ensure that all terms and synonyms are exactly as they appear in the abstract. No variations or additional text.**\n\nAbstract:\n{text}"
+  }
+}

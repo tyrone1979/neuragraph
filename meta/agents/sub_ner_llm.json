@@ -1,0 +1,14 @@
+{
+  "name": "iteration for named entity recognition for LLM",
+  "type": "SUB",
+  "inputs": [
+    "sentences",
+    "labels"
+  ],
+  "outputs": {
+    "name": "predicted",
+    "type": "dict"
+  },
+  "idx": "sentence",
+  "created_at": "2026-01-19T16:47:54.524587"
+}

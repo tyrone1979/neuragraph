@@ -1,0 +1,17 @@
+{
+  "description": "verfiy the relation btw head and tail entities. inputs=pairs and idx=pair",
+  "name": "rv_subgraph",
+  "nodes": [
+    "cid_re_verify"
+  ],
+  "edges": [
+    [
+      "START",
+      "cid_re_verify"
+    ],
+    [
+      "cid_re_verify",
+      "END"
+    ]
+  ]
+}
