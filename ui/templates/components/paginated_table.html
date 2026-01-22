@@ -1,0 +1,119 @@
+{# components/paginated_table.html #}
+{% macro paginated_table(
+    items,
+    columns,
+    page=1,
+    per_page=20,
+    total=None,
+    base_url='',
+    extra_params={}
+) %}
+{% set total_items = total or items|length %}
+{% set total_pages = (total_items / per_page)|round(0, 'ceil')|int %}
+{% set start_idx = (page - 1) * per_page %}
+{% set end_idx = start_idx + per_page %}
+{% set page_items = items %}
+
+<table id="paged_table" class="table table-hover table-bordered align-middle">
+    <thead class="table-primary">
+        <tr>
+            {% for col in columns %}
+                <th scope="col" class="{{col }}">
+                    {{ col }}
+                    {% if col.sortable|default(false) %}
+                    {# 后续加排序链接 #}
+                    {% endif %}
+                </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% if page_items %}
+        {% for item in page_items %}
+        <tr>
+            {% for col in columns %}
+            <td>
+                {% if col in item %}
+                    {% set value = item[col] %}
+
+                    {% if value is string %}
+                        {% if '<' in value and '>' in value %}
+                            <!-- 包含HTML标签，不截断 -->
+                            {{ value|safe }}
+                        {% else %}
+                            <!-- 普通文本，可以截断 -->
+                            {{ value|truncate(100) }}
+                        {% endif %}
+                    {% elif value is mapping %}
+                        <!-- 字典类型 -->
+                        <span class="text-muted">Dict ({{ value|length }} keys)</span>
+                    {% elif value is sequence and value is not string %}
+                        <!-- 列表/元组类型 -->
+                        <span class="text-muted">List ({{ value|length }} items)</span>
+                    {% else %}
+                        <!-- 其他类型转换为字符串 -->
+                        {{ value|string|truncate(100) }}
+                    {% endif %}
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="{{ columns|length }}" class="text-center text-muted py-4">
+                No data available
+            </td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+<!-- 分页控件 -->
+{% if total_pages > 1 %}
+<nav aria-label="Page navigation" id="pageNav">
+    <ul class="pagination justify-content-center mt-4">
+        <!-- 上一页 -->
+        <li class="page-item {{ 'disabled' if page <= 1 }}">
+            <a class="page-link" href="{{ url_for(base_url, page=page-1, **extra_params) if page > 1 else '#' }}" 
+               aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+
+        <!-- 页码 -->
+        {% set visible_pages = 5 %}
+        {% set start_page = [page - 2, 1]|max %}
+        {% set end_page = [start_page + visible_pages - 1, total_pages]|min %}
+
+        {% if start_page > 1 %}
+        <li class="page-item"><a class="page-link" href="{{ url_for(base_url, page=1, **extra_params) }}">1</a></li>
+        {% if start_page > 2 %}<li class="page-item disabled"><span class="page-link">...</span></li>{% endif %}
+        {% endif %}
+
+        {% for p in range(start_page, end_page + 1) %}
+        <li class="page-item {{ 'active' if p == page }}">
+            <a class="page-link" href="{{ url_for(base_url, page=p, **extra_params) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+
+        {% if end_page < total_pages %}
+        {% if end_page < total_pages - 1 %}<li class="page-item disabled"><span class="page-link">...</span></li>{% endif %}
+        <li class="page-item"><a class="page-link" href="{{ url_for(base_url, page=total_pages, **extra_params) }}">{{ total_pages }}</a></li>
+        {% endif %}
+
+        <!-- 下一页 -->
+        <li class="page-item {{ 'disabled' if page >= total_pages }}">
+            <a class="page-link" href="{{ url_for(base_url, page=page+1, **extra_params) if page < total_pages else '#' }}" 
+               aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="text-center text-muted small">
+    Showing {{ start_idx + 1 }} to {{ [end_idx, total_items]|min }} of {{ total_items }} entries
+</div>
+{% endif %}
+{% endmacro %}

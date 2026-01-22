@@ -1,0 +1,66 @@
+{# templates/components/runner_selector.html #}
+{% macro runner_selector(id_prefix="runner", label="Runner", required=true, runner_obj=none) %}
+<div class="mb-3">
+    <div class="position-relative">
+        <label for="{{ id_prefix }}Search"> {{ label }} {% if required %}
+            <span class="text-danger">*</span>{% endif %}</label>
+        <input type="text"
+                                                          class="form-control"
+                                                          id="{{ id_prefix }}Search"
+                                                          placeholder="Search Agent or Workflow by name/ID..."
+                                                          autocomplete="off"
+                                                          value="{{ runner_obj.display if runner_obj else '' }}"
+                                                          {% if required %}required{% endif %} >
+        <ul class="list-group position-absolute w-100 mt-1 shadow" 
+            id="{{ id_prefix }}Suggestions" 
+            style="z-index: 1000; display: none; max-height: 300px; overflow-y: auto;"></ul>
+    </div>
+    <div class="form-text">Type to search existing agents/workflows</div>
+</div>
+
+<input type="hidden" name="runner_type" id="{{ id_prefix }}Type" value="{{ runner_obj.type if runner_obj else '' }}">
+<input type="hidden" name="runner_id" id="{{ id_prefix }}Id" value="{{ runner_obj.id if runner_obj else '' }}">
+<input type="hidden" name="runner_display" id="{{ id_prefix }}Display" value="{{ runner_obj.display if runner_obj else '' }}">
+<script>
+$(function() {
+    const searchInput = $('#{{ id_prefix }}Search');
+    const suggestions = $('#{{ id_prefix }}Suggestions');
+    let selected = null;
+
+    searchInput.on('input', function() {
+        const q = $(this).val().trim();
+        suggestions.empty().hide();
+        selected = null;
+        if (q.length < 2) return;
+
+        $.getJSON('/common/api/search_runners', {q: q}, function(data) {
+            if (data.results.length === 0) {
+                suggestions.append('<li class="list-group-item text-muted">No results</li>').show();
+                return;
+            }
+            data.results.forEach(r => {
+                const item = $(`<li class="list-group-item list-group-item-action" style="cursor:pointer;">${r.display}</li>`);
+                item.click(function() {
+                    searchInput.val(r.display);
+                    $('#{{ id_prefix }}Display').val(r.display);
+                    $('#{{ id_prefix }}Type').val(r.type);
+                    $('#{{ id_prefix }}Id').val(r.id);
+                    selected = r;
+                    suggestions.hide();
+                });
+                suggestions.append(item);
+            });
+            suggestions.show();
+        });
+    });
+
+    
+    // 点击外部隐藏
+    $(document).click(function(e) {
+        if (!$(e.target).closest('#{{ id_prefix }}Search, #{{ id_prefix }}Suggestions').length) {
+            suggestions.hide();
+        }
+    });
+});
+</script>
+{% endmacro %}

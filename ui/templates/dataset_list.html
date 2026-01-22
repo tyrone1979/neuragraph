@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- 全宽容器 + 无左右留白 -->
+<div class="container-fluid px-0">
+  <div class="row g-0">
+    <!-- 左侧树形数据集导航 -->
+    <div class="col-auto" style="width:220px;">
+      <h6 class="text-muted px-3 pt-3">Datasets</h6>
+      <div class="list-group list-group-flush border-end">
+
+      {% for dataset_name, txt_files in datasets.items() %}
+      <!-- 一级：数据集名称（折叠触发器） -->
+      <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+         data-bs-toggle="collapse"
+         href="#collapse-{{ dataset_name|e }}"
+         role="button"
+         aria-expanded="false"
+         aria-controls="collapse-{{ dataset_name|e }}">
+        <span>{{ dataset_name }}</span>
+        <span class="badge bg-secondary rounded-pill">{{ txt_files|length }}</span>
+      </a>
+
+      <!-- 二级：文件列表（链接带被点数据集） -->
+      <div class="collapse {% if dataset_name == curr_dataset %}show{% endif %}"
+           id="collapse-{{ dataset_name|e }}">
+        <div class="list-group list-group-flush ps-3">
+          {% for f in txt_files %}
+          <a class="list-group-item list-group-item-action py-1
+             {% if dataset_name == curr_dataset and f == curr_file %}active{% endif %}"
+             href="{{ url_for('dataset.dataset_list_view', dataset=dataset_name, file=f, page=1) }}">
+            {{ f }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+
+      </div>
+    </div>
+
+    <!-- 右侧内容：占满剩余宽度 -->
+    <div class="col">
+      <div class="p-3">
+        <!-- 顶部栏：搜索组与表格同宽 -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">{{ curr_file }}</h5>
+          <small class="text-muted">Page {{ page }} / {{ max_page }}</small>
+        </div>
+        <!-- 搜索栏宽度 = 表格宽度 -->
+        <form method="get" action="" class="mb-3">
+          <input type="hidden" name="dataset" value="{{ curr_dataset }}">
+          <input type="hidden" name="file" value="{{ curr_file }}">
+          <div class="input-group" style="max-width:600px;">
+            <input type="search"
+                   name="search"
+                   class="form-control"
+                   placeholder="Search PMPID or Title"
+                   value="{{ request.args.get('search','') }}">
+            <button type="submit" class="btn btn-primary">Search</button>
+          </div>
+        </form>
+
+        <!-- 表格：默认占满父级宽度 -->
+        <table class="table table-hover table-bordered bg-white w-100">
+          <thead class="table-primary">
+            <tr><th>PMPID</th><th>Title</th><th>#Entities</th><th>#Relations</th></tr>
+          </thead>
+          <tbody>
+            {% for a in arts %}
+            <tr>
+              <td><a href="{{ url_for('dataset.dataset_get_doc', pmid=a.pmid, dataset=curr_dataset , file=curr_file) }}" target="_blank">{{ a.pmid }}</a></td>
+              <td>{{ a.title }}</td>
+              <td class="text-center">{{ a.entities|length }}</td>
+              <td class="text-center">{{ a.res|length }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- 分页 -->
+        <nav>
+          <ul class="pagination justify-content-center">
+            {% for p in range(1, max_page+1) %}
+              <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('dataset.dataset_list_view', dataset=curr_dataset ,file=curr_file, page=p) }}">{{ p }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

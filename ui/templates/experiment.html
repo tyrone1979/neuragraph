@@ -1,0 +1,107 @@
+{% extends "base.html" %} {% from "components/paginated_table.html" import
+paginated_table %} {% from "components/runner_selector.html" import
+runner_selector %} {% block content %}
+<title>Run Experiment</title>
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/exp.css') }}"
+    />
+    <link href="{{ url_for('static', filename='css/prism.css') }}" rel="stylesheet" />
+<div class="container-fluid p-4">
+  <h1 class="mb-4">Run Experiment</h1>
+
+  <ul class="nav nav-tabs mb-4" id="expTab">
+    <li class="nav-item">
+      <a class="nav-link active" data-bs-toggle="tab" href="#config"
+        >Configure</a
+      >
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#report">Report</a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- 配置 Tab -->
+    <div class="tab-pane fade show active" id="config">
+      <form id="expForm">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <!-- Step 1: Runner Selector -->
+            {{ runner_selector(id_prefix='runner', label='Runner (Workflow /
+            Agent)', required=true, runner_obj={ "id": runner_id, "type":
+            runner_type, "display": runner_display }) }}
+          </div>
+          <div class="col-md-4">
+              <label for="datasetSelect">Dataset (Test Set)</label><select class="form-select" id="datasetSelect" required>
+              <option value="">-- Select a runner first --</option>
+            </select>
+          </div>
+        </div>
+
+
+        <button type="submit" class="btn btn-primary mt-4 d-none" id="runExpBtn">
+          Start Experiment
+        </button>
+      </form>
+        <div class="d-flex align-items-center mb-4">
+            <h4 class="mb-0 me-3">Current Experiment:</h4>
+            <span class="badge text-bg-info" id="exp_id" data-id="{{ exp_id }}">{{ exp_id if exp_id else 'Not saved yet' }}</span>
+             <div><span class="badge text-bg-danger" id="error_message"></span></div>
+        </div>
+        <div class="progress mb-3" style="height: 30px">
+            <div
+              id="overallProgress"
+              class="progress-bar progress-bar-striped progress-bar-animated"
+              role="progressbar"
+              style="width: {{ progress }}%">
+                    {{ progress }}%
+            </div>
+      </div>
+      <!-- 预览表：服务端渲染 -->
+      {% if preview_tests is not none %}
+      <div class="mt-5">
+        <h4>
+          Test Set Preview: {{ selected_file }} ({{ preview_total }} samples)
+        </h4>
+        {{ paginated_table( items=preview_tests, columns=preview_fields,
+        page=preview_page, per_page=preview_per_page, total=preview_total,
+        base_url='exp.experiment_detail'  if exp_id else 'exp.experiment_new', extra_params=dict({'exp_id': exp_id}, **extra_params) ) }}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 报告 Tab -->
+    <div class="tab-pane fade" id="report">
+        <div id="reportMarkdown" class="markdown-body overflow-auto"
+            style="max-height:1000px; padding:1rem; border:1px solid #dee2e6;"></div>
+    </div>
+  </div>
+</div>
+<div id="replayPopup" class="replay-popup hidden">
+            <div class="popup-header">
+                <span class="badge text-bg-warning" id="idx"></span>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="popup-body">
+                <div class="row">
+                  <div class="scroll-box">
+                    <pre><code id="resultOutput" class="language-json"></code></pre>
+                  </div>
+                </div>
+            </div>
+</div>
+<script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/prism.js') }}"></script>
+<script src="{{ url_for('static', filename='js/mark.min.js') }}"></script>
+<script>
+
+const defaultFilename = {{ filename | tojson | safe }};
+const data = {{ datasets | tojson | safe }};
+const snapShots= {{ snapshots | tojson | safe }};
+const expId= {{  exp_id | tojson | safe }};
+const progress={{ progress | tojson | safe }};
+
+</script>
+<script src="{{ url_for('static', filename='js/experiment.js') }}"></script>
+{% endblock %}

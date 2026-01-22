@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<title>
+    {% if mode == 'new' %}New Tool{% elif mode == 'edit' %}Edit Tool{% else %}{{ tool.name }}{% endif %}
+</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tool.css') }}">
+<div class="container-fluid px-0">
+
+  <div class="row g-0 h-100">
+    <!-- ******** 左侧：编辑区 ******** -->
+    <div class="col-md-6 border-end d-flex flex-column">
+      <div class="panel-header px-3 py-2 bg-light border-bottom">
+        <h5 class="mb-0">
+          <i class="fas fa-edit me-2"></i>Edit Tool
+        </h5>
+      </div>
+      <div class="p-3 flex-fill d-flex flex-column">
+        <form id="toolForm" >
+          <!-- 基本信息 -->
+          <div class="row">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Tool ID</label><span class="text-danger">*</span>
+              <input type="text" id="field_id" class="form-control" value="{{ tool.id }}" {% if tool.id  %}readonly{% endif %} required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Name</label><span class="text-danger">*</span>
+              <input type="text" id="field_name" class="form-control" value="{{ tool.name }}" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12">
+              <label class="form-label fw-bold">Description</label>
+              <textarea id="field_description" class="form-control" rows="2">{{ tool.description or '' }}</textarea>
+            </div>
+          </div>
+
+          <!-- 代码块 -->
+          <div>
+            <label class="form-label fw-bold">Implementation Code</label><span class="text-danger">*</span>
+            <textarea id="field_code" class="form-control font-monospace" rows="12" spellcheck="false" required>{{ tool.code or '' }}</textarea>
+          </div>
+
+
+            <!-- 参数列表 -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="form-label fw-bold mb-0">Parameters Schema</label>
+              <button type="button" class="btn btn-sm btn-outline-primary" id="addParam">
+                <i class="fas fa-plus me-1"></i>Add Param
+              </button>
+            </div>
+
+            <div id="paramList" class="border rounded p-2 bg-light small"></div>
+
+            <button id="saveToolBtn" class="btn btn-success mt-3">
+              <i class="fas fa-save me-2"></i>{{ 'Update' if tool.id else 'Create' }}
+            </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- ******** 右侧：实时测试区 ******** -->
+    <div class="col-md-6 d-flex flex-column">
+      <div class="panel-header px-3 py-2 bg-light border-bottom">
+        <h5 class="mb-0">
+          <i class="fas fa-play me-2"></i>Test Tool Instantly
+        </h5>
+      </div>
+
+      <form id="toolTestForm" class="p-3 flex-fill">
+        {% if tool.parameters.properties %}
+        {% for key, schema in tool.parameters.properties.items() %}
+        {% set is_required = key in (tool.parameters.required or []) %}
+        <div class="mb-3">
+          <label class="form-label fw-bold">
+            {{ schema.description or key }}
+            {% if is_required %}<span class="text-danger">*</span>{% endif %}
+            <small class="text-muted d-block">{{ key }} ({{ schema.type }})</small>
+          </label>
+
+          {% if schema.type in ['integer', 'number'] %}
+          <input type="number" class="form-control" name="{{ key }}" {% if is_required %}required{% endif %} {% if schema.type=='integer' %}step="1"{% endif %}>
+          {% elif schema.type == 'boolean' %}
+          <select class="form-select" name="{{ key }}" {% if is_required %}required{% endif %}>
+            <option value="">-- Select --</option>
+            <option value="true">true</option>
+            <option value="false">false</option>
+          </select>
+          {% else %}
+          <textarea class="form-control" name="{{ key }}" rows="2" {% if is_required %}required{% endif %}}
+                    placeholder="Value (multi-line supported)"></textarea>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="alert alert-secondary">No parameters.</div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="fas fa-play me-2"></i>Run Tool
+        </button>
+      </form>
+
+      <!-- 结果区 -->
+      <div id="resultArea" class="px-3 pb-3 d-none">
+        <h6 class="mb-2"><i class="fas fa-terminal me-1"></i>Result</h6>
+        <pre id="resultOutput" class="bg-dark text-white p-2 rounded small mb-0"
+             style="max-height:200px; overflow:auto;"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script>
+
+const mode = "{{ mode }}";
+const existing = {{ tool.parameters | tojson }};
+
+</script>
+<script src="{{ url_for('static', filename='js/tool.js') }}"></script>
+{% endblock %}

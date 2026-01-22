@@ -1,0 +1,141 @@
+<!-- templates/llm_list.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>LLM Configurations</h1>
+        <div>
+            <a href="/llms/new" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add New LLM
+            </a>
+        </div>
+    </div>
+
+    <!-- 搜索框 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="searchInput" placeholder="Search LLMs by name, type, or model...">
+            </div>
+        </div>
+    </div>
+
+    <!-- LLM 列表 -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" id="llmGrid">
+        {% for llm in llms %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">
+                            {{ llm.id }}
+                        </h5>
+                        <span class="badge bg-info">{{ llm.type|upper }}</span>
+                    </div>
+
+                    <p class="card-text text-muted small mb-2">
+                        <i class="fas fa-server me-1"></i>
+                        <code>{{ llm.base_url or llm.endpoint or 'Default' }}</code>
+                    </p>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Model:</small>
+                        <span class="badge bg-light text-dark">{{ llm.model or llm.deployment or 'N/A' }}</span>
+                    </div>
+
+                    <!-- 配置参数 -->
+                    <div class="small text-muted">
+                        <div class="d-flex justify-content-between">
+                            <span>Max Tokens:</span>
+                            <span>{{ llm.max_tokens or 'Default' }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Temperature:</span>
+                            <span>{{ llm.temperature or 'Default' }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Timeout:</span>
+                            <span>{{ llm.timeout or 30 }}s</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent d-flex justify-content-between">
+                    <div class="btn-group">
+                        <a href="/llms/{{ llm.id }}/edit" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger delete-btn"
+                            data-id="{{ llm.id }}">
+                        <i class="fas fa-trash me-1"></i>Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if llms|length == 0 %}
+    <div class="text-center py-5">
+        <div class="display-1 text-muted mb-3">
+            <i class="fas fa-brain"></i>
+        </div>
+        <h3 class="text-muted">No LLM configurations found</h3>
+        <p class="text-muted">Add your first LLM configuration to start using AI models</p>
+        <a href="/llms/new" class="btn btn-primary btn-lg mt-3">
+            <i class="fas fa-plus me-2"></i>Add Your First LLM
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- 测试结果模态框 -->
+<div class="modal fade" id="testResultModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Test Result</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="testResultContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // 搜索功能
+    $('#searchInput').on('input', function() {
+        const query = $(this).val().toLowerCase();
+        $('.col').each(function() {
+            const text = $(this).text().toLowerCase();
+            $(this).toggle(text.includes(query));
+        });
+    });
+
+
+    // 删除按钮事件
+    $('.delete-btn').on('click', function() {
+        const llmId = $(this).data('id');
+        if (confirm(`Are you sure you want to delete LLM "${llmId}"?\nThis action cannot be undone.`)) {
+            $.ajax({
+                url: `/llms/api/${llmId}`,
+                type: 'DELETE',
+                success: function() {
+                    location.reload();
+                },
+                error: function(xhr) {
+                    alert('Delete failed: ' + (xhr.responseJSON?.error || 'Unknown error'));
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

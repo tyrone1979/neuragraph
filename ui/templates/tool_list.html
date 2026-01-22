@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<title>Tools List</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+
+<div class="container-fluid px-0">
+    <!-- Header -->
+    <div class="header">
+        <div>
+            <h1><i class="fas fa-tools text-primary me-3"></i>Available Tools</h1>
+        </div>
+        <div class="workflow-selector">
+            <!-- New Tool Button -->
+            <a href="{{ url_for('tool.tool_new') }}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>New Tool
+            </a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="main-panel">
+            <div class="p-4">
+                {% if tools %}
+                <div class="row">
+                    {% for tool in tools %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm hover-shadow">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">
+                                    <i class="fas fa-cog text-primary me-2"></i>{{ tool.name }}
+                                </h5>
+                                <p class="card-text text-muted flex-grow-1 small">
+                                    {{ tool.description }}
+                                </p>
+                                <div class="mt-auto">
+                                    <small class="text-muted d-block mb-2">
+                                        <code>ID: {{ tool.id }}</code>
+                                    </small>
+                                    <div class="mt-auto d-flex gap-2">
+                                      <a href="{{ url_for('tool.tool_form', tool_id=tool.id) }}"
+                                         class="btn btn-outline-primary flex-fill">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                      </a>
+                                      <a href="{{ url_for('tool.tool_del', tool_id=tool.id) }}"
+                                         class="btn btn-outline-danger flex-fill">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                      </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>No tools registered yet</h4>
+                    <p class="mb-0">Click the <strong>New Tool</strong> button in the top-right corner to create your first tool.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-shadow {
+        transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    .hover-shadow:hover {
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+        transform: translateY(-4px);
+    }
+</style>
+{% endblock %}

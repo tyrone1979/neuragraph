@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NeuraGraph</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+</head>
+
+<body>
+
+    <!-- 主内容 -->
+    <div class="container-fluid">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-4 fw-bold mb-6">NeuraGraph</h1>
+                        <p class="lead mb-4">A lightweight platform for building LLM-powered agent workflows specialized
+                            in NLP and Knowledge Graph tasks</p>
+                        <div class="d-flex gap-3">
+                            <a href="/exp/new" class="btn btn-light btn-lg">
+                                <i class="fas fa-play me-2"></i>Start an experiment
+                            </a>
+                            <a href="/docs" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-book me-2"></i>Documentation
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <img src="{{ url_for('static', filename='img/neuragraph-logo.svg') }}" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="container mb-5">
+            <div class="row g-12">
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <a href="/agents" class="btn btn-light btn-lg">
+                            <div class="stat-number">{{ stats.agents_count or 0 }}</div>
+                            <div class="text-muted">Active Agents</div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <a href="/graph" class="btn btn-light btn-lg">
+                            <div class="stat-number">{{ stats.graph_count or 0 }}</div>
+                            <div class="text-muted">Workflows</div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <a href="/llms" class="btn btn-light btn-lg">
+                            <div class="stat-number">{{ stats.llms_count or 0 }}</div>
+                            <div class="text-muted">LLM Models</div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <a href="/tools" class="btn btn-light btn-lg">
+                            <div class="stat-number">{{ stats.tool_count or 0 }}</div>
+                            <div class="text-muted">Available Tools</div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <a href="/exp" class="btn btn-light btn-lg">
+                            <div class="stat-number">{{ stats.exp_count or 0 }}</div>
+                            <div class="text-muted">Experiments</div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <a href="/testset" class="btn btn-light btn-lg">
+                            <div class="stat-number">{{ stats.data_count or 0 }}</div>
+                            <div class="text-muted">Data set</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 特性介绍 -->
+        <div class="container mb-5">
+            <h2 class="mb-4">Core Features</h2>
+            <div class="row col-md-12">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center d-flex flex-column">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-robot fa-3x text-primary"></i>
+                            </div>
+                            <h4 class="card-title">Intelligent Agents</h4>
+                            <p class="card-text flex-grow-1">Create and configure specialized AI agents with unique
+                                capabilities and roles for different tasks.</p>
+                            <a href="/agents" class="btn btn-outline-primary mt-auto">Manage Agents</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center d-flex flex-column">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-project-diagram fa-3x text-success"></i>
+                            </div>
+                            <h4 class="card-title">Visual Workflows</h4>
+                            <p class="card-text flex-grow-1">Design complex workflows by connecting agents and tools in
+                                a visual interface.</p>
+                            <a href="/graph" class="btn btn-outline-primary mt-auto">View Workflows</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center d-flex flex-column">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-tools fa-3x text-warning"></i>
+                            </div>
+                            <h4 class="card-title">Tool Integration</h4>
+                            <p class="card-text flex-grow-1">Extend agent capabilities with various tools and APIs for
+                                enhanced functionality.</p>
+                            <a href="/tools" class="btn btn-outline-primary mt-auto">Browse Tools</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center d-flex flex-column">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-flask fa-3x text-info"></i>
+                            </div>
+                            <h4 class="card-title">Batch Experiments</h4>
+                            <p class="card-text flex-grow-1">Run batch evaluations on datasets with real-time progress
+                                monitoring and generate comprehensive performance reports.</p>
+                            <a href="/exp/" class="btn btn-outline-primary mt-auto">View Experiments</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速操作 -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="mb-4">Quick Actions</h3>
+                    <div class="row col-md-12">
+                        <div class="col-md-2">
+                            <a href="/agents/create" class="quick-action-btn text-decoration-none text-dark d-block">
+                                <i class="fas fa-plus-circle fa-2x mb-3 text-primary"></i>
+                                <h5>Create New Agent</h5>
+                                <p class="text-muted small">Design a new intelligent agent</p>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/graph/new" class="quick-action-btn text-decoration-none text-dark d-block">
+                                <i class="fas fa-edit fa-2x mb-3 text-primary"></i>
+                                <h5>New Workflow</h5>
+                                <p class="text-muted small">Create a new workflow</p>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/exp/new" class="quick-action-btn text-decoration-none text-dark d-block">
+                                <i class="fas fa-vial fa-2x mb-3 text-primary"></i>
+                                <h5>Run Experiment</h5>
+                                <p class="text-muted small">Experiment on Graph/Agent</p>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/testset" class="quick-action-btn text-decoration-none text-dark d-block">
+                                <i class="fas fa-database fa-2x mb-3 text-primary"></i>
+                                <h5>View Dataset</h5>
+                                <p class="text-muted small">View available experiment dataset</p>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/llms/new" class="quick-action-btn text-decoration-none text-dark d-block">
+                                <i class="fas fa-brain fa-2x mb-3 text-primary"></i>
+                                <h5>Create New LLM</h5>
+                                <p class="text-muted small">Create a new LLM connector</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="https://www.github.com/tyrone1979/neuragraph" class="text-decoration-none">
+                            <i class="fab fa-github me-1"></i>github.com/tyrone1979/neuragraph
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

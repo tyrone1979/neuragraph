@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block content %}
+<title>Run Experiment</title>
+
+<div class="container-fluid p-4">
+    <h1 class="mb-4">Run Experiment</h1>
+
+    <ul class="nav nav-tabs mb-4" id="expTab">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#config">Configure</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#run">Progress</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#report">Report</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- 配置 Tab -->
+        <div class="tab-pane fade show active" id="config">
+            <form id="expForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Dataset</label>
+                        <select class="form-select" id="datasetSelect" required>
+                            {% for ds_name in datasets.keys() %}
+                            <option value="{{ ds_name }}">{{ ds_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">File</label>
+                        <select class="form-select" id="fileSelect" required></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Samples (N)</label>
+                        <input type="number" class="form-control" id="nSamples" value="20" min="1" required>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 进度 Tab -->
+        <div class="tab-pane fade" id="run">
+            <div class="progress mb-3" style="height: 30px;">
+                <div id="overallProgress" class="progress-bar progress-bar-striped progress-bar-animated"
+                     role="progressbar" style="width: 0%;">0%</div>
+            </div>
+            <div id="itemProgress" class="accordion"></div>
+        </div>
+
+        <!-- 报告 Tab -->
+        <div class="tab-pane fade" id="report">
+            <h4>Overall Metrics</h4>
+            <table class="table table-bordered mb-4">
+                <thead class="table-dark"><tr><th>Type</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+                <tbody id="metricsTable"></tbody>
+            </table>
+
+            <div id="metricsChart" style="height: 400px;"></div>
+
+            <h4 class="mt-5">Per-Sample Details</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead><tr><th>ID</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+                    <tbody id="itemMetricsTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
+<script>
+// 填充文件下拉（根据选择的 dataset）
+$('#datasetSelect').change(function() {
+    const ds = $(this).val();
+    const files = {{ datasets | tojson }}[ds];
+    const $fileSel = $('#fileSelect').empty();
+    files.forEach(f => $fileSel.append(`<option value="${f.name}">${f.name}</option>`));
+    $fileSel.trigger('change');
+}).trigger('change');
+
+// 填充 runner 下拉
+const graphs = {{ graphs | tojson }};
+const agents = {{ agents | tojson }};
+let options = '<option value="">-- Select Runner --</option>';
+Object.keys(graphs).filter(g => !g.startsWith('sub_')).forEach(g => {
+    options += `<option value="graph:${g}">${graphs[g].name} (Workflow)</option>`;
+});
+agents.forEach(a => {
+    options += `<option value="agent:${a.id}">${a.name || a.id} (Agent)</option>`;
+});
+$('#runnerSelect').html(options);
+
+// 提交 + SSE 逻辑（同之前）
+$('#expForm').submit(function(e) {
+    e.preventDefault();
+    const data = {
+        dataset: $('#datasetSelect').val(),
+        file: $('#fileSelect').val(),
+        n: parseInt($('#nSamples').val()),
+        runner: $('#runnerSelect').val()
+    };
+
+    $.post('/exp/start', JSON.stringify(data), function(resp) {
+        const expId = resp.exp_id;
+        const source = new EventSource(`/exp/stream/${expId}`);
+
+        source.onmessage = function(e) {
+            const status = JSON.parse(e.data);
+            // 更新进度、items、报告 同之前代码
+            if (status.status === 'completed') {
+                source.close();
+                // renderReport(status.overall, status.items);
+                $('#expTab a[href="#report"]').tab('show');
+            }
+        };
+
+        $('#expTab a[href="#run"]').tab('show');
+    });
+});
+</script>
+{% endblock %}
