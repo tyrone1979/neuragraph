@@ -1,0 +1,11 @@
+/* 让左右栏撑满可视高度 */
+html, body {
+  height: 100%;
+}
+.content > .row {
+  height: calc(100vh - 120px); /* 减去顶部导航高度，按需调 */
+}
+textarea#toolJsonEditor {
+  resize: vertical;
+  min-height: 300px;
+}

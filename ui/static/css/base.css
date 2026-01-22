@@ -1,0 +1,166 @@
+/* 基础样式 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+.container {
+    max-width: 1200px;
+    padding: 15px;
+}
+/* 导航栏样式 */
+.navbar {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.nav-item.active .nav-link {
+    font-weight: bold; /* 加粗字体 */
+}
+
+/* Footer自定义样式 */
+.footer {
+    background-color: #f8f9fa; /* 浅灰色背景 */
+    padding: 20px 0; /* 上下内边距 */
+    margin-top: 50px; /* 与内容的间距 */
+    border-top: 1px solid #dee2e6; /* 顶部边框 */
+}
+.footer .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.footer p {
+    margin: 5px 0; /* 段落间距 */
+    color: #6c757d; /* 深灰色文字 */
+}
+.footer a {
+    color: #007bff; /* 链接颜色 */
+    text-decoration: none; /* 去掉下划线 */
+}
+.footer a:hover {
+    text-decoration: underline; /* 鼠标悬停时显示下划线 */
+}
+.footer .copyright {
+    margin-top: 10px; /* 版权信息间距 */
+}
+
+
+/* 卡片样式 */
+.card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  margin-bottom: 10px; /* 减小卡片的下边距 */
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* 图表容器样式 */
+.chart-container {
+  height: 350px;
+  width: 100%;
+  padding: 10px; /* 增加内边距 */
+}
+
+.pchart-container {
+  height: 550px;
+  width: 100%;
+  padding: 10px; /* 增加内边距 */
+}
+/* 雷达图容器 */
+.radar-container {
+    width: 50%;
+    float: left;
+    padding-right: 10px;
+}
+
+.radarChart{
+    width: 100%;
+    height: 400px;
+    flex:1;
+}
+
+  /* 表格容器 */
+.table-container {
+    width: 50%; /* 增加表格的宽度 */
+    float: right;
+    padding-left: 10px; /* 减少左边距 */
+    display: none;
+}
+/* 增加清除浮动的样式 */
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+/* 雷达图解释容器 */
+.legend-explanation {
+    display: none; /* 默认隐藏 */
+    flex: 1;
+
+}
+/* 表格解释容器 */
+.table-explanation {
+    margin-bottom: 20px;
+}
+#exportCsvBtn {
+    float: right;
+}
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .col-sm-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    .radar-container, .legend-explanation, .table-container {
+        width: 100%; /* 全宽 */
+        float: none; /* 取消浮动 */
+        padding: 0; /* 重置内边距 */
+        display: none;
+    }
+
+    .radarChart {
+        height: 300px;
+    }
+
+
+
+    #exportCsvBtn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+}
+
+/* 实体高亮颜色 */
+.ent-chem    { background: #d1ecf1; }
+.ent-dis     { background: #f8d7da; }
+.ent-default { background: #e2e3e5; }
+
+/* 让 span 可见 */
+.ent {
+  border-radius: 3px;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.agent-list, .graph-list {
+            max-height: 80vh;
+            overflow-y: auto;
+}
+.workflow-graph {
+            height: 400px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+}

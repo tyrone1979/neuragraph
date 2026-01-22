@@ -1,0 +1,105 @@
+<style>
+
+
+/* 基础样式 */
+.nutrition-targets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.target-item {
+  background: linear-gradient(135deg, #3498db, #2ecc71); /* 蓝绿渐变 */
+  border-radius: 16px;
+  padding: 8px 16px;
+  color: white;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.nutrient-name {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* 动态单位样式 */
+.target-range[data-unit="mg"]::after { content: "mg"; }
+.target-range[data-unit="kcal"]::after { content: "kcal"; }
+
+  /* 响应式优化 */
+  @media (max-width: 768px) {
+    .nutrition-targets dt, .nutrition-targets dd {
+      display: block;
+      width: 100%;
+      border-bottom: none;
+    }
+    .nutrition-targets dt {
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-right: 5px;
+    color: white;
+  }
+  /* 健康推荐级：绿色系（低风险/高价值） */
+.tag-low_calorie { background: linear-gradient(135deg, #2ecc71, #27ae60); }  /* 低热量 */
+.tag-high_fiber { background: linear-gradient(135deg, #1abc9c, #16a085); }    /* 高纤维 */
+.tag-low_saturated_fat { background: linear-gradient(135deg, #27ae60, #219653); } /* 低饱和脂肪 */
+.tag-low_sugar { background: linear-gradient(135deg, #3498db, #2980b9); }     /* 低糖（特殊营养素用蓝色）*/
+.tag-low_sodium { background: linear-gradient(135deg, #9b59b6, #8e44ad); }     /* 低钠（紫色系区分）*/
+
+/* 需谨慎级：黄色系（中等风险） */
+.tag-high_protein { background: linear-gradient(135deg, #f1c40f, #f39c12); }  /* 高蛋白 */
+.tag-high_potassium { background: linear-gradient(135deg, #e67e22, #d35400); } /* 高钾（过量风险）*/
+.tag-high_folate_acid { background: linear-gradient(135deg, #d35400, #ba4a00); } /* 高叶酸 */
+
+/* 限制级：红色系（高风险/需限制） */
+.tag-high_calorie { background: linear-gradient(135deg, #e74c3c, #c0392b); }  /* 高热量 */
+.tag-low_protein { background: linear-gradient(135deg, #c0392b, #a93226); }     /* 低蛋白（警示色）*/
+
+/* 微量营养素强化级：蓝色系（功能性营养） */
+.tag-high_iron { background: linear-gradient(135deg, #3498db, #2980b9); }      /* 高铁 */
+.tag-high_vitamin_b12 { background: linear-gradient(135deg, #2980b9, #2471a3); } /* 高维B12 */
+.tag-high_calcium { background: linear-gradient(135deg, #5dade2, #3498db); }   /* 高钙 */
+.tag-high_vitamin_c { background: linear-gradient(135deg, #85c1e9, #5dade2); } /* 高维C */
+.tag-high_vitamin_d { background: linear-gradient(135deg, #aed6f1, #85c1e9); } /* 高维D */
+
+/* 特殊需求类：紫色系（医学营养） */
+.tag-low_phosphorus { background: linear-gradient(135deg, #8e44ad, #7d3c98); } /* 低磷（肾病专用）*/
+.tag-low_cholesterol { background: linear-gradient(135deg, #9b59b6, #8e44ad); } /* 低胆固醇 */
+
+/* 碳水管理类：青色系 */
+.tag-low_carb { background: linear-gradient(135deg, #48c9b0, #1abc9c); }      /* 低碳水 */
+
+ /* 按疾病类型定制颜色 */
+  .tag-under_weight { background: linear-gradient(135deg, #64b3f4, #36d1dc); } /* 体重过轻：蓝渐变 */
+  .tag-over_weight { background: linear-gradient(135deg, #ff7e5f, #feb47b); }     /* 体重过重：橙渐变 */
+  .tag-opioid_misuse { background-color: #8e44ad; }                             /* 阿片类药物滥用：深紫 */
+  .tag-low_density_lipoprotein { background-color: #3498db; }                  /* 低密度脂蛋白：天蓝 */
+  .tag-blood_urea_nitrogen { background-color: #1abc9c; }                      /* 血尿素氮：青绿 */
+  .tag-blood_pressure { background: linear-gradient(135deg, #e74c3c, #c0392b);}/* 高血压：红渐变 */
+  .tag-diabetes { background-color: #9b59b6; }                                 /* 糖尿病：紫色 */
+  .tag-anemia { background-color: #e67e22; }                                   /* 贫血：橙黄 */
+  .tag-osteoporosis { background: linear-gradient(135deg, #95a5a6, #7f8c8d); } /* 骨质疏松：灰渐变 */
+  .custom-btn {
+        display: inline-block;
+        width: 150px;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        margin: 5px;
+    }
+
+    .meal_dialog {
+        max-width: 80%;
+        width: auto;
+    }
