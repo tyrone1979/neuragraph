@@ -1,0 +1,216 @@
+<!-- templates/agent_form.html -->
+{% extends "base.html" %}
+{% block content %}
+<title>{{ 'Create' if action == 'create' else 'Edit' }} Agent</title>
+
+<div class="container-fluid px-0">
+
+    <h1>{{ 'Create New' if action == 'create' else 'Edit' }} Agent</h1>
+
+    <div class="row g-4">
+        <!-- 左边：表单区域 (col-md-6) -->
+        <div class="col-md-6">
+            <form id="agentForm">
+                <div class="mb-3">
+                    <label class="form-label">Agent ID <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="agentId" required {{ 'readonly' if action=='edit'
+                        else '' }} value="{{ agent.id if agent else '' }}">
+                    <div class="form-text">Valid identifier. Cannot change in edit mode.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="agentName" required
+                        value="{{ agent.name if agent else '' }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Type <span class="text-danger">*</span></label>
+                    <select class="form-select" id="agentType" required>
+                        <option value="LLM" {{ 'selected' if agent and agent.type=='LLM' else '' }}>LLM</option>
+                        <option value="PGM" {{ 'selected' if agent and agent.type=='PGM' else '' }}>PGM</option>
+                        <option value="SUB" {{ 'selected' if agent and agent.type=='SUB' else '' }}>SUB</option>
+                    </select>
+                </div>
+
+                <!-- LLM 专属区域 -->
+                <div id="llmFields" style="display: {{ 'block' if agent and agent.type == 'LLM' else 'none' }};">
+                    <!-- 新增：LLM 配置下拉选择 -->
+                    <div class="mb-3">
+                        <label class="form-label">Select LLM Config</label>
+                        <select class="form-select" id="llmConfigSelect">
+                            <option value="">-- Select LLM Config --</option>
+                            <!-- Options will be populated via JS -->
+                        </select>
+                        <div class="form-text">
+                            Select a pre-configured LLM. URL and Model will be filled automatically.
+                        </div>
+                    </div>
+                    <!-- 隐藏字段：只存 LLM 配置的 ID -->
+                    <input type="hidden" id="llmConfigId" name="llm_config_id"
+                        value="{{agent.model if agent else ''}}">
+                    <hr>
+                    <h5>Prompt Template</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control" id="promptDesc"
+                            value="{{ agent.prompt_template.description if agent and agent.prompt_template else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">System Prompt</label>
+                        <textarea class="form-control font-monospace" rows="4" id="promptSystem">{{
+                            agent.prompt_template.system if agent and agent.prompt_template else ''
+                        }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Human Prompt (use {field} placeholders)</label>
+                        <textarea class="form-control font-monospace" rows="12" id="promptHuman">{{
+                            agent.prompt_template.human if agent and agent.prompt_template else ''
+                        }}</textarea>
+                    </div>
+
+                    <!-- LLM Tool 选择区域 -->
+                    <hr>
+                    <h5>Tools</h5>
+                    <div class="alert alert-info small">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Select tools that this LLM agent can use. Selected tools will be automatically filled into the JSON config below.
+                    </div>
+
+                    <div id="toolSelectionArea" class="mb-3">
+                        <div class="form-text mb-2">Available Tools:</div>
+                        <div id="toolCheckboxes" class="border rounded p-3 bg-white" style="max-height: 300px; overflow-y: auto;">
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-spinner fa-spin me-2"></i>Loading tools...
+                            </div>
+                        </div>
+                    </div>
+                        <textarea rows="1" id="toolsConfig" style="display: none;">
+                {{ agent.tools|tojson if agent and agent.tools else '[]' }}</textarea>
+                </div>
+
+                <!-- PGM 专属区域 -->
+                <div id="pgmFields" class="border rounded p-3 bg-light" style="display: {{ 'block' if agent and agent.type == 'PGM' else 'none' }};">
+                    <hr>
+                    <h5>Programmatic Code</h5>
+                    <div class="alert alert-warning small">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Write pure Python code. Use <code>state</code> dict to read/write data. Use <code>get_plugin()</code> to get plugin objects. Set return values to <code>__result__ = ...</code>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Program</label>
+                        <textarea class="form-control font-monospace" rows="15" id="program">{{
+                            agent.process if agent and agent.process else ''
+                        }}</textarea>
+                    </div>
+                </div>
+
+                <!-- SUB 专属区域 -->
+                <div id="subFields" class="border rounded p-3 bg-light" style="display: {{ 'block' if agent and agent.type == 'SUB' else 'none' }};">
+                    <div class="mb-3">
+                        <label class="form-label">Index for loop</label>
+                        <input type="text" class="form-control" id="indexForLoop"
+                                        value="{{ agent.idx if agent and agent.idx else '' }}">
+                    </div>
+                </div>
+                <!-- 通用字段 -->
+                <div class="mb-3">
+                  <label class="form-label">Inputs (comma-separated)</label>
+                  <input type="text" class="form-control" id="inputs"
+                         value="{{ ','.join(agent.inputs) if agent and agent.inputs else '' }}"
+                         placeholder="text,labels,entities">
+                  <div class="form-text">
+                    Define agent inputs, comma-separated. Example: <code>text,labels,entities</code>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Output</label>
+                  <div class="row g-2">
+                    <!-- 短 name -->
+                    <div class="col-5">
+                      <input type="text" class="form-control" id="outputName"
+                             placeholder="name"
+                             value="{{ agent.outputs.name if agent and agent.outputs else '' }}">
+                    </div>
+
+                    <!-- 稍长 type -->
+                    <div class="col-4">
+                      <select class="form-select" id="outputType">
+                        <option value="str"   {% if agent and agent.outputs and agent.outputs.type=='str'   %}selected{% endif %}>str</option>
+                        <option value="list"  {% if agent and agent.outputs and agent.outputs.type=='list'  %}selected{% endif %}>list</option>
+                        <option value="dict"  {% if agent and agent.outputs and agent.outputs.type=='dict'  %}selected{% endif %}>dict</option>
+                        <option value="int"   {% if agent and agent.outputs and agent.outputs.type=='int'   %}selected{% endif %}>int</option>
+                        <option value="float" {% if agent and agent.outputs and agent.outputs.type=='float' %}selected{% endif %}>float</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-text">Output name and type</div>
+
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                        {{ 'Create' if action == 'create' else 'Update' }}
+                    </button>
+                    <a href="/agents" class="btn btn-secondary btn-lg">Cancel</a>
+                    <a href="/tools" class="btn btn-outline-info btn-lg ms-auto">
+                        <i class="fas fa-tools me-1"></i> Manage Tools
+                    </a>
+                </div>
+            </form>
+        </div>
+        <!-- 右边：测试面板 (col-md-6) -->
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Test Agent</h5>
+                    <div>
+                        <button class="btn btn-outline-secondary btn-sm" id="refreshDatasetsBtn">
+                            <i class="fas fa-sync me-1"></i>Refresh
+                        </button>
+                        <button class="btn btn-primary btn-sm" id="saveDatasetBtn">
+                            <i class="fas fa-save me-1"></i> Save
+                        </button>
+                        <button class="btn btn-success btn-sm" id="runTestBtn">
+                            <i class="fas fa-play-circle me-1"></i> Run Test
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <!-- 测试数据集下拉选择 -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-medium">Load Test Dataset</label>
+                        <select class="form-select form-select-sm" id="datasetSelect">
+                            <option value="">-- Create New Test data --</option>
+                        </select>
+                    </div>
+                    <!-- 输入框区域 -->
+                    <div class="mb-3 flex-grow-1 d-flex flex-column">
+                        <div id="testInputs" class="overflow-auto flex-grow-1" style="max-height: 400px;"></div>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+                <!-- 运行结果 -->
+                <div class="card-body d-flex flex-column">
+                    <h6 class="mb-2">Output:</h6>
+                    <pre id="testResult" class="bg-light p-3 rounded border overflow-auto" style="min-height: 400px;
+            max-height: 400px;
+            white-space: pre-wrap;
+            font-size: 0.9em;
+            resize: vertical;"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const isEdit = {% if action == 'edit' %}true{% else %} false{% endif %};
+    const testSets = {{ test_sets | tojson }};
+    const agentData = {{ agent | tojson }};
+    const currentAgentTools = {{ agent.tools|tojson if agent and agent.tools else '[]' }};
+
+</script>
+<script src="{{ url_for('static', filename='js/agent_form.js') }}"></script>
+{% endblock %}

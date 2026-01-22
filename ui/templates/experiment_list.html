@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "components/paginated_table.html" import paginated_table %}
+{% block content %}
+<h1>Experiments</h1>
+<a href="/exp/new" class="btn btn-primary mb-3">New Experiment</a>
+
+<!-- 搜索框 -->
+    <form method="get" class="mb-4">
+        <div class="input-group" style="max-width: 500px;">
+            <input type="search" name="search" class="form-control"
+                   placeholder="Search by Runner or Dataset..." value="{{ search }}">
+            <button type="submit" class="btn btn-primary">Search</button>
+            {% if search %}
+            <a href="{{ url_for('exp.experiment_list') }}" class="btn btn-outline-secondary">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+
+    <!-- 分页表格 -->
+    {{ paginated_table(
+        items=history,
+        columns=history[0].keys(),
+        page=page,
+        per_page=per_page,
+        total=total,
+        base_url='exp.experiment_list',
+        extra_params={'search': search}
+    ) }}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<title>Workflow</title>
+
+
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Workflow</h1>
+        <a href="/graph/new" class="btn btn-success">
+            <i class="fas fa-plus"></i> Create New Workflow
+        </a>
+    </div>
+
+    <div class="mb-4">
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Search by name or ID...">
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" id="graphGrid">
+        <!-- JS 动态填充 -->
+    </div>
+
+    <div id="noResults" class="text-center py-5 text-muted d-none">
+        <h4>No workflow found</h4>
+    </div>
+
+<script src="{{ url_for('static', filename='js/graphs.js') }}"></script>
+<script>
+    const graphsData= {{ graphs | tojson }};
+</script>
+{% endblock %}

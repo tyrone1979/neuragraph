@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- 导航栏保持原样 -->
+<nav class="navbar navbar-dark bg-primary">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand" href="{{ url_for('dataset.dataset_list_view', file=curr_file) }}">← Back to List</a>
+  </div>
+</nav>
+
+<!-- 全宽内容区 -->
+<div class="container-fluid px-0">
+  <div class="row g-0">
+
+
+
+    <!-- 主内容：占满剩余宽度 -->
+    <div class="col p-3">
+      <h3 class="text-primary">{{ doc.title }}</h3>
+      <div class="border p-3 bg-white mb-4">
+        {{ doc.highlight|safe }}
+      </div>
+
+      <!-- Entities 表格 -->
+      <h5>Entities</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered bg-white w-100">
+          <thead class="table-secondary">
+            <tr><th>Text</th><th>Type</th><th>MESH</th><th>Position</th></tr>
+          </thead>
+          <tbody>
+            {% for entity in doc.entities %}
+            <tr>
+              <td>{{ entity.text }}</td>
+              <td>{{ entity.type }}</td>
+              <td>{{ entity.mesh }}</td>
+              <td>{{ entity.position }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Relations 表格 -->
+      <h5 class="mt-4">Relations</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered bg-white w-100">
+          <thead class="table-secondary">
+            <tr><th>Head Entity</th><th>Relation</th><th>Tail Entity</th></tr>
+          </thead>
+          <tbody>
+            {% for rel in doc.relations %}
+            <tr>
+              <td>{{ rel.head_entity }} <small class="text-muted">({{ rel.head_type }})</small></td>
+              <td>{{ rel.relationship }}</td>
+              <td>{{ rel.tail_entity }} <small class="text-muted">({{ rel.tail_type }})</small></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,313 @@
+{% extends "base.html" %} {% block content %}
+    <title>Workflow可视化</title>
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/joint.min.css') }}"
+    />
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/all.min.css') }}"
+    />
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/graph.css') }}"
+    />
+
+    <div class="container-fluid px-0">
+        <div
+                class="d-flex align-items-center justify-content-between border-bottom bg-light py-2 px-3"
+        >
+            <!-- 左边：标题 + 工作流选择器 -->
+            <div class="d-flex align-items-center gap-3">
+                <h4 class="mb-0" id="currentWorkflowName">
+                    {% if is_new %} New Workflow {% else %} {{ current.name }} {% endif %}
+                </h4>
+            </div>
+
+            <!-- 右边：控制按钮组 -->
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-primary" id="zoomIn" title="Zoom In">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="btn btn-sm btn-primary" id="zoomOut" title="Zoom Out">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button
+                        class="btn btn-sm btn-secondary"
+                        id="fitToContent"
+                        title="Fit to content"
+                >
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="btn btn-sm btn-secondary" id="resetView" title="Reset">
+                    <i class="fas fa-sync"></i>
+                </button>
+                <button
+                        class="btn btn-sm btn-success"
+                        id="testWorkflow"
+                        title="Test Workflow"
+                >
+                    <i class="fas fa-play"></i>
+                </button>
+                <!-- 编辑/新建模式专属：Save + Cancel -->
+                {% if is_edit or is_new %}
+                    <button
+                            class="btn btn-sm btn-primary"
+                            id="saveGraphBtn"
+                            title="Save Workflow"
+                    >
+                        <i class="fas fa-save"></i>
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 主内容区：悬浮抽屉 + 大画布 -->
+        <div class="d-flex" style="height: calc(100vh - 130px)">
+            <!-- 左边：悬浮抽屉，默认隐藏80% -->
+            <div
+                    id="leftSidebar"
+                    class="position-fixed start-0 top-0 h-100 bg-light border-end shadow-lg d-flex"
+                    style="
+        width: 500px;
+        z-index: 1050;
+        transform: translateX(-500px);
+        transition: transform 0.35s ease;
+      "
+            >
+                <!-- 表单内容区（占满高度） -->
+                <div
+                        class="drawer-content flex-grow-1 p-4 overflow-auto"
+                        style="padding-right: 60px"
+                >
+                    <h4 class="mb-4">Edit Workflow</h4>
+                    <!-- 这层横向 flex，左表单 + 右画布 -->
+                    <form id="graphForm">
+                        <div class="mb-3">
+                            <label class="form-label" for="graphId"
+                            >Graph ID <span class="text-danger">*</span></label
+                            >
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    id="graphId"
+                                    required
+                                    value="{{ current }}"
+                                    {% if is_edit %}readonly{% endif %}
+                            />
+
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="graphName">Name
+                                <span class="text-danger">*</span></label>
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    id="graphName"
+                                    required
+                                    value="{{ graphs[current]['name'] if graphs else '' }}"
+                            />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"  for="graphDescription"
+                            >Description <span class="text-danger"></span
+                            ></label>
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    id="graphDescription"
+                                    value="{{ graphs[current]['description'] if graphs else '' }}"
+                            />
+                        </div>
+                        <hr/>
+                        <h5>Nodes</h5>
+                        <div id="nodesList" class="mb-3">
+                            {% if is_edit and graphs[current] %}
+                                {% for display in runner_displayers %}
+                                    <div class="node-item mb-3 d-flex align-items-center"
+                                         data-index="{{ display['id'] }}">
+                                        <!-- 输入框容器：占满剩余空间 -->
+                                        <div class="flex-grow-1 position-relative me-2">
+                                            <input type="text"
+                                                   class="form-control runner-search"
+                                                   name="search"
+                                                   placeholder="Search Agent or Workflow by name/ID..."
+                                                   autocomplete="off"
+                                                   value="{{ display['display'] if display else '' }}"
+                                                   data-node-id="{{ display['id'] }}">
+
+                                            <!-- suggestions 下拉：用 fixed 脱离层叠，永不被盖 -->
+                                            <ul class="list-group position-absolute w-100 mt-1 shadow suggestions"
+                                                style="z-index: 9999; display: none; max-height: 300px; overflow-y: auto; width: 100%; background: white;">
+                                            </ul>
+                                        </div>
+
+                                        <!-- 删除按钮 -->
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm flex-shrink-0 remove-node"
+                                                data-index="{{ display['id'] }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="form-text node-item-bottom">Type to search existing agents/workflows</div>
+                        </div>
+                        <button
+                                type="button"
+                                class="btn btn-outline-primary btn-sm mb-3"
+                                id="addNodeBtn"
+                        >
+                            <i class="fas fa-plus"></i> Add Node
+                        </button>
+
+                        <hr/>
+                        <h5>Edges</h5>
+                        <div id="edgesList" class="mb-3"></div>
+                        <div class="form-text edge-item-bottom">Select source and target node</div>
+
+                        <button
+                                type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                id="addEdgeBtn">
+                            <i class="fas fa-plus"></i> Add Edge
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <!-- 把手独立，关键改动：初始 left: 20px（关闭时露20px） -->
+            <div
+                    id="drawerHandle"
+                    class="position-fixed top-50 bg-primary text-white px-3 py-5 rounded-end shadow-lg"
+                    style="
+        left: 20px;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        cursor: ew-resize;
+        z-index: 1060;
+        user-select: none;
+        transform: translateY(-50%);
+        transition: left 0.35s ease;
+      "
+            >
+                <i class="fas fa-chevron-right" id="handleIcon"></i>
+                <span class="ms-2">Edit Panel</span>
+            </div>
+            <!-- 右边：大画布占满剩余 -->
+            <div class="flex-grow-1 position-relative">
+                <div id="paper_panel" class="h-100 bg-white"></div>
+            </div>
+            <!-- 悬浮详情窗 -->
+            <div id="agentPopup" class="agent-popup hidden">
+                <div class="popup-header">
+                    <span id="popupAgentName"></span>
+                    <button class="run-btn" id="runAgentBtn">
+                        <i class="fas fa-play"></i>Test
+                    </button>
+                    <!-- 添加右箭头按钮 -->
+                    <button class="close-btn">&times;</button>
+                </div>
+
+                <div class="popup-body">
+                    <!-- 配置区 -->
+                    <section>
+                        <h4>Configuration</h4>
+                        <table id="configTable"></table>
+                    </section>
+
+                    <!-- Prompt 模板区 -->
+                    <section>
+                        <h4>Prompt Template</h4>
+                        <div class="prompt-box">
+                            <div class="prompt-item">
+                                <label>Description</label>
+                                <pre id="descText"></pre>
+                            </div>
+                            <div class="prompt-item">
+                                <label>System</label>
+                                <pre id="sysText"></pre>
+                            </div>
+                            <div class="prompt-item">
+                                <label>Human</label>
+                                <pre id="humanText"></pre>
+                            </div>
+                            <div id="schemaBox"></div>
+                            <!-- relation schema 动态插入处 -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <!-- 隐藏的 runner id -->
+            <input type="hidden" id="agentId" value=""/>
+        </div>
+        <!-- 运行窗口 -->
+        <div id="runAgentPopup" class="run-agent-popup hidden">
+            <div class="popup-header">
+                <span>Test Panel</span>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="popup-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="test-set-selector">
+                            <label for="testSetSelect">Select Test Set:</label>
+                            <select id="testSetSelect" class="form-control">
+                                <option value="">-- Create New Test data --</option>
+                            </select>
+                        </div>
+                        <div id="inputFields"></div>
+                        <!-- 动态插入输入字段 -->
+                        <button id="runAgentSubmit" class="btn btn-primary">Test</button>
+                        <button id="closeBtn" class="btn btn-sm btn-primary close-btn" title="Close">
+                            <i class="fas fa-close"></i>
+                        </button>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="result-container">
+                            <ul class="nav nav-tabs">
+                                <li class="nav-item">
+                                    <a
+                                            class="nav-link active"
+                                            data-bs-toggle="tab"
+                                            href="#executionResults"
+                                    >Execution Results<span
+                                            id="loadingSpinner"
+                                            class="spinner hidden"
+                                    ></span
+                                    ></a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content">
+                                <div id="executionResults" class="tab-pane fade show active">
+                                    <pre id="resultOutput"></pre>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/lodash.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/backbone-min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/graphlib.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dagre.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/joint.min.js') }}"></script>
+    <script>
+
+        let graphsById = {{  graphs | tojson }} //edit mode graphs including subgraphs, None for new graph
+        const current = {{ current | tojson }} //edit mode current graph id, None for new graph
+        let agentsData = {{ agents | tojson }} //edit mode the agents data in the graph, None for new graph
+        let testSetsData = {{ test_sets | tojson }} //edit mode the test data in the graph,
+        const isEditMode = {{ 'true' if is_edit else  'false' }}
+        const isNewMode = {{'true' if is_new else 'false' }}
+
+    </script>
+    <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/run.js') }}"></script>
+{% endblock %}

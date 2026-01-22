@@ -1,0 +1,608 @@
+<!-- templates/llm_form.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-brain me-2"></i>
+                        {{ 'Create New' if action == 'create' else 'Edit' }} LLM Configuration
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form id="llmForm">
+                        <div class="row g-3">
+                            <!-- LLM 类型 -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">LLM Type <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="llmType" required>
+                                        <option value="">Select LLM type...</option>
+                                    </select>
+                                    <div class="form-text">Select the type of LLM service</div>
+                                </div>
+                            </div>
+                            <!-- 通用参数 -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">ID</label>
+                                    <input type="text" class="form-control" id="id"
+                                        value="{{ llm.id if llm else '' }}"
+                                        placeholder="e.g., gpt-3.5-turbo">
+                                    <div class="form-text">A unique ID for configuration </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">API Key <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="apiKey" required
+                                            value="{{ llm.api_key if llm else '' }}" placeholder="sk-...">
+                                        <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Your LLM API key</div>
+                                </div>
+                            </div>
+
+                            <!-- OpenAI 配置区域 -->
+                            <div id="openaiConfig" class="config-section" style="display: none;">
+                                <div class="col-12">
+                                    <h5 class="mt-3 mb-3 border-bottom pb-2">OpenAI Configuration</h5>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label class="form-label">Base URL</label>
+                                        <input type="url" class="form-control" id="baseUrl"
+                                            value="{{ llm.base_url if llm else 'https://api.openai.com/v1' }}"
+                                            placeholder="https://api.openai.com/v1">
+                                        <div class="form-text">OpenAI API endpoint URL</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Azure OpenAI 配置区域 -->
+                            <div id="azureConfig" class="config-section" style="display: none;">
+                                <div class="col-12">
+                                    <h5 class="mt-3 mb-3 border-bottom pb-2">Azure OpenAI Configuration</h5>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label class="form-label">Endpoint</label>
+                                        <input type="url" class="form-control" id="endpoint"
+                                            value="{{ llm.endpoint if llm else '' }}"
+                                            placeholder="https://your-resource.openai.azure.com">
+                                        <div class="form-text">Azure OpenAI endpoint URL</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">API Version</label>
+                                        <input type="text" class="form-control" id="apiVersion"
+                                            value="{{ llm.api_version if llm else '2023-05-15' }}"
+                                            placeholder="2023-05-15">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ollama 配置区域 -->
+                            <div id="ollamaConfig" class="config-section" style="display: none;">
+                                <div class="col-12">
+                                    <h5 class="mt-3 mb-3 border-bottom pb-2">Ollama Configuration</h5>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label class="form-label">Ollama Server URL <span
+                                                class="text-danger">*</span></label>
+                                        <input type="url" class="form-control" id="ollamaBaseUrl"
+                                            value="{{ llm.base_url if llm else 'http://localhost:11434' }}"
+                                            placeholder="http://localhost:11434">
+                                        <div class="form-text">Ollama server address (usually http://localhost:11434)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Model Name <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="ollamaModel"
+                                                value="{{ llm.model if llm else 'llama2' }}"
+                                                placeholder="e.g., llama2, mistral, codellama">
+                                            <button type="button" class="btn btn-outline-secondary"
+                                                id="browseOllamaModels">
+
+                                            </button>
+                                        </div>
+                                        <div class="form-text">Ollama model name</div>
+                                    </div>
+                                </div>
+
+                                <!-- 高级选项 -->
+                                <div class="col-12">
+                                    <div class="accordion" id="ollamaAdvancedOptions">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#ollamaAdvancedCollapse">
+                                                    Advanced Options
+                                                </button>
+                                            </h2>
+                                            <div id="ollamaAdvancedCollapse" class="accordion-collapse collapse">
+                                                <div class="accordion-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Top P</label>
+                                                                <input type="number" class="form-control"
+                                                                    id="ollamaTopP"
+                                                                    value="{{ llm.top_p if llm else 0.9 }}" min="0"
+                                                                    max="1" step="0.05">
+                                                                <div class="form-text">Nucleus sampling parameter</div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Top K</label>
+                                                                <input type="number" class="form-control"
+                                                                    id="ollamaTopK"
+                                                                    value="{{ llm.top_k if llm else 40 }}" min="1"
+                                                                    max="100">
+                                                                <div class="form-text">Top-k sampling parameter</div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Repeat Penalty</label>
+                                                                <input type="number" class="form-control"
+                                                                    id="ollamaRepeatPenalty"
+                                                                    value="{{ llm.repeat_penalty if llm else 1.1 }}"
+                                                                    min="1" max="2" step="0.1">
+                                                                <div class="form-text">Penalty for repeated tokens</div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-12">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Stop Sequences (JSON
+                                                                    array)</label>
+                                                                <textarea class="form-control font-monospace"
+                                                                    id="ollamaStop" rows="2">{{
+                                                                    llm.stop|tojson if llm and llm.stop else '["\n\n"]'
+                                                                }}</textarea>
+                                                                <div class="form-text">Sequences that will stop
+                                                                    generation</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 自定义配置区域 -->
+                            <div id="customConfig" class="config-section" style="display: none;">
+                                <div class="col-12">
+                                    <h5 class="mt-3 mb-3 border-bottom pb-2">Custom LLM Configuration</h5>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label class="form-label">Base URL <span class="text-danger">*</span></label>
+                                        <input type="url" class="form-control" id="customBaseUrl"
+                                            value="{{ llm.base_url if llm else 'https://spark-api-open.xf-yun.com/v2' }}"
+                                            placeholder="https://spark-api-open.xf-yun.com/v2">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 高级参数 -->
+                            <div class="col-12">
+                                <h5 class="mt-3 mb-3 border-bottom pb-2">Advanced Parameters</h5>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Max Tokens</label>
+                                    <input type="number" class="form-control" id="maxTokens"
+                                        value="{{ llm.max_tokens if llm else 32000 }}" min="1" max="32000">
+                                    <div class="form-text">Maximum tokens to generate</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Temperature</label>
+                                    <input type="number" class="form-control" id="temperature"
+                                        value="{{ llm.temperature if llm else 0 }}" min="0" max="2" step="0.1">
+                                    <div class="form-text">Sampling temperature (0-2)</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Timeout (seconds)</label>
+                                    <input type="number" class="form-control" id="timeout"
+                                        value="{{ llm.timeout if llm else 30 }}" min="1" max="300">
+                                    <div class="form-text">Request timeout in seconds</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Max Retries</label>
+                                    <input type="number" class="form-control" id="maxRetries"
+                                        value="{{ llm.max_retries if llm else 3 }}" min="0" max="10">
+                                    <div class="form-text">Maximum number of retry attempts</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Rate Limit (RPM)</label>
+                                    <input type="number" class="form-control" id="rateLimit"
+                                        value="{{ llm.rate_limit if llm else 60 }}" min="1" max="10000">
+                                    <div class="form-text">Requests per minute limit</div>
+                                </div>
+                            </div>
+
+                            <!-- 配置元数据 -->
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Configuration Metadata (JSON)</label>
+                                    <textarea class="form-control font-monospace" id="llmMetadata" rows="4">{{
+                                        llm.metadata|tojson if llm and llm.metadata else '{}'
+                                    }}</textarea>
+                                    <div class="form-text">Additional configuration metadata</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                {{ 'Create' if action == 'create' else 'Update' }}
+                            </button>
+                            <a href="/llms" class="btn btn-secondary btn-lg">Cancel</a>
+                            <button type="button" class="btn btn-outline-success btn-lg ms-auto" id="testConnectionBtn">
+                                <i class="fas fa-plug me-1"></i> Test Connection
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 测试面板 -->
+            <div class="card shadow mt-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="mt-3">
+                                <label class="form-label">Test Result:</label>
+                                <div id="testResult" class="border rounded p-3 bg-light"
+                                    style="min-height: 200px; max-height: 400px; overflow-y: auto;">
+                                    <div class="text-muted text-center py-4">
+                                        <i class="fas fa-robot fa-2x mb-3"></i><br>
+                                        Test results will appear here
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+$(document).ready(function () {
+    const isEdit = {% if action == 'edit' %} true {% else %} false {% endif %};
+    const currentLlmType = '{{ llm.type if llm else "" }}';
+
+    // 加载 LLM 类型
+    $.get('/llms/api/types', function (types) {
+        const $llmType = $('#llmType');
+        types.forEach(type => {
+            const selected = currentLlmType === type.id ? 'selected' : '';
+            $llmType.append(`<option value="${type.id}" ${selected}>${type.name} - ${type.description}</option>`);
+        });
+
+        // 触发类型变更以显示正确的配置区域
+        $('#llmType').trigger('change');
+    });
+
+
+    // 切换 API Key 显示/隐藏
+    $('#toggleApiKey').on('click', function () {
+        const $apiKey = $('#apiKey');
+        const type = $apiKey.attr('type');
+        $apiKey.attr('type', type === 'password' ? 'text' : 'password');
+        $(this).find('i').toggleClass('fa-eye fa-eye-slash');
+    });
+
+    // LLM 类型变化事件
+    $('#llmType').on('change', function () {
+        const type = $(this).val();
+
+        // 隐藏所有配置区域
+        $('.config-section').hide();
+
+        // 显示对应的配置区域
+        if (type === 'openai') {
+            $('#openaiConfig').show();
+        } else if (type === 'azure') {
+            $('#azureConfig').show();
+        } else if (type === 'ollama') {
+            $('#ollamaConfig').show();
+            // 默认不需要 API key
+            $('#apiKey').prop('required', false);
+            $('#apiKey').closest('.mb-3').find('.form-text').text('Optional API key (if Ollama requires authentication)');
+        } else if (type === 'custom') {
+            $('#customConfig').show();
+        } else {
+            // 其他类型需要 API key
+            $('#apiKey').prop('required', true);
+            $('#apiKey').closest('.mb-3').find('.form-text').text('Your LLM API key');
+        }
+
+        // 根据类型设置默认值
+        if (!isEdit) {
+            if (type === 'ollama') {
+                $('#ollamaBaseUrl').val('http://localhost:11434');
+                $('#ollamaModel').val('llama2');
+                $('#model').val('llama2');
+                $('#baseUrl').val('http://localhost:11434');
+                $('#apiKey').val('').prop('required', false);
+                $('#temperature').val(0.7);
+                $('#maxTokens').val(1000);
+            }
+            if (type === 'openai') {
+                $('#baseUrl').val('https://api.openai.com/v1');
+                $('#model').val('gpt-3.5-turbo');
+            } else if (type === 'azure') {
+                $('#endpoint').val('');
+                $('#apiVersion').val('2023-05-15');
+            } else if (type === 'anthropic') {
+                $('#model').val('claude-3-haiku-20240307');
+            }
+        }
+    });
+
+    // 收集 Ollama 配置数据
+    function collectOllamaConfig() {
+        return {
+            base_url: $('#ollamaBaseUrl').val().trim(),
+            model: $('#ollamaModel').val().trim(),
+            top_p: parseFloat($('#ollamaTopP').val()) || 0.9,
+            top_k: parseInt($('#ollamaTopK').val()) || 40,
+            repeat_penalty: parseFloat($('#ollamaRepeatPenalty').val()) || 1.1,
+            stop: (function () {
+                try {
+                    return JSON.parse($('#ollamaStop').val());
+                } catch {
+                    return ["\n\n"];
+                }
+            })()
+        };
+    }
+    // 表单提交
+    $('#llmForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = {
+            type: $('#llmType').val(),
+            id: $('#id').val().trim(),
+            api_key: $('#apiKey').val().trim(),
+            max_tokens: parseInt($('#maxTokens').val()) || 1000,
+            temperature: parseFloat($('#temperature').val()),
+            timeout: parseInt($('#timeout').val()) || 30,
+            max_retries: parseInt($('#maxRetries').val()) || 3,
+            rate_limit: parseInt($('#rateLimit').val()) || 60
+        };
+
+        // 根据类型添加特定配置
+        if (formData.type === 'ollama') {
+            const ollamaConfig = collectOllamaConfig();
+            Object.assign(formData, ollamaConfig);
+
+            if (!ollamaConfig.base_url) {
+                alert('Ollama server URL is required');
+                return;
+            }
+            if (!ollamaConfig.model) {
+                alert('Ollama model name is required');
+                return;
+            }
+        }
+
+        if (!formData.type) {
+            alert('LLM type is required');
+            return;
+        }
+
+
+        // 根据类型添加特定字段
+        if (formData.type === 'openai') {
+            formData.base_url = $('#baseUrl').val().trim() || 'https://api.openai.com/v1';
+            if (!formData.api_key) {
+                alert('API key is required');
+                return;
+            }
+        } else if (formData.type === 'azure') {
+            formData.endpoint = $('#endpoint').val().trim();
+            formData.api_version = $('#apiVersion').val().trim();
+            if (!formData.endpoint) {
+                alert('Azure endpoint is required');
+                return;
+            }
+            if (!formData.api_key) {
+                alert('API key is required');
+                return;
+            }
+        } else if (formData.type === 'custom') {
+            formData.base_url = $('#customBaseUrl').val().trim();
+            if (!formData.base_url) {
+                alert('Custom base URL is required');
+                return;
+            }
+            if (!formData.api_key) {
+                alert('API key is required');
+                return;
+            }
+        }
+
+        // 解析元数据
+        try {
+            const metadata = $('#llmMetadata').val().trim();
+            if (metadata) {
+                formData.metadata = JSON.parse(metadata);
+            }
+        } catch (e) {
+            alert(`Invalid metadata JSON: ${e.message}`);
+            return;
+        }
+
+        // 提交
+        const method = isEdit ? 'PUT' : 'POST';
+        const url = isEdit ? `/llms/api/${formData.id}` : '/llms/api';
+
+        $('#submitBtn').prop('disabled', true).html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+        );
+
+        $.ajax({
+            url: url,
+            type: method,
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function (response) {
+                alert(isEdit ? 'LLM updated successfully!' : 'LLM created successfully!');
+                window.location.href = '/llms';
+            },
+            error: function (xhr) {
+                $('#submitBtn').prop('disabled', false).html(isEdit ? 'Update' : 'Create');
+                const errorMsg = xhr.responseJSON?.error || 'Unknown error';
+                alert(`Save failed: ${errorMsg}`);
+            }
+        });
+    });
+
+    // 测试连接
+    $('#testConnectionBtn').on('click', function () {
+        // 首先保存配置
+        const formData = collectFormDataForTest();
+        if (!formData) return;
+
+        const $btn = $(this);
+        const originalHtml = $btn.html();
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Testing...');
+
+        // 临时保存配置用于测试
+        $.ajax({
+            url: `/llms/api/test`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function (response) {
+                if (response.success) {
+                    showTestResult('success', 'Connection Test', response.message);
+                } else {
+                    showTestResult('error', 'Connection Failed', response.error);
+                }
+                $btn.prop('disabled', false).html(originalHtml);
+            },
+            error: function (xhr) {
+                showTestResult('error', 'Test Failed', xhr.responseJSON?.error || 'Network error');
+                $btn.prop('disabled', false).html(originalHtml);
+            },
+        });
+    });
+
+
+
+
+    // 清除测试结果
+    $('#clearTestBtn').on('click', function () {
+        $('#testResult').html(`
+            <div class="text-muted text-center py-4">
+                <i class="fas fa-robot fa-2x mb-3"></i><br>
+                Test results will appear here
+            </div>
+        `);
+    });
+
+    // 辅助函数
+    function collectFormDataForTest() {
+        const formData = {
+            type: $('#llmType').val(),
+            api_key: $('#apiKey').val().trim()
+        };
+
+        if (!formData.type) {
+            alert('LLM type is required');
+            return null;
+        }
+
+
+        // 根据类型添加特定字段
+        if (formData.type === 'openai') {
+            formData.base_url = $('#baseUrl').val().trim() || 'https://api.openai.com/v1';
+            if (!formData.api_key) {
+                alert('API key is required for testing');
+                return null;
+            }
+
+        } else if (formData.type === 'azure') {
+            formData.endpoint = $('#endpoint').val().trim();
+            formData.api_version = $('#apiVersion').val().trim();
+            if (!formData.api_key) {
+                alert('API key is required for testing');
+                return null;
+            }
+
+        } else if (formData.type === 'custom') {
+            formData.base_url = $('#customBaseUrl').val().trim();
+            
+            if (!formData.api_key) {
+                alert('API key is required for testing');
+                return null;
+            }
+
+        } else if (formData.type === 'ollama') {
+            formData.base_url = $('#ollamaBaseUrl').val().trim();
+            formData.model = $('#ollamaModel').val().trim();
+            if (!formData.model) {
+                alert('Model name is required for testing');
+                return null;
+            }
+        }
+        return formData;
+    }
+
+    function showTestResult(type, title, message) {
+        const icon = type === 'success' ? 'check-circle' : 'times-circle';
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+
+        $('#testResult').html(`
+            <div class="alert ${alertClass}">
+                <h6><i class="fas fa-${icon} me-2"></i>${title}</h6>
+                <p class="mb-0">${message}</p>
+            </div>
+        `);
+    }
+});
+</script>
+{% endblock %}
