@@ -1,0 +1,19 @@
+{
+  "name": "Coreference resolution",
+  "type": "LLM",
+  "inputs": [
+    "text"
+  ],
+  "outputs": {
+    "name": "text",
+    "type": "str"
+  },
+  "persistence": {},
+  "model": "gpt-oss_120b",
+  "prompt_template": {
+    "description": "Biomedical abstract coreference resolution",
+    "system": "You are a biomedical coreference specialist.",
+    "human": "Task: Step 1: find every pronoun (it, he, she, him, her, his, they, their, them, this, that, these, those) in the text below and write a single-line mapping:\npronoun1<tab>antecedent1\npronoun2<tab>antecedent2\n...\n(use exact surface strings, no quotes, no explanations)\n\nStep 2: replace each pronoun with its antecedent **literally**, keeping all braces, commas, spaces, parentheses intact.\nOutput only the final substituted text, one single block, no intro, no notes.\n\n- Output the **complete** substituted text only, , no comments, no notes.\n- **Do not add any introductory sentences like \"Here is the output...\"\n- Do **not** skip any pronoun.\n\nBiomedical abstract:\n{text}"
+  },
+  "tools": []
+}

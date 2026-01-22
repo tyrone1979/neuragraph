@@ -1,0 +1,23 @@
+{
+  "description": "subgraph NER for biomedical doc by LLM",
+  "name": "subgraph for NER by LLM",
+  "nodes": [
+    "dependency_parse",
+    "entity_extract"
+  ],
+  "edges": [
+    [
+      "START",
+      "dependency_parse"
+    ],
+    [
+      "dependency_parse",
+      "entity_extract"
+    ],
+    [
+      "entity_extract",
+      "END"
+    ]
+  ],
+  "created_at": "2026-01-19T16:39:13.375408"
+}

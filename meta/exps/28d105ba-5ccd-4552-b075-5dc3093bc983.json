@@ -1,0 +1,15 @@
+{
+  "dataset": "6504332.csv",
+  "runner_type": "graph",
+  "runner_id": "bt",
+  "runner_display": "build_triples (bt) - Workflow",
+  "persistence": "sqlite",
+  "samples": 1,
+  "exp_id": "28d105ba-5ccd-4552-b075-5dc3093bc983",
+  "name": "bt_6504332.csv_20260109",
+  "status": "pending",
+  "duration": 0,
+  "progress": 0,
+  "created_at": "2026-01-09T14:26:11.858009",
+  "updated_at": "2026-01-09T14:26:25.428607"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Biology Named Entity Recognition by Flair",
+  "type": "PGM",
+  "inputs": [
+    "sentence",
+    "labels"
+  ],
+  "outputs": {
+    "name": "predicted",
+    "type": "dict"
+  },
+  "process": "from flair.data import Sentence\ntagger=get_plugin(\"tag\")\nsentence = Sentence(state['sentence'])\ntagger.predict(sentence)\n__result__={}\n\nlabels=[]\nif isinstance(state['labels'],str):\n    labels=state['labels'].split(',')\nelse:\n    labels=state['labels']\n\nfor label in labels:\n    __result__[label]=[]\n    for entity in sentence.get_spans('ner'):\n        if entity.tag==label:\n            __result__[label].append(entity.text)",
+  "created_at": "2026-01-19T16:59:28.405065"
+}

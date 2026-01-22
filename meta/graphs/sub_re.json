@@ -1,0 +1,22 @@
+{
+  "description": "extract relationship triples by sentence unit.",
+  "name": "re_subgraph",
+  "nodes": [
+    "dependency_parse",
+    "relation_extraction"
+  ],
+  "edges": [
+    [
+      "START",
+      "dependency_parse"
+    ],
+    [
+      "dependency_parse",
+      "relation_extraction"
+    ],
+    [
+      "relation_extraction",
+      "END"
+    ]
+  ]
+}

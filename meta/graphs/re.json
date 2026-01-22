@@ -1,0 +1,31 @@
+{
+    "name": "relation_extraction",
+    "description": "A relation extraction graph",
+    "state": {
+      "doc": "str",
+      "doc_id": "str",
+      "heads":  "list",
+      "tails":  "list",
+      "test":   "list",
+      "triples": "list",
+      "pairs":  "list",
+      "re":         "str",
+      "hypernyms": "list",
+      "real":     "list",
+      "predicted_re": "dict",
+      "annotated_re": "dict",
+      "metrics":      "dict",
+      "head_mesh_map":"dict",
+      "tail_mesh_map":  "dict",
+      "output": "Any"
+    },
+     "nodes": ["hypernym_identification","create_evaluation_pairs"
+       ,"sub_rv","metrics"],
+    "edges": [
+      ["START", "hypernym_identification"],
+      ["hypernym_identification", "create_evaluation_pairs"],
+      ["create_evaluation_pairs", "sub_rv"],
+      ["sub_rv", "metrics"],
+      ["metrics","END"]
+    ]
+}

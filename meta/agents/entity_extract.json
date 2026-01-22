@@ -1,0 +1,20 @@
+{
+  "name": "Entity extraction by LLM",
+  "type": "LLM",
+  "inputs": [
+    "tree",
+    "labels"
+  ],
+  "outputs": {
+    "name": "predicted",
+    "type": "dict"
+  },
+  "model": "gpt-oss_120b",
+  "prompt_template": {
+    "description": "Extract entities from CoNLL-U dependency tree",
+    "system": "You are a named entity recognition NLP parser",
+    "human": "Task: Given a CoNLL-U table, output all {labels}-like entities.\n\nOutput only surface forms, no extra text.\nMerge consecutive tokens into the longest possible span.\nStrip away leading degree/modifier adjectives (e.g., massive, high, first).\nDrop measurement/container/compound words such as \"level\", \"serum\", \"compounds\" when they enclose the {labels}; keep only the core {labels} name.\nExclude spans that merely combine an anatomical site with a non-specific noun like “involvement”, “function”, “enzyme” — these are not {labels}.\nFor conjunction (DEPREL=conj) structures: list the conj head as a separate entity.\nIf nothing fits, return nothing.\nCoNLL-U:{tree}\nOutput JSON format:\n{{ \"label1\": [...] ,\"label2\": [...] ,...}}"
+  },
+  "tools": [],
+  "created_at": "2026-01-19T17:00:02.167997"
+}

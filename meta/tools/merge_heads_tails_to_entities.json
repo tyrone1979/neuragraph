@@ -1,0 +1,22 @@
+{
+  "name": "Merge Heads & Tails to Entities",
+  "description": "Merge two lists of head/tail entities into a unified 'text,type,mesh' string format, one entity per line.",
+  "parameters": {
+    "properties": {
+      "heads": {
+        "type": "array",
+        "description": "List of head entities. Each entity is a dict with keys: text (str), type (str), mesh (str)."
+      },
+      "tails": {
+        "type": "array",
+        "description": "List of tail entities. Same structure as heads."
+      }
+    },
+    "required": [
+      "heads",
+      "tails"
+    ]
+  },
+  "code": "def func(heads: list, tails: list) -> str:\n    heads_formatted = [f\"{d['text']},{d['type']},{d['mesh']}\" for d in heads]\n    tails_formatted = [f\"{d['text']},{d['type']},{d['mesh']}\" for d in tails]\n    entities = heads_formatted + tails_formatted\n    return \"\\n\".join(entities)",
+  "created_at": "2026-01-21T14:02:27.618109"
+}

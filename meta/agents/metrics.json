@@ -1,0 +1,14 @@
+{
+  "name": "Performance metrics calculation",
+  "type": "PGM",
+  "inputs": [
+    "predicted",
+    "expected"
+  ],
+  "outputs": {
+    "name": "metrics",
+    "type": "dict"
+  },
+  "process": "calculator=get_plugin('MetricsCalculation')\n__result__=calculator.calculate(state['expected'],state['predicted'])\n",
+  "created_at": "2026-01-20T13:20:42.956076"
+}

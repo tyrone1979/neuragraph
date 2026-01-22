@@ -1,0 +1,15 @@
+tree,labels,expected
+"1	Treatment	treatment	NOUN	_	_	0	root	_	_
+2	of	of	ADP	_	_	5	case	_	_
+3	tacrolimus-related	tacrolimus-related	ADJ	_	_	5	amod	_	_
+4	adverse	adverse	ADJ	_	_	5	amod	_	_
+5	effects	effect	NOUN	_	Number=Plur	1	obl	_	_
+6	by	by	ADP	_	_	7	case	_	_
+7	conversion	conversion	NOUN	_	_	1	obl	_	_
+8	to	to	ADP	_	_	9	case	_	_
+9	cyclosporine	cyclosporine	PROPN	_	_	7	obl	_	_
+10	in	in	ADP	_	_	13	case	_	_
+11	liver	liver	NOUN	_	_	12	compound	_	_
+12	transplant	transplant	NOUN	_	_	13	compound	_	_
+13	recipients	recipient	NOUN	_	Number=Plur	7	obl	_	_
+14	.	.	PUNCT	_	_	1	punct	_	_","Chemical,Disease","{'Chemical':['tocrolimus','cyclosporine'] }"

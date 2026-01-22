@@ -1,0 +1,10 @@
+doc_id,triples,synonyms,doc,source
+10743694,"Indications | were | neurotoxicity ( 20 ) , ( insulin-dependent ) diabetes mellitus ( IDDM ) ( 5 ) , nephrotoxicity ( 3 ) , gastrointestinal ( GI ) toxicity ( 6 ) , and cardiomyopathy ( 1 ) ,
+Indications | were | neurotoxicity ( 15 ) , IDDM ( 12 ) , nephrotoxicity ( 3 ) , GI toxicity ( 5 ) , hepatotoxicity ( 6 ) , post-transplant lmphoproliferate disease ( PTLD ) ( 2 ) , cardiomyopathy ( 1 ) , hemolytic anemia ( 1 ) , and pruritus ( 1 )","cyclosporine-based immunosuppression|is|CyA
+CyA|is|cyclosporine-based immunosuppression
+insulin-dependent diabetes mellitus|is|IDDM
+IDDM|is|insulin-dependent diabetes mellitus
+gastrointestinal toxicity|is|GI
+GI|is|gastrointestinal toxicity
+post-transplant lmphoproliferate disease|is|PTLD
+PTLD|is|post-transplant lmphoproliferate disease",CDR,dev.txt

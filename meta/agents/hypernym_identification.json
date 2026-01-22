@@ -1,0 +1,22 @@
+{
+  "name": "Hypernym identification",
+  "type": "LLM",
+  "inputs": [
+    "heads",
+    "tails"
+  ],
+  "outputs": {
+    "name": "hypernyms",
+    "type": "list"
+  },
+  "model": "gpt-oss_120b",
+  "prompt_template": {
+    "description": "Identify the biomedical hypernym (super-class) from a given pair of entities based on explicit MeSH tree numbers or same-as links in the provided entity list.",
+    "system": "You are a precise biomedical ontology analyst. You can use tools to preprocess data. When you receive a tool result, you MUST continue the analysis and produce the final output in the exact specified format. Never stop after calling a tool or receiving its result without completing the final answer.",
+    "human": "You are performing biomedical hypernym identification.\n\nInput data:\nHeads: {heads}\nTails: {tails}\n\nMerge the provided heads and tails into a unified entity list.\nCall the tool `merge_heads_tails_to_entities` with the exact heads and tails provided above.\n\nOnce you receive the merged entities string from the tool (format: text,type,mesh per line),\nanalyze it according to the following strict rules:\n\nRules:\n1. Entities of different types (e.g., Disease vs Chemical) have NO hierarchical relationship.\n2. For each entity, find its immediate hypernym ONLY within entities of the SAME type.\n3. A hypernym must share the exact same MeSH code prefix or be explicitly broader within the same type bucket.\n4. If no hypernym exists in the same type, output nothing for that entity.\n5. Never invent relationships across types.\n\nFinal output format (strict, no extra text):\nentity_text→hypernym_text\nOne per line, only for entities that have a hypernym.\nIf none, output nothing.\""
+  },
+  "tools": [
+    "merge_heads_tails_to_entities"
+  ],
+  "created_at": "2026-01-21T14:47:46.477267"
+}

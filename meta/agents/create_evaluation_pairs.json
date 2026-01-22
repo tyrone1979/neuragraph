@@ -1,0 +1,16 @@
+{
+  "name": "Create entity pairs",
+  "type": "PGM",
+  "inputs": [
+    "doc_id",
+    "hypernyms",
+    "heads",
+    "tails"
+  ],
+  "outputs": {
+    "name": "pairs",
+    "type": "list"
+  },
+  "process": "    hypernyms = state['hypernyms']\n    #triples = state['triples']\n    heads_text = [d['text'] for d in state['heads']]\n    tails_text = [d['text'] for d in state['tails']]\n    filter_heads = dict.fromkeys(h for h in heads_text if h not in hypernyms)\n    filter_tails = dict.fromkeys(t for t in tails_text if t not in hypernyms)\n    pairs = []\n    for head in filter_heads:\n        for tail in filter_tails:\n            pairs.append((head, tail))\n    state['pairs'] = pairs",
+  "created_at": "2026-01-18T15:06:05.145781"
+}

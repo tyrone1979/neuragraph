@@ -1,0 +1,12 @@
+{
+
+    "name": "iteration for relation extraction",
+    "type": "SUB",
+    "inputs": ["sentences"],
+    "idx": "sentence",
+    "outputs": {
+      "name": "triples",
+      "type": "list"
+    }
+
+}

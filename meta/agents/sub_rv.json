@@ -1,0 +1,10 @@
+{
+    "name": "iteration for relation verification",
+    "type": "SUB",
+    "inputs": ["pairs"],
+    "idx": "pair",
+    "outputs": {
+      "name": "predicted_re",
+      "type": "dict"
+    }
+}

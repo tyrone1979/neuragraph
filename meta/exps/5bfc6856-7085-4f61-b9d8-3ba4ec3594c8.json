@@ -1,0 +1,14 @@
+{
+  "dataset": "dev_11.txt",
+  "runner_type": "graph",
+  "runner_id": "ner_4_doc_graph",
+  "runner_display": "NER Doc level by Flair (ner_4_doc_graph) - Workflow",
+  "samples": 11,
+  "exp_id": "5bfc6856-7085-4f61-b9d8-3ba4ec3594c8",
+  "name": "ner_4_doc_graph_dev_11.txt_20260120125547",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-01-20T12:55:47.324270",
+  "updated_at": "2026-01-20T14:04:03.978233",
+  "id": "5bfc6856-7085-4f61-b9d8-3ba4ec3594c8"
+}

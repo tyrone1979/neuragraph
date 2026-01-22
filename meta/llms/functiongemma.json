@@ -1,0 +1,19 @@
+{
+  "type": "ollama",
+  "api_key": "",
+  "max_tokens": 1000,
+  "temperature": 0.7,
+  "timeout": 30,
+  "max_retries": 3,
+  "rate_limit": 60,
+  "base_url": "http://localhost:11434",
+  "model": "functiongemma:latest",
+  "top_p": 0.9,
+  "top_k": 40,
+  "repeat_penalty": 1.1,
+  "stop": [
+    "\n\n"
+  ],
+  "metadata": {},
+  "created_at": "2026-01-18T15:08:48.859173"
+}

@@ -1,0 +1,19 @@
+{
+  "type": "ollama",
+  "id": "mistral-7b-instruct-q8_0",
+  "api_key": "",
+  "max_tokens": 1000,
+  "temperature": 0,
+  "timeout": 30,
+  "max_retries": 3,
+  "rate_limit": 60,
+  "base_url": "http://172.17.19.238:11434",
+  "model": "mistral:7b-instruct-q8_0",
+  "top_p": 0.9,
+  "top_k": 40,
+  "repeat_penalty": 1.1,
+  "stop": [
+    "\n\n"
+  ],
+  "metadata": {}
+}

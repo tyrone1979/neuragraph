@@ -1,0 +1,37 @@
+{
+  "description": "NER for biomedical doc",
+  "name": "NER Doc level by Flair",
+  "nodes": [
+    "sentence_split",
+    "sub_ner",
+    "metrics",
+    "map_cid_txt_4_ner"
+  ],
+  "edges": [
+    [
+      "map_cid_txt_4_ner",
+      "sub_ner"
+    ],
+    [
+      "sentence_split",
+      "sub_ner"
+    ],
+    [
+      "sub_ner",
+      "metrics"
+    ],
+    [
+      "metrics",
+      "END"
+    ],
+    [
+      "START",
+      "map_cid_txt_4_ner"
+    ],
+    [
+      "START",
+      "sentence_split"
+    ]
+  ],
+  "created_at": "2026-01-20T13:34:33.233952"
+}

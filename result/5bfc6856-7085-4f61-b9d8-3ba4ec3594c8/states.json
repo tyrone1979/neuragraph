@@ -1,0 +1,841 @@
+{
+  "1": {
+    "expected": {
+      "Disease": [
+        "Tricuspid valve regurgitation",
+        "toxicity",
+        "tricuspid regurgitation",
+        "atrial flutter",
+        "congestive heart failure",
+        "tricuspid regurgitation",
+        "atrial flutter",
+        "cardiac disease",
+        "congenital heart disease",
+        "neurologic depression",
+        "cyanosis",
+        "cardiac arrhythmia"
+      ],
+      "Chemical": [
+        "lithium carbonate",
+        "lithium",
+        "lithium",
+        "Lithium carbonate"
+      ]
+    },
+    "expected_entities": {
+      "Disease": [
+        "Tricuspid valve regurgitation",
+        "toxicity",
+        "tricuspid regurgitation",
+        "atrial flutter",
+        "congestive heart failure",
+        "tricuspid regurgitation",
+        "atrial flutter",
+        "cardiac disease",
+        "congenital heart disease",
+        "neurologic depression",
+        "cyanosis",
+        "cardiac arrhythmia"
+      ],
+      "Chemical": [
+        "lithium carbonate",
+        "lithium",
+        "lithium",
+        "Lithium carbonate"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "predicted": {
+      "Chemical": [
+        "lithium carbonate",
+        "lithium",
+        "lithium",
+        "Lithium carbonate"
+      ],
+      "Disease": [
+        "Tricuspid valve regurgitation",
+        "toxicity",
+        "tricuspid regurgitation",
+        "atrial flutter",
+        "congestive heart failure",
+        "tricuspid regurgitation",
+        "atrial flutter",
+        "cardiac disease",
+        "congenital heart disease",
+        "neurologic depression",
+        "cyanosis",
+        "cardiac arrhythmia"
+      ]
+    },
+    "sentences": [
+      "Tricuspid valve regurgitation and lithium carbonate toxicity in a newborn infant.",
+      "A newborn with massive tricuspid regurgitation, atrial flutter, congestive heart failure, and a high serum lithium level is described.",
+      "This is the first patient to initially manifest tricuspid regurgitation and atrial flutter, and the 11th described patient with cardiac disease among infants exposed to lithium compounds in the first trimester of pregnancy.",
+      "Sixty-three percent of these infants had tricuspid valve involvement.",
+      "Lithium carbonate may be a factor in the increasing incidence of congenital heart disease when taken during early pregnancy.",
+      "It also causes neurologic depression, cyanosis, and cardiac arrhythmia when consumed prior to delivery."
+    ],
+    "text": "Tricuspid valve regurgitation and lithium carbonate toxicity in a newborn infant. A newborn with massive tricuspid regurgitation, atrial flutter, congestive heart failure, and a high serum lithium level is described. This is the first patient to initially manifest tricuspid regurgitation and atrial flutter, and the 11th described patient with cardiac disease among infants exposed to lithium compounds in the first trimester of pregnancy. Sixty-three percent of these infants had tricuspid valve involvement. Lithium carbonate may be a factor in the increasing incidence of congenital heart disease when taken during early pregnancy. It also causes neurologic depression, cyanosis, and cardiac arrhythmia when consumed prior to delivery."
+  },
+  "2": {
+    "expected": {
+      "Disease": [
+        "dyskinesia",
+        "neurologically-impaired",
+        "neurologic impairment",
+        "dyskinesia",
+        "seizures",
+        "movement disorders",
+        "dyskinesia",
+        "movement disorders"
+      ],
+      "Chemical": [
+        "Phenobarbital",
+        "phenobarbital",
+        "phenobarbital",
+        "Phenobarbital"
+      ]
+    },
+    "expected_entities": {
+      "Disease": [
+        "dyskinesia",
+        "neurologically-impaired",
+        "neurologic impairment",
+        "dyskinesia",
+        "seizures",
+        "movement disorders",
+        "dyskinesia",
+        "movement disorders"
+      ],
+      "Chemical": [
+        "Phenobarbital",
+        "phenobarbital",
+        "phenobarbital",
+        "Phenobarbital"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.7142857142857143,
+      "recall": 0.8333333333333334,
+      "f1": 0.7692307692307693
+    },
+    "predicted": {
+      "Chemical": [
+        "Phenobarbital-induced",
+        "phenobarbital",
+        "phenobarbital",
+        "Phenobarbital",
+        "anticonvulsant drugs"
+      ],
+      "Disease": [
+        "dyskinesia",
+        "neurologic impairment",
+        "dyskinesia",
+        "seizures",
+        "movement disorders",
+        "dyskinesia",
+        "movement disorders"
+      ]
+    },
+    "sentences": [
+      "Phenobarbital-induced dyskinesia in a neurologically-impaired child.",
+      "A 2-year-old child with known neurologic impairment developed a dyskinesia soon after starting phenobarbital therapy for seizures.",
+      "Known causes of movement disorders were eliminated after evaluation.",
+      "On repeat challenge with phenobarbital, the dyskinesia recurred.",
+      "Phenobarbital should be added to the list of anticonvulsant drugs that can cause movement disorders."
+    ],
+    "text": "Phenobarbital-induced dyskinesia in a neurologically-impaired child. A 2-year-old child with known neurologic impairment developed a dyskinesia soon after starting phenobarbital therapy for seizures. Known causes of movement disorders were eliminated after evaluation. On repeat challenge with phenobarbital, the dyskinesia recurred. Phenobarbital should be added to the list of anticonvulsant drugs that can cause movement disorders."
+  },
+  "3": {
+    "expected": {
+      "Disease": [
+        "epileptic",
+        "drowsiness"
+      ],
+      "Chemical": [
+        "ammonia",
+        "valproic acid",
+        "Valproic acid",
+        "VPA",
+        "VPA",
+        "Ammonia",
+        "NH3",
+        "VPA",
+        "VPA",
+        "NH3",
+        "VPA"
+      ]
+    },
+    "expected_entities": {
+      "Disease": [
+        "epileptic",
+        "drowsiness"
+      ],
+      "Chemical": [
+        "ammonia",
+        "valproic acid",
+        "Valproic acid",
+        "VPA",
+        "VPA",
+        "Ammonia",
+        "NH3",
+        "VPA",
+        "VPA",
+        "NH3",
+        "VPA"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.6666666666666666,
+      "recall": 1.0,
+      "f1": 0.8
+    },
+    "predicted": {
+      "Chemical": [
+        "ammonia",
+        "valproic acid",
+        "Valproic acid",
+        "VPA",
+        "antiepileptic drugs",
+        "VPA",
+        "Ammonia",
+        "NH3",
+        "VPA",
+        "VPA-induced",
+        "NH3",
+        "VPA"
+      ],
+      "Disease": [
+        "epileptic",
+        "drowsiness",
+        "obtundation"
+      ]
+    },
+    "sentences": [
+      "Acute changes of blood ammonia may predict short-term adverse effects of valproic acid.",
+      "Valproic acid (VPA) was given to 24 epileptic patients who were already being treated with other antiepileptic drugs.",
+      "A standardized loading dose of VPA was administered, and venous blood was sampled at 0, 1, 2, 3, and 4 hours.",
+      "Ammonia (NH3) was higher in patients who, during continuous therapy, complained of drowsiness (7 patients) than in those who were symptom-free (17 patients), although VPA plasma levels were similar in both groups.",
+      "By measuring VPA-induced changes of blood NH3 content, it may be possible to identify patients at higher risk of obtundation when VPA is given chronically."
+    ],
+    "text": "Acute changes of blood ammonia may predict short-term adverse effects of valproic acid. Valproic acid (VPA) was given to 24 epileptic patients who were already being treated with other antiepileptic drugs. A standardized loading dose of VPA was administered, and venous blood was sampled at 0, 1, 2, 3, and 4 hours. Ammonia (NH3) was higher in patients who, during continuous therapy, complained of drowsiness (7 patients) than in those who were symptom-free (17 patients), although VPA plasma levels were similar in both groups. By measuring VPA-induced changes of blood NH3 content, it may be possible to identify patients at higher risk of obtundation when VPA is given chronically."
+  },
+  "4": {
+    "expected": {
+      "Disease": [
+        "catalepsy",
+        "hyperactivity"
+      ],
+      "Chemical": [
+        "haloperidol",
+        "apomorphine",
+        "DA",
+        "DOPAC",
+        "DA"
+      ]
+    },
+    "expected_entities": {
+      "Disease": [
+        "catalepsy",
+        "hyperactivity"
+      ],
+      "Chemical": [
+        "haloperidol",
+        "apomorphine",
+        "DA",
+        "DOPAC",
+        "DA"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 0.6666666666666666,
+      "f1": 0.5714285714285714
+    },
+    "predicted": {
+      "Chemical": [
+        "Calcitonin",
+        "haloperidol-induced",
+        "apomorphine-induced",
+        "DA",
+        "DOPAC",
+        "DA-related"
+      ],
+      "Disease": [
+        "catalepsy",
+        "hyperactivity"
+      ]
+    },
+    "sentences": [
+      "Effects of calcitonin on rat extrapyramidal motor system: behavioral and biochemical data.",
+      "The effects of i.v.c. injection of human and salmon calcitonin on biochemical and behavioral parameters related to the extrapyramidal motor system, were investigated in male rats.",
+      "Calcitonin injection resulted in a potentiation of haloperidol-induced catalepsy and a partial prevention of apomorphine-induced hyperactivity.",
+      "Moreover calcitonin induced a significant decrease in nigral GAD activity but no change in striatal DA and DOPAC concentration or GAD activity.",
+      "The results are discussed in view of a primary action of calcitonin on the striatonigral GABAergic pathway mediating the DA-related behavioral messages of striatal origin."
+    ],
+    "text": "Effects of calcitonin on rat extrapyramidal motor system: behavioral and biochemical data. The effects of i.v.c. injection of human and salmon calcitonin on biochemical and behavioral parameters related to the extrapyramidal motor system, were investigated in male rats. Calcitonin injection resulted in a potentiation of haloperidol-induced catalepsy and a partial prevention of apomorphine-induced hyperactivity. Moreover calcitonin induced a significant decrease in nigral GAD activity but no change in striatal DA and DOPAC concentration or GAD activity. The results are discussed in view of a primary action of calcitonin on the striatonigral GABAergic pathway mediating the DA-related behavioral messages of striatal origin."
+  },
+  "5": {
+    "expected": {
+      "Disease": [
+        "cardiac hypertrophy",
+        "cardiac hypertrophy",
+        "hypertrophic",
+        "hypertrophy",
+        "hypertrophic",
+        "hypertrophy",
+        "hyperplasia"
+      ],
+      "Chemical": [
+        "isoproterenol",
+        "isoproterenol",
+        "ISO",
+        "hydroxyproline",
+        "hydroxyproline",
+        "ISO",
+        "ISO"
+      ]
+    },
+    "expected_entities": {
+      "Disease": [
+        "cardiac hypertrophy",
+        "cardiac hypertrophy",
+        "hypertrophic",
+        "hypertrophy",
+        "hypertrophic",
+        "hypertrophy",
+        "hyperplasia"
+      ],
+      "Chemical": [
+        "isoproterenol",
+        "isoproterenol",
+        "ISO",
+        "hydroxyproline",
+        "hydroxyproline",
+        "ISO",
+        "ISO"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.75,
+      "recall": 0.8571428571428571,
+      "f1": 0.8
+    },
+    "predicted": {
+      "Chemical": [
+        "isoproterenol-induced",
+        "isoproterenol",
+        "ISO",
+        "hydroxyproline",
+        "hydroxyproline",
+        "ISO-treated",
+        "ISO"
+      ],
+      "Disease": [
+        "cardiac hypertrophy",
+        "cardiac hypertrophy",
+        "hypertrophy",
+        "hypertrophy",
+        "hyperplasia"
+      ]
+    },
+    "sentences": [
+      "Development of isoproterenol-induced cardiac hypertrophy.",
+      "The development of cardiac hypertrophy was studied in adult female Wistar rats following daily subcutaneous injections of isoproterenol (ISO) (0.3 mg/kg body weight).",
+      "A time course was established for the change in tissue mass, RNA and DNA content, as well as hydroxyproline content.",
+      "Heart weight increased 44% after 8 days of treatment with a half time of 3.4 days.",
+      "Ventricular RNA content was elevated 26% after 24 h of a single injection and reached a maximal level following 8 days of therapy.",
+      "The half time for RNA accumulation was 2.0 days.",
+      "The total content of hydroxyproline remained stable during the first 2 days of treatment but increased 46% after 4 days of therapy.",
+      "Ventricular DNA content was unchanged during the early stage (1-4 days) of hypertrophic growth but increased to a new steady-state level 19% above the controls after 8 days of treatment.",
+      "Intraventricular pressures and coronary flow measures were similar for control and experimental animals following 4 days of developed hypertrophy.",
+      "However, dP/dt in the ISO-treated hearts was slightly but significantly (P less than 0.05) elevated.",
+      "These data indicate that the adaptive response to ISO shows an early hypertrophic phase (1-4 days) characterized by a substantial increase in RNA content and cardiac mass in the absence of changes in DNA.",
+      "However, prolonged stimulation (8-12 days) appears to represent a complex integration of both cellular hypertrophy and hyperplasia within the heart."
+    ],
+    "text": "Development of isoproterenol-induced cardiac hypertrophy. The development of cardiac hypertrophy was studied in adult female Wistar rats following daily subcutaneous injections of isoproterenol (ISO) (0.3 mg/kg body weight). A time course was established for the change in tissue mass, RNA and DNA content, as well as hydroxyproline content. Heart weight increased 44% after 8 days of treatment with a half time of 3.4 days. Ventricular RNA content was elevated 26% after 24 h of a single injection and reached a maximal level following 8 days of therapy. The half time for RNA accumulation was 2.0 days. The total content of hydroxyproline remained stable during the first 2 days of treatment but increased 46% after 4 days of therapy. Ventricular DNA content was unchanged during the early stage (1-4 days) of hypertrophic growth but increased to a new steady-state level 19% above the controls after 8 days of treatment. Intraventricular pressures and coronary flow measures were similar for control and experimental animals following 4 days of developed hypertrophy. However, dP/dt in the ISO-treated hearts was slightly but significantly (P less than 0.05) elevated. These data indicate that the adaptive response to ISO shows an early hypertrophic phase (1-4 days) characterized by a substantial increase in RNA content and cardiac mass in the absence of changes in DNA. However, prolonged stimulation (8-12 days) appears to represent a complex integration of both cellular hypertrophy and hyperplasia within the heart."
+  },
+  "6": {
+    "expected": {
+      "Disease": [
+        "carcinogenic",
+        "forestomach carcinogenesis",
+        "forestomach tumorigenesis",
+        "forestomach tumors",
+        "squamous cell papilloma",
+        "carcinoma",
+        "carcinoma",
+        "carcinoma",
+        "epithelial hyperplasia",
+        "Tumors",
+        "papillomas",
+        "forestomach carcinogenesis"
+      ],
+      "Chemical": [
+        "retinyl acetate",
+        "butylated hydroxyanisole",
+        "retinyl acetate",
+        "RA",
+        "butylated hydroxyanisole",
+        "BHA",
+        "BHA",
+        "RA",
+        "BHA",
+        "RA",
+        "RA",
+        "BHA",
+        "RA",
+        "BHA",
+        "RA",
+        "RA",
+        "RA",
+        "RA",
+        "BHA"
+      ]
+    },
+    "expected_entities": {
+      "Disease": [
+        "carcinogenic",
+        "forestomach carcinogenesis",
+        "forestomach tumorigenesis",
+        "forestomach tumors",
+        "squamous cell papilloma",
+        "carcinoma",
+        "carcinoma",
+        "carcinoma",
+        "epithelial hyperplasia",
+        "Tumors",
+        "papillomas",
+        "forestomach carcinogenesis"
+      ],
+      "Chemical": [
+        "retinyl acetate",
+        "butylated hydroxyanisole",
+        "retinyl acetate",
+        "RA",
+        "butylated hydroxyanisole",
+        "BHA",
+        "BHA",
+        "RA",
+        "BHA",
+        "RA",
+        "RA",
+        "BHA",
+        "RA",
+        "BHA",
+        "RA",
+        "RA",
+        "RA",
+        "RA",
+        "BHA"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.6,
+      "recall": 0.6923076923076923,
+      "f1": 0.6428571428571429
+    },
+    "predicted": {
+      "Chemical": [
+        "retinyl acetate",
+        "butylated hydroxyanisole",
+        "retinyl acetate",
+        "RA",
+        "butylated hydroxyanisole",
+        "BHA",
+        "BHA",
+        "RA",
+        "BHA",
+        "RA",
+        "RA-free",
+        "BHA",
+        "RA",
+        "BHA-induced",
+        "RA",
+        "RA",
+        "RA"
+      ],
+      "Disease": [
+        "forestomach",
+        "carcinogenesis",
+        "tumorigenesis",
+        "forestomach tumors",
+        "squamous cell papilloma and carcinoma",
+        "carcinoma",
+        "carcinoma",
+        "epithelial hyperplasia",
+        "Tumors",
+        "papillomas"
+      ]
+    },
+    "sentences": [
+      "Co-carcinogenic effect of retinyl acetate on forestomach carcinogenesis of male F344 rats induced with butylated hydroxyanisole.",
+      "The potential modifying effect of retinyl acetate (RA) on butylated hydroxyanisole (BHA)-induced rat forestomach tumorigenesis was examined.",
+      "Male F344 rats, 5 weeks of age, were maintained on diet containing 1% or 2% BHA by weight and simultaneously on drinking water supplemented with RA at various concentrations (w/v) for 52 weeks.",
+      "In groups given 2% BHA, although marked hyperplastic changes of the forestomach epithelium were observed in all animals, co-administration of 0.25% RA significantly (P less than 0.05) increased the incidence of forestomach tumors (squamous cell papilloma and carcinoma) to 60% (9/15, 2 rats with carcinoma) from 15% (3/20, one rat with carcinoma) in the group given RA-free water.",
+      "In rats given 1% BHA, RA co-administered at a dose of 0.05, 0.1, 0.2 or 0.25% showed a dose-dependent enhancing effect on the development of the BHA-induced epithelial hyperplasia.",
+      "Tumors, all papillomas, were induced in 3 rats (17%) with 0.25% RA and in one rat (10%) with 0.05% RA co-administration.",
+      "RA alone did not induce hyperplastic changes in the forestomach."
+    ],
+    "text": "Co-carcinogenic effect of retinyl acetate on forestomach carcinogenesis of male F344 rats induced with butylated hydroxyanisole. The potential modifying effect of retinyl acetate (RA) on butylated hydroxyanisole (BHA)-induced rat forestomach tumorigenesis was examined. Male F344 rats, 5 weeks of age, were maintained on diet containing 1% or 2% BHA by weight and simultaneously on drinking water supplemented with RA at various concentrations (w/v) for 52 weeks. In groups given 2% BHA, although marked hyperplastic changes of the forestomach epithelium were observed in all animals, co-administration of 0.25% RA significantly (P less than 0.05) increased the incidence of forestomach tumors (squamous cell papilloma and carcinoma) to 60% (9/15, 2 rats with carcinoma) from 15% (3/20, one rat with carcinoma) in the group given RA-free water. In rats given 1% BHA, RA co-administered at a dose of 0.05, 0.1, 0.2 or 0.25% showed a dose-dependent enhancing effect on the development of the BHA-induced epithelial hyperplasia. Tumors, all papillomas, were induced in 3 rats (17%) with 0.25% RA and in one rat (10%) with 0.05% RA co-administration. RA alone did not induce hyperplastic changes in the forestomach. These findings indicate that RA acted as a co-carcinogen in the BHA forestomach carcinogenesis of the rat."
+  },
+  "7": {
+    "expected": {
+      "Disease": [
+        "muscle rigidity",
+        "muscle rigidity",
+        "rigidity",
+        "rigidity",
+        "rigidity",
+        "muscle rigidity",
+        "rigidity"
+      ],
+      "Chemical": [
+        "Ketanserin",
+        "alfentanil",
+        "ketanserin",
+        "serotonin",
+        "alfentanil",
+        "ketanserin",
+        "alfentanil",
+        "Chlordiazepoxide",
+        "alfentanil",
+        "ketanserin",
+        "alfentanil",
+        "alfentanil",
+        "ketanserin",
+        "alfentanil",
+        "ketanserin",
+        "serotonin"
+      ]
+    },
+    "expected_entities": {
+      "Disease": [
+        "muscle rigidity",
+        "muscle rigidity",
+        "rigidity",
+        "rigidity",
+        "rigidity",
+        "muscle rigidity",
+        "rigidity"
+      ],
+      "Chemical": [
+        "Ketanserin",
+        "alfentanil",
+        "ketanserin",
+        "serotonin",
+        "alfentanil",
+        "ketanserin",
+        "alfentanil",
+        "Chlordiazepoxide",
+        "alfentanil",
+        "ketanserin",
+        "alfentanil",
+        "alfentanil",
+        "ketanserin",
+        "alfentanil",
+        "ketanserin",
+        "serotonin"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 0.8333333333333334,
+      "f1": 0.625
+    },
+    "predicted": {
+      "Chemical": [
+        "Ketanserin",
+        "alfentanil-induced",
+        "ketanserin",
+        "alfentanil",
+        "ketanserin",
+        "alfentanil-induced",
+        "Chlordiazepoxide",
+        "alfentanil",
+        "ketanserin",
+        "alfentanil",
+        "alfentanil",
+        "ketanserin",
+        "alfentanil",
+        "ketanserin",
+        "narcotic",
+        "type-2 serotonin antagonists",
+        "opiate-induced"
+      ],
+      "Disease": [
+        "muscle rigidity",
+        "muscle rigidity",
+        "rigidity",
+        "rigidity",
+        "rigidity",
+        "muscle rigidity",
+        "rigidity",
+        "respiratory depression"
+      ]
+    },
+    "sentences": [
+      "Ketanserin pretreatment reverses alfentanil-induced muscle rigidity.",
+      "Systemic pretreatment with ketanserin attenuated the muscle rigidity produced in rats by alfentanil.",
+      "Following placement of subcutaneous electrodes in each animal's left gastrocnemius muscle, rigidity was assessed by analyzing root-mean-square electromyographic activity.",
+      "Intraperitoneal ketanserin administration at doses of 0.63 and 2.5 mg/kg prevented the alfentanil-induced increase in electromyographic activity compared with animals pretreated with saline.",
+      "Chlordiazepoxide at doses up to 10 mg/kg failed to significantly influence the rigidity produced by alfentanil.",
+      "Despite the absence of rigidity, animals that received ketanserin followed by alfentanil were motionless, flaccid, and less responsive to external stimuli than were animals receiving alfentanil alone.",
+      "Rats that received ketanserin and alfentanil exhibited less rearing and exploratory behavior at the end of the 60-min recording period than did animals that received ketanserin alone.",
+      "These results suggest that muscle rigidity, a clinically relevant side-effect of parenteral narcotic administration, may be partly mediated via serotonergic pathways.",
+      "Pretreatment with type-2 serotonin antagonists may be clinically useful in attenuating opiate-induced rigidity, although further studies will be necessary to assess the interaction of possibly enhanced CNS, cardiovascular, and respiratory depression."
+    ],
+    "text": "Ketanserin pretreatment reverses alfentanil-induced muscle rigidity. Systemic pretreatment with ketanserin, a relatively specific type-2 serotonin receptor antagonist, significantly attenuated the muscle rigidity produced in rats by the potent short-acting opiate agonist alfentanil. Following placement of subcutaneous electrodes in each animal's left gastrocnemius muscle, rigidity was assessed by analyzing root-mean-square electromyographic activity. Intraperitoneal ketanserin administration at doses of 0.63 and 2.5 mg/kg prevented the alfentanil-induced increase in electromyographic activity compared with animals pretreated with saline. Chlordiazepoxide at doses up to 10 mg/kg failed to significantly influence the rigidity produced by alfentanil. Despite the absence of rigidity, animals that received ketanserin (greater than 0.31 mg/kg i.p.) followed by alfentanil were motionless, flaccid, and less responsive to external stimuli than were animals receiving alfentanil alone. Rats that received ketanserin and alfentanil exhibited less rearing and exploratory behavior at the end of the 60-min recording period than did animals that received ketanserin alone. These results, in combination with previous work, suggest that muscle rigidity, a clinically relevant side-effect of parenteral narcotic administration, may be partly mediated via serotonergic pathways. Pretreatment with type-2 serotonin antagonists may be clinically useful in attenuating opiate-induced rigidity, although further studies will be necessary to assess the interaction of possibly enhanced CNS, cardiovascular, and respiratory depression."
+  },
+  "8": {
+    "expected": {
+      "Disease": [
+        "bradycardias"
+      ],
+      "Chemical": [
+        "Glycopyrronium",
+        "edrophonium",
+        "glycopyrronium",
+        "edrophonium",
+        "glycopyrronium",
+        "edrophonium",
+        "edrophonium",
+        "glycopyrronium"
+      ]
+    },
+    "expected_entities": {
+      "Disease": [
+        "bradycardias"
+      ],
+      "Chemical": [
+        "Glycopyrronium",
+        "edrophonium",
+        "glycopyrronium",
+        "edrophonium",
+        "glycopyrronium",
+        "edrophonium",
+        "edrophonium",
+        "glycopyrronium"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1": 0.8571428571428571
+    },
+    "predicted": {
+      "Chemical": [
+        "Glycopyrronium",
+        "edrophonium",
+        "glycopyrronium",
+        "edrophonium",
+        "glycopyrronium",
+        "edrophonium",
+        "edrophonium-induced",
+        "glycopyrronium"
+      ],
+      "Disease": [
+        "bradycardias"
+      ]
+    },
+    "sentences": [
+      "Glycopyrronium requirements for antagonism of the muscarinic side effects of edrophonium.",
+      "We have compared, in 60 adult patients, the cardiovascular effects of glycopyrronium 5 micrograms kg-1 and 10 micrograms kg-1 given either simultaneously or 1 min before edrophonium 1 mg kg-1.",
+      "Significant differences between the four groups were detected (P less than 0.001).",
+      "Both groups receiving 10 micrograms kg-1 showed increases in heart rate of up to 30 beat min-1 (95% confidence limits 28-32 beat min-1).",
+      "Use of glycopyrronium 5 micrograms kg-1 provided greater cardiovascular stability and, given 1 min before the edrophonium, was sufficient to minimize early, edrophonium-induced bradycardias.",
+      "This low dose of glycopyrronium provided good control of oropharyngeal secretions."
+    ],
+    "text": "Glycopyrronium requirements for antagonism of the muscarinic side effects of edrophonium. We have compared, in 60 adult patients, the cardiovascular effects of glycopyrronium 5 micrograms kg-1 and 10 micrograms kg-1 given either simultaneously or 1 min before edrophonium 1 mg kg-1. Significant differences between the four groups were detected (P less than 0.001). Both groups receiving 10 micrograms kg-1 showed increases in heart rate of up to 30 beat min-1 (95% confidence limits 28-32 beat min-1). Use of glycopyrronium 5 micrograms kg-1 provided greater cardiovascular stability and, given 1 min before the edrophonium, was sufficient to minimize early, edrophonium-induced bradycardias. This low dose of glycopyrronium provided good control of oropharyngeal secretions."
+  },
+  "9": {
+    "expected": {
+      "Disease": [
+        "muscular rigidity",
+        "muscular rigidity",
+        "muscular rigidity",
+        "muscular rigidity"
+      ],
+      "Chemical": [
+        "fentanyl",
+        "fentanyl",
+        "ketamine",
+        "CO2",
+        "fentanyl",
+        "prazosin",
+        "fentanyl",
+        "fentanyl"
+      ]
+    },
+    "expected_entities": {
+      "Disease": [
+        "muscular rigidity",
+        "muscular rigidity",
+        "muscular rigidity",
+        "muscular rigidity"
+      ],
+      "Chemical": [
+        "fentanyl",
+        "fentanyl",
+        "ketamine",
+        "CO2",
+        "fentanyl",
+        "prazosin",
+        "fentanyl",
+        "fentanyl"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.8333333333333334,
+      "recall": 1.0,
+      "f1": 0.9090909090909091
+    },
+    "predicted": {
+      "Chemical": [
+        "fentanyl-induced",
+        "fentanyl",
+        "ketamine",
+        "CO2",
+        "fentanyl",
+        "prazosin",
+        "fentanyl",
+        "fentanyl"
+      ],
+      "Disease": [
+        "muscular rigidity",
+        "muscular rigidity",
+        "muscular rigidity",
+        "muscular rigidity"
+      ]
+    },
+    "sentences": [
+      "Involvement of locus coeruleus and noradrenergic neurotransmission in fentanyl-induced muscular rigidity in the rat.",
+      "Whereas muscular rigidity is a well-known side effect that is associated with high-dose fentanyl anesthesia, a paucity of information exists with regard to its underlying mechanism(s).",
+      "We investigated in this study the possible engagement of locus coeruleus of the pons in this phenomenon, using male Sprague-Dawley rats anesthetized with ketamine.",
+      "Under proper control of respiration, body temperature and end-tidal CO2, intravenous administration of fentanyl (50 or 100 micrograms/kg) consistently promoted an increase in electromyographic activity recorded from the gastrocnemius and abdominal rectus muscles.",
+      "Such an induced muscular rigidity by the narcotic agent was significantly antagonized or even reduced by prior electrolytic lesions of the locus coeruleus or pretreatment with the alpha-adrenoceptor blocker, prazosin.",
+      "Microinjection of fentanyl (2.5 micrograms/50 nl) directly into this pontine nucleus, on the other hand, elicited discernible electromyographic excitation.",
+      "It is speculated that the induction of muscular rigidity by fentanyl may involve the coerulospinal noradrenergic fibers to the spinal motoneurons."
+    ],
+    "text": "Involvement of locus coeruleus and noradrenergic neurotransmission in fentanyl-induced muscular rigidity in the rat. Whereas muscular rigidity is a well-known side effect that is associated with high-dose fentanyl anesthesia, a paucity of information exists with regard to its underlying mechanism(s). We investigated in this study the possible engagement of locus coeruleus of the pons in this phenomenon, using male Sprague-Dawley rats anesthetized with ketamine. Under proper control of respiration, body temperature and end-tidal CO2, intravenous administration of fentanyl (50 or 100 micrograms/kg) consistently promoted an increase in electromyographic activity recorded from the gastrocnemius and abdominal rectus muscles. Such an induced muscular rigidity by the narcotic agent was significantly antagonized or even reduced by prior electrolytic lesions of the locus coeruleus or pretreatment with the alpha-adrenoceptor blocker, prazosin. Microinjection of fentanyl (2.5 micrograms/50 nl) directly into this pontine nucleus, on the other hand, elicited discernible electromyographic excitation. It is speculated that the induction of muscular rigidity by fentanyl may involve the coerulospinal noradrenergic fibers to the spinal motoneurons."
+  },
+  "10": {
+    "expected": {
+      "Disease": [
+        "Cerebral sinus thrombosis",
+        "menorrhagia",
+        "menorrhagia",
+        "menorrhagia",
+        "blood loss",
+        "thromboembolic disease",
+        "cerebral sinus thrombosis"
+      ],
+      "Chemical": [
+        "epsilon-aminocaproic acid",
+        "epsilon-aminocaproic acid",
+        "epsilon-aminocaproic acid"
+      ]
+    },
+    "expected_entities": {
+      "Disease": [
+        "Cerebral sinus thrombosis",
+        "menorrhagia",
+        "menorrhagia",
+        "menorrhagia",
+        "blood loss",
+        "thromboembolic disease",
+        "cerebral sinus thrombosis"
+      ],
+      "Chemical": [
+        "epsilon-aminocaproic acid",
+        "epsilon-aminocaproic acid",
+        "epsilon-aminocaproic acid"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8
+    },
+    "predicted": {
+      "Chemical": [
+        "epsilon-aminocaproic acid",
+        "epsilon-aminocaproic acid",
+        "epsilon-aminocaproic acid"
+      ],
+      "Disease": [
+        "Cerebral sinus thrombosis",
+        "menorrhagia",
+        "superior sagittal and left transverse sinus thrombosis",
+        "menorrhagia",
+        "menorrhagia",
+        "thromboembolic disease",
+        "cerebral sinus thrombosis"
+      ]
+    },
+    "sentences": [
+      "Cerebral sinus thrombosis as a potential hazard of antifibrinolytic treatment in menorrhagia.",
+      "We describe a 42-year-old woman who developed superior sagittal and left transverse sinus thrombosis associated with prolonged epsilon-aminocaproic acid therapy for menorrhagia.",
+      "This antifibrinolytic agent has been used in women with menorrhagia to promote clotting and reduce blood loss.",
+      "Although increased risk of thromboembolic disease has been reported during treatment with epsilon-aminocaproic acid, cerebral sinus thrombosis has not been previously described.",
+      "Careful use of epsilon-aminocaproic acid therapy is recommended."
+    ],
+    "text": "Cerebral sinus thrombosis as a potential hazard of antifibrinolytic treatment in menorrhagia. We describe a 42-year-old woman who developed superior sagittal and left transverse sinus thrombosis associated with prolonged epsilon-aminocaproic acid therapy for menorrhagia. This antifibrinolytic agent has been used in women with menorrhagia to promote clotting and reduce blood loss. Although increased risk of thromboembolic disease has been reported during treatment with epsilon-aminocaproic acid, cerebral sinus thrombosis has not been previously described. Careful use of epsilon-aminocaproic acid therapy is recommended."
+  },
+  "11": {
+    "expected": {
+      "Chemical": [
+        "cyclophosphamide",
+        "mesna",
+        "cyclophosphamide",
+        "mesna"
+      ]
+    },
+    "expected_entities": {
+      "Chemical": [
+        "cyclophosphamide",
+        "mesna",
+        "cyclophosphamide",
+        "mesna"
+      ]
+    },
+    "labels": "Chemical",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "predicted": {
+      "Chemical": [
+        "cyclophosphamide",
+        "mesna",
+        "cyclophosphamide",
+        "mesna"
+      ]
+    },
+    "sentences": [
+      "Hemorrhagic cystitis complicating bone marrow transplantation.",
+      "Hemorrhagic cystitis is a potentially serious complication of high-dose cyclophosphamide therapy administered before bone marrow transplantation.",
+      "As standard practice at our institution, patients who are scheduled to receive a bone marrow transplant are treated prophylactically with forced hydration and bladder irrigation.",
+      "In an attempt to obviate the inconvenience of bladder irrigation, we conducted a feasibility trial of uroprophylaxis with mesna, which neutralizes the hepatic metabolite of cyclophosphamide that causes hemorrhagic cystitis.",
+      "Of 97 patients who received standard prophylaxis, 4 had symptomatic hemorrhagic cystitis.",
+      "In contrast, two of four consecutive patients who received mesna uroprophylaxis before allogeneic bone marrow transplantation had severe hemorrhagic cystitis for at least 2 weeks.",
+      "Because of this suboptimal result, we resumed the use of bladder irrigation and forced hydration to minimize the risk of hemorrhagic cystitis."
+    ],
+    "text": "Hemorrhagic cystitis complicating bone marrow transplantation. Hemorrhagic cystitis is a potentially serious complication of high-dose cyclophosphamide therapy administered before bone marrow transplantation. As standard practice at our institution, patients who are scheduled to receive a bone marrow transplant are treated prophylactically with forced hydration and bladder irrigation. In an attempt to obviate the inconvenience of bladder irrigation, we conducted a feasibility trial of uroprophylaxis with mesna, which neutralizes the hepatic metabolite of cyclophosphamide that causes hemorrhagic cystitis. Of 97 patients who received standard prophylaxis, 4 had symptomatic hemorrhagic cystitis. In contrast, two of four consecutive patients who received mesna uroprophylaxis before allogeneic bone marrow transplantation had severe hemorrhagic cystitis for at least 2 weeks. Because of this suboptimal result, we resumed the use of bladder irrigation and forced hydration to minimize the risk of hemorrhagic cystitis."
+  }
+}
