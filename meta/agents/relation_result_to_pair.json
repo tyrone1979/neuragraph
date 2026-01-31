@@ -1,0 +1,16 @@
+{
+  "name": "Entity link and map result to pair",
+  "type": "PGM",
+  "inputs": [
+    "result",
+    "head",
+    "tail",
+    "entity_link"
+  ],
+  "outputs": {
+    "name": "predicted",
+    "type": "tuple"
+  },
+  "process": "if state['result'] =='$':\n     __result__=(state['entity_link'][state[\"head\"]],state['entity_link'][state[\"tail\"]])",
+  "created_at": "2026-01-30T15:12:56.667035"
+}

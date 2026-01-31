@@ -1,0 +1,13 @@
+{
+  "name": "Map source field to target field",
+  "type": "PGM",
+  "inputs": [
+    "expected_relations"
+  ],
+  "outputs": {
+    "name": "expected",
+    "type": "list"
+  },
+  "process": "__result__=state[\"expected_relations\"]",
+  "created_at": "2026-01-30T14:53:11.200590"
+}

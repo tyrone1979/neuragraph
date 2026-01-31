@@ -1,0 +1,21 @@
+{
+  "name": "A single Agent for NER with Tool",
+  "type": "LLM",
+  "inputs": [
+    "text"
+  ],
+  "outputs": {
+    "name": "predicted",
+    "type": "dict"
+  },
+  "model": "gpt-oss_120b",
+  "prompt_template": {
+    "description": "Named entity recognition for Biomedical Articles",
+    "system": "Your a biomedical and NLP expert",
+    "human": "**Article**:\n{text}\n\nExecute:\n1. Split article into sentences.\n2. For each sentence, call the tool \"NER by Flair\" with: {{\"sentence\": \"<sentence>\", \"label\": \"Chemical,Disease\"}}\n3. Aggregate all results as: {{\"Chemical\": [...], \"Disease\": [...]}}\n4. Return only the JSON string.\n\nNo explanations or hints."
+  },
+  "tools": [
+    "tool_ner_flair"
+  ],
+  "created_at": "2026-01-25T15:52:07.484023"
+}
