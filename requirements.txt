@@ -1,9 +1,9 @@
+numpy
 langchain~=1.0.8
 langgraph~=1.0.3
 langchain-ollama
 ollama
 psycopg[binary,pool]
-langgraph-checkpoint-postgres
 tqdm~=4.67.1
 Flask[async]~=3.1.2
 flask-sse
