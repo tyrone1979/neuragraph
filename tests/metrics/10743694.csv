@@ -1,0 +1,2 @@
+predicted,expected
+"{'Disease': ['Tricuspid valve regurgitation', 'toxicity', 'tricuspid regurgitation','atrial flutter','congestive heart failure','cardiac disease','congenital heart disease','neurologic depression','cyanosis'],'Chemical': ['lithium carbonate', 'lithium']}","{'Disease': ['Tricuspid valve regurgitation', 'toxicity', 'tricuspid regurgitation','atrial flutter','congestive heart failure','cardiac disease','congenital heart disease','neurologic depression','cyanosis'],'Chemical': ['lithium carbonate', 'lithium']}"

@@ -1,0 +1,209 @@
+6794356|t|Tricuspid valve regurgitation and lithium carbonate toxicity in a newborn infant.
+6794356|a|A newborn with massive tricuspid regurgitation, atrial flutter, congestive heart failure, and a high serum lithium level is described. This is the first patient to initially manifest tricuspid regurgitation and atrial flutter, and the 11th described patient with cardiac disease among infants exposed to lithium compounds in the first trimester of pregnancy. Sixty-three percent of these infants had tricuspid valve involvement. Lithium carbonate may be a factor in the increasing incidence of congenital heart disease when taken during early pregnancy. It also causes neurologic depression, cyanosis, and cardiac arrhythmia when consumed prior to delivery.
+6794356	0	29	Tricuspid valve regurgitation	Disease	D014262
+6794356	34	51	lithium carbonate	Chemical	D016651
+6794356	52	60	toxicity	Disease	D064420
+6794356	105	128	tricuspid regurgitation	Disease	D014262
+6794356	130	144	atrial flutter	Disease	D001282
+6794356	146	170	congestive heart failure	Disease	D006333
+6794356	189	196	lithium	Chemical	D008094
+6794356	265	288	tricuspid regurgitation	Disease	D014262
+6794356	293	307	atrial flutter	Disease	D001282
+6794356	345	360	cardiac disease	Disease	D006331
+6794356	386	393	lithium	Chemical	D008094
+6794356	511	528	Lithium carbonate	Chemical	D016651
+6794356	576	600	congenital heart disease	Disease	D006331
+6794356	651	672	neurologic depression	Disease	D003866
+6794356	674	682	cyanosis	Disease	D003490
+6794356	688	706	cardiac arrhythmia	Disease	D001145
+6794356	CID	D016651	D003490
+6794356	CID	D016651	D001145
+6794356	CID	D016651	D003866
+
+6504332|t|Phenobarbital-induced dyskinesia in a neurologically-impaired child.
+6504332|a|A 2-year-old child with known neurologic impairment developed a dyskinesia soon after starting phenobarbital therapy for seizures. Known causes of movement disorders were eliminated after evaluation. On repeat challenge with phenobarbital, the dyskinesia recurred. Phenobarbital should be added to the list of anticonvulsant drugs that can cause movement disorders.
+6504332	0	13	Phenobarbital	Chemical	D010634
+6504332	22	32	dyskinesia	Disease	D004409
+6504332	38	61	neurologically-impaired	Disease	D009422
+6504332	99	120	neurologic impairment	Disease	D009422
+6504332	133	143	dyskinesia	Disease	D004409
+6504332	164	177	phenobarbital	Chemical	D010634
+6504332	190	198	seizures	Disease	D012640
+6504332	216	234	movement disorders	Disease	D009069
+6504332	294	307	phenobarbital	Chemical	D010634
+6504332	313	323	dyskinesia	Disease	D004409
+6504332	334	347	Phenobarbital	Chemical	D010634
+6504332	415	433	movement disorders	Disease	D009069
+6504332	CID	D010634	D004409
+
+6436733|t|Acute changes of blood ammonia may predict short-term adverse effects of valproic acid.
+6436733|a|Valproic acid (VPA) was given to 24 epileptic patients who were already being treated with other antiepileptic drugs. A standardized loading dose of VPA was administered, and venous blood was sampled at 0, 1, 2, 3, and 4 hours. Ammonia (NH3) was higher in patients who, during continuous therapy, complained of drowsiness (7 patients) than in those who were symptom-free (17 patients), although VPA plasma levels were similar in both groups. By measuring VPA-induced changes of blood NH3 content, it may be possible to identify patients at higher risk of obtundation when VPA is given chronically.
+6436733	23	30	ammonia	Chemical	D000641
+6436733	73	86	valproic acid	Chemical	D014635
+6436733	88	101	Valproic acid	Chemical	D014635
+6436733	103	106	VPA	Chemical	D014635
+6436733	124	133	epileptic	Disease	D004827
+6436733	237	240	VPA	Chemical	D014635
+6436733	316	323	Ammonia	Chemical	D000641
+6436733	325	328	NH3	Chemical	D000641
+6436733	399	409	drowsiness	Disease	D006970
+6436733	483	486	VPA	Chemical	D014635
+6436733	543	546	VPA	Chemical	D014635
+6436733	572	575	NH3	Chemical	D000641
+6436733	660	663	VPA	Chemical	D014635
+6436733	CID	D014635	D006970
+6436733	CID	D000641	D006970
+
+6293644|t|Effects of calcitonin on rat extrapyramidal motor system: behavioral and biochemical data.
+6293644|a|The effects of i.v.c. injection of human and salmon calcitonin on biochemical and behavioral parameters related to the extrapyramidal motor system, were investigated in male rats. Calcitonin injection resulted in a potentiation of haloperidol-induced catalepsy and a partial prevention of apomorphine-induced hyperactivity. Moreover calcitonin induced a significant decrease in nigral GAD activity but no change in striatal DA and DOPAC concentration or GAD activity. The results are discussed in view of a primary action of calcitonin on the striatonigral GABAergic pathway mediating the DA-related behavioral messages of striatal origin.
+6293644	322	333	haloperidol	Chemical	D006220
+6293644	342	351	catalepsy	Disease	D002375
+6293644	380	391	apomorphine	Chemical	D001058
+6293644	400	413	hyperactivity	Disease	D006948
+6293644	515	517	DA	Chemical	D004298
+6293644	522	527	DOPAC	Chemical	D015102
+6293644	680	682	DA	Chemical	D004298
+6293644	CID	D006220	D002375
+6293644	CID	D001058	D006948
+
+6203632|t|Development of isoproterenol-induced cardiac hypertrophy.
+6203632|a|The development of cardiac hypertrophy was studied in adult female Wistar rats following daily subcutaneous injections of isoproterenol (ISO) (0.3 mg/kg body weight). A time course was established for the change in tissue mass, RNA and DNA content, as well as hydroxyproline content. Heart weight increased 44% after 8 days of treatment with a half time of 3.4 days. Ventricular RNA content was elevated 26% after 24 h of a single injection and reached a maximal level following 8 days of therapy. The half time for RNA accumulation was 2.0 days. The total content of hydroxyproline remained stable during the first 2 days of treatment but increased 46% after 4 days of therapy. Ventricular DNA content was unchanged during the early stage (1-4 days) of hypertrophic growth but increased to a new steady-state level 19% above the controls after 8 days of treatment. Intraventricular pressures and coronary flow measures were similar for control and experimental animals following 4 days of developed hypertrophy. However, dP/dt in the ISO-treated hearts was slightly but significantly (P less than 0.05) elevated. These data indicate that the adaptive response to ISO shows an early hypertrophic phase (1-4 days) characterized by a substantial increase in RNA content and cardiac mass in the absence of changes in DNA. However, prolonged stimulation (8-12 days) appears to represent a complex integration of both cellular hypertrophy and hyperplasia within the heart.
+6203632	15	28	isoproterenol	Chemical	D007545
+6203632	37	56	cardiac hypertrophy	Disease	D006332
+6203632	77	96	cardiac hypertrophy	Disease	D006332
+6203632	180	193	isoproterenol	Chemical	D007545
+6203632	195	198	ISO	Chemical	D007545
+6203632	318	332	hydroxyproline	Chemical	D006909
+6203632	626	640	hydroxyproline	Chemical	D006909
+6203632	812	824	hypertrophic	Disease	D006984
+6203632	1058	1069	hypertrophy	Disease	D006984
+6203632	1093	1096	ISO	Chemical	D007545
+6203632	1222	1225	ISO	Chemical	D007545
+6203632	1241	1253	hypertrophic	Disease	D006984
+6203632	1480	1491	hypertrophy	Disease	D006984
+6203632	1496	1507	hyperplasia	Disease	D006965
+6203632	CID	D007545	D006332
+6203632	CID	D007545	D006965
+
+3131282|t|Co-carcinogenic effect of retinyl acetate on forestomach carcinogenesis of male F344 rats induced with butylated hydroxyanisole.
+3131282|a|The potential modifying effect of retinyl acetate (RA) on butylated hydroxyanisole (BHA)-induced rat forestomach tumorigenesis was examined. Male F344 rats, 5 weeks of age, were maintained on diet containing 1% or 2% BHA by weight and simultaneously on drinking water supplemented with RA at various concentrations (w/v) for 52 weeks. In groups given 2% BHA, although marked hyperplastic changes of the forestomach epithelium were observed in all animals, co-administration of 0.25% RA significantly (P less than 0.05) increased the incidence of forestomach tumors (squamous cell papilloma and carcinoma) to 60% (9/15, 2 rats with carcinoma) from 15% (3/20, one rat with carcinoma) in the group given RA-free water. In rats given 1% BHA, RA co-administered at a dose of 0.05, 0.1, 0.2 or 0.25% showed a dose-dependent enhancing effect on the development of the BHA-induced epithelial hyperplasia. Tumors, all papillomas, were induced in 3 rats (17%) with 0.25% RA and in one rat (10%) with 0.05% RA co-administration. RA alone did not induce hyperplastic changes in the forestomach. These findings indicate that RA acted as a co-carcinogen in the BHA forestomach carcinogenesis of the rat.
+3131282	3	15	carcinogenic	Disease	D063646
+3131282	26	41	retinyl acetate	Chemical	C009166
+3131282	45	71	forestomach carcinogenesis	Disease	D013274
+3131282	103	127	butylated hydroxyanisole	Chemical	D002083
+3131282	163	178	retinyl acetate	Chemical	C009166
+3131282	180	182	RA	Chemical	C009166
+3131282	187	211	butylated hydroxyanisole	Chemical	D002083
+3131282	213	216	BHA	Chemical	D002083
+3131282	230	255	forestomach tumorigenesis	Disease	D013274
+3131282	346	349	BHA	Chemical	D002083
+3131282	415	417	RA	Chemical	C009166
+3131282	483	486	BHA	Chemical	D002083
+3131282	612	614	RA	Chemical	C009166
+3131282	675	693	forestomach tumors	Disease	D013274
+3131282	695	718	squamous cell papilloma	Disease	D010212
+3131282	723	732	carcinoma	Disease	D002277
+3131282	760	769	carcinoma	Disease	D002277
+3131282	800	809	carcinoma	Disease	D002277
+3131282	830	832	RA	Chemical	C009166
+3131282	862	865	BHA	Chemical	D002083
+3131282	867	869	RA	Chemical	C009166
+3131282	990	993	BHA	Chemical	D002083
+3131282	1002	1024	epithelial hyperplasia	Disease	D017573
+3131282	1026	1032	Tumors	Disease	D009369
+3131282	1038	1048	papillomas	Disease	D010212
+3131282	1090	1092	RA	Chemical	C009166
+3131282	1125	1127	RA	Chemical	C009166
+3131282	1147	1149	RA	Chemical	C009166
+3131282	1241	1243	RA	Chemical	C009166
+3131282	1276	1279	BHA	Chemical	D002083
+3131282	1280	1306	forestomach carcinogenesis	Disease	D013274
+3131282	CID	D002083	D013274
+
+3115150|t|Ketanserin pretreatment reverses alfentanil-induced muscle rigidity.
+3115150|a|Systemic pretreatment with ketanserin, a relatively specific type-2 serotonin receptor antagonist, significantly attenuated the muscle rigidity produced in rats by the potent short-acting opiate agonist alfentanil. Following placement of subcutaneous electrodes in each animal's left gastrocnemius muscle, rigidity was assessed by analyzing root-mean-square electromyographic activity. Intraperitoneal ketanserin administration at doses of 0.63 and 2.5 mg/kg prevented the alfentanil-induced increase in electromyographic activity compared with animals pretreated with saline. Chlordiazepoxide at doses up to 10 mg/kg failed to significantly influence the rigidity produced by alfentanil. Despite the absence of rigidity, animals that received ketanserin (greater than 0.31 mg/kg i.p.) followed by alfentanil were motionless, flaccid, and less responsive to external stimuli than were animals receiving alfentanil alone. Rats that received ketanserin and alfentanil exhibited less rearing and exploratory behavior at the end of the 60-min recording period than did animals that received ketanserin alone. These results, in combination with previous work, suggest that muscle rigidity, a clinically relevant side-effect of parenteral narcotic administration, may be partly mediated via serotonergic pathways. Pretreatment with type-2 serotonin antagonists may be clinically useful in attenuating opiate-induced rigidity, although further studies will be necessary to assess the interaction of possibly enhanced CNS, cardiovascular, and respiratory depression.
+3115150	0	10	Ketanserin	Chemical	D007650
+3115150	33	43	alfentanil	Chemical	D015760
+3115150	52	67	muscle rigidity	Disease	D009127
+3115150	96	106	ketanserin	Chemical	D007650
+3115150	137	146	serotonin	Chemical	D012701
+3115150	197	212	muscle rigidity	Disease	D009127
+3115150	272	282	alfentanil	Chemical	D015760
+3115150	375	383	rigidity	Disease	D009127
+3115150	471	481	ketanserin	Chemical	D007650
+3115150	542	552	alfentanil	Chemical	D015760
+3115150	646	662	Chlordiazepoxide	Chemical	D002707
+3115150	725	733	rigidity	Disease	D009127
+3115150	746	756	alfentanil	Chemical	D015760
+3115150	781	789	rigidity	Disease	D009127
+3115150	813	823	ketanserin	Chemical	D007650
+3115150	867	877	alfentanil	Chemical	D015760
+3115150	972	982	alfentanil	Chemical	D015760
+3115150	1009	1019	ketanserin	Chemical	D007650
+3115150	1024	1034	alfentanil	Chemical	D015760
+3115150	1156	1166	ketanserin	Chemical	D007650
+3115150	1237	1252	muscle rigidity	Disease	D009127
+3115150	1402	1411	serotonin	Chemical	D012701
+3115150	1479	1487	rigidity	Disease	D009127
+3115150	1584	1626	cardiovascular, and respiratory depression	Disease	D002318|D012131	cardiovascular depression|respiratory depression
+3115150	CID	D015760	D009127
+
+2917114|t|Glycopyrronium requirements for antagonism of the muscarinic side effects of edrophonium.
+2917114|a|We have compared, in 60 adult patients, the cardiovascular effects of glycopyrronium 5 micrograms kg-1 and 10 micrograms kg-1 given either simultaneously or 1 min before edrophonium 1 mg kg-1. Significant differences between the four groups were detected (P less than 0.001). Both groups receiving 10 micrograms kg-1 showed increases in heart rate of up to 30 beat min-1 (95% confidence limits 28-32 beat min-1). Use of glycopyrronium 5 micrograms kg-1 provided greater cardiovascular stability and, given 1 min before the edrophonium, was sufficient to minimize early, edrophonium-induced bradycardias. This low dose of glycopyrronium provided good control of oropharyngeal secretions.
+2917114	0	14	Glycopyrronium	Chemical	D006024
+2917114	77	88	edrophonium	Chemical	D004491
+2917114	160	174	glycopyrronium	Chemical	D006024
+2917114	260	271	edrophonium	Chemical	D004491
+2917114	510	524	glycopyrronium	Chemical	D006024
+2917114	613	624	edrophonium	Chemical	D004491
+2917114	660	671	edrophonium	Chemical	D004491
+2917114	680	692	bradycardias	Disease	D001919
+2917114	711	725	glycopyrronium	Chemical	D006024
+2917114	CID	D004491	D001919
+
+2564649|t|Involvement of locus coeruleus and noradrenergic neurotransmission in fentanyl-induced muscular rigidity in the rat.
+2564649|a|Whereas muscular rigidity is a well-known side effect that is associated with high-dose fentanyl anesthesia, a paucity of information exists with regard to its underlying mechanism(s). We investigated in this study the possible engagement of locus coeruleus of the pons in this phenomenon, using male Sprague-Dawley rats anesthetized with ketamine. Under proper control of respiration, body temperature and end-tidal CO2, intravenous administration of fentanyl (50 or 100 micrograms/kg) consistently promoted an increase in electromyographic activity recorded from the gastrocnemius and abdominal rectus muscles. Such an induced muscular rigidity by the narcotic agent was significantly antagonized or even reduced by prior electrolytic lesions of the locus coeruleus or pretreatment with the alpha-adrenoceptor blocker, prazosin. Microinjection of fentanyl (2.5 micrograms/50 nl) directly into this pontine nucleus, on the other hand, elicited discernible electromyographic excitation. It is speculated that the induction of muscular rigidity by fentanyl may involve the coerulospinal noradrenergic fibers to the spinal motoneurons.
+2564649	70	78	fentanyl	Chemical	D005283
+2564649	87	104	muscular rigidity	Disease	D009127
+2564649	125	142	muscular rigidity	Disease	D009127
+2564649	205	213	fentanyl	Chemical	D005283
+2564649	456	464	ketamine	Chemical	D007649
+2564649	534	537	CO2	Chemical	D002245
+2564649	569	577	fentanyl	Chemical	D005283
+2564649	746	763	muscular rigidity	Disease	D009127
+2564649	938	946	prazosin	Chemical	D011224
+2564649	966	974	fentanyl	Chemical	D005283
+2564649	1143	1160	muscular rigidity	Disease	D009127
+2564649	1164	1172	fentanyl	Chemical	D005283
+2564649	CID	D005283	D009127
+
+2339463|t|Cerebral sinus thrombosis as a potential hazard of antifibrinolytic treatment in menorrhagia.
+2339463|a|We describe a 42-year-old woman who developed superior sagittal and left transverse sinus thrombosis associated with prolonged epsilon-aminocaproic acid therapy for menorrhagia. This antifibrinolytic agent has been used in women with menorrhagia to promote clotting and reduce blood loss. Although increased risk of thromboembolic disease has been reported during treatment with epsilon-aminocaproic acid, cerebral sinus thrombosis has not been previously described. Careful use of epsilon-aminocaproic acid therapy is recommended.
+2339463	0	25	Cerebral sinus thrombosis	Disease	D012851
+2339463	81	92	menorrhagia	Disease	D008595
+2339463	149	194	sagittal and left transverse sinus thrombosis	Disease	D020225|D020227	sagittal sinus thrombosis|left transverse sinus thrombosis
+2339463	221	246	epsilon-aminocaproic acid	Chemical	D015119
+2339463	259	270	menorrhagia	Disease	D008595
+2339463	328	339	menorrhagia	Disease	D008595
+2339463	371	381	blood loss	Disease	D006473
+2339463	410	432	thromboembolic disease	Disease	D013923
+2339463	473	498	epsilon-aminocaproic acid	Chemical	D015119
+2339463	500	525	cerebral sinus thrombosis	Disease	D012851
+2339463	576	601	epsilon-aminocaproic acid	Chemical	D015119
+2339463	CID	D015119	D020225
+
+1545575|t|Hemorrhagic cystitis complicating bone marrow transplantation.
+1545575|a|Hemorrhagic cystitis is a potentially serious complication of high-dose cyclophosphamide therapy administered before bone marrow transplantation. As standard practice at our institution, patients who are scheduled to receive a bone marrow transplant are treated prophylactically with forced hydration and bladder irrigation. In an attempt to obviate the inconvenience of bladder irrigation, we conducted a feasibility trial of uroprophylaxis with mesna, which neutralizes the hepatic metabolite of cyclophosphamide that causes hemorrhagic cystitis. Of 97 patients who received standard prophylaxis, 4 had symptomatic hemorrhagic cystitis. In contrast, two of four consecutive patients who received mesna uroprophylaxis before allogeneic bone marrow transplantation had severe hemorrhagic cystitis for at least 2 weeks. Because of this suboptimal result, we resumed the use of bladder irrigation and forced hydration to minimize the risk of hemorrhagic cystitis.
+1545575	0	20	Hemorrhagic cystitis	Disease	D006470|D003556	Hemorrhagic|cystitis
+1545575	63	83	Hemorrhagic cystitis	Disease	D006470|D003556	Hemorrhagic|cystitis
+1545575	135	151	cyclophosphamide	Chemical	D003520
+1545575	510	515	mesna	Chemical	D015080
+1545575	561	577	cyclophosphamide	Chemical	D003520
+1545575	590	610	hemorrhagic cystitis	Disease	D006470|D003556	hemorrhagic|cystitis
+1545575	680	700	hemorrhagic cystitis	Disease	D006470|D003556	hemorrhagic|cystitis
+1545575	761	766	mesna	Chemical	D015080
+1545575	839	859	hemorrhagic cystitis	Disease	D006470|D003556	hemorrhagic|cystitis
+1545575	1003	1023	hemorrhagic cystitis	Disease	D006470|D003556	hemorrhagic|cystitis
+1545575	CID	D003520	D006470
+1545575	CID	D003520	D003556
+

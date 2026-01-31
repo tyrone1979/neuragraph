@@ -1,0 +1,356 @@
+6504332|t|Phenobarbital-induced dyskinesia in a neurologically-impaired child.
+6504332|a|A 2-year-old child with known neurologic impairment developed a dyskinesia soon after starting phenobarbital therapy for seizures. Known causes of movement disorders were eliminated after evaluation. On repeat challenge with phenobarbital, the dyskinesia recurred. Phenobarbital should be added to the list of anticonvulsant drugs that can cause movement disorders.
+6504332	0	13	Phenobarbital	Chemical	D010634
+6504332	22	32	dyskinesia	Disease	D004409
+6504332	38	61	neurologically-impaired	Disease	D009422
+6504332	99	120	neurologic impairment	Disease	D009422
+6504332	133	143	dyskinesia	Disease	D004409
+6504332	164	177	phenobarbital	Chemical	D010634
+6504332	190	198	seizures	Disease	D012640
+6504332	216	234	movement disorders	Disease	D009069
+6504332	294	307	phenobarbital	Chemical	D010634
+6504332	313	323	dyskinesia	Disease	D004409
+6504332	334	347	Phenobarbital	Chemical	D010634
+6504332	415	433	movement disorders	Disease	D009069
+6504332	CID	D010634	D004409
+
+6436733|t|Acute changes of blood ammonia may predict short-term adverse effects of valproic acid.
+6436733|a|Valproic acid (VPA) was given to 24 epileptic patients who were already being treated with other antiepileptic drugs. A standardized loading dose of VPA was administered, and venous blood was sampled at 0, 1, 2, 3, and 4 hours. Ammonia (NH3) was higher in patients who, during continuous therapy, complained of drowsiness (7 patients) than in those who were symptom-free (17 patients), although VPA plasma levels were similar in both groups. By measuring VPA-induced changes of blood NH3 content, it may be possible to identify patients at higher risk of obtundation when VPA is given chronically.
+6436733	23	30	ammonia	Chemical	D000641
+6436733	73	86	valproic acid	Chemical	D014635
+6436733	88	101	Valproic acid	Chemical	D014635
+6436733	103	106	VPA	Chemical	D014635
+6436733	124	133	epileptic	Disease	D004827
+6436733	237	240	VPA	Chemical	D014635
+6436733	316	323	Ammonia	Chemical	D000641
+6436733	325	328	NH3	Chemical	D000641
+6436733	399	409	drowsiness	Disease	D006970
+6436733	483	486	VPA	Chemical	D014635
+6436733	543	546	VPA	Chemical	D014635
+6436733	572	575	NH3	Chemical	D000641
+6436733	660	663	VPA	Chemical	D014635
+6436733	CID	D014635	D006970
+6436733	CID	D000641	D006970
+
+6293644|t|Effects of calcitonin on rat extrapyramidal motor system: behavioral and biochemical data.
+6293644|a|The effects of i.v.c. injection of human and salmon calcitonin on biochemical and behavioral parameters related to the extrapyramidal motor system, were investigated in male rats. Calcitonin injection resulted in a potentiation of haloperidol-induced catalepsy and a partial prevention of apomorphine-induced hyperactivity. Moreover calcitonin induced a significant decrease in nigral GAD activity but no change in striatal DA and DOPAC concentration or GAD activity. The results are discussed in view of a primary action of calcitonin on the striatonigral GABAergic pathway mediating the DA-related behavioral messages of striatal origin.
+6293644	322	333	haloperidol	Chemical	D006220
+6293644	342	351	catalepsy	Disease	D002375
+6293644	380	391	apomorphine	Chemical	D001058
+6293644	400	413	hyperactivity	Disease	D006948
+6293644	515	517	DA	Chemical	D004298
+6293644	522	527	DOPAC	Chemical	D015102
+6293644	680	682	DA	Chemical	D004298
+6293644	CID	D006220	D002375
+6293644	CID	D001058	D006948
+
+6203632|t|Development of isoproterenol-induced cardiac hypertrophy.
+6203632|a|The development of cardiac hypertrophy was studied in adult female Wistar rats following daily subcutaneous injections of isoproterenol (ISO) (0.3 mg/kg body weight). A time course was established for the change in tissue mass, RNA and DNA content, as well as hydroxyproline content. Heart weight increased 44% after 8 days of treatment with a half time of 3.4 days. Ventricular RNA content was elevated 26% after 24 h of a single injection and reached a maximal level following 8 days of therapy. The half time for RNA accumulation was 2.0 days. The total content of hydroxyproline remained stable during the first 2 days of treatment but increased 46% after 4 days of therapy. Ventricular DNA content was unchanged during the early stage (1-4 days) of hypertrophic growth but increased to a new steady-state level 19% above the controls after 8 days of treatment. Intraventricular pressures and coronary flow measures were similar for control and experimental animals following 4 days of developed hypertrophy. However, dP/dt in the ISO-treated hearts was slightly but significantly (P less than 0.05) elevated. These data indicate that the adaptive response to ISO shows an early hypertrophic phase (1-4 days) characterized by a substantial increase in RNA content and cardiac mass in the absence of changes in DNA. However, prolonged stimulation (8-12 days) appears to represent a complex integration of both cellular hypertrophy and hyperplasia within the heart.
+6203632	15	28	isoproterenol	Chemical	D007545
+6203632	37	56	cardiac hypertrophy	Disease	D006332
+6203632	77	96	cardiac hypertrophy	Disease	D006332
+6203632	180	193	isoproterenol	Chemical	D007545
+6203632	195	198	ISO	Chemical	D007545
+6203632	318	332	hydroxyproline	Chemical	D006909
+6203632	626	640	hydroxyproline	Chemical	D006909
+6203632	812	824	hypertrophic	Disease	D006984
+6203632	1058	1069	hypertrophy	Disease	D006984
+6203632	1093	1096	ISO	Chemical	D007545
+6203632	1222	1225	ISO	Chemical	D007545
+6203632	1241	1253	hypertrophic	Disease	D006984
+6203632	1480	1491	hypertrophy	Disease	D006984
+6203632	1496	1507	hyperplasia	Disease	D006965
+6203632	CID	D007545	D006332
+6203632	CID	D007545	D006965
+
+2917114|t|Glycopyrronium requirements for antagonism of the muscarinic side effects of edrophonium.
+2917114|a|We have compared, in 60 adult patients, the cardiovascular effects of glycopyrronium 5 micrograms kg-1 and 10 micrograms kg-1 given either simultaneously or 1 min before edrophonium 1 mg kg-1. Significant differences between the four groups were detected (P less than 0.001). Both groups receiving 10 micrograms kg-1 showed increases in heart rate of up to 30 beat min-1 (95% confidence limits 28-32 beat min-1). Use of glycopyrronium 5 micrograms kg-1 provided greater cardiovascular stability and, given 1 min before the edrophonium, was sufficient to minimize early, edrophonium-induced bradycardias. This low dose of glycopyrronium provided good control of oropharyngeal secretions.
+2917114	0	14	Glycopyrronium	Chemical	D006024
+2917114	77	88	edrophonium	Chemical	D004491
+2917114	160	174	glycopyrronium	Chemical	D006024
+2917114	260	271	edrophonium	Chemical	D004491
+2917114	510	524	glycopyrronium	Chemical	D006024
+2917114	613	624	edrophonium	Chemical	D004491
+2917114	660	671	edrophonium	Chemical	D004491
+2917114	680	692	bradycardias	Disease	D001919
+2917114	711	725	glycopyrronium	Chemical	D006024
+2917114	CID	D004491	D001919
+
+2564649|t|Involvement of locus coeruleus and noradrenergic neurotransmission in fentanyl-induced muscular rigidity in the rat.
+2564649|a|Whereas muscular rigidity is a well-known side effect that is associated with high-dose fentanyl anesthesia, a paucity of information exists with regard to its underlying mechanism(s). We investigated in this study the possible engagement of locus coeruleus of the pons in this phenomenon, using male Sprague-Dawley rats anesthetized with ketamine. Under proper control of respiration, body temperature and end-tidal CO2, intravenous administration of fentanyl (50 or 100 micrograms/kg) consistently promoted an increase in electromyographic activity recorded from the gastrocnemius and abdominal rectus muscles. Such an induced muscular rigidity by the narcotic agent was significantly antagonized or even reduced by prior electrolytic lesions of the locus coeruleus or pretreatment with the alpha-adrenoceptor blocker, prazosin. Microinjection of fentanyl (2.5 micrograms/50 nl) directly into this pontine nucleus, on the other hand, elicited discernible electromyographic excitation. It is speculated that the induction of muscular rigidity by fentanyl may involve the coerulospinal noradrenergic fibers to the spinal motoneurons.
+2564649	70	78	fentanyl	Chemical	D005283
+2564649	87	104	muscular rigidity	Disease	D009127
+2564649	125	142	muscular rigidity	Disease	D009127
+2564649	205	213	fentanyl	Chemical	D005283
+2564649	456	464	ketamine	Chemical	D007649
+2564649	534	537	CO2	Chemical	D002245
+2564649	569	577	fentanyl	Chemical	D005283
+2564649	746	763	muscular rigidity	Disease	D009127
+2564649	938	946	prazosin	Chemical	D011224
+2564649	966	974	fentanyl	Chemical	D005283
+2564649	1143	1160	muscular rigidity	Disease	D009127
+2564649	1164	1172	fentanyl	Chemical	D005283
+2564649	CID	D005283	D009127
+
+1286498|t|Reversal of central benzodiazepine effects by flumazenil after intravenous conscious sedation with diazepam and opioids: report of a double-blind multicenter study. The Flumazenil in Intravenous Conscious Sedation with Diazepam Multicenter Study Group II.
+1286498|a|The efficacy and safety of a new benzodiazepine antagonist, flumazenil, were assessed in a double-blind multicenter study. Flumazenil (mean dose, 0.76 mg) or placebo (mean dose, 8.9 ml) was administered intravenously to 130 and 67 patients, respectively, who had been given diazepam in conjunction with an opioid (fentanyl, meperidine, or morphine) for the induction and maintenance of intravenous conscious sedation for diagnostic or therapeutic surgical procedures. The group assessable for efficacy comprised 122 patients treated with flumazenil and 64 patients given placebo. After 5 minutes, 80/115 (70%) flumazenil-treated patients, compared with 21/63 (33%) placebo-treated patients, were completely awake and alert, as indicated by a score of 5 on the Observer's Assessment of Alertness/Sedation Scale. Ninety-five percent of patients in each group who attained a score of 5 at the 5-minute assessment showed no loss of alertness throughout the 180-minute assessment period. Flumazenil-treated patients also performed significantly better on the Finger-to-Nose Test and the recall of pictures shown at the 5-minute assessment. Flumazenil was well tolerated, with no serious adverse effects reported. Thirty-nine (30%) of flumazenil-treated patients, compared with 17 (25%) of placebo-treated patients had one or more drug-related adverse experiences. The most common adverse effects were nausea and vomiting in the flumazenil group and nausea and injection-site pain in the placebo group. Flumazenil was found to promptly reverse sedation induced by diazepam in the presence of opioids.
+1286498	20	34	benzodiazepine	Chemical	D001569
+1286498	46	56	flumazenil	Chemical	D005442
+1286498	99	107	diazepam	Chemical	D003975
+1286498	169	179	Flumazenil	Chemical	D005442
+1286498	219	227	Diazepam	Chemical	D003975
+1286498	289	303	benzodiazepine	Chemical	D001569
+1286498	316	326	flumazenil	Chemical	D005442
+1286498	379	389	Flumazenil	Chemical	D005442
+1286498	530	538	diazepam	Chemical	D003975
+1286498	570	578	fentanyl	Chemical	D005283
+1286498	580	590	meperidine	Chemical	D008614
+1286498	595	603	morphine	Chemical	D009020
+1286498	794	804	flumazenil	Chemical	D005442
+1286498	866	876	flumazenil	Chemical	D005442
+1286498	1239	1249	Flumazenil	Chemical	D005442
+1286498	1391	1401	Flumazenil	Chemical	D005442
+1286498	1485	1495	flumazenil	Chemical	D005442
+1286498	1652	1658	nausea	Disease	D009325
+1286498	1663	1671	vomiting	Disease	D014839
+1286498	1679	1689	flumazenil	Chemical	D005442
+1286498	1700	1706	nausea	Disease	D009325
+1286498	1726	1730	pain	Disease	D010146
+1286498	1753	1763	Flumazenil	Chemical	D005442
+1286498	1814	1822	diazepam	Chemical	D003975
+1286498	CID	D005442	D009325
+1286498	CID	D005442	D014839
+
+839274|t|Hepatic adenomas and focal nodular hyperplasia of the liver in young women on oral contraceptives: case reports.
+839274|a|Two cases of hepatic adenoma and one of focal nodular hyperplasia presumably associated with the use of oral contraceptives, are reported. Special reference is made to their clinical presentation, which may be totally asymptomatic. Liver-function tests are of little diagnostic value, but valuable information may be obtained from both liver scanning and hepatic angiography. Histologic differences and clinical similarities between hepatic adenoma and focal nodular hyperplasia of the liver are discussed.
+839274	8	16	adenomas	Disease	D000236
+839274	21	46	focal nodular hyperplasia	Disease	D020518
+839274	78	97	oral contraceptives	Chemical	D003276
+839274	134	141	adenoma	Disease	D000236
+839274	153	178	focal nodular hyperplasia	Disease	D020518
+839274	217	236	oral contraceptives	Chemical	D003276
+839274	554	561	adenoma	Disease	D000236
+839274	566	591	focal nodular hyperplasia	Disease	D020518
+839274	CID	D003276	D020518
+839274	CID	D003276	D000236
+
+591536|t|Arterial thromboembolism in patients receiving systemic heparin therapy: a complication associated with heparin-induced thrombocytopenia.
+591536|a|Arterial thromboembolism is a recognized complication of systemic heparin therapy. Characteristic of the entity is arterial occlusion by platelet-fibrin thrombi with distal ischemia occurring four to twenty days after the initiation of heparin therapy, preceded by profound thrombocytopenia with platelet counts in the range of 30,000 to 40,000 per cubic millimeter. The clinically apparent occlusion may be preceded by gastrointestinal and musculoskeletal symptoms that appear to be ischemic in origin, and might serve to warn the clinician of these complications. Previous reports of these phenomena as well as recent studies of the effect of heparin are reviewed. The common factor relating thromboembolism and thrombocytopenia is heparin-induced platelet aggregation. Appropriate treatment consists of discontinuation of heparin, and anticoagulation with sodium warfarin if necessary. Vascular procedures are performed as indicated.
+591536	9	24	thromboembolism	Disease	D013923
+591536	56	63	heparin	Chemical	D006493
+591536	104	111	heparin	Chemical	D006493
+591536	120	136	thrombocytopenia	Disease	D013921
+591536	147	162	thromboembolism	Disease	D013923
+591536	204	211	heparin	Chemical	D006493
+591536	253	271	arterial occlusion	Disease	D001157
+591536	291	298	thrombi	Disease	D013927
+591536	311	319	ischemia	Disease	D007511
+591536	374	381	heparin	Chemical	D006493
+591536	412	428	thrombocytopenia	Disease	D013921
+591536	558	603	gastrointestinal and musculoskeletal symptoms	Disease	D005767|D009140	gastrointestinal symptoms|musculoskeletal symptoms
+591536	622	630	ischemic	Disease	D007511
+591536	783	790	heparin	Chemical	D006493
+591536	832	847	thromboembolism	Disease	D013923
+591536	852	868	thrombocytopenia	Disease	D013921
+591536	872	879	heparin	Chemical	D006493
+591536	888	908	platelet aggregation	Disease	D001791
+591536	963	970	heparin	Chemical	D006493
+591536	997	1012	sodium warfarin	Chemical	D014859
+591536	CID	D006493	D001157
+591536	CID	D006493	D013921
+
+20705401|t|Serotonin 6 receptor gene is associated with methamphetamine-induced psychosis in a Japanese population.
+20705401|a|BACKGROUND: Altered serotonergic neural transmission is hypothesized to be a susceptibility factor for psychotic disorders such as schizophrenia. The serotonin 6 (5-HT6) receptor is therapeutically targeted by several second generation antipsychotics, such as clozapine and olanzapine, and d-amphetamine-induced hyperactivity in rats is corrected with the use of a selective 5-HT6 receptor antagonist. In addition, the disrupted prepulse inhibition induced by d-amphetamine or phencyclidine was restored by 5-HT6 receptor antagonist in an animal study using rats. These animal models were considered to reflect the positive symptoms of schizophrenia, and the above evidence suggests that altered 5-HT6 receptors are involved in the pathophysiology of psychotic disorders. The symptoms of methamphetamine (METH)-induced psychosis are similar to those of paranoid type schizophrenia. Therefore, we conducted an analysis of the association of the 5-HT6 gene (HTR6) with METH-induced psychosis. METHOD: Using five tagging SNPs (rs6693503, rs1805054, rs4912138, rs3790757 and rs9659997), we conducted a genetic association analysis of case-control samples (197 METH-induced psychosis patients and 337 controls) in the Japanese population. The age and sex of the control subjects did not differ from those of the methamphetamine dependence patients. RESULTS: rs6693503 was associated with METH-induced psychosis patients in the allele/genotype-wise analysis. Moreover, this association remained significant after Bonferroni correction. In the haplotype-wise analysis, we detected an association between two markers (rs6693503 and rs1805054) and three markers (rs6693503, rs1805054 and rs4912138) in HTR6 and METH-induced psychosis patients, respectively. CONCLUSION: HTR6 may play an important role in the pathophysiology of METH-induced psychosis in the Japanese population.
+20705401	0	9	Serotonin	Chemical	D012701
+20705401	45	60	methamphetamine	Chemical	D008694
+20705401	69	78	psychosis	Disease	D011605
+20705401	208	227	psychotic disorders	Disease	D011605
+20705401	236	249	schizophrenia	Disease	D012559
+20705401	255	264	serotonin	Chemical	D012701
+20705401	268	272	5-HT	Chemical	D012701
+20705401	365	374	clozapine	Chemical	D003024
+20705401	379	389	olanzapine	Chemical	C076029
+20705401	395	408	d-amphetamine	Chemical	D003913
+20705401	417	430	hyperactivity	Disease	D006948
+20705401	480	484	5-HT	Chemical	D012701
+20705401	565	578	d-amphetamine	Chemical	D003913
+20705401	582	595	phencyclidine	Chemical	D010622
+20705401	612	616	5-HT	Chemical	D012701
+20705401	741	754	schizophrenia	Disease	D012559
+20705401	801	805	5-HT	Chemical	D012701
+20705401	856	875	psychotic disorders	Disease	D011605
+20705401	893	908	methamphetamine	Chemical	D008694
+20705401	910	914	METH	Chemical	D008694
+20705401	924	933	psychosis	Disease	D011605
+20705401	958	985	paranoid type schizophrenia	Disease	D012563
+20705401	1049	1053	5-HT	Chemical	D012701
+20705401	1072	1076	METH	Chemical	D008694
+20705401	1085	1094	psychosis	Disease	D011605
+20705401	1261	1265	METH	Chemical	D008694
+20705401	1274	1283	psychosis	Disease	D011605
+20705401	1412	1427	methamphetamine	Chemical	D008694
+20705401	1488	1492	METH	Chemical	D008694
+20705401	1501	1510	psychosis	Disease	D011605
+20705401	1807	1811	METH	Chemical	D008694
+20705401	1820	1829	psychosis	Disease	D011605
+20705401	1924	1928	METH	Chemical	D008694
+20705401	1937	1946	psychosis	Disease	D011605
+20705401	CID	D008694	D011605
+
+19105845|t|Effect of increasing intraperitoneal infusion rates on bupropion hydrochloride-induced seizures in mice.
+19105845|a|BACKGROUND: It is not known if there is a relationship between input rate and incidence of bupropion-induced seizures. This is important, since different controlled release formulations of bupropion release the active drug at different rates. METHODS: We investigated the effect of varying the intraperitoneal infusion rates of bupropion HCl 120 mg/kg, a known convulsive dose 50 (CD50), on the incidence and severity of bupropion-induced convulsions in the Swiss albino mice. A total of 69 mice, approximately 7 weeks of age, and weighing 21.0 to 29.1 g were randomly assigned to bupropion HCl 120 mg/kg treatment by intraperitoneal (IP) administration in 7 groups (9 to 10 animals per group). Bupropion HCl was infused through a surgically implanted IP dosing catheter with infusions in each group of 0 min, 15 min, 30 min, 60 min, 90 min, 120 min, and 240 min. The number, time of onset, duration and the intensity of the convulsions or absence of convulsions were recorded. RESULTS: The results showed that IP administration of bupropion HCl 120 mg/kg by bolus injection induced convulsions in 6 out of 10 mice (60% of convulsing mice) in group 1. Logistic regression analysis revealed that infusion time was significant (p = 0.0004; odds ratio = 0.974) and increasing the IP infusion time of bupropion HCl 120 mg/kg was associated with a 91% reduced odds of convulsions at infusion times of 15 to 90 min compared to bolus injection. Further increase in infusion time resulted in further reduction in the odds of convulsions to 99.8% reduction at 240 min. CONCLUSION: In conclusion, the demonstration of an inverse relationship between infusion time of a fixed and convulsive dose of bupropion and the risk of convulsions in a prospective study is novel.
+19105845	55	78	bupropion hydrochloride	Chemical	D016642
+19105845	87	95	seizures	Disease	D012640
+19105845	196	205	bupropion	Chemical	D016642
+19105845	214	222	seizures	Disease	D012640
+19105845	294	303	bupropion	Chemical	D016642
+19105845	433	446	bupropion HCl	Chemical	D016642
+19105845	466	476	convulsive	Disease	D012640
+19105845	526	535	bupropion	Chemical	D016642
+19105845	544	555	convulsions	Disease	D012640
+19105845	686	699	bupropion HCl	Chemical	D016642
+19105845	800	813	Bupropion HCl	Chemical	D016642
+19105845	1030	1041	convulsions	Disease	D012640
+19105845	1056	1067	convulsions	Disease	D012640
+19105845	1137	1150	bupropion HCl	Chemical	D016642
+19105845	1188	1199	convulsions	Disease	D012640
+19105845	1402	1415	bupropion HCl	Chemical	D016642
+19105845	1468	1479	convulsions	Disease	D012640
+19105845	1622	1633	convulsions	Disease	D012640
+19105845	1774	1784	convulsive	Disease	D012640
+19105845	1793	1802	bupropion	Chemical	D016642
+19105845	1819	1830	convulsions	Disease	D012640
+19105845	CID	D016642	D012640
+
+18657397|t|Detailed spectral profile analysis of penicillin-induced epileptiform activity in anesthetized rats.
+18657397|a|Penicillin model is a widely used experimental model for epilepsy research. In the present study we aimed to portray a detailed spectral analysis of penicillin-induced epileptiform activity in comparison with basal brain activity in anesthetized Wistar rats. Male Wistar rats were anesthetized with i.p. urethane and connected to an electrocorticogram setup. After a short period of basal activity recording, epileptic focus was induced by injecting 400IU/2 microl penicillin-G potassium into the left lateral ventricle while the cortical activity was continuously recorded. Basal activity, latent period and the penicillin-induced epileptiform activity periods were then analyzed using both conventional methods and spectral analysis. Spectral analyses were conducted by dividing the whole spectrum into different frequency bands including delta, theta (slow and fast), alpha-sigma, beta (1 and 2) and gamma (1 and 2) bands. Our results show that the most affected frequency bands were delta, theta, beta-2 and gamma-2 bands during the epileptiform activity and there were marked differences in terms of spectral densities between three investigated episodes (basal activity, latent period and epileptiform activity). Our results may help to analyze novel data obtained using similar experimental models and the simple analysis method described here can be used in similar studies to investigate the basic neuronal mechanism of this or other types of experimental epilepsies.
+18657397	38	48	penicillin	Chemical	D010406
+18657397	57	78	epileptiform activity	Disease	D004827
+18657397	101	111	Penicillin	Chemical	D010406
+18657397	158	166	epilepsy	Disease	D004827
+18657397	250	260	penicillin	Chemical	D010406
+18657397	269	290	epileptiform activity	Disease	D004827
+18657397	405	413	urethane	Chemical	D014520
+18657397	510	519	epileptic	Disease	D004827
+18657397	566	588	penicillin-G potassium	Chemical	D010400
+18657397	714	724	penicillin	Chemical	D010406
+18657397	733	754	epileptiform activity	Disease	D004827
+18657397	1138	1159	epileptiform activity	Disease	D004827
+18657397	1296	1317	epileptiform activity	Disease	D004827
+18657397	1566	1576	epilepsies	Disease	D004827
+18657397	CID	D010400	D004827
+
+18363626|t|High dose dexmedetomidine as the sole sedative for pediatric MRI.
+18363626|a|OBJECTIVE: This large-scale retrospective review evaluates the sedation profile of dexmedetomidine. AIM: To determine the hemodynamic responses, efficacy and adverse events associated with the use of high dose dexmedetomidine as the sole sedative for magnetic resonance imaging (MRI) studies. BACKGROUND: Dexmedetomidine has been used at our institution since 2005 to provide sedation for pediatric radiological imaging studies. Over time, an effective protocol utilizing high dose dexmedetomidine as the sole sedative agent has evolved. METHODS/MATERIALS: As part of the ongoing Quality Assurance process, data on all sedations are reviewed monthly and protocols modified as needed. Data were analyzed from all 747 consecutive patients who received dexmedetomidine for MRI sedation from April 2005 to April 2007. RESULTS: Since 2005, the 10-min loading dose of our dexmedetomidine protocol increased from 2 to 3 microg.kg(-1), and the infusion rate increased from 1 to 1.5 to 2 microg.kg(-1).h(-1). The current sedation protocol progressively increased the rate of successful sedation (able to complete the imaging study) when using dexmedetomidine alone from 91.8% to 97.6% (P = 0.009), reducing the requirement for adjuvant pentobarbital in the event of sedation failure with dexmedetomidine alone and decreased the mean recovery time by 10 min (P < 0.001). Although dexmedetomidine sedation was associated with a 16% incidence of bradycardia, all concomitant mean arterial blood pressures were within 20% of age-adjusted normal range and oxygen saturations were 95% or higher. CONCLUSION: Dexmedetomidine in high doses provides adequate sedation for pediatric MRI studies. While use of high dose dexmedetomidine is associated with decreases in heart rate and blood pressure outside the established 'awake' norms, this deviation is generally within 20% of norms, and is not associated with adverse sequelae. Dexmedetomidine is useful as the sole sedative for pediatric MRI.
+18363626	10	25	dexmedetomidine	Chemical	D020927
+18363626	149	164	dexmedetomidine	Chemical	D020927
+18363626	276	291	dexmedetomidine	Chemical	D020927
+18363626	371	386	Dexmedetomidine	Chemical	D020927
+18363626	548	563	dexmedetomidine	Chemical	D020927
+18363626	816	831	dexmedetomidine	Chemical	D020927
+18363626	932	947	dexmedetomidine	Chemical	D020927
+18363626	1200	1215	dexmedetomidine	Chemical	D020927
+18363626	1293	1306	pentobarbital	Chemical	D010424
+18363626	1345	1360	dexmedetomidine	Chemical	D020927
+18363626	1436	1451	dexmedetomidine	Chemical	D020927
+18363626	1500	1511	bradycardia	Disease	D001919
+18363626	1608	1614	oxygen	Chemical	D010100
+18363626	1659	1674	Dexmedetomidine	Chemical	D020927
+18363626	1766	1781	dexmedetomidine	Chemical	D020927
+18363626	1977	1992	Dexmedetomidine	Chemical	D020927
+18363626	CID	D020927	D001919
+
+16192988|t|Methamphetamine causes alterations in the MAP kinase-related pathways in the brains of mice that display increased aggressiveness.
+16192988|a|Aggressive behaviors have been reported in patients who suffer from some psychiatric disorders, and are common in methamphetamine (METH) abusers. Herein, we report that multiple (but not single) injections of METH significantly increased aggressiveness in male CD-1 mice. This increase in aggressiveness was not secondary to METH-induced hyperactivity. Analysis of protein expression using antibody microarrays and Western blotting revealed differential changes in MAP kinase-related pathways after multiple and single METH injections. There were statistically significant (p<0.05) decreases in MEK1, Erk2p, GSK3alpha, 14-3-3e, and MEK7 in the striata of mice after multiple injections of METH. MEK1 was significantly decreased also after a single injection of METH, but to a much lesser degree than after multiple injections of METH. In the frontal cortex, there was a statistically significant decrease in GSK3alpha after multiple (but not single) injections of METH. These findings suggest that alterations in MAP kinase-related pathways in the prefronto-striatal circuitries might be involved in the manifestation of aggressive behaviors in mice.
+16192988	0	15	Methamphetamine	Chemical	D008694
+16192988	115	129	aggressiveness	Disease	D001523
+16192988	131	151	Aggressive behaviors	Disease	D001523
+16192988	204	225	psychiatric disorders	Disease	D001523
+16192988	245	260	methamphetamine	Chemical	D008694
+16192988	262	266	METH	Chemical	D008694
+16192988	340	344	METH	Chemical	D008694
+16192988	369	383	aggressiveness	Disease	D001523
+16192988	420	434	aggressiveness	Disease	D001523
+16192988	456	460	METH	Chemical	D008694
+16192988	469	482	hyperactivity	Disease	D006948
+16192988	650	654	METH	Chemical	D008694
+16192988	820	824	METH	Chemical	D008694
+16192988	892	896	METH	Chemical	D008694
+16192988	960	964	METH	Chemical	D008694
+16192988	1095	1099	METH	Chemical	D008694
+16192988	1252	1272	aggressive behaviors	Disease	D001523
+16192988	CID	D008694	D001523
+
+16116131|t|rTMS of supplementary motor area modulates therapy-induced dyskinesias in Parkinson disease.
+16116131|a|The neural mechanisms and circuitry involved in levodopa-induced dyskinesia are unclear. Using repetitive transcranial magnetic stimulation (rTMS) over the supplementary motor area (SMA) in a group of patients with advanced Parkinson disease, the authors investigated whether modulation of SMA excitability may result in a modification of a dyskinetic state induced by continuous apomorphine infusion. rTMS at 1 Hz was observed to markedly reduce drug-induced dyskinesias, whereas 5-Hz rTMS induced a slight but not significant increase.
+16116131	59	70	dyskinesias	Disease	D004409
+16116131	74	91	Parkinson disease	Disease	D010300
+16116131	141	149	levodopa	Chemical	D007980
+16116131	158	168	dyskinesia	Disease	D004409
+16116131	317	334	Parkinson disease	Disease	D010300
+16116131	434	444	dyskinetic	Disease	D004409
+16116131	473	484	apomorphine	Chemical	D001058
+16116131	540	564	drug-induced dyskinesias	Disease	D004409
+16116131	CID	D007980	D004409
+
+15930398|t|Assessment of the onset and persistence of amnesia during procedural sedation with propofol.
+15930398|a|OBJECTIVES: To assess patients' ability to repeat and recall words presented to them while undergoing procedural sedation with propofol, and correlate their recall with their level of awareness as measured by bispectral index (BIS) monitoring. METHODS: This was a prospective, single-intervention study of consenting adult patients undergoing procedural sedation with propofol between December 28, 2002, and October 31, 2003. BIS monitoring was initiated starting 3 minutes before the procedure and continuing until the patient had regained baseline mental status. At 1-minute intervals during the procedural sedation, until the patient regained baseline mental status at the end of the procedure, a word from a standardized list was read aloud, and the patient was asked to immediately repeat the word to the investigator. The BIS score at the time the word was read and the patient's ability to repeat the word were recorded. After the procedure, the patient was asked to state all of the words from the list that he or she could recall, and to identify the last word recalled from prior to the start of the procedure and the first word recalled from after the procedure was completed. RESULTS: Seventy-five consenting patients were enrolled; one patient was excluded from data analysis for a protocol violation. No serious adverse events were noted during the procedural sedations. The mean (+/-standard deviation) time of data collection was 16.4 minutes (+/-7.1; range 5 to 34 minutes). The mean initial (preprocedure) BIS score was 97.1 (+/-2.3; range 92 to 99). The mean lowest BIS score occurring during these procedural sedations was 66.9 (+/-14.4; range 33 to 91). The mean lowest BIS score corresponding to the ability of the patient to immediately repeat words read from the list was 77.1 (95% CI = 74.3 to 80.0). The mean highest BIS score corresponding to the inability to repeat words was 81.5 (95% CI = 78.1 to 84.8). The mean BIS score corresponding to the last word recalled from prior to the initiation of the sedation was 96.7 (+/-2.4; range 84 to 98). The mean BIS score corresponding to the first word recalled after the procedure was completed was 91.2 (95% CI = 88.1 to 94.3). All patients recalled at least one word that had been read to them during the protocol. The mean lowest BIS score for any recalled word was 91.5 (+/-11.1; range 79 to 98), and no words were recalled when the corresponding BIS score was less than 90. CONCLUSIONS: There is a range of BIS scores during which sedated patients are able to repeat words read to them but are not able to subsequently recall these words. Furthermore, patients had no recall of words repeated prior to procedural sedation in BIS ranges associated with recall after procedural sedation, suggestive of retrograde amnesia.
+15930398	43	50	amnesia	Disease	D000647
+15930398	83	91	propofol	Chemical	D015742
+15930398	220	228	propofol	Chemical	D015742
+15930398	461	469	propofol	Chemical	D015742
+15930398	1967	1992	inability to repeat words	Disease	D000647
+15930398	2870	2888	retrograde amnesia	Disease	D000648
+15930398	CID	D015742	D000647
+
+14975762|t|Expression of p300 protects cardiac myocytes from apoptosis in vivo.
+14975762|a|Doxorubicin is an anti-tumor agent that represses cardiac-specific gene expression and induces myocardial cell apoptosis. Doxorubicin depletes cardiac p300, a transcriptional coactivator that is required for the maintenance of the differentiated phenotype of cardiac myocytes. However, the role of p300 in protection against doxorubicin-induced apoptosis is unknown. Transgenic mice overexpressing p300 in the heart and wild-type mice were subjected to doxorubicin treatment. Compared with wild-type mice, transgenic mice exhibited higher survival rate as well as more preserved left ventricular function and cardiac expression of alpha-sarcomeric actin. Doxorubicin induced myocardial cell apoptosis in wild-type mice but not in transgenic mice. Expression of p300 increased the cardiac level of bcl-2 and mdm-2, but not that of p53 or other members of the bcl-2 family. These findings demonstrate that overexpression of p300 protects cardiac myocytes from doxorubicin-induced apoptosis and reduces the extent of acute heart failure in adult mice in vivo.
+14975762	69	80	Doxorubicin	Chemical	D004317
+14975762	92	97	tumor	Disease	D009369
+14975762	191	202	Doxorubicin	Chemical	D004317
+14975762	394	405	doxorubicin	Chemical	D004317
+14975762	522	533	doxorubicin	Chemical	D004317
+14975762	724	735	Doxorubicin	Chemical	D004317
+14975762	1027	1038	doxorubicin	Chemical	D004317
+14975762	1089	1102	heart failure	Disease	D006333
+14975762	CID	D004317	D006333
+
+9875685|t|Therapeutic drug monitoring of tobramycin: once-daily versus twice-daily dosage schedules.
+9875685|a|OBJECTIVE: To evaluate the effect of dosage regimen (once-daily vs. twice-daily) of tobramicyn on steady-state serum concentrations and toxicity. MATERIALS AND METHODS: Patients undergoing treatment with i.v. tobramycin (4 mg/kg/day) were randomised to two groups. Group OD (n = 22) received a once-daily dose of tobramycin and group TD (n = 21) received the same dose divided into two doses daily. Tobramycin serum concentrations (peak and trough) were measured by enzyme multiplied immunoassay. The renal and auditory functions of the patients were monitored before, during and immediately after treatment. RESULTS: The two groups were comparable with respect to sex, age, body weight and renal function. No statistically significant differences were found in mean daily dose, duration of treatment, or cumulative dose. Trough concentrations were < 2 g/ml in the two groups (100%). Peak concentrations were > 6 microg/ml in 100% of the OD group and in 67% of the TD group (P< 0.01). Mean peak concentrations were markedly different: 11.00+/-2.89 microg/ml in OD vs. 6.53+/-1.45 microg/ml in TD (P< 0.01). The pharmacokinetics parameters were: Ke, (0.15+/-0.03/h in OD vs. 0.24+/-0.06/h in TD), t1/2, (4.95+/-1.41 h in OD vs. 3.07+/-0.71 h in TD), Vd (0.35+/-0.11 l/kg in OD vs. 0.33+/-0.09 l/kg in TD), Cl (0.86+/-0.29 ml/min/kg in OD vs. 1.28+/-0.33 ml/min/kg in TD). Increased serum creatinine was observed in 73% of patients in OD versus 57% of patients in TD, without evidence of nephrotoxicity. In TD group, three patients developed decreased auditory function, of which one presented with an auditory loss of -30 dB, whereas in the OD group only one patient presented decreased auditory function. CONCLUSION: This small study suggests that a once-daily dosing regimen of tobramycin is at least as effective as and is no more and possibly less toxic than the twice-daily regimen. Using a single-dose therapy, peak concentration determination is not necessary, only trough samples should be monitored to ensure levels below 2 microg/ml.
+9875685	31	41	tobramycin	Chemical	D014031
+9875685	175	185	tobramicyn	Chemical	D014031
+9875685	227	235	toxicity	Disease	D064420
+9875685	300	310	tobramycin	Chemical	D014031
+9875685	404	414	tobramycin	Chemical	D014031
+9875685	490	500	Tobramycin	Chemical	D014031
+9875685	1478	1488	creatinine	Chemical	D003404
+9875685	1577	1591	nephrotoxicity	Disease	D007674
+9875685	1631	1658	decreased auditory function	Disease	D034381
+9875685	1691	1704	auditory loss	Disease	D034381
+9875685	1767	1794	decreased auditory function	Disease	D034381
+9875685	1870	1880	tobramycin	Chemical	D014031
+9875685	CID	D014031	D034381
+
+9041081|t|Effect of myopic excimer laser photorefractive keratectomy on the electrophysiologic function of the retina and optic nerve.
+9041081|a|PURPOSE: To assess by electrophysiologic testing the effect of photorefractive keratectomy (PRK) on the retina and optic nerve. SETTING: Eye Clinic, S. Salvatore Hospital, L'Aquila University, Italy. METHODS: Standard pattern electroretinograms (P-ERGs) and standard pattern visual evoked potentials (P-VEPs) were done in 25 eyes of 25 patients who had myopic PRK for an attempted correction between 5.00 and 15.00 diopters (D) (mean 8.00 D). Testing was done preoperatively and 3, 6, 12, and 18 months postoperatively. The contralateral eyes served as controls. During the follow-up, 3 patients (12%) developed steroid-induced elevated intraocular pressure (IOP) that resolved after corticosteroid therapy was discontinued. RESULTS: No statistically significant differences were seen between treated and control eyes nor between treated eyes preoperatively and postoperatively. CONCLUSION: Myopic excimer laser PRK did not seem to affect the posterior segment. The transient steroid-induced IOP rise did not seem to cause functional impairment.
+9041081	737	744	steroid	Chemical	D013256
+9041081	753	782	elevated intraocular pressure	Disease	D009798
+9041081	809	823	corticosteroid	Chemical	D000305
+9041081	1101	1108	steroid	Chemical	D013256
+9041081	1117	1125	IOP rise	Disease	D009798
+9041081	CID	D000305	D009798
+
+8012887|t|Failure of ancrod in the treatment of heparin-induced arterial thrombosis.
+8012887|a|The morbidity and mortality associated with heparin-induced thrombosis remain high despite numerous empirical therapies. Ancrod has been used successfully for prophylaxis against development of thrombosis in patients with heparin induced platelet aggregation who require brief reexposure to heparin, but its success in patients who have developed the thrombosis syndrome is not well defined. The authors present a case of failure of ancrod treatment in a patient with heparin-induced thrombosis.
+8012887	38	45	heparin	Chemical	D006493
+8012887	63	73	thrombosis	Disease	D013927
+8012887	119	126	heparin	Chemical	D006493
+8012887	135	145	thrombosis	Disease	D013927
+8012887	269	279	thrombosis	Disease	D013927
+8012887	297	304	heparin	Chemical	D006493
+8012887	313	333	platelet aggregation	Disease	D001791
+8012887	366	373	heparin	Chemical	D006493
+8012887	426	436	thrombosis	Disease	D013927
+8012887	543	550	heparin	Chemical	D006493
+8012887	559	569	thrombosis	Disease	D013927
+8012887	CID	D006493	D013927

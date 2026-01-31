@@ -29,12 +29,12 @@ class RunnerLoader(EntityLoader):
     @staticmethod
     def load(id: str,**extra_params) -> Entity | None:
         checkpointer = _seek_checkpointer()
-        meta=MetaLoader.load("agents",id)
-        if meta:
-            return AgentEntity(meta, checkpointer=checkpointer)
+        meta = MetaLoader.load("agents", id)
+        if meta and not meta['type']=="SUB":
+                return AgentEntity(meta, checkpointer=checkpointer)
         else:
-            meta = MetaLoader.load("graphs",id)
-            return GraphEntity(meta, checkpointer=checkpointer)
+                meta = MetaLoader.load("graphs",id)
+                return GraphEntity(meta, checkpointer=checkpointer)
 
     @staticmethod
     async def aload(id: str,**extra_params) -> Entity | None:

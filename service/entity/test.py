@@ -1,9 +1,10 @@
+from dataclasses import asdict
 from typing import Any
 from logging import getLogger
 
 import csv
 from pathlib import Path
-from data.ctd_parser import parse
+from data.data_parser import CIDParser
 from service.entity.entity import EntityLoader
 
 TEST_DIR = Path(__file__).resolve().parent.parent.parent  / "tests"
@@ -23,8 +24,11 @@ class TestLoader(EntityLoader):
                 rows = list(reader)
                 return list(rows[0].keys()), rows
         elif '.txt' in file:
-            articles = parse(test_file.read_text(encoding='utf-8'))
+
+            parser=CIDParser(test_file.read_text(encoding='utf-8'))
+            articles = parser.get_articles()
             field_names = list(articles[0].__dataclass_fields__.keys()) if articles else []
+            articles = [asdict(art) for art in articles]
             return field_names, articles
         return [], []
 
@@ -224,7 +228,8 @@ class TestLoader(EntityLoader):
             try:
                 test_id = txt_file.stem
                 txt_path = agent_dir / f"{test_id}.txt"
-                articles = parse(txt_path.read_text(encoding='utf-8'))
+                parser=CIDParser(txt_path.read_text(encoding='utf-8'))
+                articles = parser.get_articles()
                 test_data = {
                     "id": test_id,
                     "name": txt_file.name,  # 默认用文件名作为name

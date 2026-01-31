@@ -4,6 +4,7 @@ from service.meta.loader import MetaLoader
 from service.entity.entity import Entity,EntityLoader
 from pydantic import create_model, Field
 from langchain_core.tools import StructuredTool
+from plugin.plugin_loader import get_plugin
 import re
 
 logger = getLogger(__name__)
