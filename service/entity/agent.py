@@ -9,33 +9,18 @@ from pathlib import Path
 import json
 import csv
 from typing_extensions import get_type_hints
-from typing import Dict, Any, List, TypedDict, get_type_hints, TypeVar,Iterator
+from typing import Dict, Any, List, get_type_hints, Iterator
 from service.entity.tool import ToolLoader
-from utils.conversion import convert_to_list
+from utils.conversion import convert_to_list, T,jsonify_state
 from service.entity.entity import Entity, EntityLoader
 from service.meta.loader import MetaLoader
+from utils.graphutils import create_graph
 from plugin.plugin_loader import get_plugin
 from dataclasses import dataclass
-T = TypeVar("T", bound=TypedDict)
-import importlib
+
 
 logger = getLogger(__name__)
 
-def _jsonify_state(state: T) -> None:
-    """把 TypedDict 中值是 JSON 字符串的字段就地转成对象/list"""
-    # 只拿出 TypedDict 声明的键
-    for key in state:
-        val = state.get(key)  # TypedDict 按 dict 方式取值
-        if not isinstance(val, str):
-            continue
-        try:
-            parsed = json.loads(val.strip())
-            # 只处理 []  [{}]  {}
-            if isinstance(parsed, (list, dict)):
-                state[key] = parsed  # 写回 TypedDict
-
-        except Exception:
-            pass
 
 class AgentEntity(Entity):
     def __init__(self,  meta: Dict[str, Any], checkpointer: Checkpointer = None):
@@ -51,7 +36,8 @@ class AgentEntity(Entity):
 
         self.idx: str | None = meta.get("idx")
         self.process = meta.get("process", None)
-
+        if self.type=="PGM":
+            self.agent = create_graph(self,self.checkpointer)
         if self.type == "LLM":
             # 获取 llm_url 和 model，如果不存在则提供默认值或处理逻辑
             llm_model_id = meta.get("model", "").strip()  # 默认为空字符串
@@ -110,9 +96,8 @@ class AgentEntity(Entity):
             return {}
 
         name = self.outputs["name"]
-
+        typ = self.outputs.get("type", "str").lower()
         if self.type=='LLM':
-            typ = self.outputs.get("type", "str").lower()
             if typ == "list":
                 return {name: convert_to_list(result)}
             return {name: result}
@@ -219,12 +204,13 @@ class AgentEntity(Entity):
                 return out
         return {}
 
+
     def stream(self, state: T,**kwargs) -> Iterator[dict[str, Any] | Any]:
         """
         流式运行 LLM：返回一个 Python generator，
         每次 yield 一段 chunk，用于 Flask SSE 或 chunked response。
         """
-        _jsonify_state(state)
+        state=jsonify_state(state)
         # ---------- 探针结束 ----------
         if self.type=="PGM":
             result = self.invoke(state)
@@ -279,34 +265,9 @@ class AgentEntity(Entity):
 
             # 清理代码
             cleaned_code = normalize_indent(code_string)
-
-            # 2. 安全的内置函数
-            safe_builtins = {
-                'range': range, 'len': len, 'str': str, 'int': int,
-                'float': float, 'bool': bool, 'list': list, 'dict': dict,
-                'set': set, 'tuple': tuple, 'enumerate': enumerate,
-                'zip': zip, 'max': max, 'min': min, 'sum': sum,
-                'abs': abs, 'round': round, 'sorted': sorted,
-                'isinstance':isinstance
-            }
-
-            def safe_import(name, globals=None, locals=None, fromlist=(), level=0):
-                allowed = {
-                    'flair',
-                    'flair.data'
-                }
-                if name not in allowed:
-                    raise ImportError(f"Import {name} not allowed")
-                return __import__(name, globals, locals, fromlist, level)
-
-            safe_builtins['__import__'] = safe_import
-            # 3. 创建执行环境
-            exec_globals = {
-                '__builtins__': safe_builtins,
-                'state': state,
-                '__result__': None,
-                'get_plugin': get_plugin
-            }
+            exec_globals = get_plugin('exec_globals')
+            exec_globals['state']=state
+            exec_globals['get_plugin']=get_plugin
             # 4. 直接执行清理后的代码
             exec(cleaned_code, exec_globals)
             # 5. 获取结果
@@ -324,10 +285,12 @@ class AgentEntity(Entity):
             return state
 
 
-    async def astream_events(self,input, config):
-        prompt_value = self.template.invoke(input)
-        return self.agent.astream_events(prompt_value, config=config)
-
+    async def astream_events(self,inputs, config):
+        if self.type=="LLM":
+            values = self.template.invoke(inputs)
+        else:
+            values = inputs
+        return self.agent.astream_events(values, config=config)
 
 
     def get_state(self, config):
@@ -349,12 +312,15 @@ class AgentEntity(Entity):
 
         messages = original_state.values
         state.metadata=original_state.metadata
+        if 'messages' in messages:
+            # 遍历 messages 列表，找到所有 AIMessage 并更新 content
+            for  message in messages['messages']:
+                if isinstance(message, AIMessage):
+                    state.values = message.content
+                    return state
+        else:
+            state.values=messages
 
-        # 遍历 messages 列表，找到所有 AIMessage 并更新 content
-        for  message in messages['messages']:
-            if isinstance(message, AIMessage):
-                state.values = message.content
-                return state
         return state
 
 
