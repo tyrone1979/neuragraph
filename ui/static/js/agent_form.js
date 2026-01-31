@@ -91,18 +91,7 @@ $('#llmConfigSelect').on('change', function() {
     });
 
     updateFieldsVisibility(); // 初始
-    // 解析 JSON 字段
-    function parseJSONField(value, defaultValue = null) {
-        if (!value || value.trim() === '') {
-            return defaultValue;
-        }
-        try {
-            return JSON.parse(value);
-        } catch (e) {
-            console.error('JSON parse error:', e);
-            throw new Error(`Invalid JSON format: ${e.message}`);
-        }
-    }
+
 
     // 加载可用工具列表（从 /tools/api/list 或直接从全局变量）
     function loadAvailableTools() {
@@ -254,7 +243,7 @@ $('#llmConfigSelect').on('change', function() {
         }
         if (formData.type==='SUB'){
             const idx= $('#indexForLoop').val();
-            if (idx) formData.idx=idx;
+            if (idx) formData.idx=parseCommaList(idx);
         }
         return formData;
     }
@@ -444,20 +433,16 @@ $('#llmConfigSelect').on('change', function() {
 
         // 根据当前agent的inputs字段创建空输入框
         try {
-            const inputs = parseJSONField($inputs.val(), []);
+            const inputs = parseCommaList($inputs.val());
             if (inputs && Array.isArray(inputs) && inputs.length > 0) {
                 inputs.forEach((input, index) => {
                     const inputName = input || `input_${index + 1}`;
                     const inputType = 'text';
                     const inputDesc = '';
 
-                    // 检查是否需要 textarea
-                    const isTextarea = TEXTAREA_FIELDS.some(field =>
-                        inputName.toLowerCase() === field.toLowerCase()
-                    );
                     let inputHtml;
 
-                    if (isTextarea) {
+
                         // 创建 textarea 输入框
                         inputHtml = `
                         <div class="mb-3">
@@ -473,22 +458,6 @@ $('#llmConfigSelect').on('change', function() {
                                       rows="4"></textarea>
                         </div>
                     `;
-                    } else {
-                        // 创建普通 input 输入框
-                        inputHtml = `
-                        <div class="mb-3">
-                            <label class="form-label small fw-medium">
-                                ${inputName}
-                                ${inputDesc ? `<span class="text-muted"> - ${inputDesc}</span>` : ''}
-                            </label>
-                            <input type="text" class="form-control form-control-sm"
-                                   name="${inputName}"
-                                   value=""
-                                   placeholder="${inputType}"
-                                   data-type="${inputType}">
-                        </div>
-                    `;
-                    }
 
                     $testInputs.append(inputHtml);
                 });
@@ -508,7 +477,7 @@ $('#llmConfigSelect').on('change', function() {
             // 获取agent的inputs定义用于显示类型信息
             let agentInputs = [];
             try {
-                agentInputs = parseJSONField($inputs.val(), []);
+                agentInputs = parseCommaList($inputs.val());
             } catch (e) {
                 // 忽略错误，使用默认
             }
@@ -527,16 +496,9 @@ $('#llmConfigSelect').on('change', function() {
                 const inputType = inputInfo.type || 'text';
                 const inputDesc = inputInfo.description || '';
 
-                // 检查是否需要 textarea
-                const isTextarea = TEXTAREA_FIELDS.some(field =>
-
-                    name.toLowerCase() === field.toLowerCase()
-
-                );
 
                 let inputHtml;
 
-                if (isTextarea) {
                     // 创建 textarea 输入框
                     const rows = Math.min(Math.max(3, Math.ceil((value || '').length / 50)), 10); // 动态计算行数
                     inputHtml = `
@@ -553,22 +515,7 @@ $('#llmConfigSelect').on('change', function() {
                                   rows="${rows}">${value || ''}</textarea>
                     </div>
                 `;
-                } else {
-                    // 创建普通 input 输入框
-                    inputHtml = `
-                    <div class="mb-3">
-                        <label class="form-label small fw-medium">
-                            ${name}
-                            ${inputDesc ? `<span class="text-muted"> - ${inputDesc}</span>` : ''}
-                        </label>
-                        <input type="text" class="form-control form-control-sm"
-                               name="${name}"
-                               value="${value || ''}"
-                               placeholder="${inputType}"
-                               data-type="${inputType}">
-                    </div>
-                `;
-                }
+
 
                 $testInputs.append(inputHtml);
             });

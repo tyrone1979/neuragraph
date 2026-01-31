@@ -85,23 +85,27 @@ $('#saveToolBtn').on('click', function () {
     const btn = $(this);
     btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Saving...');
     saveToolForm();
+    const toolId   = $('#field_id').val().trim();
     btn.prop('disabled', false).html(toolId ? '<i class="fas fa-save me-2"></i>Create' : '<i class="fas fa-save me-2"></i>Update');
 
 });
 
-$('#toolTestForm').on('click', function (e) {
+$('#runToolBtn').on('click', function (e) {
     e.preventDefault();
+    saveToolForm();
+   const toolId   = $('#field_id').val().trim();
    const $container = $('#resultContainer');
    const $loading = $('#loadingSpinner');
-   const $output = $('#resultOutput');
-
+   const $resultArea = $('#resultArea');
+    const $output = $('#resultOutput');
    $container.removeClass('d-none');
    $loading.removeClass('d-none');
-   $output.addClass('d-none').text('');
+
 
    const inputs = {};
-   $(this).serializeArray().forEach(item => {
-       let val = item.value.trim();
+   const parameters = buildParamSchema();
+   Object.entries(parameters.properties).forEach(([key, value]) => {
+       val = $(`#${key}`).val().trim();
        if (val === '') return;
 
        // 尝试解析 JSON（对象或数组）
@@ -119,14 +123,14 @@ $('#toolTestForm').on('click', function (e) {
            else if (!isNaN(val) && val !== '') val = Number(val);
        }
 
-       inputs[item.name] = val;
+       inputs[key] = val;
    });
 
    $.ajax({
-       url: '{{ url_for("tool.run_tool") }}',
+       url: '/tools/api/run_tool',
        method: 'POST',
        contentType: 'application/json',
-       data: JSON.stringify({ tool_id: "{{ tool_id }}", inputs: inputs }),
+       data: JSON.stringify({ tool_id: toolId, inputs: inputs }),
        success: function (res) {
            $loading.addClass('d-none');
            if (res.error) {
@@ -134,12 +138,14 @@ $('#toolTestForm').on('click', function (e) {
            } else {
                $output.text(res.result || '(empty)');
            }
-           $output.removeClass('d-none');
+           $resultArea.removeClass('d-none');
        },
        error: function (xhr) {
            $loading.addClass('d-none');
            const msg = xhr.responseJSON?.error || xhr.statusText;
-           $output.text('Execution failed: ' + msg).addClass('alert alert-danger').removeClass('bg-dark text-white').removeClass('d-none');
+
+           $output.text('Execution failed: ' + msg).addClass('alert alert-danger').removeClass('bg-dark text-white');
+           $resultArea.removeClass('d-none');
        }
    });
 });
