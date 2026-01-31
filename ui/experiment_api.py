@@ -246,7 +246,6 @@ async def update_exp():
     data = request.get_json(force=True)  # force=True 防止 Content-Type 不对时报错
     exp_id=data['exp_id']
     exp_cfg = MetaLoader.load("exps",exp_id)
-    dataset = exp_cfg['dataset']
 
     MetaLoader.update("exps",exp_id,data)
     if data['status']=='completed':

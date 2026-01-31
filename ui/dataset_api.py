@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify,render_template
 import html as html_lib
-from data.data_load import load_articles,load_datasets,get_doc_struct
+from data.data_load import load_parser,load_datasets
 
 
 ENTITY_CSS_MAP = {
@@ -22,7 +22,8 @@ def dataset_list_view():
     dataset = request.args.get('dataset', next(iter(datasets.keys()), ''))
     curr_file = request.args.get('file', (datasets.get(dataset, '')[0]))
 
-    articles = load_articles(dataset, curr_file)
+    parser = load_parser(dataset, curr_file)
+    articles=parser.get_articles()
 
     # 2. 搜索
     search = request.args.get('search', '').strip()
@@ -69,8 +70,8 @@ def dataset_list_view():
 def dataset_get_doc(pmid):
     dataset = request.args.get('dataset')
     file_name = request.args.get('file')
-    articles = load_articles(dataset, file_name)
-    doc = get_doc_struct(articles, pmid)
+    parser = load_parser(dataset, file_name)
+    doc = parser.get(pmid)
     if doc is None:
         return 'Document not found', 404
 

@@ -17,7 +17,6 @@
         </h5>
       </div>
       <div class="p-3 flex-fill d-flex flex-column">
-        <form id="toolForm" >
           <!-- 基本信息 -->
           <div class="row">
             <div class="col-md-6">
@@ -57,7 +56,6 @@
             <button id="saveToolBtn" class="btn btn-success mt-3">
               <i class="fas fa-save me-2"></i>{{ 'Update' if tool.id else 'Create' }}
             </button>
-        </form>
       </div>
 
     </div>
@@ -70,7 +68,7 @@
         </h5>
       </div>
 
-      <form id="toolTestForm" class="p-3 flex-fill">
+      <div id="toolTestForm" class="p-3 flex-fill">
         {% if tool.parameters.properties %}
         {% for key, schema in tool.parameters.properties.items() %}
         {% set is_required = key in (tool.parameters.required or []) %}
@@ -82,15 +80,15 @@
           </label>
 
           {% if schema.type in ['integer', 'number'] %}
-          <input type="number" class="form-control" name="{{ key }}" {% if is_required %}required{% endif %} {% if schema.type=='integer' %}step="1"{% endif %}>
+          <input type="number" class="form-control" id="{{ key }}" {% if is_required %}required{% endif %} {% if schema.type=='integer' %}step="1"{% endif %}>
           {% elif schema.type == 'boolean' %}
-          <select class="form-select" name="{{ key }}" {% if is_required %}required{% endif %}>
+          <select class="form-select" id="{{ key }}" {% if is_required %}required{% endif %}>
             <option value="">-- Select --</option>
             <option value="true">true</option>
             <option value="false">false</option>
           </select>
           {% else %}
-          <textarea class="form-control" name="{{ key }}" rows="2" {% if is_required %}required{% endif %}}
+          <textarea class="form-control" id="{{ key }}" rows="2" {% if is_required %}required{% endif %}}
                     placeholder="Value (multi-line supported)"></textarea>
           {% endif %}
         </div>
@@ -99,17 +97,18 @@
         <div class="alert alert-secondary">No parameters.</div>
         {% endif %}
 
-        <button type="submit" class="btn btn-primary w-100">
+        <button id="runToolBtn" class="btn btn-primary w-100">
           <i class="fas fa-play me-2"></i>Run Tool
         </button>
-      </form>
-
       <!-- 结果区 -->
       <div id="resultArea" class="px-3 pb-3 d-none">
         <h6 class="mb-2"><i class="fas fa-terminal me-1"></i>Result</h6>
         <pre id="resultOutput" class="bg-dark text-white p-2 rounded small mb-0"
-             style="max-height:200px; overflow:auto;"></pre>
+             style="max-height:800px; overflow:auto;"></pre>
       </div>
+      </div>
+
+
     </div>
   </div>
 </div>

@@ -109,9 +109,12 @@
                 <!-- SUB 专属区域 -->
                 <div id="subFields" class="border rounded p-3 bg-light" style="display: {{ 'block' if agent and agent.type == 'SUB' else 'none' }};">
                     <div class="mb-3">
-                        <label class="form-label">Index for loop</label>
+                        <label class="form-label">Index for loop (comma-separated)</label>
                         <input type="text" class="form-control" id="indexForLoop"
-                                        value="{{ agent.idx if agent and agent.idx else '' }}">
+                                        value="{{ agent.idx | join(',') if agent and agent.idx else '' }}">
+                        <div class="form-text">
+                            Make sure the number of index is equal to the number of properties of the iterative variable.
+                        </div>
                     </div>
                 </div>
                 <!-- 通用字段 -->
@@ -119,9 +122,10 @@
                   <label class="form-label">Inputs (comma-separated)</label>
                   <input type="text" class="form-control" id="inputs"
                          value="{{ ','.join(agent.inputs) if agent and agent.inputs else '' }}"
-                         placeholder="text,labels,entities">
+                         placeholder="labels,entities,text">
                   <div class="form-text">
-                    Define agent inputs, comma-separated. Example: <code>text,labels,entities</code>
+                    Define agent inputs, comma-separated. Example: <code>labels,entities,text</code>.
+                      For a SUB agent, only the first input is an iterative variable.
                   </div>
                 </div>
 
@@ -143,6 +147,8 @@
                         <option value="dict"  {% if agent and agent.outputs and agent.outputs.type=='dict'  %}selected{% endif %}>dict</option>
                         <option value="int"   {% if agent and agent.outputs and agent.outputs.type=='int'   %}selected{% endif %}>int</option>
                         <option value="float" {% if agent and agent.outputs and agent.outputs.type=='float' %}selected{% endif %}>float</option>
+                        <option value="tuple" {% if agent and agent.outputs and agent.outputs.type=='tuple' %}selected{% endif %}>tuple</option>
+                        <option value="Any" {% if agent and agent.outputs and agent.outputs.type=='Any' %}selected{% endif %}>Any</option>
                       </select>
                     </div>
                   </div>

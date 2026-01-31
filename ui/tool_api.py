@@ -1,9 +1,8 @@
 # tool_api.py
 from flask import Blueprint, render_template, abort, request, jsonify
 import json
-import re
 from service.meta.loader import MetaLoader
-
+from plugin.plugin_loader import get_plugin
 
 tool_bp = Blueprint('tool', __name__, url_prefix='/tools')
 
