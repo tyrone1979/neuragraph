@@ -476,7 +476,8 @@ function initJointJS() {
         var targetElement = paper.findViewsFromPoint({ x: e.clientX - clientRect.left, y: e.clientY - clientRect.top })[0];
         if (!targetElement) {
             showContextMenu(x, y, [
-                { label: 'Download graph as SVG', action: downloadGraphAsSVG }
+                { label: 'Download graph as SVG', action: downloadGraphAsSVG },
+                 { label: 'Download graph as TIFF', action: downloadGraphAsTIFF }
             ]);
         }
     });
@@ -1345,21 +1346,115 @@ function highlightSubgraph(subId) {
 }
 
 
-// ---------- 下载 SVG ----------
-function downloadGraphAsSVG() {
+async function downloadGraphAsTIFF() {
     const svgElement = paper.svg;
     const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svgElement);
-    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
+    let svgString = serializer.serializeToString(svgElement);
 
+    // 关键：确保SVG有 xmlns 命名空间，否则渲染失败
+    if (!svgString.includes('xmlns=')) {
+        svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+
+    // ==================== 清晰度设置 ====================
+        const contentBBox = paper.getContentBBox();
+
+    // 2. 添加边距，避免元素贴边
+    const padding = 10;
+    const x = contentBBox.x - padding;
+    const y = contentBBox.y - padding;
+    const width = contentBBox.width + 2 * padding;
+    const height = contentBBox.height + 2 * padding;
+
+    const targetDPI = 300;              // 印刷级清晰度（默认96会很模糊）
+    const scale = targetDPI / 96;       // 放大倍数
+
+
+    // 创建高清 Canvas（像素放大）
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(width * scale);
+    canvas.height = Math.round(height * scale);
+    const ctx = canvas.getContext('2d');
+
+    // 白色背景（防止透明变黑色）
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.scale(scale, scale);            // 关键：放大绘制比例
+
+    // SVG → 高清 Canvas
+    const v = await canvg.Canvg.fromString(ctx, svgString);
+    await v.render();
+
+    // ==================== Canvas → TIFF ====================
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    // 编码为TIFF（LZW压缩，无损清晰）
+    const tiffBuffer = UTIF.encodeImage(imgData.data, canvas.width, canvas.height);
+
+    // 下载
+    const blob = new Blob([tiffBuffer], { type: 'image/tiff' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `workflow_${targetDPI}dpi.tiff`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+// ---------- 下载 SVG ----------
+function downloadGraphAsSVG() {
+    // 1. 获取所有图形的真实边界框（包含所有元素，不考虑当前纸张大小）
+    const contentBBox = paper.getContentBBox();
+
+    // 2. 添加边距，避免元素贴边
+    const padding = 20;
+    const x = contentBBox.x - padding;
+    const y = contentBBox.y - padding;
+    const width = contentBBox.width + 2 * padding;
+    const height = contentBBox.height + 2 * padding;
+
+    // 3. 克隆 SVG 节点，避免修改当前画布
+    const svgElement = paper.svg.cloneNode(true);
+
+    // 4. 设置正确的 viewBox 和尺寸（关键！）
+    svgElement.setAttribute('viewBox', `${x} ${y} ${width} ${height}`);
+    svgElement.setAttribute('width', width);
+    svgElement.setAttribute('height', height);
+
+    // 5. 确保 XML 命名空间存在（否则某些软件打不开）
+    svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svgElement.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+
+    // 6. 处理 JointJS 的外部样式（将 CSS 类转为内联样式，防止在其他软件中丢失样式）
+    // 如果需要保留 JointJS 的默认样式（如连接线箭头），取消下面注释：
+    /*
+    const styleEl = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    styleEl.textContent = `
+        .connection { stroke: #000000; stroke-width: 2; fill: none; }
+        .marker-target { fill: #000000; stroke: none; }
+        .element text { font-family: sans-serif; }
+    `;
+    svgElement.insertBefore(styleEl, svgElement.firstChild);
+    */
+
+    // 7. 序列化并导出
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgElement);
+
+    // 添加 XML 声明（某些软件需要）
+    const svgBlob = new Blob(
+        [`<?xml version="1.0" encoding="UTF-8"?>\n${svgString}`],
+        { type: 'image/svg+xml;charset=utf-8' }
+    );
+
+    const url = URL.createObjectURL(svgBlob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'workflow.svg';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-
     URL.revokeObjectURL(url);
 }
 
