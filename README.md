@@ -2,7 +2,7 @@
 
 Paper link: [comming soon]
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Status: Early Development](https://img.shields.io/badge/status-early%20development-orange)](https://github.com/tyrone1979/neuragraph)
 
@@ -26,7 +26,7 @@ Drag-and-drop LLM + rule-based + Flair components into reusable workflows to ext
 
 ## Tech Stack Highlights
 
-- **Backend**: Flask + Python 3.11+
+- **Backend**: Flask + Python 3.12+
 - **Frontend**: Bootstrap 5 + JointJS (interactive graph editor)
 - **Workflow Engine**: Custom lightweight DAG (START → nodes/subgraphs → END; future: langgraph migration?)
 - **LLM Integration**: OpenAI, Ollama, custom endpoints, …
