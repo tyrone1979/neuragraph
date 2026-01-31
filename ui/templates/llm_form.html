@@ -117,10 +117,6 @@
                                             <input type="text" class="form-control" id="ollamaModel"
                                                 value="{{ llm.model if llm else 'llama2' }}"
                                                 placeholder="e.g., llama2, mistral, codellama">
-                                            <button type="button" class="btn btn-outline-secondary"
-                                                id="browseOllamaModels">
-
-                                            </button>
                                         </div>
                                         <div class="form-text">Ollama model name</div>
                                     </div>
@@ -204,6 +200,17 @@
                                         <input type="url" class="form-control" id="customBaseUrl"
                                             value="{{ llm.base_url if llm else 'https://spark-api-open.xf-yun.com/v2' }}"
                                             placeholder="https://spark-api-open.xf-yun.com/v2">
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label class="form-label">Model Name <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="customModel"
+                                                value="{{ llm.model if llm else 'llama2' }}"
+                                                placeholder="e.g., llama2, mistral, codellama">
+                                        </div>
+                                        <div class="form-text">Custom model name</div>
                                     </div>
                                 </div>
                             </div>
@@ -411,6 +418,7 @@ $(document).ready(function () {
             timeout: parseInt($('#timeout').val()) || 30,
             max_retries: parseInt($('#maxRetries').val()) || 3,
             rate_limit: parseInt($('#rateLimit').val()) || 60
+
         };
 
         // 根据类型添加特定配置
@@ -461,6 +469,13 @@ $(document).ready(function () {
             if (!formData.api_key) {
                 alert('API key is required');
                 return;
+            }
+            customModel=$('#customModel').val().trim();
+            if (!customModel) {
+                alert('Model name is required');
+                return;
+            }else{
+                formData.model=customModel;
             }
         }
 
@@ -575,10 +590,17 @@ $(document).ready(function () {
 
         } else if (formData.type === 'custom') {
             formData.base_url = $('#customBaseUrl').val().trim();
-            
+
             if (!formData.api_key) {
                 alert('API key is required for testing');
                 return null;
+            }
+            customModel=$('#customModel').val().trim();
+            if(!customModel){
+                alert('Model name is required for testing');
+                return null;
+            }else{
+                formData.model=customModel;
             }
 
         } else if (formData.type === 'ollama') {

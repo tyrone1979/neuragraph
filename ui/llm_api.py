@@ -19,9 +19,6 @@ def _test_custom(config: Dict[str, Any]) -> Dict[str, Any]:
         headers["Authorization"] = f"Bearer {api_key}"
 
     data = {
-        "max_tokens": config.get("max_tokens", 30000),
-        "top_k": 6,
-        "temperature": config.get("temperature", 0),
         "messages": [
             {
                 "role": "system",
@@ -32,19 +29,10 @@ def _test_custom(config: Dict[str, Any]) -> Dict[str, Any]:
                 "content": "hello"
             }
         ],
-        "model": config.get("model", ""),
-        "tools": [
-            {
-                "web_search": {
-                    "search_mode": "normal",
-                    "enable": False
-                },
-                "type": "web_search"
-            }
-        ]
+        "model": config.get("model", "")
     }
 
-    url = base_url.rstrip("/")
+    url = base_url.rstrip("/") + "/chat/completions"
     response = requests.post(url, headers=headers, json=data, timeout=10)
     if response.status_code == 200:
         return {

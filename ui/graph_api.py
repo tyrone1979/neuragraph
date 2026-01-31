@@ -1,5 +1,5 @@
 from service.meta.loader import MetaLoader,GraphMetaLoader
-from service.entity.graph import compute_states,compute_graph_global_inputs
+from utils.graphutils import compute_states,compute_graph_global_inputs
 from service.entity.test import TestLoader
 from flask import render_template, Blueprint, request , jsonify
 

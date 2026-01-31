@@ -4,10 +4,11 @@ from service.entity.test import TestLoader
 from langchain_core.runnables import RunnableConfig
 from service.meta.loader import MetaLoader
 from service.entity.agent import AgentLoader
-
+from service.result.loader import ResultLoader
 from service.entity.runner import RunnerLoader
 from plugin.plugin_loader import get_plugin
 import json
+from datetime import datetime
 import asyncio
 sse_bp = Blueprint('sse', __name__, url_prefix='/stream')
 
@@ -57,7 +58,8 @@ def stream_test():
 
     # 2. 收集业务参数
     form_data = {k: v for k, v in request.args.items() if k not in {'agentId', 'graphId', 'testSet'}}
-    config: RunnableConfig = {"configurable": {"thread_id": f'test'}}
+    datetime_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    config: RunnableConfig = {"configurable": {"thread_id": f'test_{datetime_str}'}}
     return run(target_id, scope, form_data,config)
 
 def _is_metrics_list(obj) -> bool:
@@ -73,8 +75,7 @@ def _is_metrics_list(obj) -> bool:
     sample = next(iter(obj.values()))
     return (
         isinstance(sample, dict) and
-        {'f1', 'precision', 'recall'}.issubset(sample.keys()) and
-        all(isinstance(v, float) for v in sample.values())
+        {'f1', 'precision', 'recall'}.issubset(sample.keys())
     )
 
 @sse_bp.route('/report/<exp_id>', methods=['GET'])
@@ -83,28 +84,33 @@ def stream_report(exp_id):
     if exp_cfg['status']!='completed':
         error= f"The experiment {exp_id} is not completed yet."
         Response(error, mimetype='text/event-stream')
-
-    snapshots = {}
-    dataset = exp_cfg['dataset']
-    runner_id = exp_cfg['runner_id']
-    fields, data = TestLoader.load_by_id_file(runner_id, dataset)
-    runner = RunnerLoader.load(runner_id)
-    for idx, data in enumerate(data, start=1):
-            config: RunnableConfig = {"configurable": {"thread_id": f'{exp_id}_{idx}'}}
-            state = runner.get_state(config)
-            if isinstance(state.values, dict) and 'metrics' in state.values.keys():
-                snapshots[idx] = state.values['metrics']
-            else:
-                snapshots[idx] = state.values
-    agent=AgentLoader.load('make_report')
-
-    input={}
-    if len(snapshots)>10 and  _is_metrics_list(snapshots): # 符合 metrics 格式
-        calculator=get_plugin('MetricsCalculation')
-        result=calculator.compute_micro_macro(snapshots)
-        input={'text': result}
+    snapshots={}
+    results=ResultLoader.load(exp_id)
+    if not results:
+        dataset = exp_cfg['dataset']
+        runner_id = exp_cfg['runner_id']
+        fields, data = TestLoader.load_by_id_file(runner_id, dataset)
+        runner = RunnerLoader.load(runner_id)
+        for idx, data in enumerate(data, start=1):
+                config: RunnableConfig = {"configurable": {"thread_id": f'{exp_id}_{idx}'}}
+                state = runner.get_state(config)
+                if isinstance(state.values, dict) and 'metrics' in state.values.keys():
+                    snapshots[str(idx)] = state.values['metrics']
+                else:
+                    snapshots[str(idx)] = state.values
     else:
-        input={'text': snapshots}
+        for idx in results:
+            if isinstance(results[idx], dict) and 'metrics' in results[idx]:
+                snapshots[idx] = results[idx]['metrics']
+
+    input = {}
+    agent=AgentLoader.load('make_report')
+    if len(snapshots)>20 and  _is_metrics_list(snapshots): # 符合 metrics 格式
+            calculator=get_plugin('MetricsCalculation')
+            result=calculator.compute_micro_macro(snapshots)
+            input={'text': result}
+    else:
+            input={'text': snapshots}
 
     def generate():
         chunk=agent.invoke(input)
@@ -152,6 +158,9 @@ def stream_exp_batch(exp_id):
                                 'current_index': idx  # 添加当前处理的索引
                             }
                         yield f'data: {json.dumps(msg)}\n\n'
+                except asyncio.CancelledError:
+                    # 客户端断开连接，正常退出
+                    raise
                 except Exception as e:
                     msg = {
                         'status': 'failed',
@@ -176,8 +185,27 @@ def stream_exp_batch(exp_id):
                     yield data
                 except StopAsyncIteration:
                     break
+                except GeneratorExit:
+                    # 客户端关闭连接
+                    break
+                except asyncio.CancelledError:
+                    break
         finally:
-            loop.close()
+            # 确保事件循环正确关闭（关键！）
+            try:
+                # 取消所有 pending tasks
+                pending = asyncio.all_tasks(loop)
+                for task in pending:
+                    task.cancel()
+
+                if pending:
+                    loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+
+                loop.run_until_complete(loop.shutdown_asyncgens())
+                loop.close()
+            except Exception as e:
+                pass
+
 
     return Response(generate(),mimetype='text/event-stream')
 
