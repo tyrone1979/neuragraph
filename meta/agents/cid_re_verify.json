@@ -2,7 +2,7 @@
   "name": "Relationship verification",
   "type": "LLM",
   "inputs": [
-    "triples",
+    "text",
     "head",
     "tail"
   ],
@@ -10,22 +10,12 @@
     "name": "result",
     "type": "str"
   },
-  "persistence": {
-    "columns": [
-      "head",
-      "head_mesh",
-      "relationship",
-      "tail",
-      "tail_mesh",
-      "result"
-    ],
-    "file_path": "./result",
-    "file_type": "csv"
-  },
-  "model": "gpt-oss_120b",
+  "model": "deepseek",
   "prompt_template": {
     "description": "Strict biomedical relation verifier based on triple list",
     "system": "You are a biomedical relation specialist.",
-    "human": "Triples:\n{triples}\nTask: Decide if ANY triple implies that {head} is an inducer, cause, or biomarker of {tail} (includes mere correlation/indication). → output 1\n2. If the verb phrase contains uncertainty markers (may, might, could, possibly, can be a factor, etc.), treat the relation as uncertain and output 0.\n3.Otherwise → output 0.\n**Reasoning Rules:**\n1. Use 'is' triples for entity substitution: if A is B, then A and B are equivalent\n2. Follow entity chains: if triple mentions relation between X and Y, and Y is related to Z, then X is related to Z\n3. Correlation with a key aspect of a disease implies biomarker status for that disease\n4.No external knowledge or implicit medical knowledge.\n5.ONLY use the provided triple list for reasoning.\nOutput exactly one character: 1 or 0\n head={head}  tail={tail}"
-  }
+    "human": "Refer to below article, please give answer '$' or '~' only based on below conditions:\n**Assumptions**:\n1.1 if 'patient had/exhibited {tail} on the Xth day of {head} treatment', please do not use it and find other reason.\n1.2 if 'difference did not reach statistical significance compared to groups' appeared, please do not use it and find other reason.\n**Conditions**:\n1. if the article gave the conclusion that the interaction between {head} and another chemical induce {tail}, or {head} induce {tail}, answer '$'\n2. else if the article mentioned {tail} was reported in the percentage of patients because of {head}, answer '$'\n3. else the article mentioned '{head} is  mediating/attenuating {tail}, answer '~'\n4. else if {head} and {tail} have no relationship, answer '~'.\nDO NOT output any other message.\n**article**:\n {text}"
+  },
+  "tools": [],
+  "created_at": "2026-01-31T15:57:46.360793"
 }

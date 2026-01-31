@@ -8,12 +8,12 @@
     "name": "text",
     "type": "str"
   },
-  "model": "gpt-oss_120b",
+  "model": "deepseek",
   "prompt_template": {
     "description": "According to the experiment result, markdown it as a report",
     "system": "You are a reporter.",
     "human": "Please according below experiment result,\nStep 1.  restructure it as markdown table\nStep 2. Analysis the performance and give conclusions. \nStep 3. Output markdown content.\n**experiment result**:\n{text}"
   },
   "tools": [],
-  "created_at": "2026-01-19T12:54:40.109797"
+  "created_at": "2026-01-31T15:49:43.940031"
 }

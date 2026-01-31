@@ -2,16 +2,22 @@
   "description": "verfiy the relation btw head and tail entities. inputs=pairs and idx=pair",
   "name": "rv_subgraph",
   "nodes": [
-    "cid_re_verify"
+    "cid_re_verify",
+    "relation_result_to_pair"
   ],
   "edges": [
     [
-      "START",
-      "cid_re_verify"
+      "cid_re_verify",
+      "relation_result_to_pair"
     ],
     [
-      "cid_re_verify",
+      "relation_result_to_pair",
       "END"
+    ],
+    [
+      "START",
+      "cid_re_verify"
     ]
-  ]
+  ],
+  "created_at": "2026-01-24T14:34:50.247958"
 }

@@ -48,7 +48,10 @@
     "metrics": {
       "precision": 1.0,
       "recall": 1.0,
-      "f1": 1.0
+      "f1": 1.0,
+      "tp": 12,
+      "fp": 0,
+      "fn": 0
     },
     "predicted": {
       "Chemical": [
@@ -123,7 +126,10 @@
     "metrics": {
       "precision": 0.7142857142857143,
       "recall": 0.8333333333333334,
-      "f1": 0.7692307692307693
+      "f1": 0.7692307692307693,
+      "tp": 5,
+      "fp": 2,
+      "fn": 1
     },
     "predicted": {
       "Chemical": [
@@ -195,7 +201,10 @@
     "metrics": {
       "precision": 0.6666666666666666,
       "recall": 1.0,
-      "f1": 0.8
+      "f1": 0.8,
+      "tp": 6,
+      "fp": 3,
+      "fn": 0
     },
     "predicted": {
       "Chemical": [
@@ -258,7 +267,10 @@
     "metrics": {
       "precision": 0.5,
       "recall": 0.6666666666666666,
-      "f1": 0.5714285714285714
+      "f1": 0.5714285714285714,
+      "tp": 4,
+      "fp": 4,
+      "fn": 2
     },
     "predicted": {
       "Chemical": [
@@ -328,7 +340,10 @@
     "metrics": {
       "precision": 0.75,
       "recall": 0.8571428571428571,
-      "f1": 0.8
+      "f1": 0.8,
+      "tp": 6,
+      "fp": 2,
+      "fn": 1
     },
     "predicted": {
       "Chemical": [
@@ -443,7 +458,10 @@
     "metrics": {
       "precision": 0.6,
       "recall": 0.6923076923076923,
-      "f1": 0.6428571428571429
+      "f1": 0.6428571428571429,
+      "tp": 9,
+      "fp": 6,
+      "fn": 4
     },
     "predicted": {
       "Chemical": [
@@ -552,7 +570,10 @@
     "metrics": {
       "precision": 0.5,
       "recall": 0.8333333333333334,
-      "f1": 0.625
+      "f1": 0.625,
+      "tp": 5,
+      "fp": 5,
+      "fn": 1
     },
     "predicted": {
       "Chemical": [
@@ -633,7 +654,10 @@
     "metrics": {
       "precision": 0.75,
       "recall": 1.0,
-      "f1": 0.8571428571428571
+      "f1": 0.8571428571428571,
+      "tp": 3,
+      "fp": 1,
+      "fn": 0
     },
     "predicted": {
       "Chemical": [
@@ -701,7 +725,10 @@
     "metrics": {
       "precision": 0.8333333333333334,
       "recall": 1.0,
-      "f1": 0.9090909090909091
+      "f1": 0.9090909090909091,
+      "tp": 5,
+      "fp": 1,
+      "fn": 0
     },
     "predicted": {
       "Chemical": [
@@ -769,7 +796,10 @@
     "metrics": {
       "precision": 0.8,
       "recall": 0.8,
-      "f1": 0.8
+      "f1": 0.8,
+      "tp": 4,
+      "fp": 1,
+      "fn": 1
     },
     "predicted": {
       "Chemical": [
@@ -817,7 +847,10 @@
     "metrics": {
       "precision": 1.0,
       "recall": 1.0,
-      "f1": 1.0
+      "f1": 1.0,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0
     },
     "predicted": {
       "Chemical": [

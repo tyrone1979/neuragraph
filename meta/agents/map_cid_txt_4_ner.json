@@ -1,5 +1,5 @@
 {
-  "name": "Maping CID to NER field",
+  "name": "Map source field to target field",
   "type": "PGM",
   "inputs": [
     "expected_entities"
@@ -9,5 +9,5 @@
     "type": "dict"
   },
   "process": "__result__= state['expected_entities']",
-  "created_at": "2026-01-20T13:25:54.701306"
+  "created_at": "2026-01-30T13:57:17.206413"
 }
