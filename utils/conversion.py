@@ -1,6 +1,7 @@
 import json
 import re
-
+from typing import Dict, Any, List, TypedDict, get_type_hints, TypeVar,Iterator
+T = TypeVar("T", bound=TypedDict)
 
 def convert_to_list(raw: str) -> list:
     """
@@ -141,53 +142,25 @@ def convert_to_list(raw: str) -> list:
     return result
 
 
-# 测试用例
-def test_converter():
-    test_cases = [
-        # (输入, 期望输出)
-        ('["one","two"]', ['one', 'two']),
-        ('["one","two"', ['one', 'two']),  # 不完整
-        ('```json["one","two"]```', ['one', 'two']),  # 代码块
-        ('```["one","two"]```', ['one', 'two']),  # 代码块无json
-        ('`["one","two"]`', ['one', 'two']),  # 简单代码标记
-        ("['one','two']", ['one', 'two']),  # 单引号
-        ('one\ntwo', ['one', 'two']),  # 纯文本
-        ('1. one\n2. two', ['one', 'two']),  # 带编号
-        ('- one\n- two', ['one', 'two']),  # 带项目符号
-        ('[ "one", "two", "three" ]', ['one', 'two', 'three']),  # 带空格
-        ('[]', []),  # 空列表
-        ('', []),  # 空字符串
-        ('[one,two]', ['one', 'two']),  # 无引号
-        ('["one","two","three"', ['one', 'two', 'three']),  # 不完整三个元素
-        ('{ "data": ["one", "two"] }', ['one', 'two']),  # 对象中的列表
-        ('```\n["one","two"]\n```', ['one', 'two']),  # 多行代码块
-    ]
 
-    for i, (input_str, expected) in enumerate(test_cases):
+
+def jsonify_state(state: T) -> T:
+    """把 TypedDict 中值是 JSON 字符串的字段就地转成对象/list"""
+    # 只拿出 TypedDict 声明的键
+    for key in state:
+        val = state.get(key)  # TypedDict 按 dict 方式取值
+        if not isinstance(val, str):
+            continue
         try:
-            result = _convert_to_list(input_str)
-            status = "✓" if result == expected else f"✗ (got {result})"
-            print(f"Test {i + 1}: {status} - '{input_str[:30]}{'...' if len(input_str) > 30 else ''}'")
+            parsed = json.loads(val.strip())
+            # 只处理 []  [{}]  {}
+            if isinstance(parsed, (list, dict)):
+                state[key] = parsed  # 写回 TypedDict
+        except json.JSONDecodeError as e:
+                continue
+
         except Exception as e:
-            print(f"Test {i + 1}: ✗ Error - {e} - '{input_str[:30]}{'...' if len(input_str) > 30 else ''}'")
-
-
-if __name__ == "__main__":
-    # 运行测试
-    print("Running test...")
-    test_converter()
-
-    # 示例用法
-    print("\n--- Examples ---")
-    examples = [
-        '["one","two"',
-        '```json["one","two"]```',
-        'one\ntwo',
-        "['one','two']",
-    ]
-
-    for example in examples:
-        result = _convert_to_list(example)
-        print(f"Input: {example!r}")
-        print(f"Output: {result}")
-        print()
+            # 其他意外错误
+            print(f"[ERROR] Unexpected error for key '{key}': {type(e).__name__}: {e}")
+            continue
+    return state
