@@ -11,14 +11,14 @@ class Plugin:
 class FlairTagger(Plugin):
     def load(self):
         from flair.nn import Classifier
-
+        '''
         #if you want to load local model file.
         from flair.models import SequenceTagger
         import pathlib
         MODEL_DIR = pathlib.Path(__file__).resolve().parent.parent / "models" / "hunflair2-ner" / "pytorch_model.bin"
         flair_tagger = SequenceTagger.load(str(MODEL_DIR)) 
-
-        #flair_tagger = Classifier.load("hunflair2")
+        '''
+        flair_tagger = Classifier.load("hunflair2")
         return {"tag": flair_tagger}
 
 class PGMExecutor(Plugin):
