@@ -1,0 +1,57 @@
+{
+  "1": {
+    "expected": "| Phenobarbital | - | induced | dyskinesia | in | a | neurologically-impaired | child | .",
+    "output": {
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "correct_boundaries": 9,
+        "predicted_boundaries": 9,
+        "real_boundaries": 9
+      },
+      "error_analysis": {
+        "over_segmentation": [],
+        "under_segmentation": [],
+        "boundary_shift": []
+      },
+      "summary": {
+        "is_perfect_match": true,
+        "token_count_difference": 0,
+        "error_count": 0
+      }
+    },
+    "predicted": "| Phenobarbital | - | induced | dyskinesia | in | a | neurologically-impaired | child | .",
+    "text": "Phenobarbital-induced dyskinesia in a neurologically-impaired child."
+  },
+  "2": {
+    "expected": "A | 2-year-old | child | with | known | neurologic | impairment | developed | a | dyskinesia | soon | after | starting | phenobarbital | therapy | for | seizures | . |",
+    "output": {
+      "metrics": {
+        "precision": 0.9411764705882353,
+        "recall": 0.8888888888888888,
+        "f1": 0.9142857142857143,
+        "correct_boundaries": 16,
+        "predicted_boundaries": 17,
+        "real_boundaries": 18
+      },
+      "error_analysis": {
+        "over_segmentation": [],
+        "under_segmentation": [],
+        "boundary_shift": [
+          {
+            "predicted": "seizures.",
+            "position": 105
+          }
+        ]
+      },
+      "summary": {
+        "is_perfect_match": false,
+        "token_count_difference": -1,
+        "error_count": 1
+      }
+    },
+    "predicted": "A | 2-year-old | child | with | known | neurologic | impairment | developed | a | dyskinesia | soon | after | starting | phenobarbital | therapy | for | seizures.",
+    "text": "A 2-year-old child with known neurologic impairment developed a dyskinesia soon after starting phenobarbital therapy for seizures."
+  }
+}

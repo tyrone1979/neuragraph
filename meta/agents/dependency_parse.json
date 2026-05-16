@@ -1,0 +1,19 @@
+{
+  "name": "Dependency parse",
+  "type": "LLM",
+  "inputs": [
+    "sentence"
+  ],
+  "outputs": {
+    "name": "tree",
+    "type": "str"
+  },
+  "model": "gpt-oss_120b",
+  "prompt_template": {
+    "description": "English sentence to CoNLL-U dependency tree",
+    "system": "You are a professional dependency-parsing assistant.",
+    "human": "Task: convert the input English sentence into a standard CoNLL-U dependency tree.\nRequirements:\n1. Linguistic accuracy:\n   - UPOS/XPOS must reflect the true grammatical function of each token.\n   - Correctly identify boundaries of compound nouns and proper names.\n   - Distinguish real punctuation from symbols inside words.\n2. Structural integrity:\n   - Preserve multi-word expressions and fixed phrases as single tokens (use ID range with .1, .2, etc.).\n   - Recognise and keep named-entity boundaries.\n   - Maintain logically consistent syntactic structure.\n3. Output specification:\n   - Return **only** the CoNLL-U format (10 columns, tab-separated).\n   - Columns: ID, FORM, LEMMA, UPOS, XPOS, FEATS, HEAD, DEPREL, DEPS, MISC.\n4. Relation focus:\n   - Accurately identify the ROOT predicate and its argument structure.\n   - Clearly label nsubj, obj, iobj, conj, appos, compound, etc.\n   - Handle long-distance dependencies and nested structures.\n- Do **not** add any explanations or extra text.\n- **Do not add any introductory sentences like \"Here is the output...\"\n\nSentence:\n{sentence}"
+  },
+  "tools": [],
+  "created_at": "2026-01-19T16:17:16.283611"
+}

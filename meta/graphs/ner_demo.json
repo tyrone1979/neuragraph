@@ -1,0 +1,20 @@
+{
+  "id": "ner_demo",
+  "name": "NER Demo",
+  "description": "Extract named entities from biomedical text using Kimi 2.6",
+  "nodes": [
+    "START",
+    "ner_extractor",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_extractor"
+    ],
+    [
+      "ner_extractor",
+      "END"
+    ]
+  ]
+}

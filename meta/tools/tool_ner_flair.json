@@ -1,0 +1,22 @@
+{
+  "name": "NER by Flair",
+  "description": "Input a sentence string, and label string like \"Chemical,Disease\", the tool will do NER task and return a dict like  {\"Chemical\":[\"a\",\"b\"], \"Disease\":[\"c\",\"d\"] }",
+  "parameters": {
+    "properties": {
+      "label": {
+        "type": "string",
+        "description": "A label string with comma-seperated, represents the labels to be NER."
+      },
+      "sentence": {
+        "type": "string",
+        "description": "A sentence string"
+      }
+    },
+    "required": [
+      "label",
+      "sentence"
+    ]
+  },
+  "code": "def func(sentence:str,label:str):\n    from flair.data import Sentence\n    tagger=get_plugin(\"tag\")\n    s= Sentence(sentence)\n    tagger.predict(s)\n    labels=label.split(',')\n    __result__={}\n    for one in labels:\n        __result__[one ]=[]\n        for entity in s.get_spans('ner'):\n            if entity.tag==one :\n                __result__[one ].append(entity.text)\n    return __result__",
+  "created_at": "2026-01-28T12:48:46.259223"
+}

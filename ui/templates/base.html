@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NeuraGraph</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-home me-2"></i>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav">
+                    <li class="nav-item {% if active_page == 'agent' %}active{% endif %}">
+                        <a class="nav-link" href="/agents"><i class="fas fa-robot"></i> Agents</a>
+                    </li>
+                     <li class="nav-item {% if active_page == 'tool' %}active{% endif %}">
+                        <a class="nav-link" href="/tools"><i class="fas fa-cogs"></i> Tools</a>
+                    </li>
+                    <li class="nav-item {% if active_page == 'graph' %}active{% endif %}">
+                        <a class="nav-link" href="/graph"><i class="fas fa-project-diagram"></i> Workflows</a>
+                    </li>
+                     <li class="nav-item {% if active_page == 'exp' %}active{% endif %}">
+                        <a class="nav-link" href="/exp"><i class="fas fa-vial"></i>Experiment</a>
+                    </li>
+                     <li class="nav-item {% if active_page == 'dataset' %}active{% endif %}">
+                        <a class="nav-link" href="/testset"><i class="fas fa-database"></i>Dataset</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'llm' %}active{% endif %}" href="/llms">
+                            <i class="fas fa-brain me-2"></i>LLMs
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+ <!-- 3. 主内容：占满剩余宽度 -->
+    <div class="col">
+      <div class="p-3">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="https://www.github.com/tyrone1979/neuragraph" class="text-decoration-none">
+                            <i class="fab fa-github me-1"></i>github.com/tyrone1979/neuragraph
+                        </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

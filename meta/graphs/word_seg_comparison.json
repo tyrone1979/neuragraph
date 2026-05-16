@@ -1,0 +1,22 @@
+{
+  "description": "compare performance of word seg by LLMs",
+  "name": "word segmentation comparison",
+  "nodes": [
+    "word_segmentation",
+    "word_seg_metrics"
+  ],
+  "edges": [
+    [
+      "START",
+      "word_segmentation"
+    ],
+    [
+      "word_segmentation",
+      "word_seg_metrics"
+    ],
+    [
+      "word_seg_metrics",
+      "END"
+    ]
+  ]
+}

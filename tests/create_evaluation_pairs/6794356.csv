@@ -1,0 +1,13 @@
+doc_id,hypernyms,heads,tails,doc,source
+"6794356","[""cardiac disease"",""lithium""]","[{""text"":""lithium carbonate"",""type"":""Chemical"",""mesh"":""D016651""},
+{""text"":""lithium"",""type"":""Chemical"",""mesh"":""D008094""}]","[{""text"":""Tricuspid valve regurgitation"",""type"":""Disease"",""mesh"":""D014262""},
+{""text"":""toxicity"",""type"":""Disease"",""mesh"":""D064420""},
+{""text"":""tricuspid regurgitation"",""type"":""Disease"",""mesh"":""D014262""},
+{""text"":""atrial flutter"",""type"":""Disease"",""mesh"":""D001282""},
+{""text"":""congestive heart failure"",""type"":""Disease"",""mesh"":""D006333""},
+{""text"":""cardiac disease"",""type"":""Disease"",""mesh"":""D006331""},
+{""text"":""cyanosis"",""type"":""Disease"",""mesh"":""D003490""},
+{""text"":""neurologic depression"",""type"":""Disease"",""mesh"":""D003866""},
+{""text"":""congenital heart disease"",""type"":""Disease"",""mesh"":""D006331""},
+{""text"":""cyanosis"",""type"":""Disease"",""mesh"":""D003490""},
+{""text"":""cardiac arrhythmia"",""type"":""Disease"",""mesh"":""D001145""}]",CDR,"dev.txt"

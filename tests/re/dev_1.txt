@@ -1,0 +1,16 @@
+6504332|t|Phenobarbital-induced dyskinesia in a neurologically-impaired child.
+6504332|a|A 2-year-old child with known neurologic impairment developed a dyskinesia soon after starting phenobarbital therapy for seizures. Known causes of movement disorders were eliminated after evaluation. On repeat challenge with phenobarbital, the dyskinesia recurred. Phenobarbital should be added to the list of anticonvulsant drugs that can cause movement disorders.
+6504332	0	13	Phenobarbital	Chemical	D010634
+6504332	22	32	dyskinesia	Disease	D004409
+6504332	38	61	neurologically-impaired	Disease	D009422
+6504332	99	120	neurologic impairment	Disease	D009422
+6504332	133	143	dyskinesia	Disease	D004409
+6504332	164	177	phenobarbital	Chemical	D010634
+6504332	190	198	seizures	Disease	D012640
+6504332	216	234	movement disorders	Disease	D009069
+6504332	294	307	phenobarbital	Chemical	D010634
+6504332	313	323	dyskinesia	Disease	D004409
+6504332	334	347	Phenobarbital	Chemical	D010634
+6504332	415	433	movement disorders	Disease	D009069
+6504332	CID	D010634	D004409
+

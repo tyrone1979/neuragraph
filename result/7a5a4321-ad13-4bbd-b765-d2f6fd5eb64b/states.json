@@ -1,0 +1,74 @@
+{
+  "1": {
+    "labels": "Chemical,Disease",
+    "predicted": {
+      "Chemical": [
+        "lithium carbonate"
+      ],
+      "Disease": [
+        "Tricuspid valve regurgitation"
+      ]
+    },
+    "sentence": "Tricuspid valve regurgitation and lithium carbonate toxicity in a newborn infant."
+  },
+  "2": {
+    "labels": "Chemical,Disease",
+    "predicted": {
+      "Chemical": [
+        "lithium"
+      ],
+      "Disease": [
+        "tricuspid regurgitation",
+        "atrial flutter",
+        "congestive heart failure"
+      ]
+    },
+    "sentence": "A newborn with massive tricuspid regurgitation, atrial flutter, congestive heart failure, and a high serum lithium level is described."
+  },
+  "3": {
+    "labels": "Chemical,Disease",
+    "predicted": {
+      "Chemical": [
+        "lithium"
+      ],
+      "Disease": [
+        "tricuspid regurgitation",
+        "atrial flutter",
+        "cardiac disease"
+      ]
+    },
+    "sentence": "This is the first patient to initially manifest tricuspid regurgitation and atrial flutter, and the 11th described patient with cardiac disease among infants exposed to lithium compounds in the first trimester of pregnancy."
+  },
+  "4": {
+    "labels": "Chemical,Disease",
+    "predicted": {
+      "Chemical": [],
+      "Disease": []
+    },
+    "sentence": "Sixty-three percent of these infants had tricuspid valve involvement. "
+  },
+  "5": {
+    "labels": "Chemical,Disease",
+    "predicted": {
+      "Chemical": [
+        "Lithium carbonate"
+      ],
+      "Disease": [
+        "congenital heart disease"
+      ]
+    },
+    "sentence": "Lithium carbonate may be a factor in the increasing incidence of congenital heart disease when taken during early pregnancy. "
+  },
+  "6": {
+    "labels": "Chemical,Disease",
+    "predicted": {
+      "Chemical": [],
+      "Disease": [
+        "neurologic depression",
+        "cyanosis",
+        "cardiac arrhythmia"
+      ]
+    },
+    "sentence": "It also causes neurologic depression, cyanosis, and cardiac arrhythmia when consumed prior to delivery."
+  }
+}

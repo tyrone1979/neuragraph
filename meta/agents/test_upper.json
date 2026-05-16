@@ -1,0 +1,11 @@
+{
+  "id": "test_upper",
+  "name": "Test Uppercase",
+  "type": "PGM",
+  "inputs": ["text"],
+  "outputs": {
+    "name": "upper_text",
+    "type": "str"
+  },
+  "process": "__result__ = state.get('text', '').upper()"
+}

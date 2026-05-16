@@ -1,0 +1,14 @@
+{
+  "dataset": "test_2026-01-16.csv",
+  "runner_type": "runner",
+  "runner_id": "bio_ner",
+  "runner_display": "Biology Named Entity Recognition by Flair (bio_ner) - Agent",
+  "samples": 6,
+  "exp_id": "790cb893-b3fc-43fe-aa48-e66d9ab0a997",
+  "name": "bio_ner_test_2026-01-16.csv_20260128191916",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-01-28T19:19:16.193157",
+  "updated_at": "2026-01-30T10:07:49.805097",
+  "id": "790cb893-b3fc-43fe-aa48-e66d9ab0a997"
+}

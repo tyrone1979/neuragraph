@@ -1,0 +1,10 @@
+{
+  "id": "test_pipeline",
+  "name": "Test Pipeline",
+  "description": "Simple test: uppercase text",
+  "nodes": ["START", "test_upper", "END"],
+  "edges": [
+    ["START", "test_upper"],
+    ["test_upper", "END"]
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "dataset": "1.csv",
+  "runner_type": "graph",
+  "runner_id": "re",
+  "runner_display": "relation_extraction (re) - Workflow",
+  "samples": 1,
+  "exp_id": "b5ac9f9e-9759-4738-8374-fe2831624f7b",
+  "name": "re_1.csv_20260124175338",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-01-24T17:53:38.639415",
+  "id": "b5ac9f9e-9759-4738-8374-fe2831624f7b",
+  "updated_at": "2026-01-24T17:54:20.678123"
+}
