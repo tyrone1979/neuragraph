@@ -1,0 +1,17 @@
+{
+  "description": "",
+  "name": "ner_subgraph",
+  "nodes": [
+    "bio_ner"
+  ],
+  "edges": [
+    [
+      "START",
+      "bio_ner"
+    ],
+    [
+      "bio_ner",
+      "END"
+    ]
+  ]
+}

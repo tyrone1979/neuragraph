@@ -1,0 +1,9101 @@
+{
+  "1": {
+    "entity_link": {
+      "Phenobarbital": "D010634",
+      "dyskinesia": "D004409",
+      "neurologically-impaired": "D009422",
+      "neurologic impairment": "D009422",
+      "phenobarbital": "D010634",
+      "seizures": "D012640",
+      "movement disorders": "D009069"
+    },
+    "expected": [
+      [
+        "D010634",
+        "D004409"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "Phenobarbital",
+        "phenobarbital",
+        "phenobarbital",
+        "Phenobarbital"
+      ],
+      "Disease": [
+        "dyskinesia",
+        "neurologically-impaired",
+        "neurologic impairment",
+        "dyskinesia",
+        "seizures",
+        "movement disorders",
+        "dyskinesia",
+        "movement disorders"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D010634",
+        "D004409"
+      ]
+    ],
+    "metrics": {
+      "precision": 0.3333333333333333,
+      "recall": 1.0,
+      "f1": 0.5,
+      "tp": 1,
+      "fp": 2,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "neurologically-impaired"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "neurologic impairment"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "seizures"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "movement disorders"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "movement disorders"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "neurologically-impaired"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "neurologic impairment"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "seizures"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "movement disorders"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "movement disorders"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "neurologically-impaired"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "neurologic impairment"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "seizures"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "movement disorders"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "phenobarbital",
+        "tail": "movement disorders"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "neurologically-impaired"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "neurologic impairment"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "seizures"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "movement disorders"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "Phenobarbital",
+        "tail": "movement disorders"
+      }
+    ],
+    "predicted": [
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009422"
+      ],
+      [
+        "D010634",
+        "D009422"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009069"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009069"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009422"
+      ],
+      [
+        "D010634",
+        "D009422"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009069"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009069"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009422"
+      ],
+      [
+        "D010634",
+        "D009422"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009069"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009069"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009422"
+      ],
+      [
+        "D010634",
+        "D009422"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009069"
+      ],
+      [
+        "D010634",
+        "D004409"
+      ],
+      [
+        "D010634",
+        "D009069"
+      ]
+    ],
+    "text": "Phenobarbital-induced dyskinesia in a neurologically-impaired child. A 2-year-old child with known neurologic impairment developed a dyskinesia soon after starting phenobarbital therapy for seizures. Known causes of movement disorders were eliminated after evaluation. On repeat challenge with phenobarbital, the dyskinesia recurred. Phenobarbital should be added to the list of anticonvulsant drugs that can cause movement disorders."
+  },
+  "2": {
+    "entity_link": {
+      "ammonia": "D000641",
+      "valproic acid": "D014635",
+      "Valproic acid": "D014635",
+      "VPA": "D014635",
+      "epileptic": "D004827",
+      "Ammonia": "D000641",
+      "NH3": "D000641",
+      "drowsiness": "D006970"
+    },
+    "expected": [
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "ammonia",
+        "valproic acid",
+        "Valproic acid",
+        "VPA",
+        "VPA",
+        "Ammonia",
+        "NH3",
+        "VPA",
+        "VPA",
+        "NH3",
+        "VPA"
+      ],
+      "Disease": [
+        "epileptic",
+        "drowsiness"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ]
+    ],
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "ammonia",
+        "tail": "epileptic"
+      },
+      {
+        "head": "ammonia",
+        "tail": "drowsiness"
+      },
+      {
+        "head": "valproic acid",
+        "tail": "epileptic"
+      },
+      {
+        "head": "valproic acid",
+        "tail": "drowsiness"
+      },
+      {
+        "head": "Valproic acid",
+        "tail": "epileptic"
+      },
+      {
+        "head": "Valproic acid",
+        "tail": "drowsiness"
+      },
+      {
+        "head": "VPA",
+        "tail": "epileptic"
+      },
+      {
+        "head": "VPA",
+        "tail": "drowsiness"
+      },
+      {
+        "head": "VPA",
+        "tail": "epileptic"
+      },
+      {
+        "head": "VPA",
+        "tail": "drowsiness"
+      },
+      {
+        "head": "Ammonia",
+        "tail": "epileptic"
+      },
+      {
+        "head": "Ammonia",
+        "tail": "drowsiness"
+      },
+      {
+        "head": "NH3",
+        "tail": "epileptic"
+      },
+      {
+        "head": "NH3",
+        "tail": "drowsiness"
+      },
+      {
+        "head": "VPA",
+        "tail": "epileptic"
+      },
+      {
+        "head": "VPA",
+        "tail": "drowsiness"
+      },
+      {
+        "head": "VPA",
+        "tail": "epileptic"
+      },
+      {
+        "head": "VPA",
+        "tail": "drowsiness"
+      },
+      {
+        "head": "NH3",
+        "tail": "epileptic"
+      },
+      {
+        "head": "NH3",
+        "tail": "drowsiness"
+      },
+      {
+        "head": "VPA",
+        "tail": "epileptic"
+      },
+      {
+        "head": "VPA",
+        "tail": "drowsiness"
+      }
+    ],
+    "predicted": [
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D000641",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ],
+      [
+        "D014635",
+        "D006970"
+      ]
+    ],
+    "text": "Acute changes of blood ammonia may predict short-term adverse effects of valproic acid. Valproic acid (VPA) was given to 24 epileptic patients who were already being treated with other antiepileptic drugs. A standardized loading dose of VPA was administered, and venous blood was sampled at 0, 1, 2, 3, and 4 hours. Ammonia (NH3) was higher in patients who, during continuous therapy, complained of drowsiness (7 patients) than in those who were symptom-free (17 patients), although VPA plasma levels were similar in both groups. By measuring VPA-induced changes of blood NH3 content, it may be possible to identify patients at higher risk of obtundation when VPA is given chronically."
+  },
+  "3": {
+    "entity_link": {
+      "haloperidol": "D006220",
+      "catalepsy": "D002375",
+      "apomorphine": "D001058",
+      "hyperactivity": "D006948",
+      "DA": "D004298",
+      "DOPAC": "D015102"
+    },
+    "expected": [
+      [
+        "D006220",
+        "D002375"
+      ],
+      [
+        "D001058",
+        "D006948"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "haloperidol",
+        "apomorphine",
+        "DA",
+        "DOPAC",
+        "DA"
+      ],
+      "Disease": [
+        "catalepsy",
+        "hyperactivity"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D006220",
+        "D002375"
+      ],
+      [
+        "D001058",
+        "D006948"
+      ]
+    ],
+    "metrics": {
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1": 0.5,
+      "tp": 1,
+      "fp": 1,
+      "fn": 1
+    },
+    "pairs": [
+      {
+        "head": "haloperidol",
+        "tail": "catalepsy"
+      },
+      {
+        "head": "haloperidol",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "apomorphine",
+        "tail": "catalepsy"
+      },
+      {
+        "head": "apomorphine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "DA",
+        "tail": "catalepsy"
+      },
+      {
+        "head": "DA",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "DOPAC",
+        "tail": "catalepsy"
+      },
+      {
+        "head": "DOPAC",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "DA",
+        "tail": "catalepsy"
+      },
+      {
+        "head": "DA",
+        "tail": "hyperactivity"
+      }
+    ],
+    "predicted": [
+      [
+        "D006220",
+        "D002375"
+      ],
+      [
+        "D006220",
+        "D002375"
+      ],
+      [
+        "D001058",
+        "D002375"
+      ],
+      [
+        "D001058",
+        "D002375"
+      ],
+      [
+        "D001058",
+        "D002375"
+      ],
+      [
+        "D001058",
+        "D002375"
+      ],
+      [
+        "D001058",
+        "D002375"
+      ],
+      [
+        "D001058",
+        "D002375"
+      ],
+      [
+        "D001058",
+        "D002375"
+      ],
+      [
+        "D001058",
+        "D002375"
+      ]
+    ],
+    "text": "Effects of calcitonin on rat extrapyramidal motor system: behavioral and biochemical data. The effects of i.v.c. injection of human and salmon calcitonin on biochemical and behavioral parameters related to the extrapyramidal motor system, were investigated in male rats. Calcitonin injection resulted in a potentiation of haloperidol-induced catalepsy and a partial prevention of apomorphine-induced hyperactivity. Moreover calcitonin induced a significant decrease in nigral GAD activity but no change in striatal DA and DOPAC concentration or GAD activity. The results are discussed in view of a primary action of calcitonin on the striatonigral GABAergic pathway mediating the DA-related behavioral messages of striatal origin."
+  },
+  "4": {
+    "entity_link": {
+      "isoproterenol": "D007545",
+      "cardiac hypertrophy": "D006332",
+      "ISO": "D007545",
+      "hydroxyproline": "D006909",
+      "hypertrophic": "D006984",
+      "hypertrophy": "D006984",
+      "hyperplasia": "D006965"
+    },
+    "expected": [
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "isoproterenol",
+        "isoproterenol",
+        "ISO",
+        "hydroxyproline",
+        "hydroxyproline",
+        "ISO",
+        "ISO"
+      ],
+      "Disease": [
+        "cardiac hypertrophy",
+        "cardiac hypertrophy",
+        "hypertrophic",
+        "hypertrophy",
+        "hypertrophic",
+        "hypertrophy",
+        "hyperplasia"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ]
+    ],
+    "metrics": {
+      "precision": 0.6666666666666666,
+      "recall": 1.0,
+      "f1": 0.8,
+      "tp": 2,
+      "fp": 1,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "isoproterenol",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "hyperplasia"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "isoproterenol",
+        "tail": "hyperplasia"
+      },
+      {
+        "head": "ISO",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "hyperplasia"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "hyperplasia"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "hydroxyproline",
+        "tail": "hyperplasia"
+      },
+      {
+        "head": "ISO",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "hyperplasia"
+      },
+      {
+        "head": "ISO",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "cardiac hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophic"
+      },
+      {
+        "head": "ISO",
+        "tail": "hypertrophy"
+      },
+      {
+        "head": "ISO",
+        "tail": "hyperplasia"
+      }
+    ],
+    "predicted": [
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ],
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006332"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006984"
+      ],
+      [
+        "D007545",
+        "D006965"
+      ]
+    ],
+    "text": "Development of isoproterenol-induced cardiac hypertrophy. The development of cardiac hypertrophy was studied in adult female Wistar rats following daily subcutaneous injections of isoproterenol (ISO) (0.3 mg/kg body weight). A time course was established for the change in tissue mass, RNA and DNA content, as well as hydroxyproline content. Heart weight increased 44% after 8 days of treatment with a half time of 3.4 days. Ventricular RNA content was elevated 26% after 24 h of a single injection and reached a maximal level following 8 days of therapy. The half time for RNA accumulation was 2.0 days. The total content of hydroxyproline remained stable during the first 2 days of treatment but increased 46% after 4 days of therapy. Ventricular DNA content was unchanged during the early stage (1-4 days) of hypertrophic growth but increased to a new steady-state level 19% above the controls after 8 days of treatment. Intraventricular pressures and coronary flow measures were similar for control and experimental animals following 4 days of developed hypertrophy. However, dP/dt in the ISO-treated hearts was slightly but significantly (P less than 0.05) elevated. These data indicate that the adaptive response to ISO shows an early hypertrophic phase (1-4 days) characterized by a substantial increase in RNA content and cardiac mass in the absence of changes in DNA. However, prolonged stimulation (8-12 days) appears to represent a complex integration of both cellular hypertrophy and hyperplasia within the heart."
+  },
+  "5": {
+    "entity_link": {
+      "Glycopyrronium": "D006024",
+      "edrophonium": "D004491",
+      "glycopyrronium": "D006024",
+      "bradycardias": "D001919"
+    },
+    "expected": [
+      [
+        "D004491",
+        "D001919"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "Glycopyrronium",
+        "edrophonium",
+        "glycopyrronium",
+        "edrophonium",
+        "glycopyrronium",
+        "edrophonium",
+        "edrophonium",
+        "glycopyrronium"
+      ],
+      "Disease": [
+        "bradycardias"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D004491",
+        "D001919"
+      ]
+    ],
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Glycopyrronium",
+        "tail": "bradycardias"
+      },
+      {
+        "head": "edrophonium",
+        "tail": "bradycardias"
+      },
+      {
+        "head": "glycopyrronium",
+        "tail": "bradycardias"
+      },
+      {
+        "head": "edrophonium",
+        "tail": "bradycardias"
+      },
+      {
+        "head": "glycopyrronium",
+        "tail": "bradycardias"
+      },
+      {
+        "head": "edrophonium",
+        "tail": "bradycardias"
+      },
+      {
+        "head": "edrophonium",
+        "tail": "bradycardias"
+      },
+      {
+        "head": "glycopyrronium",
+        "tail": "bradycardias"
+      }
+    ],
+    "predicted": [
+      [
+        "D004491",
+        "D001919"
+      ],
+      [
+        "D004491",
+        "D001919"
+      ],
+      [
+        "D004491",
+        "D001919"
+      ],
+      [
+        "D004491",
+        "D001919"
+      ],
+      [
+        "D004491",
+        "D001919"
+      ],
+      [
+        "D004491",
+        "D001919"
+      ],
+      [
+        "D004491",
+        "D001919"
+      ],
+      [
+        "D004491",
+        "D001919"
+      ]
+    ],
+    "text": "Glycopyrronium requirements for antagonism of the muscarinic side effects of edrophonium. We have compared, in 60 adult patients, the cardiovascular effects of glycopyrronium 5 micrograms kg-1 and 10 micrograms kg-1 given either simultaneously or 1 min before edrophonium 1 mg kg-1. Significant differences between the four groups were detected (P less than 0.001). Both groups receiving 10 micrograms kg-1 showed increases in heart rate of up to 30 beat min-1 (95% confidence limits 28-32 beat min-1). Use of glycopyrronium 5 micrograms kg-1 provided greater cardiovascular stability and, given 1 min before the edrophonium, was sufficient to minimize early, edrophonium-induced bradycardias. This low dose of glycopyrronium provided good control of oropharyngeal secretions."
+  },
+  "6": {
+    "entity_link": {
+      "fentanyl": "D005283",
+      "muscular rigidity": "D009127",
+      "ketamine": "D007649",
+      "CO2": "D002245",
+      "prazosin": "D011224"
+    },
+    "expected": [
+      [
+        "D005283",
+        "D009127"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "fentanyl",
+        "fentanyl",
+        "ketamine",
+        "CO2",
+        "fentanyl",
+        "prazosin",
+        "fentanyl",
+        "fentanyl"
+      ],
+      "Disease": [
+        "muscular rigidity",
+        "muscular rigidity",
+        "muscular rigidity",
+        "muscular rigidity"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D005283",
+        "D009127"
+      ]
+    ],
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "ketamine",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "ketamine",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "ketamine",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "ketamine",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "CO2",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "CO2",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "CO2",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "CO2",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "prazosin",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "prazosin",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "prazosin",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "prazosin",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "muscular rigidity"
+      }
+    ],
+    "predicted": [
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ],
+      [
+        "D005283",
+        "D009127"
+      ]
+    ],
+    "text": "Involvement of locus coeruleus and noradrenergic neurotransmission in fentanyl-induced muscular rigidity in the rat. Whereas muscular rigidity is a well-known side effect that is associated with high-dose fentanyl anesthesia, a paucity of information exists with regard to its underlying mechanism(s). We investigated in this study the possible engagement of locus coeruleus of the pons in this phenomenon, using male Sprague-Dawley rats anesthetized with ketamine. Under proper control of respiration, body temperature and end-tidal CO2, intravenous administration of fentanyl (50 or 100 micrograms/kg) consistently promoted an increase in electromyographic activity recorded from the gastrocnemius and abdominal rectus muscles. Such an induced muscular rigidity by the narcotic agent was significantly antagonized or even reduced by prior electrolytic lesions of the locus coeruleus or pretreatment with the alpha-adrenoceptor blocker, prazosin. Microinjection of fentanyl (2.5 micrograms/50 nl) directly into this pontine nucleus, on the other hand, elicited discernible electromyographic excitation. It is speculated that the induction of muscular rigidity by fentanyl may involve the coerulospinal noradrenergic fibers to the spinal motoneurons."
+  },
+  "7": {
+    "entity_link": {
+      "benzodiazepine": "D001569",
+      "flumazenil": "D005442",
+      "diazepam": "D003975",
+      "Flumazenil": "D005442",
+      "Diazepam": "D003975",
+      "fentanyl": "D005283",
+      "meperidine": "D008614",
+      "morphine": "D009020",
+      "nausea": "D009325",
+      "vomiting": "D014839",
+      "pain": "D010146"
+    },
+    "expected": [
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "benzodiazepine",
+        "flumazenil",
+        "diazepam",
+        "Flumazenil",
+        "Diazepam",
+        "benzodiazepine",
+        "flumazenil",
+        "Flumazenil",
+        "diazepam",
+        "fentanyl",
+        "meperidine",
+        "morphine",
+        "flumazenil",
+        "flumazenil",
+        "Flumazenil",
+        "Flumazenil",
+        "flumazenil",
+        "flumazenil",
+        "Flumazenil",
+        "diazepam"
+      ],
+      "Disease": [
+        "nausea",
+        "vomiting",
+        "nausea",
+        "pain"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ]
+    ],
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "benzodiazepine",
+        "tail": "nausea"
+      },
+      {
+        "head": "benzodiazepine",
+        "tail": "vomiting"
+      },
+      {
+        "head": "benzodiazepine",
+        "tail": "nausea"
+      },
+      {
+        "head": "benzodiazepine",
+        "tail": "pain"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "diazepam",
+        "tail": "nausea"
+      },
+      {
+        "head": "diazepam",
+        "tail": "vomiting"
+      },
+      {
+        "head": "diazepam",
+        "tail": "nausea"
+      },
+      {
+        "head": "diazepam",
+        "tail": "pain"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "Diazepam",
+        "tail": "nausea"
+      },
+      {
+        "head": "Diazepam",
+        "tail": "vomiting"
+      },
+      {
+        "head": "Diazepam",
+        "tail": "nausea"
+      },
+      {
+        "head": "Diazepam",
+        "tail": "pain"
+      },
+      {
+        "head": "benzodiazepine",
+        "tail": "nausea"
+      },
+      {
+        "head": "benzodiazepine",
+        "tail": "vomiting"
+      },
+      {
+        "head": "benzodiazepine",
+        "tail": "nausea"
+      },
+      {
+        "head": "benzodiazepine",
+        "tail": "pain"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "diazepam",
+        "tail": "nausea"
+      },
+      {
+        "head": "diazepam",
+        "tail": "vomiting"
+      },
+      {
+        "head": "diazepam",
+        "tail": "nausea"
+      },
+      {
+        "head": "diazepam",
+        "tail": "pain"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "nausea"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "vomiting"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "nausea"
+      },
+      {
+        "head": "fentanyl",
+        "tail": "pain"
+      },
+      {
+        "head": "meperidine",
+        "tail": "nausea"
+      },
+      {
+        "head": "meperidine",
+        "tail": "vomiting"
+      },
+      {
+        "head": "meperidine",
+        "tail": "nausea"
+      },
+      {
+        "head": "meperidine",
+        "tail": "pain"
+      },
+      {
+        "head": "morphine",
+        "tail": "nausea"
+      },
+      {
+        "head": "morphine",
+        "tail": "vomiting"
+      },
+      {
+        "head": "morphine",
+        "tail": "nausea"
+      },
+      {
+        "head": "morphine",
+        "tail": "pain"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "vomiting"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "nausea"
+      },
+      {
+        "head": "Flumazenil",
+        "tail": "pain"
+      },
+      {
+        "head": "diazepam",
+        "tail": "nausea"
+      },
+      {
+        "head": "diazepam",
+        "tail": "vomiting"
+      },
+      {
+        "head": "diazepam",
+        "tail": "nausea"
+      },
+      {
+        "head": "diazepam",
+        "tail": "pain"
+      }
+    ],
+    "predicted": [
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ],
+      [
+        "D005442",
+        "D009325"
+      ],
+      [
+        "D005442",
+        "D014839"
+      ]
+    ],
+    "text": "Reversal of central benzodiazepine effects by flumazenil after intravenous conscious sedation with diazepam and opioids: report of a double-blind multicenter study. The Flumazenil in Intravenous Conscious Sedation with Diazepam Multicenter Study Group II. The efficacy and safety of a new benzodiazepine antagonist, flumazenil, were assessed in a double-blind multicenter study. Flumazenil (mean dose, 0.76 mg) or placebo (mean dose, 8.9 ml) was administered intravenously to 130 and 67 patients, respectively, who had been given diazepam in conjunction with an opioid (fentanyl, meperidine, or morphine) for the induction and maintenance of intravenous conscious sedation for diagnostic or therapeutic surgical procedures. The group assessable for efficacy comprised 122 patients treated with flumazenil and 64 patients given placebo. After 5 minutes, 80/115 (70%) flumazenil-treated patients, compared with 21/63 (33%) placebo-treated patients, were completely awake and alert, as indicated by a score of 5 on the Observer's Assessment of Alertness/Sedation Scale. Ninety-five percent of patients in each group who attained a score of 5 at the 5-minute assessment showed no loss of alertness throughout the 180-minute assessment period. Flumazenil-treated patients also performed significantly better on the Finger-to-Nose Test and the recall of pictures shown at the 5-minute assessment. Flumazenil was well tolerated, with no serious adverse effects reported. Thirty-nine (30%) of flumazenil-treated patients, compared with 17 (25%) of placebo-treated patients had one or more drug-related adverse experiences. The most common adverse effects were nausea and vomiting in the flumazenil group and nausea and injection-site pain in the placebo group. Flumazenil was found to promptly reverse sedation induced by diazepam in the presence of opioids."
+  },
+  "8": {
+    "entity_link": {
+      "adenomas": "D000236",
+      "focal nodular hyperplasia": "D020518",
+      "oral contraceptives": "D003276",
+      "adenoma": "D000236"
+    },
+    "expected": [
+      [
+        "D003276",
+        "D020518"
+      ],
+      [
+        "D003276",
+        "D000236"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "oral contraceptives",
+        "oral contraceptives"
+      ],
+      "Disease": [
+        "adenomas",
+        "focal nodular hyperplasia",
+        "adenoma",
+        "focal nodular hyperplasia",
+        "adenoma",
+        "focal nodular hyperplasia"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D003276",
+        "D020518"
+      ],
+      [
+        "D003276",
+        "D000236"
+      ]
+    ],
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "oral contraceptives",
+        "tail": "adenomas"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "focal nodular hyperplasia"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "adenoma"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "focal nodular hyperplasia"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "adenoma"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "focal nodular hyperplasia"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "adenomas"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "focal nodular hyperplasia"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "adenoma"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "focal nodular hyperplasia"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "adenoma"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "focal nodular hyperplasia"
+      }
+    ],
+    "predicted": [
+      [
+        "D003276",
+        "D000236"
+      ],
+      [
+        "D003276",
+        "D020518"
+      ],
+      [
+        "D003276",
+        "D000236"
+      ],
+      [
+        "D003276",
+        "D020518"
+      ],
+      [
+        "D003276",
+        "D000236"
+      ],
+      [
+        "D003276",
+        "D020518"
+      ],
+      [
+        "D003276",
+        "D000236"
+      ],
+      [
+        "D003276",
+        "D020518"
+      ],
+      [
+        "D003276",
+        "D000236"
+      ],
+      [
+        "D003276",
+        "D020518"
+      ],
+      [
+        "D003276",
+        "D000236"
+      ],
+      [
+        "D003276",
+        "D020518"
+      ]
+    ],
+    "text": "Hepatic adenomas and focal nodular hyperplasia of the liver in young women on oral contraceptives: case reports. Two cases of hepatic adenoma and one of focal nodular hyperplasia presumably associated with the use of oral contraceptives, are reported. Special reference is made to their clinical presentation, which may be totally asymptomatic. Liver-function tests are of little diagnostic value, but valuable information may be obtained from both liver scanning and hepatic angiography. Histologic differences and clinical similarities between hepatic adenoma and focal nodular hyperplasia of the liver are discussed."
+  },
+  "9": {
+    "entity_link": {
+      "thromboembolism": "D013923",
+      "heparin": "D006493",
+      "thrombocytopenia": "D013921",
+      "arterial occlusion": "D001157",
+      "thrombi": "D013927",
+      "ischemia": "D007511",
+      "ischemic": "D007511",
+      "platelet aggregation": "D001791",
+      "sodium warfarin": "D014859"
+    },
+    "expected": [
+      [
+        "D006493",
+        "D001157"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "heparin",
+        "heparin",
+        "heparin",
+        "heparin",
+        "heparin",
+        "heparin",
+        "heparin",
+        "sodium warfarin"
+      ],
+      "Disease": [
+        "thromboembolism",
+        "thrombocytopenia",
+        "thromboembolism",
+        "arterial occlusion",
+        "thrombi",
+        "ischemia",
+        "thrombocytopenia",
+        "ischemic",
+        "thromboembolism",
+        "thrombocytopenia",
+        "platelet aggregation"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D006493",
+        "D001157"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ]
+    ],
+    "metrics": {
+      "precision": 0.3333333333333333,
+      "recall": 1.0,
+      "f1": 0.5,
+      "tp": 2,
+      "fp": 4,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "arterial occlusion"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombi"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemic"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "arterial occlusion"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombi"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemic"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "arterial occlusion"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombi"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemic"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "arterial occlusion"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombi"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemic"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "arterial occlusion"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombi"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemic"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "arterial occlusion"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombi"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemic"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "arterial occlusion"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombi"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemia"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "ischemic"
+      },
+      {
+        "head": "heparin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "arterial occlusion"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "thrombi"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "ischemia"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "ischemic"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "thromboembolism"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "thrombocytopenia"
+      },
+      {
+        "head": "sodium warfarin",
+        "tail": "platelet aggregation"
+      }
+    ],
+    "predicted": [
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D001157"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D001157"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D001157"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D001157"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D001157"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D001157"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D001157"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D007511"
+      ],
+      [
+        "D006493",
+        "D013923"
+      ],
+      [
+        "D006493",
+        "D013921"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ]
+    ],
+    "text": "Arterial thromboembolism in patients receiving systemic heparin therapy: a complication associated with heparin-induced thrombocytopenia. Arterial thromboembolism is a recognized complication of systemic heparin therapy. Characteristic of the entity is arterial occlusion by platelet-fibrin thrombi with distal ischemia occurring four to twenty days after the initiation of heparin therapy, preceded by profound thrombocytopenia with platelet counts in the range of 30,000 to 40,000 per cubic millimeter. The clinically apparent occlusion may be preceded by gastrointestinal and musculoskeletal symptoms that appear to be ischemic in origin, and might serve to warn the clinician of these complications. Previous reports of these phenomena as well as recent studies of the effect of heparin are reviewed. The common factor relating thromboembolism and thrombocytopenia is heparin-induced platelet aggregation. Appropriate treatment consists of discontinuation of heparin, and anticoagulation with sodium warfarin if necessary. Vascular procedures are performed as indicated."
+  },
+  "10": {
+    "entity_link": {
+      "Serotonin": "D012701",
+      "methamphetamine": "D008694",
+      "psychosis": "D011605",
+      "psychotic disorders": "D011605",
+      "schizophrenia": "D012559",
+      "serotonin": "D012701",
+      "5-HT": "D012701",
+      "clozapine": "D003024",
+      "olanzapine": "C076029",
+      "d-amphetamine": "D003913",
+      "hyperactivity": "D006948",
+      "phencyclidine": "D010622",
+      "METH": "D008694",
+      "paranoid type schizophrenia": "D012563"
+    },
+    "expected": [
+      [
+        "D008694",
+        "D011605"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "Serotonin",
+        "methamphetamine",
+        "serotonin",
+        "5-HT",
+        "clozapine",
+        "olanzapine",
+        "d-amphetamine",
+        "5-HT",
+        "d-amphetamine",
+        "phencyclidine",
+        "5-HT",
+        "5-HT",
+        "methamphetamine",
+        "METH",
+        "5-HT",
+        "METH",
+        "METH",
+        "methamphetamine",
+        "METH",
+        "METH",
+        "METH"
+      ],
+      "Disease": [
+        "psychosis",
+        "psychotic disorders",
+        "schizophrenia",
+        "hyperactivity",
+        "schizophrenia",
+        "psychotic disorders",
+        "psychosis",
+        "paranoid type schizophrenia",
+        "psychosis",
+        "psychosis",
+        "psychosis",
+        "psychosis",
+        "psychosis"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D008694",
+        "D011605"
+      ]
+    ],
+    "metrics": {
+      "precision": 0.2,
+      "recall": 1.0,
+      "f1": 0.3333333333333333,
+      "tp": 1,
+      "fp": 4,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "Serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "serotonin",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "serotonin",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "serotonin",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "serotonin",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "serotonin",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "serotonin",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "serotonin",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "5-HT",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "5-HT",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "clozapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "clozapine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "clozapine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "clozapine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "clozapine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "clozapine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "clozapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "clozapine",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "clozapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "clozapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "clozapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "clozapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "clozapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "olanzapine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "5-HT",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "5-HT",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "d-amphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "phencyclidine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "5-HT",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "5-HT",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "5-HT",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "5-HT",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "5-HT",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "5-HT",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "5-HT",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychotic disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "paranoid type schizophrenia"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      },
+      {
+        "head": "METH",
+        "tail": "psychosis"
+      }
+    ],
+    "predicted": [
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012563"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D003913",
+        "D006948"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012563"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012563"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D012701",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012563"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012563"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012563"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012563"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012563"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D012559"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D012563"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ],
+      [
+        "D008694",
+        "D011605"
+      ]
+    ],
+    "text": "Serotonin 6 receptor gene is associated with methamphetamine-induced psychosis in a Japanese population. BACKGROUND: Altered serotonergic neural transmission is hypothesized to be a susceptibility factor for psychotic disorders such as schizophrenia. The serotonin 6 (5-HT6) receptor is therapeutically targeted by several second generation antipsychotics, such as clozapine and olanzapine, and d-amphetamine-induced hyperactivity in rats is corrected with the use of a selective 5-HT6 receptor antagonist. In addition, the disrupted prepulse inhibition induced by d-amphetamine or phencyclidine was restored by 5-HT6 receptor antagonist in an animal study using rats. These animal models were considered to reflect the positive symptoms of schizophrenia, and the above evidence suggests that altered 5-HT6 receptors are involved in the pathophysiology of psychotic disorders. The symptoms of methamphetamine (METH)-induced psychosis are similar to those of paranoid type schizophrenia. Therefore, we conducted an analysis of the association of the 5-HT6 gene (HTR6) with METH-induced psychosis. METHOD: Using five tagging SNPs (rs6693503, rs1805054, rs4912138, rs3790757 and rs9659997), we conducted a genetic association analysis of case-control samples (197 METH-induced psychosis patients and 337 controls) in the Japanese population. The age and sex of the control subjects did not differ from those of the methamphetamine dependence patients. RESULTS: rs6693503 was associated with METH-induced psychosis patients in the allele/genotype-wise analysis. Moreover, this association remained significant after Bonferroni correction. In the haplotype-wise analysis, we detected an association between two markers (rs6693503 and rs1805054) and three markers (rs6693503, rs1805054 and rs4912138) in HTR6 and METH-induced psychosis patients, respectively. CONCLUSION: HTR6 may play an important role in the pathophysiology of METH-induced psychosis in the Japanese population."
+  },
+  "11": {
+    "entity_link": {
+      "bupropion hydrochloride": "D016642",
+      "seizures": "D012640",
+      "bupropion": "D016642",
+      "bupropion HCl": "D016642",
+      "convulsive": "D012640",
+      "convulsions": "D012640",
+      "Bupropion HCl": "D016642"
+    },
+    "expected": [
+      [
+        "D016642",
+        "D012640"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "bupropion hydrochloride",
+        "bupropion",
+        "bupropion",
+        "bupropion HCl",
+        "bupropion",
+        "bupropion HCl",
+        "Bupropion HCl",
+        "bupropion HCl",
+        "bupropion HCl",
+        "bupropion"
+      ],
+      "Disease": [
+        "seizures",
+        "seizures",
+        "convulsive",
+        "convulsions",
+        "convulsions",
+        "convulsions",
+        "convulsions",
+        "convulsions",
+        "convulsions",
+        "convulsive",
+        "convulsions"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D016642",
+        "D012640"
+      ]
+    ],
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion hydrochloride",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "seizures"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "seizures"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "convulsive"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "convulsive"
+      },
+      {
+        "head": "Bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion HCl",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion",
+        "tail": "seizures"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsive"
+      },
+      {
+        "head": "bupropion",
+        "tail": "convulsions"
+      }
+    ],
+    "predicted": [
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ],
+      [
+        "D016642",
+        "D012640"
+      ]
+    ],
+    "text": "Effect of increasing intraperitoneal infusion rates on bupropion hydrochloride-induced seizures in mice. BACKGROUND: It is not known if there is a relationship between input rate and incidence of bupropion-induced seizures. This is important, since different controlled release formulations of bupropion release the active drug at different rates. METHODS: We investigated the effect of varying the intraperitoneal infusion rates of bupropion HCl 120 mg/kg, a known convulsive dose 50 (CD50), on the incidence and severity of bupropion-induced convulsions in the Swiss albino mice. A total of 69 mice, approximately 7 weeks of age, and weighing 21.0 to 29.1 g were randomly assigned to bupropion HCl 120 mg/kg treatment by intraperitoneal (IP) administration in 7 groups (9 to 10 animals per group). Bupropion HCl was infused through a surgically implanted IP dosing catheter with infusions in each group of 0 min, 15 min, 30 min, 60 min, 90 min, 120 min, and 240 min. The number, time of onset, duration and the intensity of the convulsions or absence of convulsions were recorded. RESULTS: The results showed that IP administration of bupropion HCl 120 mg/kg by bolus injection induced convulsions in 6 out of 10 mice (60% of convulsing mice) in group 1. Logistic regression analysis revealed that infusion time was significant (p = 0.0004; odds ratio = 0.974) and increasing the IP infusion time of bupropion HCl 120 mg/kg was associated with a 91% reduced odds of convulsions at infusion times of 15 to 90 min compared to bolus injection. Further increase in infusion time resulted in further reduction in the odds of convulsions to 99.8% reduction at 240 min. CONCLUSION: In conclusion, the demonstration of an inverse relationship between infusion time of a fixed and convulsive dose of bupropion and the risk of convulsions in a prospective study is novel."
+  },
+  "12": {
+    "entity_link": {
+      "penicillin": "D010406",
+      "epileptiform activity": "D004827",
+      "Penicillin": "D010406",
+      "epilepsy": "D004827",
+      "urethane": "D014520",
+      "epileptic": "D004827",
+      "penicillin-G potassium": "D010400",
+      "epilepsies": "D004827"
+    },
+    "expected": [
+      [
+        "D010400",
+        "D004827"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "penicillin",
+        "Penicillin",
+        "penicillin",
+        "urethane",
+        "penicillin-G potassium",
+        "penicillin"
+      ],
+      "Disease": [
+        "epileptiform activity",
+        "epilepsy",
+        "epileptiform activity",
+        "epileptic",
+        "epileptiform activity",
+        "epileptiform activity",
+        "epileptiform activity",
+        "epilepsies"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D010400",
+        "D004827"
+      ]
+    ],
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epilepsy"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptic"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epilepsies"
+      },
+      {
+        "head": "Penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "Penicillin",
+        "tail": "epilepsy"
+      },
+      {
+        "head": "Penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "Penicillin",
+        "tail": "epileptic"
+      },
+      {
+        "head": "Penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "Penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "Penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "Penicillin",
+        "tail": "epilepsies"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epilepsy"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptic"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epilepsies"
+      },
+      {
+        "head": "urethane",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "urethane",
+        "tail": "epilepsy"
+      },
+      {
+        "head": "urethane",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "urethane",
+        "tail": "epileptic"
+      },
+      {
+        "head": "urethane",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "urethane",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "urethane",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "urethane",
+        "tail": "epilepsies"
+      },
+      {
+        "head": "penicillin-G potassium",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin-G potassium",
+        "tail": "epilepsy"
+      },
+      {
+        "head": "penicillin-G potassium",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin-G potassium",
+        "tail": "epileptic"
+      },
+      {
+        "head": "penicillin-G potassium",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin-G potassium",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin-G potassium",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin-G potassium",
+        "tail": "epilepsies"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epilepsy"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptic"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epileptiform activity"
+      },
+      {
+        "head": "penicillin",
+        "tail": "epilepsies"
+      }
+    ],
+    "predicted": [
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010400",
+        "D004827"
+      ],
+      [
+        "D010400",
+        "D004827"
+      ],
+      [
+        "D010400",
+        "D004827"
+      ],
+      [
+        "D010400",
+        "D004827"
+      ],
+      [
+        "D010400",
+        "D004827"
+      ],
+      [
+        "D010400",
+        "D004827"
+      ],
+      [
+        "D010400",
+        "D004827"
+      ],
+      [
+        "D010400",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ],
+      [
+        "D010406",
+        "D004827"
+      ]
+    ],
+    "text": "Detailed spectral profile analysis of penicillin-induced epileptiform activity in anesthetized rats. Penicillin model is a widely used experimental model for epilepsy research. In the present study we aimed to portray a detailed spectral analysis of penicillin-induced epileptiform activity in comparison with basal brain activity in anesthetized Wistar rats. Male Wistar rats were anesthetized with i.p. urethane and connected to an electrocorticogram setup. After a short period of basal activity recording, epileptic focus was induced by injecting 400IU/2 microl penicillin-G potassium into the left lateral ventricle while the cortical activity was continuously recorded. Basal activity, latent period and the penicillin-induced epileptiform activity periods were then analyzed using both conventional methods and spectral analysis. Spectral analyses were conducted by dividing the whole spectrum into different frequency bands including delta, theta (slow and fast), alpha-sigma, beta (1 and 2) and gamma (1 and 2) bands. Our results show that the most affected frequency bands were delta, theta, beta-2 and gamma-2 bands during the epileptiform activity and there were marked differences in terms of spectral densities between three investigated episodes (basal activity, latent period and epileptiform activity). Our results may help to analyze novel data obtained using similar experimental models and the simple analysis method described here can be used in similar studies to investigate the basic neuronal mechanism of this or other types of experimental epilepsies."
+  },
+  "13": {
+    "entity_link": {
+      "dexmedetomidine": "D020927",
+      "Dexmedetomidine": "D020927",
+      "pentobarbital": "D010424",
+      "bradycardia": "D001919",
+      "oxygen": "D010100"
+    },
+    "expected": [
+      [
+        "D020927",
+        "D001919"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "dexmedetomidine",
+        "dexmedetomidine",
+        "dexmedetomidine",
+        "Dexmedetomidine",
+        "dexmedetomidine",
+        "dexmedetomidine",
+        "dexmedetomidine",
+        "dexmedetomidine",
+        "pentobarbital",
+        "dexmedetomidine",
+        "dexmedetomidine",
+        "oxygen",
+        "Dexmedetomidine",
+        "dexmedetomidine",
+        "Dexmedetomidine"
+      ],
+      "Disease": [
+        "bradycardia"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D020927",
+        "D001919"
+      ]
+    ],
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "Dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "pentobarbital",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "oxygen",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "Dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "dexmedetomidine",
+        "tail": "bradycardia"
+      },
+      {
+        "head": "Dexmedetomidine",
+        "tail": "bradycardia"
+      }
+    ],
+    "predicted": [
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ],
+      [
+        "D020927",
+        "D001919"
+      ]
+    ],
+    "text": "High dose dexmedetomidine as the sole sedative for pediatric MRI. OBJECTIVE: This large-scale retrospective review evaluates the sedation profile of dexmedetomidine. AIM: To determine the hemodynamic responses, efficacy and adverse events associated with the use of high dose dexmedetomidine as the sole sedative for magnetic resonance imaging (MRI) studies. BACKGROUND: Dexmedetomidine has been used at our institution since 2005 to provide sedation for pediatric radiological imaging studies. Over time, an effective protocol utilizing high dose dexmedetomidine as the sole sedative agent has evolved. METHODS/MATERIALS: As part of the ongoing Quality Assurance process, data on all sedations are reviewed monthly and protocols modified as needed. Data were analyzed from all 747 consecutive patients who received dexmedetomidine for MRI sedation from April 2005 to April 2007. RESULTS: Since 2005, the 10-min loading dose of our dexmedetomidine protocol increased from 2 to 3 microg.kg(-1), and the infusion rate increased from 1 to 1.5 to 2 microg.kg(-1).h(-1). The current sedation protocol progressively increased the rate of successful sedation (able to complete the imaging study) when using dexmedetomidine alone from 91.8% to 97.6% (P = 0.009), reducing the requirement for adjuvant pentobarbital in the event of sedation failure with dexmedetomidine alone and decreased the mean recovery time by 10 min (P < 0.001). Although dexmedetomidine sedation was associated with a 16% incidence of bradycardia, all concomitant mean arterial blood pressures were within 20% of age-adjusted normal range and oxygen saturations were 95% or higher. CONCLUSION: Dexmedetomidine in high doses provides adequate sedation for pediatric MRI studies. While use of high dose dexmedetomidine is associated with decreases in heart rate and blood pressure outside the established 'awake' norms, this deviation is generally within 20% of norms, and is not associated with adverse sequelae. Dexmedetomidine is useful as the sole sedative for pediatric MRI."
+  },
+  "14": {
+    "entity_link": {
+      "Methamphetamine": "D008694",
+      "aggressiveness": "D001523",
+      "Aggressive behaviors": "D001523",
+      "psychiatric disorders": "D001523",
+      "methamphetamine": "D008694",
+      "METH": "D008694",
+      "hyperactivity": "D006948",
+      "aggressive behaviors": "D001523"
+    },
+    "expected": [
+      [
+        "D008694",
+        "D001523"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "Methamphetamine",
+        "methamphetamine",
+        "METH",
+        "METH",
+        "METH",
+        "METH",
+        "METH",
+        "METH",
+        "METH",
+        "METH"
+      ],
+      "Disease": [
+        "aggressiveness",
+        "Aggressive behaviors",
+        "psychiatric disorders",
+        "aggressiveness",
+        "aggressiveness",
+        "hyperactivity",
+        "aggressive behaviors"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D008694",
+        "D001523"
+      ]
+    ],
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Methamphetamine",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "Methamphetamine",
+        "tail": "Aggressive behaviors"
+      },
+      {
+        "head": "Methamphetamine",
+        "tail": "psychiatric disorders"
+      },
+      {
+        "head": "Methamphetamine",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "Methamphetamine",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "Methamphetamine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "Methamphetamine",
+        "tail": "aggressive behaviors"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "Aggressive behaviors"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "psychiatric disorders"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "methamphetamine",
+        "tail": "aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "Aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "psychiatric disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "Aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "psychiatric disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "Aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "psychiatric disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "Aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "psychiatric disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "Aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "psychiatric disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "Aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "psychiatric disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "Aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "psychiatric disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "Aggressive behaviors"
+      },
+      {
+        "head": "METH",
+        "tail": "psychiatric disorders"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressiveness"
+      },
+      {
+        "head": "METH",
+        "tail": "hyperactivity"
+      },
+      {
+        "head": "METH",
+        "tail": "aggressive behaviors"
+      }
+    ],
+    "predicted": [
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ],
+      [
+        "D008694",
+        "D001523"
+      ]
+    ],
+    "text": "Methamphetamine causes alterations in the MAP kinase-related pathways in the brains of mice that display increased aggressiveness. Aggressive behaviors have been reported in patients who suffer from some psychiatric disorders, and are common in methamphetamine (METH) abusers. Herein, we report that multiple (but not single) injections of METH significantly increased aggressiveness in male CD-1 mice. This increase in aggressiveness was not secondary to METH-induced hyperactivity. Analysis of protein expression using antibody microarrays and Western blotting revealed differential changes in MAP kinase-related pathways after multiple and single METH injections. There were statistically significant (p<0.05) decreases in MEK1, Erk2p, GSK3alpha, 14-3-3e, and MEK7 in the striata of mice after multiple injections of METH. MEK1 was significantly decreased also after a single injection of METH, but to a much lesser degree than after multiple injections of METH. In the frontal cortex, there was a statistically significant decrease in GSK3alpha after multiple (but not single) injections of METH. These findings suggest that alterations in MAP kinase-related pathways in the prefronto-striatal circuitries might be involved in the manifestation of aggressive behaviors in mice."
+  },
+  "15": {
+    "entity_link": {
+      "dyskinesias": "D004409",
+      "Parkinson disease": "D010300",
+      "levodopa": "D007980",
+      "dyskinesia": "D004409",
+      "dyskinetic": "D004409",
+      "apomorphine": "D001058",
+      "drug-induced dyskinesias": "D004409"
+    },
+    "expected": [
+      [
+        "D007980",
+        "D004409"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "levodopa",
+        "apomorphine"
+      ],
+      "Disease": [
+        "dyskinesias",
+        "Parkinson disease",
+        "dyskinesia",
+        "Parkinson disease",
+        "dyskinetic",
+        "drug-induced dyskinesias"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D007980",
+        "D004409"
+      ]
+    ],
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "levodopa",
+        "tail": "dyskinesias"
+      },
+      {
+        "head": "levodopa",
+        "tail": "Parkinson disease"
+      },
+      {
+        "head": "levodopa",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "levodopa",
+        "tail": "Parkinson disease"
+      },
+      {
+        "head": "levodopa",
+        "tail": "dyskinetic"
+      },
+      {
+        "head": "levodopa",
+        "tail": "drug-induced dyskinesias"
+      },
+      {
+        "head": "apomorphine",
+        "tail": "dyskinesias"
+      },
+      {
+        "head": "apomorphine",
+        "tail": "Parkinson disease"
+      },
+      {
+        "head": "apomorphine",
+        "tail": "dyskinesia"
+      },
+      {
+        "head": "apomorphine",
+        "tail": "Parkinson disease"
+      },
+      {
+        "head": "apomorphine",
+        "tail": "dyskinetic"
+      },
+      {
+        "head": "apomorphine",
+        "tail": "drug-induced dyskinesias"
+      }
+    ],
+    "predicted": [
+      [
+        "D007980",
+        "D004409"
+      ],
+      [
+        "D007980",
+        "D004409"
+      ],
+      [
+        "D007980",
+        "D004409"
+      ],
+      [
+        "D007980",
+        "D004409"
+      ],
+      [
+        "D007980",
+        "D004409"
+      ],
+      [
+        "D007980",
+        "D004409"
+      ],
+      [
+        "D007980",
+        "D004409"
+      ],
+      [
+        "D007980",
+        "D004409"
+      ],
+      [
+        "D007980",
+        "D004409"
+      ],
+      [
+        "D007980",
+        "D004409"
+      ],
+      [
+        "D001058",
+        "D004409"
+      ],
+      [
+        "D001058",
+        "D004409"
+      ]
+    ],
+    "text": "rTMS of supplementary motor area modulates therapy-induced dyskinesias in Parkinson disease. The neural mechanisms and circuitry involved in levodopa-induced dyskinesia are unclear. Using repetitive transcranial magnetic stimulation (rTMS) over the supplementary motor area (SMA) in a group of patients with advanced Parkinson disease, the authors investigated whether modulation of SMA excitability may result in a modification of a dyskinetic state induced by continuous apomorphine infusion. rTMS at 1 Hz was observed to markedly reduce drug-induced dyskinesias, whereas 5-Hz rTMS induced a slight but not significant increase."
+  },
+  "16": {
+    "entity_link": {
+      "amnesia": "D000647",
+      "propofol": "D015742",
+      "inability to repeat words": "D000647",
+      "retrograde amnesia": "D000648"
+    },
+    "expected": [
+      [
+        "D015742",
+        "D000647"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "propofol",
+        "propofol",
+        "propofol"
+      ],
+      "Disease": [
+        "amnesia",
+        "inability to repeat words",
+        "retrograde amnesia"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D015742",
+        "D000647"
+      ]
+    ],
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "propofol",
+        "tail": "amnesia"
+      },
+      {
+        "head": "propofol",
+        "tail": "inability to repeat words"
+      },
+      {
+        "head": "propofol",
+        "tail": "retrograde amnesia"
+      },
+      {
+        "head": "propofol",
+        "tail": "amnesia"
+      },
+      {
+        "head": "propofol",
+        "tail": "inability to repeat words"
+      },
+      {
+        "head": "propofol",
+        "tail": "retrograde amnesia"
+      },
+      {
+        "head": "propofol",
+        "tail": "amnesia"
+      },
+      {
+        "head": "propofol",
+        "tail": "inability to repeat words"
+      },
+      {
+        "head": "propofol",
+        "tail": "retrograde amnesia"
+      }
+    ],
+    "predicted": [
+      [
+        "D015742",
+        "D000647"
+      ],
+      [
+        "D015742",
+        "D000647"
+      ],
+      [
+        "D015742",
+        "D000648"
+      ],
+      [
+        "D015742",
+        "D000647"
+      ],
+      [
+        "D015742",
+        "D000647"
+      ],
+      [
+        "D015742",
+        "D000648"
+      ],
+      [
+        "D015742",
+        "D000647"
+      ],
+      [
+        "D015742",
+        "D000647"
+      ],
+      [
+        "D015742",
+        "D000648"
+      ]
+    ],
+    "text": "Assessment of the onset and persistence of amnesia during procedural sedation with propofol. OBJECTIVES: To assess patients' ability to repeat and recall words presented to them while undergoing procedural sedation with propofol, and correlate their recall with their level of awareness as measured by bispectral index (BIS) monitoring. METHODS: This was a prospective, single-intervention study of consenting adult patients undergoing procedural sedation with propofol between December 28, 2002, and October 31, 2003. BIS monitoring was initiated starting 3 minutes before the procedure and continuing until the patient had regained baseline mental status. At 1-minute intervals during the procedural sedation, until the patient regained baseline mental status at the end of the procedure, a word from a standardized list was read aloud, and the patient was asked to immediately repeat the word to the investigator. The BIS score at the time the word was read and the patient's ability to repeat the word were recorded. After the procedure, the patient was asked to state all of the words from the list that he or she could recall, and to identify the last word recalled from prior to the start of the procedure and the first word recalled from after the procedure was completed. RESULTS: Seventy-five consenting patients were enrolled; one patient was excluded from data analysis for a protocol violation. No serious adverse events were noted during the procedural sedations. The mean (+/-standard deviation) time of data collection was 16.4 minutes (+/-7.1; range 5 to 34 minutes). The mean initial (preprocedure) BIS score was 97.1 (+/-2.3; range 92 to 99). The mean lowest BIS score occurring during these procedural sedations was 66.9 (+/-14.4; range 33 to 91). The mean lowest BIS score corresponding to the ability of the patient to immediately repeat words read from the list was 77.1 (95% CI = 74.3 to 80.0). The mean highest BIS score corresponding to the inability to repeat words was 81.5 (95% CI = 78.1 to 84.8). The mean BIS score corresponding to the last word recalled from prior to the initiation of the sedation was 96.7 (+/-2.4; range 84 to 98). The mean BIS score corresponding to the first word recalled after the procedure was completed was 91.2 (95% CI = 88.1 to 94.3). All patients recalled at least one word that had been read to them during the protocol. The mean lowest BIS score for any recalled word was 91.5 (+/-11.1; range 79 to 98), and no words were recalled when the corresponding BIS score was less than 90. CONCLUSIONS: There is a range of BIS scores during which sedated patients are able to repeat words read to them but are not able to subsequently recall these words. Furthermore, patients had no recall of words repeated prior to procedural sedation in BIS ranges associated with recall after procedural sedation, suggestive of retrograde amnesia."
+  },
+  "17": {
+    "entity_link": {
+      "Doxorubicin": "D004317",
+      "tumor": "D009369",
+      "doxorubicin": "D004317",
+      "heart failure": "D006333"
+    },
+    "expected": [
+      [
+        "D004317",
+        "D006333"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "Doxorubicin",
+        "Doxorubicin",
+        "doxorubicin",
+        "doxorubicin",
+        "Doxorubicin",
+        "doxorubicin"
+      ],
+      "Disease": [
+        "tumor",
+        "heart failure"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D004317",
+        "D006333"
+      ]
+    ],
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Doxorubicin",
+        "tail": "tumor"
+      },
+      {
+        "head": "Doxorubicin",
+        "tail": "heart failure"
+      },
+      {
+        "head": "Doxorubicin",
+        "tail": "tumor"
+      },
+      {
+        "head": "Doxorubicin",
+        "tail": "heart failure"
+      },
+      {
+        "head": "doxorubicin",
+        "tail": "tumor"
+      },
+      {
+        "head": "doxorubicin",
+        "tail": "heart failure"
+      },
+      {
+        "head": "doxorubicin",
+        "tail": "tumor"
+      },
+      {
+        "head": "doxorubicin",
+        "tail": "heart failure"
+      },
+      {
+        "head": "Doxorubicin",
+        "tail": "tumor"
+      },
+      {
+        "head": "Doxorubicin",
+        "tail": "heart failure"
+      },
+      {
+        "head": "doxorubicin",
+        "tail": "tumor"
+      },
+      {
+        "head": "doxorubicin",
+        "tail": "heart failure"
+      }
+    ],
+    "predicted": [
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ],
+      [
+        "D004317",
+        "D006333"
+      ]
+    ],
+    "text": "Expression of p300 protects cardiac myocytes from apoptosis in vivo. Doxorubicin is an anti-tumor agent that represses cardiac-specific gene expression and induces myocardial cell apoptosis. Doxorubicin depletes cardiac p300, a transcriptional coactivator that is required for the maintenance of the differentiated phenotype of cardiac myocytes. However, the role of p300 in protection against doxorubicin-induced apoptosis is unknown. Transgenic mice overexpressing p300 in the heart and wild-type mice were subjected to doxorubicin treatment. Compared with wild-type mice, transgenic mice exhibited higher survival rate as well as more preserved left ventricular function and cardiac expression of alpha-sarcomeric actin. Doxorubicin induced myocardial cell apoptosis in wild-type mice but not in transgenic mice. Expression of p300 increased the cardiac level of bcl-2 and mdm-2, but not that of p53 or other members of the bcl-2 family. These findings demonstrate that overexpression of p300 protects cardiac myocytes from doxorubicin-induced apoptosis and reduces the extent of acute heart failure in adult mice in vivo."
+  },
+  "18": {
+    "entity_link": {
+      "tobramycin": "D014031",
+      "tobramicyn": "D014031",
+      "toxicity": "D064420",
+      "Tobramycin": "D014031",
+      "creatinine": "D003404",
+      "nephrotoxicity": "D007674",
+      "decreased auditory function": "D034381",
+      "auditory loss": "D034381"
+    },
+    "expected": [
+      [
+        "D014031",
+        "D034381"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "tobramycin",
+        "tobramicyn",
+        "tobramycin",
+        "tobramycin",
+        "Tobramycin",
+        "creatinine",
+        "tobramycin"
+      ],
+      "Disease": [
+        "toxicity",
+        "nephrotoxicity",
+        "decreased auditory function",
+        "auditory loss",
+        "decreased auditory function"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D014031",
+        "D034381"
+      ]
+    ],
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "tobramycin",
+        "tail": "toxicity"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "nephrotoxicity"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "auditory loss"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "tobramicyn",
+        "tail": "toxicity"
+      },
+      {
+        "head": "tobramicyn",
+        "tail": "nephrotoxicity"
+      },
+      {
+        "head": "tobramicyn",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "tobramicyn",
+        "tail": "auditory loss"
+      },
+      {
+        "head": "tobramicyn",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "toxicity"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "nephrotoxicity"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "auditory loss"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "toxicity"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "nephrotoxicity"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "auditory loss"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "Tobramycin",
+        "tail": "toxicity"
+      },
+      {
+        "head": "Tobramycin",
+        "tail": "nephrotoxicity"
+      },
+      {
+        "head": "Tobramycin",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "Tobramycin",
+        "tail": "auditory loss"
+      },
+      {
+        "head": "Tobramycin",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "creatinine",
+        "tail": "toxicity"
+      },
+      {
+        "head": "creatinine",
+        "tail": "nephrotoxicity"
+      },
+      {
+        "head": "creatinine",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "creatinine",
+        "tail": "auditory loss"
+      },
+      {
+        "head": "creatinine",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "toxicity"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "nephrotoxicity"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "decreased auditory function"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "auditory loss"
+      },
+      {
+        "head": "tobramycin",
+        "tail": "decreased auditory function"
+      }
+    ],
+    "predicted": [
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ],
+      [
+        "D014031",
+        "D034381"
+      ]
+    ],
+    "text": "Therapeutic drug monitoring of tobramycin: once-daily versus twice-daily dosage schedules. OBJECTIVE: To evaluate the effect of dosage regimen (once-daily vs. twice-daily) of tobramicyn on steady-state serum concentrations and toxicity. MATERIALS AND METHODS: Patients undergoing treatment with i.v. tobramycin (4 mg/kg/day) were randomised to two groups. Group OD (n = 22) received a once-daily dose of tobramycin and group TD (n = 21) received the same dose divided into two doses daily. Tobramycin serum concentrations (peak and trough) were measured by enzyme multiplied immunoassay. The renal and auditory functions of the patients were monitored before, during and immediately after treatment. RESULTS: The two groups were comparable with respect to sex, age, body weight and renal function. No statistically significant differences were found in mean daily dose, duration of treatment, or cumulative dose. Trough concentrations were < 2 g/ml in the two groups (100%). Peak concentrations were > 6 microg/ml in 100% of the OD group and in 67% of the TD group (P< 0.01). Mean peak concentrations were markedly different: 11.00+/-2.89 microg/ml in OD vs. 6.53+/-1.45 microg/ml in TD (P< 0.01). The pharmacokinetics parameters were: Ke, (0.15+/-0.03/h in OD vs. 0.24+/-0.06/h in TD), t1/2, (4.95+/-1.41 h in OD vs. 3.07+/-0.71 h in TD), Vd (0.35+/-0.11 l/kg in OD vs. 0.33+/-0.09 l/kg in TD), Cl (0.86+/-0.29 ml/min/kg in OD vs. 1.28+/-0.33 ml/min/kg in TD). Increased serum creatinine was observed in 73% of patients in OD versus 57% of patients in TD, without evidence of nephrotoxicity. In TD group, three patients developed decreased auditory function, of which one presented with an auditory loss of -30 dB, whereas in the OD group only one patient presented decreased auditory function. CONCLUSION: This small study suggests that a once-daily dosing regimen of tobramycin is at least as effective as and is no more and possibly less toxic than the twice-daily regimen. Using a single-dose therapy, peak concentration determination is not necessary, only trough samples should be monitored to ensure levels below 2 microg/ml."
+  },
+  "19": {
+    "entity_link": {
+      "steroid": "D013256",
+      "elevated intraocular pressure": "D009798",
+      "corticosteroid": "D000305",
+      "IOP rise": "D009798"
+    },
+    "expected": [
+      [
+        "D000305",
+        "D009798"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "steroid",
+        "corticosteroid",
+        "steroid"
+      ],
+      "Disease": [
+        "elevated intraocular pressure",
+        "IOP rise"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D000305",
+        "D009798"
+      ]
+    ],
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "steroid",
+        "tail": "elevated intraocular pressure"
+      },
+      {
+        "head": "steroid",
+        "tail": "IOP rise"
+      },
+      {
+        "head": "corticosteroid",
+        "tail": "elevated intraocular pressure"
+      },
+      {
+        "head": "corticosteroid",
+        "tail": "IOP rise"
+      },
+      {
+        "head": "steroid",
+        "tail": "elevated intraocular pressure"
+      },
+      {
+        "head": "steroid",
+        "tail": "IOP rise"
+      }
+    ],
+    "predicted": [
+      [
+        "D013256",
+        "D009798"
+      ],
+      [
+        "D013256",
+        "D009798"
+      ],
+      [
+        "D000305",
+        "D009798"
+      ],
+      [
+        "D000305",
+        "D009798"
+      ],
+      [
+        "D013256",
+        "D009798"
+      ],
+      [
+        "D013256",
+        "D009798"
+      ]
+    ],
+    "text": "Effect of myopic excimer laser photorefractive keratectomy on the electrophysiologic function of the retina and optic nerve. PURPOSE: To assess by electrophysiologic testing the effect of photorefractive keratectomy (PRK) on the retina and optic nerve. SETTING: Eye Clinic, S. Salvatore Hospital, L'Aquila University, Italy. METHODS: Standard pattern electroretinograms (P-ERGs) and standard pattern visual evoked potentials (P-VEPs) were done in 25 eyes of 25 patients who had myopic PRK for an attempted correction between 5.00 and 15.00 diopters (D) (mean 8.00 D). Testing was done preoperatively and 3, 6, 12, and 18 months postoperatively. The contralateral eyes served as controls. During the follow-up, 3 patients (12%) developed steroid-induced elevated intraocular pressure (IOP) that resolved after corticosteroid therapy was discontinued. RESULTS: No statistically significant differences were seen between treated and control eyes nor between treated eyes preoperatively and postoperatively. CONCLUSION: Myopic excimer laser PRK did not seem to affect the posterior segment. The transient steroid-induced IOP rise did not seem to cause functional impairment."
+  },
+  "20": {
+    "entity_link": {
+      "heparin": "D006493",
+      "thrombosis": "D013927",
+      "platelet aggregation": "D001791"
+    },
+    "expected": [
+      [
+        "D006493",
+        "D013927"
+      ]
+    ],
+    "expected_entities": {
+      "Chemical": [
+        "heparin",
+        "heparin",
+        "heparin",
+        "heparin",
+        "heparin"
+      ],
+      "Disease": [
+        "thrombosis",
+        "thrombosis",
+        "thrombosis",
+        "platelet aggregation",
+        "thrombosis",
+        "thrombosis"
+      ]
+    },
+    "expected_relations": [
+      [
+        "D006493",
+        "D013927"
+      ]
+    ],
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0
+    },
+    "pairs": [
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "platelet aggregation"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      },
+      {
+        "head": "heparin",
+        "tail": "thrombosis"
+      }
+    ],
+    "predicted": [
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D013927"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ],
+      [
+        "D006493",
+        "D001791"
+      ]
+    ],
+    "text": "Failure of ancrod in the treatment of heparin-induced arterial thrombosis. The morbidity and mortality associated with heparin-induced thrombosis remain high despite numerous empirical therapies. Ancrod has been used successfully for prophylaxis against development of thrombosis in patients with heparin induced platelet aggregation who require brief reexposure to heparin, but its success in patients who have developed the thrombosis syndrome is not well defined. The authors present a case of failure of ancrod treatment in a patient with heparin-induced thrombosis."
+  }
+}

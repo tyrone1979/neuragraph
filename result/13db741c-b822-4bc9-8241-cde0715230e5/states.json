@@ -1,0 +1,37 @@
+{
+  "1": {
+    "expected": "[[\"lithium carbonate\",\"neurologic depression\"],[\"lithium carbonate\",\"cardiac arrhythmia\"],[\"lithium carbonate\",\"cyanosis\"]]",
+    "expected_entities": "{\"Disease\": [\"Tricuspid valve regurgitation\",\"neurologic depression\",\"cyanosis\"],\"Chemical\": [\"lithium carbonate\"]}",
+    "expected_relations": "[[\"lithium carbonate\",\"neurologic depression\"],[\"lithium carbonate\",\"cardiac arrhythmia\"],[\"lithium carbonate\",\"cyanosis\"]]",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "pairs": {
+      "expected_entities": "{\"Disease\": [\"Tricuspid valve regurgitation\",\"neurologic depression\",\"cyanosis\"],\"Chemical\": [\"lithium carbonate\"]}",
+      "expected_relations": "[[\"lithium carbonate\",\"neurologic depression\"],[\"lithium carbonate\",\"cardiac arrhythmia\"],[\"lithium carbonate\",\"cyanosis\"]]",
+      "text": "Tricuspid valve regurgitation and lithium carbonate toxicity in a newborn infant. A newborn with massive tricuspid regurgitation, atrial flutter, congestive heart failure, and a high serum lithium level is described. This is the first patient to initially manifest tricuspid regurgitation and atrial flutter, and the 11th described patient with cardiac disease among infants exposed to lithium compounds in the first trimester of pregnancy. Sixty-three percent of these infants had tricuspid valve involvement. Lithium carbonate may be a factor in the increasing incidence of congenital heart disease when taken during early pregnancy. It also causes neurologic depression, cyanosis, and cardiac arrhythmia when consumed prior to delivery.",
+      "error": "Execution error: string indices must be integers, not 'str'"
+    },
+    "predicted": [
+      [
+        "expected_entities",
+        "expected_entities"
+      ],
+      [
+        "expected_relations",
+        "expected_relations"
+      ],
+      [
+        "text",
+        "text"
+      ],
+      [
+        "error",
+        "error"
+      ]
+    ],
+    "text": "Tricuspid valve regurgitation and lithium carbonate toxicity in a newborn infant. A newborn with massive tricuspid regurgitation, atrial flutter, congestive heart failure, and a high serum lithium level is described. This is the first patient to initially manifest tricuspid regurgitation and atrial flutter, and the 11th described patient with cardiac disease among infants exposed to lithium compounds in the first trimester of pregnancy. Sixty-three percent of these infants had tricuspid valve involvement. Lithium carbonate may be a factor in the increasing incidence of congenital heart disease when taken during early pregnancy. It also causes neurologic depression, cyanosis, and cardiac arrhythmia when consumed prior to delivery."
+  }
+}

@@ -1,0 +1,70 @@
+
+.replay-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    z-index: 1001;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+}
+
+.replay-popup.hidden {
+    display: none;
+}
+
+.replay-popup .popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+}
+
+.replay-popup .popup-body {
+    padding: 0; /* 移除内边距，让两列铺满整个窗口 */
+    overflow-y: auto;
+    flex: 1;
+}
+
+
+
+.replay-popup .popup-body #resultOutput {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 1rem;
+    background: #f6f8fa;
+    border-radius: 4px;
+    padding: 8px;
+    height: 50vh; /* 设置高度为视口高度的 80% */
+    overflow-y: auto; /* 添加垂直滚动条 */
+}
+
+.close-btn{
+  border: none; background: none; font-size: 20px; cursor: pointer;
+}
+
+/* 2. 关键样式 */
+.scroll-box {
+  height: 600px;          /* 可视区域高度，按需改 */
+  overflow-y: auto;       /* 纵向超出时出滚动条 */
+  overflow-x: auto;       /* 横向也允许滚 */
+  border: 1px solid #dee2e6;
+  border-radius: .25rem;
+  padding: .5rem;
+  background: #f8f9fa;
+}
+
+/* 可选：让代码块本身去掉底边，看起来更整洁 */
+.scroll-box pre {
+  margin: 0;
+  white-space: pre;   /* 保留换行与空格 */
+}

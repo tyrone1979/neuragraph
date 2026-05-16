@@ -1,0 +1,74 @@
+text
+"{
+  ""error_analysis"": {
+    ""boundary_shift"": [],
+    ""over_segmentation"": [],
+    ""under_segmentation"": []
+  },
+  ""metrics"": {
+    ""correct_boundaries"": 9,
+    ""f1"": 1,
+    ""precision"": 1,
+    ""predicted_boundaries"": 9,
+    ""real_boundaries"": 9,
+    ""recall"": 1
+  },
+  ""summary"": {
+    ""error_count"": 0,
+    ""is_perfect_match"": true,
+    ""token_count_difference"": 0
+  }
+}{
+  ""error_analysis"": {
+    ""boundary_shift"": [
+      {
+        ""position"": 105,
+        ""predicted"": ""seizures.""
+      }
+    ],
+    ""over_segmentation"": [],
+    ""under_segmentation"": [
+      {
+        ""combined_real_words"": [
+          ""A"",
+          ""2"",
+          ""-"",
+          ""year"",
+          ""-"",
+          ""old"",
+          ""child"",
+          ""with"",
+          ""known"",
+          ""neurologic"",
+          ""impairment"",
+          ""developed"",
+          ""a"",
+          ""dyskinesia"",
+          ""soon"",
+          ""after"",
+          ""starting"",
+          ""phenobarbital"",
+          ""therapy"",
+          ""for"",
+          ""seizures"",
+          "".""
+        ],
+        ""position"": 1,
+        ""predicted"": ""2-year-old""
+      }
+    ]
+  },
+  ""metrics"": {
+    ""correct_boundaries"": 15,
+    ""f1"": 0.7692307692307693,
+    ""precision"": 0.8823529411764706,
+    ""predicted_boundaries"": 17,
+    ""real_boundaries"": 22,
+    ""recall"": 0.6818181818181818
+  },
+  ""summary"": {
+    ""error_count"": 2,
+    ""is_perfect_match"": false,
+    ""token_count_difference"": -5
+  }
+}"

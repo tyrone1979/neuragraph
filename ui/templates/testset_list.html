@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "components/paginated_table.html" import paginated_table %}
+{% from "components/runner_selector.html" import runner_selector %}
+{% block content %}
+
+<h1>Experiment Dataset Manager</h1>
+
+<form action="/testset/upload" method="post" enctype="multipart/form-data">
+
+    <h4>Create a new experiment dataset</h4>
+    <p>Step 1. Select an agent/graph.{{ runner_selector() }}</p>
+    <div class="mb-3">
+        <label>File</label>
+        <input type="file" name="file" required>
+    </div>
+    <p>Step 2. Upload a dataset for this agent/graph</p>
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+<br>
+<h4>Available Dataset List</h4>
+<!-- 分页表格组件 -->
+    {{ paginated_table(
+        items=tests,
+        columns=['agent_id','name','fields_display','count', 'actions_html'],
+        page=page,
+        per_page=per_page,
+        total=total,
+        base_url='testset.list_tests',
+        extra_params={'search': search}
+    ) }}
+
+
+{% endblock %}

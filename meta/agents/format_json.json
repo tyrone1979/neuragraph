@@ -1,0 +1,14 @@
+{
+  "id": "format_json",
+  "name": "Format as JSON",
+  "type": "PGM",
+  "inputs": [
+    "text",
+    "summary"
+  ],
+  "outputs": {
+    "name": "result",
+    "type": "dict"
+  },
+  "process": "result = {\n    \"original\": state.get(\"text\", \"\"),\n    \"summary\": state.get(\"summary\", \"\"),\n    \"original_length\": len(state.get(\"text\", \"\")),\n    \"summary_length\": len(state.get(\"summary\", \"\"))\n}\n__result__ = result"
+}

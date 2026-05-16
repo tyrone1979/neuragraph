@@ -1,0 +1,8 @@
+{
+  "id": "test_split",
+  "name": "Test Split",
+  "type": "PGM",
+  "inputs": ["text"],
+  "outputs": {"name": "words", "type": "list"},
+  "process": "__result__ = state.get('text', '').split()"
+}
