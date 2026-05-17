@@ -12,6 +12,7 @@ import os
 import re
 import sys
 import subprocess
+import textwrap
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -182,6 +183,181 @@ def draw_workflow(graph_id: str, meta_dir: Path = META_DIR) -> str:
 
 
 # ═══════════════════════════════════════════════════════════════
+# LLM Command Parser
+# ═══════════════════════════════════════════════════════════════
+
+class LLMCommandParser:
+    """Use an LLM to parse natural language into structured intents."""
+
+    def __init__(self, llm_config: Dict, meta_dir: Path = META_DIR):
+        import autogen
+        self.llm = autogen.LLMClient(llm_config)
+        self.meta_dir = meta_dir
+        self.skill_path = Path(__file__).parent / "SKILL.md"
+        self.skill_context = self._load_skill()
+
+    def _load_skill(self) -> str:
+        if self.skill_path.exists():
+            return self.skill_path.read_text()
+        return textwrap.dedent("""\
+        You are a NeuraGraph workflow designer. You generate JSON configs for:
+        - agents (LLM/PGM/SUB types)
+        - graphs (workflows: nodes + edges)
+        - llms (provider configs)
+        - tools (Python code functions)
+        """)
+
+    def _load_catalog(self) -> str:
+        """Scan meta directories and return a catalog string."""
+        lines = []
+        for subdir, title in [
+            ("agents", "Agents"),
+            ("graphs", "Workflows"),
+            ("tools", "Tools"),
+            ("llms", "LLMs"),
+            ("exps", "Experiments"),
+        ]:
+            d = self.meta_dir / subdir
+            if not d.exists():
+                continue
+            items = []
+            for f in sorted(d.glob("*.json")):
+                try:
+                    cfg = json.loads(f.read_text())
+                    name = cfg.get("name", f.stem)
+                    items.append(f"- {f.stem}: {name}")
+                except Exception:
+                    items.append(f"- {f.stem}")
+            if items:
+                lines.append(f"\n## {title}")
+                lines.extend(items)
+        return "\n".join(lines)
+
+    def _build_system_prompt(self) -> str:
+        catalog = self._load_catalog()
+        return textwrap.dedent(f"""\
+        You are the NeuraGraph Chat Controller. Your job is to understand the user's natural language input and return a JSON object describing what action to take.
+
+        # Skill Context
+        {self.skill_context}
+
+        # Available Resources
+        {catalog}
+
+        # Response Format
+        Return a JSON object with this structure:
+        {{
+          "thinking": "Your step-by-step reasoning about what the user wants (in the same language as the user)",
+          "action": "ACTION_NAME",
+          "parameters": {{...}},
+          "response": "Natural language reply to the user (in the same language as their input)"
+        }}
+
+        Valid ACTION_NAME values:
+        - "list_agents" / "list_workflows" / "list_graphs" / "list_tools" / "list_datasets" / "list_llms" / "list_experiments"
+        - "show_agent" / "show_workflow" / "show_graph" / "show_tool" / "show_dataset" / "show_llm" / "show_experiment"
+          parameters: {{"id": "entity_id"}}
+        - "run_agent" / "run_workflow" / "run_graph" / "run_experiment"
+          parameters: {{"id": "entity_id"}}
+        - "generate_agent"
+          parameters: {{"requirement": "natural language description of the agent to create"}}
+        - "generate_workflow" / "generate_graph"
+          parameters: {{"requirement": "natural language description of the workflow to create"}}
+        - "update_agent" / "update_workflow" / "update_graph" / "update_tool" / "update_llm"
+          parameters: {{"id": "entity_id", "changes": "natural language description of what to change"}}
+        - "delete_agent" / "delete_workflow" / "delete_graph" / "delete_tool" / "delete_llm" / "delete_experiment"
+          parameters: {{"id": "entity_id"}}
+        - "chat"
+          parameters: {{}}
+        - "command"
+          parameters: {{"cmd": "/slash command string"}}
+
+        Rules:
+        1. Always respond with valid JSON only. No markdown code blocks, no extra text.
+        2. The "thinking" field should explain your reasoning briefly.
+        3. The "response" field should be in the same language as the user's input.
+        4. If the user wants to create/build/make/generate something:
+           - Use "generate_agent" if they mention "agent", "智能体", or "代理" without mentioning "workflow", "工作流", "流程", or "graph".
+           - Otherwise use "generate_workflow".
+        5. If the user wants to modify/change/update something, use "update_*" actions.
+        6. If the user wants to remove/delete something, use "delete_*" actions.
+        7. If you are unsure about the entity ID, use "chat" and ask the user to clarify.
+        8. Maintain context from previous messages in the conversation.
+        """)
+
+    def parse(self, message: str, history: List[Dict[str, str]]) -> Dict[str, Any]:
+        system = self._build_system_prompt()
+
+        # Build conversation context from history
+        context_msgs = []
+        for h in history[-10:]:
+            context_msgs.append(f"{h['role'].upper()}: {h['content']}")
+        context = "\n".join(context_msgs)
+
+        user_content = message
+        if context:
+            user_content = f"[Conversation context]\n{context}\n\n[Current message]\n{message}"
+
+        try:
+            # Show progress while streaming
+            print(f"\n{C['dim']}💭 ", end="", flush=True)
+            full_response = []
+
+            for chunk in self.llm.chat_stream(system, user_content):
+                full_response.append(chunk)
+
+            print(C['reset'])
+            buffer = "".join(full_response)
+            intent = self._parse_intent_from_text(buffer)
+
+            # Type out the thinking text character by character
+            thinking = intent.get("thinking", "")
+            if thinking:
+                print(f"{C['dim']}💭 ", end="", flush=True)
+                import time
+                for char in thinking:
+                    print(char, end="", flush=True)
+                    time.sleep(0.015)
+                print(C['reset'])
+
+            return intent
+
+        except Exception as e:
+            print(C['reset'])
+            return {
+                "action": "chat",
+                "parameters": {},
+                "response": f"LLM 调用失败: {e}\n可以输入 /retry 重试。",
+            }
+
+    def _parse_intent_from_text(self, text: str) -> Dict[str, Any]:
+        """Parse JSON intent from text, with markdown fallback."""
+        text = text.strip()
+        intent = None
+        try:
+            intent = json.loads(text)
+        except json.JSONDecodeError:
+            m = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', text, re.DOTALL)
+            if m:
+                try:
+                    intent = json.loads(m.group(1).strip())
+                except json.JSONDecodeError:
+                    pass
+
+        if intent is None:
+            return {
+                "action": "chat",
+                "parameters": {},
+                "response": text[:500] if text else "抱歉，我没能正确解析你的意图。",
+            }
+
+        intent.setdefault("action", "chat")
+        intent.setdefault("parameters", {})
+        intent.setdefault("response", "")
+        return intent
+
+
+# ═══════════════════════════════════════════════════════════════
 # Workflow Generation (via autogen)
 # ═══════════════════════════════════════════════════════════════
 
@@ -234,15 +410,38 @@ def execute_workflow(graph_id: str, inputs: Dict) -> Dict:
         return {"status": "error", "message": str(e)}
 
 
+def execute_agent(agent_id: str, inputs: Dict) -> Dict:
+    """Execute a single agent and return result."""
+    import run_workflow as rw
+
+    try:
+        rw.STORE.load(META_DIR)
+        runner = rw.AgentRunner(verbose=True)
+        state = dict(inputs)
+        result = runner.run(agent_id, state)
+
+        # Add output to state
+        agent = rw.STORE.agents.get(agent_id, {})
+        output_name = agent.get("outputs", {}).get("name")
+        if output_name and result is not None:
+            state[output_name] = result
+
+        return {"status": "success", "result": state}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
 # ═══════════════════════════════════════════════════════════════
 # Chat Engine
 # ═══════════════════════════════════════════════════════════════
 
 class ChatEngine:
-    def __init__(self, llm_id: str = "kimi-2.6"):
+    def __init__(self, llm_id: str = "kimi-2.6", parser: Optional[Any] = None):
         self.llm_id = llm_id
+        self.parser = parser
         self.history: List[Dict[str, str]] = []
         self.last_graph = ""
+        self.last_input = ""  # Last user message for /retry
 
     def print_bot(self, text: str):
         print(f"\n{bot(text)}")
@@ -281,6 +480,12 @@ class ChatEngine:
   {C['yellow']}/run agent <id>{C['reset']}      Run a single agent
   {C['yellow']}/run experiment <id>{C['reset']} Replay experiment info
 
+  {C['yellow']}/delete agent <id>{C['reset']}    Delete an agent
+  {C['yellow']}/delete workflow <id>{C['reset']} Delete a workflow
+  {C['yellow']}/delete tool <id>{C['reset']}     Delete a tool
+
+  {C['yellow']}/retry{C['reset']}               Retry last command/message
+
   {C['yellow']}/exit{C['reset']}                Exit chat
 
 {C['bold']}Natural language:{C['reset']}
@@ -296,6 +501,43 @@ class ChatEngine:
             print(f"\n{C['cyan']}Goodbye! 👋{C['reset']}\n")
             sys.exit(0)
 
+        # ── /retry ──
+        if command == "/retry":
+            if not self.last_input or self.last_input == "/retry":
+                self.print_bot("没有可重试的上一条命令")
+                return True
+            self.print_bot(f"正在重试: {self.last_input}")
+            if self.last_input.startswith("/"):
+                self.handle_command(self.last_input)
+            else:
+                # Avoid duplicate history entry: pop last user message if it matches
+                if self.history and self.history[-1].get("content") == self.last_input:
+                    self.history.pop()
+                self.chat(self.last_input)
+            return True
+
+        # ── /delete <type> <id> ──
+        if command == "/delete":
+            if len(parts) >= 3:
+                sub = parts[1].lower()
+                eid = parts[2]
+                type_map = {
+                    "agent": "agents",
+                    "workflow": "graphs",
+                    "graph": "graphs",
+                    "tool": "tools",
+                    "llm": "llms",
+                    "experiment": "exps",
+                    "exp": "exps",
+                }
+                if sub in type_map:
+                    self._delete_meta(type_map[sub], eid)
+                else:
+                    print(error(f"Unknown delete type: {sub}"))
+            else:
+                print(error("Usage: /delete <type> <id>"))
+            return True
+
         # ── /list <type> ──
         if command == "/list":
             sub = parts[1].lower() if len(parts) > 1 else "workflows"
@@ -304,7 +546,7 @@ class ChatEngine:
                     lambda stem, cfg: f"  {C['cyan']}{stem:<30}{C['reset']} {cfg.get('name', '')} [{', '.join(n for n in cfg.get('nodes', []) if n not in ('START', 'END'))}]")
             elif sub in ("agents", "agent"):
                 self._list_meta("agents", "Available Agents",
-                    lambda stem, cfg: f"  {{C[{{'LLM': 'blue', 'PGM': 'magenta', 'SUB': 'yellow'}}.get(cfg.get('type', '?'), 'white')]}}{cfg.get('type', '?'):4}{C['reset']} {stem:<30} {cfg.get('name', '')}")
+                    lambda stem, cfg: f"  {(C['blue'] if cfg.get('type') == 'LLM' else C['magenta'] if cfg.get('type') == 'PGM' else C['yellow'] if cfg.get('type') == 'SUB' else C['white'])}{cfg.get('type', '?'):4}{C['reset']} {stem:<30} {cfg.get('name', '')}")
             elif sub in ("tools", "tool"):
                 self._list_meta("tools", "Available Tools",
                     lambda stem, cfg: f"  {C['green']}{stem:<30}{C['reset']} {cfg.get('name', '')}")
@@ -460,6 +702,223 @@ class ChatEngine:
         """Process a chat message (non-command)."""
         self.history.append({"role": "user", "content": message})
 
+        if self.parser is None:
+            self._chat_fallback(message)
+            return
+
+        try:
+            intent = self.parser.parse(message, self.history)
+        except Exception as e:
+            print(error(f"LLM 解析失败: {e}"))
+            print(info("提示: 输入 /retry 可以重试上一条消息"))
+            self._chat_fallback(message)
+            return
+
+        self._dispatch_intent(intent)
+
+    def _dispatch_intent(self, intent: Dict[str, Any]):
+        """Route LLM-parsed intent to the appropriate handler."""
+        action = intent.get("action", "chat")
+        params = intent.get("parameters", {})
+        response = intent.get("response", "")
+
+        if response:
+            self.print_bot(response)
+
+        if action == "chat":
+            pass  # Response already printed
+        elif action == "command":
+            cmd = params.get("cmd", "")
+            if cmd:
+                if not self.handle_command(cmd):
+                    print(error(f"未知命令: {cmd}"))
+        elif action == "list_agents":
+            self.handle_command("/list agents")
+        elif action in ("list_workflows", "list_graphs"):
+            self.handle_command("/list workflows")
+        elif action == "list_tools":
+            self.handle_command("/list tools")
+        elif action == "list_datasets":
+            self._list_datasets()
+        elif action == "list_llms":
+            self.handle_command("/list llms")
+        elif action == "list_experiments":
+            self.handle_command("/list experiments")
+        elif action == "show_agent":
+            aid = params.get("id", "")
+            if aid:
+                self.handle_command(f"/show agent {aid}")
+            else:
+                self.print_bot("请提供 agent ID")
+        elif action in ("show_workflow", "show_graph"):
+            gid = params.get("id", "")
+            if gid:
+                self.handle_command(f"/show workflow {gid}")
+            else:
+                self.print_bot("请提供 workflow ID")
+        elif action == "show_tool":
+            tid = params.get("id", "")
+            if tid:
+                self.handle_command(f"/show tool {tid}")
+        elif action == "show_dataset":
+            did = params.get("id", "")
+            if did:
+                self._show_dataset(did)
+        elif action == "show_llm":
+            lid = params.get("id", "")
+            if lid:
+                self.handle_command(f"/show llm {lid}")
+        elif action == "show_experiment":
+            eid = params.get("id", "")
+            if eid:
+                self.handle_command(f"/show experiment {eid}")
+        elif action == "run_agent":
+            aid = params.get("id", "")
+            if aid:
+                self._run_agent(aid)
+            else:
+                self.print_bot("请提供 agent ID")
+        elif action in ("run_workflow", "run_graph"):
+            gid = params.get("id", "")
+            if gid:
+                self._run_interactive(gid)
+            else:
+                self.print_bot("请提供 workflow ID")
+        elif action == "run_experiment":
+            eid = params.get("id", "")
+            if eid:
+                self._run_experiment(eid)
+        elif action == "generate_agent":
+            req = params.get("requirement", "")
+            if req:
+                self._handle_build_agent(req)
+            else:
+                self.print_bot("请描述你想生成的 agent")
+        elif action in ("generate_workflow", "generate_graph"):
+            req = params.get("requirement", "")
+            if req:
+                self._handle_build(req)
+            else:
+                self.print_bot("请描述你想生成的 workflow")
+        elif action == "update_agent":
+            self._update_meta("agents", params.get("id", ""), params.get("changes", ""))
+        elif action in ("update_workflow", "update_graph"):
+            self._update_meta("graphs", params.get("id", ""), params.get("changes", ""))
+        elif action == "update_tool":
+            self._update_meta("tools", params.get("id", ""), params.get("changes", ""))
+        elif action == "update_llm":
+            self._update_meta("llms", params.get("id", ""), params.get("changes", ""))
+        elif action == "delete_agent":
+            self._delete_meta("agents", params.get("id", ""))
+        elif action in ("delete_workflow", "delete_graph"):
+            self._delete_meta("graphs", params.get("id", ""))
+        elif action == "delete_tool":
+            self._delete_meta("tools", params.get("id", ""))
+        elif action == "delete_llm":
+            self._delete_meta("llms", params.get("id", ""))
+        elif action == "delete_experiment":
+            self._delete_meta("exps", params.get("id", ""))
+        else:
+            self.print_bot(f"未知操作: {action}")
+
+    def _update_meta(self, subdir: str, entity_id: str, changes: str):
+        """Update an existing config via LLM."""
+        if not entity_id:
+            self.print_bot("请提供要更新的实体 ID")
+            return
+        fpath = META_DIR / subdir / f"{entity_id}.json"
+        if not fpath.exists():
+            print(error(f"{subdir[:-1].title()} '{entity_id}' not found"))
+            return
+
+        try:
+            existing = json.loads(fpath.read_text())
+        except Exception as e:
+            print(error(f"读取配置失败: {e}"))
+            return
+
+        print(f"\n{C['bold']}{C['yellow']}{'─' * 60}{C['reset']}")
+        self.print_bot(f"正在更新 {entity_id}...")
+
+        # Use LLM to generate updated config
+        import autogen
+        cm = autogen.ConfigManager(META_DIR)
+        llm_config = cm.load_all("llms").get(self.llm_id)
+        if not llm_config:
+            print(error(f"LLM '{self.llm_id}' 未找到"))
+            return
+
+        system = textwrap.dedent("""\
+        You are updating an existing NeuraGraph configuration.
+        Read the current config and apply the user's requested changes.
+        Return the COMPLETE updated config as valid JSON only.
+        Preserve all fields unless the user explicitly asks to change them.
+        Do not add markdown code blocks, return raw JSON only.
+        """)
+        user_prompt = f"Current config:\n{json.dumps(existing, indent=2, ensure_ascii=False)}\n\nChanges requested:\n{changes}"
+
+        try:
+            client = autogen.LLMClient(llm_config)
+            response = client.chat(system, user_prompt)
+        except Exception as e:
+            print(error(f"LLM 调用失败: {e}"))
+            return
+
+        # Parse updated config
+        updated = None
+        try:
+            updated = json.loads(response.strip())
+        except json.JSONDecodeError:
+            m = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', response, re.DOTALL)
+            if m:
+                try:
+                    updated = json.loads(m.group(1).strip())
+                except json.JSONDecodeError:
+                    pass
+
+        if updated is None:
+            print(error("LLM 返回的更新配置无法解析"))
+            return
+
+        # Ensure ID is preserved
+        updated["id"] = entity_id
+
+        # Save back
+        try:
+            fpath.write_text(json.dumps(updated, indent=2, ensure_ascii=False))
+            print(success(f"已更新 {entity_id}"))
+            print(code_block(json.dumps(updated, indent=2, ensure_ascii=False)))
+        except Exception as e:
+            print(error(f"保存失败: {e}"))
+
+        print(f"{C['bold']}{C['yellow']}{'─' * 60}{C['reset']}")
+
+    def _delete_meta(self, subdir: str, entity_id: str):
+        """Delete a config file with confirmation."""
+        if not entity_id:
+            self.print_bot("请提供要删除的实体 ID")
+            return
+        fpath = META_DIR / subdir / f"{entity_id}.json"
+        if not fpath.exists():
+            print(error(f"'{entity_id}' not found in {subdir}"))
+            return
+
+        print(f"\n{C['bold']}{C['red']}{'─' * 60}{C['reset']}")
+        print(warn(f"确定要删除 {entity_id} 吗？此操作不可撤销。(y/n)"))
+        print(f"{C['bold']}{C['yellow']}> {C['reset']}", end="")
+        answer = input().strip().lower()
+        if answer in ("y", "yes", "是"):
+            try:
+                fpath.unlink()
+                print(success(f"已删除 {entity_id}"))
+            except Exception as e:
+                print(error(f"删除失败: {e}"))
+        else:
+            print(info("已取消删除"))
+        print(f"{C['bold']}{C['red']}{'─' * 60}{C['reset']}")
+
+    def _chat_fallback(self, message: str):
+        """Fallback keyword-based logic when LLM parser is unavailable."""
         # 1. Try natural language command first
         nl_cmd = self._parse_natural_language(message)
         if nl_cmd:
@@ -471,26 +930,121 @@ class ChatEngine:
         build_keywords = ["build", "create", "make", "generate", "workflow", "pipeline",
                           "extract", "summarize", "classify", "translate", "analyze",
                           "识别", "提取", "分类", "翻译", "生成", "构建", "总结"]
+        agent_keywords = ["agent", "agents", "智能体", "代理"]
+        workflow_keywords = ["workflow", "workflows", "pipeline", "graph", "graphs", "工作流", "流程", "图"]
 
         is_build_request = any(kw in message.lower() for kw in build_keywords)
+        is_agent_request = any(kw in message.lower() for kw in agent_keywords)
+        is_workflow_request = any(kw in message.lower() for kw in workflow_keywords)
 
         if is_build_request:
-            self._handle_build(message)
+            if is_agent_request and not is_workflow_request:
+                self._handle_build_agent(message)
+            else:
+                self._handle_build(message)
         elif message.lower() in ("hi", "hello", "你好", "嗨"):
-            self.print_bot("你好！我是 NeuraGraph Chat。请描述你想构建的 workflow，或输入 /help 查看命令。")
+            self.print_bot("你好！我是 NeuraGraph Chat。请描述你想构建的 workflow 或 agent，或输入 /help 查看命令。")
         else:
-            self.print_bot("我不太确定你的意图。你可以：\n   1. 描述你想构建的 workflow（如：'提取生物医学文本中的实体'）\n   2. 输入 /help 查看命令")
+            self.print_bot("我不太确定你的意图。你可以：\n   1. 描述你想构建的 workflow 或 agent（如：'提取生物医学文本中的实体'）\n   2. 输入 /help 查看命令")
+
+    def _select_llm_interactive(self) -> Optional[str]:
+        """Let user choose an LLM from available configs."""
+        import autogen
+        cm = autogen.ConfigManager(META_DIR)
+        llms = cm.load_all("llms")
+        if not llms:
+            print(error("没有可用的 LLM 配置"))
+            return None
+        if len(llms) == 1:
+            return list(llms.keys())[0]
+
+        print(f"\n{C['bold']}可用的 LLM 配置:{C['reset']}")
+        llm_list = sorted(llms.items(), key=lambda x: x[0])
+        for i, (lid, lcfg) in enumerate(llm_list, 1):
+            model = lcfg.get("model", "?")
+            base = lcfg.get("base_url", "?")
+            print(f"  {C['yellow']}[{i}]{C['reset']} {C['magenta']}{lid:<30}{C['reset']} [{lcfg.get('type', '?')}] {model} @ {base}")
+        print(f"  {C['dim']}(输入编号或名称){C['reset']}")
+        print(f"{C['yellow']}> {C['reset']}", end="")
+        choice = input().strip()
+
+        # Try numeric choice
+        try:
+            idx = int(choice) - 1
+            if 0 <= idx < len(llm_list):
+                return llm_list[idx][0]
+        except ValueError:
+            pass
+
+        # Try name
+        if choice in llms:
+            return choice
+
+        print(warn(f"未识别的选择 '{choice}'，使用默认 LLM"))
+        return self.llm_id
+
+    def _handle_build_agent(self, requirement: str):
+        """Handle single agent building request."""
+        print(f"\n{C['bold']}{C['yellow']}{'─' * 60}{C['reset']}")
+
+        # Ask for LLM
+        llm_id = self._select_llm_interactive()
+        if not llm_id:
+            return
+
+        self.print_bot("正在生成 Agent...")
+        import autogen
+        cm = autogen.ConfigManager(META_DIR)
+        llm_config = cm.load_all("llms").get(llm_id)
+        if not llm_config:
+            print(error(f"LLM '{llm_id}' 未找到"))
+            return
+
+        engine = autogen.AutoGen(llm_config)
+        engine.cm = cm
+
+        try:
+            result = engine.generate_single_agent(requirement, llm_id)
+        except Exception as e:
+            print(error(f"生成失败: {e}"))
+            print(info("提示: 输入 /retry 可以重试上一条消息"))
+            return
+
+        if not result or result.get("status") != "success":
+            print(error("Agent 生成失败"))
+            print(info("提示: 输入 /retry 可以重试上一条消息"))
+            return
+
+        agent_id = result.get("agent_id", "")
+        agent_cfg = result.get("agent_config", {})
+        print(success(f"已生成 Agent: {agent_id}"))
+        print(code_block(json.dumps(agent_cfg, indent=2, ensure_ascii=False)))
+
+        # Ask to run
+        self.print_bot("是否立即运行该 Agent？(y/n)")
+        print(f"{C['bold']}{C['yellow']}> {C['reset']}", end="")
+        answer = input().strip().lower()
+        if answer in ("y", "yes", "是", ""):
+            self._run_agent(agent_id)
+
+        print(f"{C['bold']}{C['yellow']}{'─' * 60}{C['reset']}")
 
     def _handle_build(self, requirement: str):
         """Handle workflow building request."""
         print(f"\n{C['bold']}{C['yellow']}{'─' * 60}{C['reset']}")
 
+        # Ask for LLM
+        llm_id = self._select_llm_interactive()
+        if not llm_id:
+            return
+
         # Phase 1: Analyze
         self.print_bot("正在分析需求...")
-        result = generate_workflow(requirement, self.llm_id)
+        result = generate_workflow(requirement, llm_id)
 
         if not result or result.get("status") == "error":
             print(error(f"分析失败: {result.get('message', 'Unknown error')}"))
+            print(info("提示: 输入 /retry 可以重试上一条消息"))
             return
 
         if result.get("status") == "validation_failed":
@@ -660,7 +1214,7 @@ class ChatEngine:
             inputs = self._demo_inputs(agent_id)
             print(info("使用示例输入:", json.dumps(inputs, ensure_ascii=False)))
 
-        result = execute_workflow(agent_id, inputs)
+        result = execute_agent(agent_id, inputs)
         if result["status"] == "success":
             print(f"\n{C['bold']}{C['green']}   ✅ Agent Execution Complete{C['reset']}")
             final_state = result["result"]
@@ -787,20 +1341,85 @@ class ChatEngine:
 def main():
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--llm", default="kimi-2.6", help="LLM config ID")
+    parser.add_argument("--llm", help="LLM config ID for chat parsing and generation")
     args = parser.parse_args()
-
-    # Check LLM config exists
-    llm_file = META_DIR / "llms" / f"{args.llm}.json"
-    if not llm_file.exists():
-        print(f"{C['red']}Error: LLM config '{args.llm}' not found.{C['reset']}")
-        print(f"Available:")
-        for f in sorted((META_DIR / "llms").glob("*.json")):
-            print(f"  - {f.stem}")
-        sys.exit(1)
 
     # Load autogen module
     sys.path.insert(0, str(Path(__file__).parent))
+    import autogen
+
+    cm = autogen.ConfigManager(META_DIR)
+    llms = cm.load_all("llms")
+
+    if not llms:
+        print(f"{C['red']}Error: No LLM configs found.{C['reset']}")
+        print(f"Create one first:")
+        print(f"  echo '{{\"id\":\"kimi-2.6\",\"type\":\"openai\",\"model\":\"kimi-k2.6\",\"base_url\":\"https://api.moonshot.cn/v1\",\"api_key\":\"YOUR_KEY\",\"temperature\":0.7}}' > {META_DIR}/llms/kimi-2.6.json")
+        sys.exit(1)
+
+    # Determine which LLM to use
+    last_llm_file = META_DIR / ".last_chat_llm"
+    llm_id = None
+
+    if args.llm:
+        if args.llm in llms:
+            llm_id = args.llm
+            # Save as default for next time
+            last_llm_file.write_text(llm_id)
+        else:
+            print(f"{C['red']}Error: LLM config '{args.llm}' not found.{C['reset']}")
+            print(f"Available:")
+            for f in sorted((META_DIR / "llms").glob("*.json")):
+                print(f"  - {f.stem}")
+            sys.exit(1)
+    else:
+        # Try loading last used LLM
+        if last_llm_file.exists():
+            saved_llm = last_llm_file.read_text().strip()
+            if saved_llm and saved_llm in llms:
+                llm_id = saved_llm
+                print(f"{C['dim']}使用上次选择的 LLM: {llm_id}{C['reset']}")
+
+        if not llm_id:
+            # Interactive selection
+            print(f"\n{C['bold']}可用的 LLM 配置:{C['reset']}")
+            llm_list = sorted(llms.items(), key=lambda x: x[0])
+            for i, (lid, lcfg) in enumerate(llm_list, 1):
+                model = lcfg.get("model", "?")
+                base = lcfg.get("base_url", "?")
+                print(f"  {C['yellow']}[{i}]{C['reset']} {C['magenta']}{lid:<30}{C['reset']} [{lcfg.get('type', '?')}] {model} @ {base}")
+            print(f"  {C['dim']}(输入编号或名称，或直接回车使用第一个){C['reset']}")
+            print(f"{C['yellow']}> {C['reset']}", end="")
+            choice = input().strip()
+
+            if not choice:
+                llm_id = llm_list[0][0]
+            else:
+                try:
+                    idx = int(choice) - 1
+                    if 0 <= idx < len(llm_list):
+                        llm_id = llm_list[idx][0]
+                except ValueError:
+                    pass
+
+                if not llm_id and choice in llms:
+                    llm_id = choice
+
+            if not llm_id:
+                print(error("未选择有效的 LLM，退出"))
+                sys.exit(1)
+
+            # Save selection for next time
+            last_llm_file.write_text(llm_id)
+
+    llm_config = llms[llm_id]
+
+    # Initialize LLM parser
+    parser = None
+    try:
+        parser = LLMCommandParser(llm_config)
+    except Exception as e:
+        print(warn(f"LLM parser 初始化失败 ({e})，将以本地模式运行"))
 
     # ── Initialize readline for arrow keys & backspace ──
     try:
@@ -830,10 +1449,10 @@ def main():
     except ImportError:
         _backend = 'none'
 
-    engine = ChatEngine(llm_id=args.llm)
+    engine = ChatEngine(llm_id=llm_id, parser=parser)
 
     print(header())
-    engine.print_bot("你好！我是 NeuraGraph Chat。请描述你想构建的 workflow，或输入 /help 查看命令。")
+    engine.print_bot("你好！我是 NeuraGraph Chat。我已经加载了 SKILL.md，可以直接用自然语言跟我交流。\n试试：'列出所有 agents'、'运行 bio_ner_graph'、或者'帮我生成一个提取基因实体的 agent'。")
 
     while True:
         try:
@@ -846,13 +1465,15 @@ def main():
         if not message:
             continue
 
-        # Commands
+        engine.last_input = message
+
+        # Commands bypass LLM parser
         if message.startswith("/"):
             if not engine.handle_command(message):
                 print(error(f"Unknown command: {message}"))
             continue
 
-        # Chat
+        # Chat (LLM-driven or fallback)
         engine.chat(message)
 
 

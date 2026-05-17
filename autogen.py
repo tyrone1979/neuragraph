@@ -46,12 +46,31 @@ class LLMClient:
         self.temperature = llm_config.get("temperature", 0.7)
         self.max_tokens = llm_config.get("max_tokens", 4000)
         self.timeout = llm_config.get("timeout", 60)
+        self.max_retries = llm_config.get("max_retries", 1)
 
     def chat(self, system: str, user: str) -> str:
+        last_error = None
+        for attempt in range(self.max_retries):
+            try:
+                if self.type == "ollama":
+                    return self._call_ollama(system, user)
+                else:
+                    return self._call_openai(system, user)
+            except Exception as e:
+                last_error = e
+                if attempt < self.max_retries - 1:
+                    wait = 2 ** attempt
+                    print(f"  LLM call failed (attempt {attempt + 1}/{self.max_retries}), retrying in {wait}s...")
+                    import time
+                    time.sleep(wait)
+        raise last_error
+
+    def chat_stream(self, system: str, user: str):
+        """Yield text chunks as they arrive from the LLM."""
         if self.type == "ollama":
-            return self._call_ollama(system, user)
+            yield from self._call_ollama_stream(system, user)
         else:
-            return self._call_openai(system, user)
+            yield from self._call_openai_stream(system, user)
 
     def _call_ollama(self, system: str, user: str) -> str:
         resp = requests.post(
@@ -69,6 +88,35 @@ class LLMClient:
         )
         resp.raise_for_status()
         return resp.json().get("message", {}).get("content", "")
+
+    def _call_ollama_stream(self, system: str, user: str):
+        resp = requests.post(
+            f"{self.base_url}/api/chat",
+            json={
+                "model": self.model,
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                "stream": True,
+                "options": {"temperature": self.temperature, "num_predict": self.max_tokens},
+            },
+            timeout=self.timeout,
+            stream=True,
+        )
+        resp.raise_for_status()
+        for line in resp.iter_lines():
+            if not line:
+                continue
+            try:
+                chunk = json.loads(line.decode("utf-8"))
+                if chunk.get("done"):
+                    break
+                delta = chunk.get("message", {}).get("content", "")
+                if delta:
+                    yield delta
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                continue
 
     def _call_openai(self, system: str, user: str) -> str:
         headers = {"Content-Type": "application/json"}
@@ -90,6 +138,43 @@ class LLMClient:
         )
         resp.raise_for_status()
         return resp.json()["choices"][0]["message"]["content"]
+
+    def _call_openai_stream(self, system: str, user: str):
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        resp = requests.post(
+            f"{self.base_url}/chat/completions",
+            headers=headers,
+            json={
+                "model": self.model,
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                "temperature": self.temperature,
+                "max_tokens": self.max_tokens,
+                "stream": True,
+            },
+            timeout=self.timeout,
+            stream=True,
+        )
+        resp.raise_for_status()
+        for line in resp.iter_lines():
+            if not line:
+                continue
+            line = line.decode("utf-8")
+            if line.startswith("data: "):
+                data = line[6:]
+                if data == "[DONE]":
+                    break
+                try:
+                    chunk = json.loads(data)
+                    delta = chunk["choices"][0]["delta"].get("content", "")
+                    if delta:
+                        yield delta
+                except (json.JSONDecodeError, KeyError, IndexError):
+                    continue
 
 
 # ── Config Manager ──
@@ -264,6 +349,58 @@ class AutoGen:
         if llms:
             return list(llms.keys())[0]
         return "kimi-k2.5"
+
+    def generate_single_agent(self, requirement: str, llm_id: str) -> Optional[Dict]:
+        """Generate a single agent config from a natural language requirement in ONE LLM call."""
+        system = textwrap.dedent(f"""\
+        You are a NeuraGraph agent designer. Generate a complete agent configuration from the user's requirement.
+
+        {self.skill_context}
+
+        Requirements:
+        - LLM agents need: id, name, type="LLM", model, inputs, outputs, prompt_template {{system, human}}
+        - PGM agents need: id, name, type="PGM", inputs, outputs, process (Python code using state dict and __result__)
+        - SUB agents need: id, name, type="SUB", inputs, outputs, idx (iteration vars)
+        - Use {{field}} placeholders in prompts matching input names
+        - id must be snake_case, unique, and descriptive
+
+        Use "{llm_id}" as the model for LLM agents.
+
+        Return the COMPLETE agent configuration as valid JSON only (no markdown).
+        """)
+
+        print("\n[Generating agent config...]")
+        response = self.llm.chat(system, f"Generate an agent for: {requirement}")
+
+        try:
+            agent_cfg = json.loads(response.strip())
+        except json.JSONDecodeError:
+            import re
+            m = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', response, re.DOTALL)
+            if m:
+                agent_cfg = json.loads(m.group(1).strip())
+            else:
+                raise ValueError(f"Cannot parse agent response: {response[:200]}")
+
+        # Ensure required fields
+        agent_cfg.setdefault("id", "agent_" + str(abs(hash(requirement)) % 10000))
+        agent_cfg.setdefault("name", agent_cfg.get("purpose", requirement)[:50])
+        agent_cfg.setdefault("type", "LLM")
+        agent_cfg.setdefault("inputs", ["text"])
+        agent_cfg.setdefault("outputs", {"name": "result", "type": "str"})
+
+        if agent_cfg.get("type") == "LLM" and "model" not in agent_cfg:
+            agent_cfg["model"] = llm_id
+
+        fpath = self.cm.save("agents", agent_cfg)
+        print(f"  Generated Agent: {agent_cfg['id']} -> {fpath}")
+
+        return {
+            "status": "success",
+            "agent_id": agent_cfg["id"],
+            "agent_config": agent_cfg,
+            "generated": [str(fpath)],
+        }
 
     def _generate_agent(self, plan: Dict, llm_id: str) -> Dict:
         """Use LLM to generate detailed agent config."""
