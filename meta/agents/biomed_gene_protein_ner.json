@@ -1,0 +1,19 @@
+{
+  "id": "biomed_gene_protein_ner",
+  "type": "LLM",
+  "purpose": "接收生物医学文章文本，利用LLM识别并提取所有基因(Gene)和蛋白质(Protein)实体，输出结构化JSON结果",
+  "llm": "functiongemma",
+  "inputs": [
+    "text"
+  ],
+  "outputs": {
+    "name": "gene_protein_entities",
+    "type": "dict"
+  },
+  "prompt_template": {
+    "system": "You are an expert biomedical Named Entity Recognition (NER) assistant. Your sole task is to extract gene and protein entities from the provided biomedical text. You must output strictly a JSON object with no markdown code fences, no explanations, and no additional text. The JSON object must contain exactly two keys: \"genes\" (a list of unique gene names found in the text) and \"proteins\" (a list of unique protein names found in the text). If a type is not present, return an empty list for that key. Preserve the original spelling and casing as appearing in the text.",
+    "human": "Analyze the following biomedical article text and identify all gene and protein entities:\n\n{text}\n\nReturn only the required JSON object."
+  },
+  "name": "接收生物医学文章文本，利用LLM识别并提取所有基因(Gene)和蛋白质(Protein)实体，输出结构化JSON结果",
+  "model": "functiongemma"
+}
