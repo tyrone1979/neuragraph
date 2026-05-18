@@ -358,13 +358,19 @@ class AutoGen:
         {self.skill_context}
 
         Requirements:
-        - LLM agents need: id, name, type="LLM", model, inputs, outputs, prompt_template {{system, human}}
-        - PGM agents need: id, name, type="PGM", inputs, outputs, process (Python code using state dict and __result__)
-        - SUB agents need: id, name, type="SUB", inputs, outputs, idx (iteration vars)
+        - Agent configs are saved as JSON files in meta/agents/ directory
+        - The filename (without .json) is the agent ID, so DO NOT include an "id" field in the JSON
+        - LLM agents need: name, type="LLM", model, inputs, outputs, prompt_template, tools, persistence
+        - PGM agents need: name, type="PGM", inputs, outputs, process, persistence
+        - SUB agents need: name, type="SUB", inputs, outputs, idx, persistence
+        - prompt_template MUST have: description, system, human fields
         - Use {{field}} placeholders in prompts matching input names
-        - id must be snake_case, unique, and descriptive
-
-        Use "{llm_id}" as the model for LLM agents.
+        - name should be a short English descriptive name (e.g., "Gene Protein NER", "Coreference Resolution")
+        - persistence should be an empty object {{}} if not needed, or specify columns/file_path/file_type
+        - tools should be an empty array [] for LLM agents if no tools needed
+        - created_at should be included with ISO format timestamp
+        - model field should use "{llm_id}" for LLM agents
+        - outputs format: {{"name": "output_field_name", "type": "str|dict|list"}}
 
         Return the COMPLETE agent configuration as valid JSON only (no markdown).
         """)
@@ -382,48 +388,116 @@ class AutoGen:
             else:
                 raise ValueError(f"Cannot parse agent response: {response[:200]}")
 
+        # Remove id field if present (filename is the ID)
+        if "id" in agent_cfg:
+            agent_id = agent_cfg.pop("id")
+        else:
+            # Generate id from name
+            agent_id = agent_cfg.get("name", "agent").lower().replace(" ", "_").replace("-", "_")
+            agent_id = re.sub(r'[^a-z0-9_]', '', agent_id)
+            if not agent_id:
+                agent_id = "agent_" + str(abs(hash(requirement)) % 10000)
+
         # Ensure required fields
-        agent_cfg.setdefault("id", "agent_" + str(abs(hash(requirement)) % 10000))
         agent_cfg.setdefault("name", agent_cfg.get("purpose", requirement)[:50])
         agent_cfg.setdefault("type", "LLM")
         agent_cfg.setdefault("inputs", ["text"])
         agent_cfg.setdefault("outputs", {"name": "result", "type": "str"})
+        agent_cfg.setdefault("persistence", {})
 
-        if agent_cfg.get("type") == "LLM" and "model" not in agent_cfg:
-            agent_cfg["model"] = llm_id
+        # Remove purpose field if present (use name instead)
+        if "purpose" in agent_cfg:
+            if not agent_cfg.get("name"):
+                agent_cfg["name"] = agent_cfg.pop("purpose")
+            else:
+                del agent_cfg["purpose"]
 
+        # Remove llm field if present (use model instead)
+        if "llm" in agent_cfg:
+            if not agent_cfg.get("model"):
+                agent_cfg["model"] = agent_cfg.pop("llm")
+            else:
+                del agent_cfg["llm"]
+
+        if agent_cfg.get("type") == "LLM":
+            agent_cfg.setdefault("model", llm_id)
+            agent_cfg.setdefault("tools", [])
+            # Ensure prompt_template has description
+            pt = agent_cfg.get("prompt_template", {})
+            if "description" not in pt:
+                pt["description"] = agent_cfg.get("name", "")
+            agent_cfg["prompt_template"] = pt
+        elif agent_cfg.get("type") == "PGM":
+            agent_cfg.setdefault("process", "# Generated process\n__result__ = state.get('input', '')")
+
+        # Add created_at
+        from datetime import datetime
+        agent_cfg.setdefault("created_at", datetime.now().isoformat())
+
+        # Save with agent_id as filename
+        agent_cfg["id"] = agent_id  # Temporarily add for save
         fpath = self.cm.save("agents", agent_cfg)
-        print(f"  Generated Agent: {agent_cfg['id']} -> {fpath}")
+        del agent_cfg["id"]  # Remove id from the config (filename is ID)
+        print(f"  Generated Agent: {agent_id} -> {fpath}")
 
         return {
             "status": "success",
-            "agent_id": agent_cfg["id"],
+            "agent_id": agent_id,
             "agent_config": agent_cfg,
             "generated": [str(fpath)],
         }
 
+
     def _generate_agent(self, plan: Dict, llm_id: str) -> Dict:
-        """Use LLM to generate detailed agent config."""
+        """Use LLM to generate detailed agent config following standard format."""
         agent_type = plan["type"]
 
         system = textwrap.dedent(f"""\
-        Generate a NeuraGraph agent configuration as JSON.
+        Generate a NeuraGraph agent configuration as JSON following the standard format.
+
+        Standard LLM Agent Format:
+        {{
+          "name": "Short English name",
+          "type": "LLM",
+          "inputs": ["text"],
+          "outputs": {{"name": "result", "type": "str"}},
+          "persistence": {{}},
+          "model": "{llm_id}",
+          "prompt_template": {{
+            "description": "What this agent does",
+            "system": "System prompt...",
+            "human": "Human prompt with {{field}} placeholders..."
+          }},
+          "tools": [],
+          "created_at": "2026-01-01T00:00:00"
+        }}
+
+        Standard PGM Agent Format:
+        {{
+          "name": "Short English name",
+          "type": "PGM",
+          "inputs": ["text"],
+          "outputs": {{"name": "result", "type": "str"}},
+          "persistence": {{}},
+          "process": "Python code using state dict and __result__",
+          "created_at": "2026-01-01T00:00:00"
+        }}
 
         Agent plan:
         {json.dumps(plan, indent=2)}
 
         LLM to use: {llm_id}
 
-        For LLM agents, generate a complete prompt_template with system and human prompts.
-        Use {{field}} placeholders matching the input names.
-        The human prompt should clearly instruct the LLM what to do.
-
-        For PGM agents, generate Python code that:
-        - Reads from `state` dict
-        - Sets `__result__` for output
-        - Is self-contained
-
-        For SUB agents, the idx field should match the iteration variable.
+        Rules:
+        1. DO NOT include "id" field (filename is the ID)
+        2. DO NOT include "purpose" field (use "name" instead)
+        3. DO NOT include "llm" field (use "model" instead)
+        4. prompt_template MUST have: description, system, human
+        5. Use {{field}} placeholders matching input names
+        6. persistence must be an object {{}} even if empty
+        7. LLM agents must have "tools": []
+        8. Include "created_at" with current ISO timestamp
+        9. name should be short English descriptive name
 
         Respond with valid JSON only (no markdown).
         """)
@@ -438,16 +512,19 @@ class AutoGen:
             if m:
                 cfg = json.loads(m.group(1))
             else:
-                # Build minimal config from plan
+                # Build minimal config from plan following standard format
+                from datetime import datetime
                 cfg = {
-                    "id": plan["id"],
                     "name": plan.get("purpose", plan["id"]),
                     "type": agent_type,
                     "inputs": plan.get("inputs", []),
                     "outputs": plan.get("outputs", {"name": "result", "type": "str"}),
+                    "persistence": {},
+                    "created_at": datetime.now().isoformat(),
                 }
                 if agent_type == "LLM":
                     cfg["model"] = llm_id
+                    cfg["tools"] = []
                     cfg["prompt_template"] = {
                         "description": plan.get("purpose", ""),
                         "system": f"You are a helpful assistant for {plan['id']}.",
@@ -456,16 +533,40 @@ class AutoGen:
                 elif agent_type == "PGM":
                     cfg["process"] = f"# {plan.get('purpose', '')}\n__result__ = state.get('{plan.get('inputs', ['input'])[0]}', '')"
 
+        # Clean up fields
+        if "id" in cfg:
+            del cfg["id"]
+        if "purpose" in cfg:
+            if not cfg.get("name"):
+                cfg["name"] = cfg.pop("purpose")
+            else:
+                del cfg["purpose"]
+        if "llm" in cfg:
+            if not cfg.get("model"):
+                cfg["model"] = cfg.pop("llm")
+            else:
+                del cfg["llm"]
+
         # Ensure required fields
-        cfg.setdefault("id", plan["id"])
         cfg.setdefault("name", plan.get("purpose", plan["id"]))
         cfg.setdefault("inputs", plan.get("inputs", []))
         cfg.setdefault("outputs", plan.get("outputs", {"name": "result", "type": "str"}))
+        cfg.setdefault("persistence", {})
+        from datetime import datetime
+        cfg.setdefault("created_at", datetime.now().isoformat())
 
-        if agent_type == "LLM" and "model" not in cfg:
-            cfg["model"] = llm_id
+        if agent_type == "LLM":
+            cfg.setdefault("model", llm_id)
+            cfg.setdefault("tools", [])
+            pt = cfg.get("prompt_template", {})
+            if "description" not in pt:
+                pt["description"] = cfg.get("name", "")
+            cfg["prompt_template"] = pt
+        elif agent_type == "PGM":
+            cfg.setdefault("process", f"# {cfg.get('name', '')}\n__result__ = state.get('{cfg.get('inputs', ['input'])[0]}', '')")
 
         return cfg
+
 
     def _generate_tool(self, plan: Dict) -> Dict:
         """Use LLM to generate tool code."""

@@ -15,6 +15,7 @@ import re
 import sys
 import subprocess
 import textwrap
+import argparse
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -721,6 +722,23 @@ class ChatEngine:
         if not found:
             print(warn("No datasets found in tests/"))
 
+    def _list_meta(self, subdir: str, title: str, formatter):
+        """List all entities in a meta subdirectory."""
+        print(f"\n{C['bold']}{title}:{C['reset']}")
+        meta_path = META_DIR / subdir
+        found = False
+        if meta_path.exists():
+            for f in sorted(meta_path.glob("*.json")):
+                try:
+                    cfg = json.loads(f.read_text())
+                    print(formatter(f.stem, cfg))
+                    found = True
+                except Exception:
+                    print(f"  {C['dim']}{f.stem} (unreadable){C['reset']}")
+                    found = True
+        if not found:
+            print(warn(f"No {subdir} found"))
+
     def _run_interactive(self, graph_id: str):
         """Run workflow with interactive input."""
         print(f"\n{draw_workflow(graph_id)}")
@@ -1184,7 +1202,7 @@ class ChatEngine:
             return
 
         # Execute
-        print(f"\n{step(1, f'Executing agent: {C[\"bold\"]}{agent_id}{C[\"reset\"]}')}')
+        print("\n" + step(1, "Executing agent: " + C["bold"] + agent_id + C["reset"]))
         result = execute_agent(agent_id, inputs)
 
         if result["status"] == "success":
