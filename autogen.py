@@ -27,6 +27,8 @@ import textwrap
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import re
+
 import requests
 
 # ── Configuration ──
@@ -191,7 +193,7 @@ class ConfigManager:
         d = self.meta / subdir
         if d.exists():
             for f in d.glob("*.json"):
-                cfg = json.loads(f.read_text())
+                cfg = json.loads(f.read_text(encoding='utf-8'))
                 cfg["id"] = f.stem
                 result[f.stem] = cfg
         return result
@@ -199,7 +201,7 @@ class ConfigManager:
     def save(self, subdir: str, cfg: Dict) -> Path:
         cid = cfg["id"]
         fpath = self.meta / subdir / f"{cid}.json"
-        fpath.write_text(json.dumps(cfg, indent=2, ensure_ascii=False))
+        fpath.write_text(json.dumps(cfg, indent=2, ensure_ascii=False), encoding="utf-8")
         return fpath
 
     def exists(self, subdir: str, cid: str) -> bool:
@@ -218,7 +220,7 @@ class AutoGen:
         """Load SKILL.md as system context."""
         self.skill_context = ""
         if SKILL_MD.exists():
-            self.skill_context = SKILL_MD.read_text()
+            self.skill_context = SKILL_MD.read_text(encoding='utf-8')
         else:
             self.skill_context = self._default_skill()
 
@@ -290,7 +292,6 @@ class AutoGen:
             plan = json.loads(response)
         except json.JSONDecodeError:
             # Try extracting JSON from markdown
-            import re
             m = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', response, re.DOTALL)
             if m:
                 plan = json.loads(m.group(1))
@@ -381,7 +382,6 @@ class AutoGen:
         try:
             agent_cfg = json.loads(response.strip())
         except json.JSONDecodeError:
-            import re
             m = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', response, re.DOTALL)
             if m:
                 agent_cfg = json.loads(m.group(1).strip())
@@ -507,7 +507,6 @@ class AutoGen:
         try:
             cfg = json.loads(response)
         except json.JSONDecodeError:
-            import re
             m = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', response, re.DOTALL)
             if m:
                 cfg = json.loads(m.group(1))
@@ -594,7 +593,6 @@ class AutoGen:
         try:
             cfg = json.loads(response)
         except json.JSONDecodeError:
-            import re
             m = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', response, re.DOTALL)
             if m:
                 cfg = json.loads(m.group(1))

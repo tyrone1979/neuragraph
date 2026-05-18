@@ -51,7 +51,7 @@ class ConfigStore:
         llm_dir = meta_dir / "llms"
         if llm_dir.exists():
             for f in llm_dir.glob("*.json"):
-                cfg = json.loads(f.read_text())
+                cfg = json.loads(f.read_text(encoding='utf-8'))
                 cfg["id"] = f.stem
                 self.llms[f.stem] = cfg
         print(f"  Loaded {len(self.llms)} LLM configs")
@@ -60,7 +60,7 @@ class ConfigStore:
         agent_dir = meta_dir / "agents"
         if agent_dir.exists():
             for f in agent_dir.glob("*.json"):
-                cfg = json.loads(f.read_text())
+                cfg = json.loads(f.read_text(encoding='utf-8'))
                 cfg["id"] = f.stem
                 self.agents[f.stem] = cfg
         print(f"  Loaded {len(self.agents)} agents")
@@ -69,7 +69,7 @@ class ConfigStore:
         graph_dir = meta_dir / "graphs"
         if graph_dir.exists():
             for f in graph_dir.glob("*.json"):
-                cfg = json.loads(f.read_text())
+                cfg = json.loads(f.read_text(encoding='utf-8'))
                 cfg["id"] = f.stem
                 self.graphs[f.stem] = cfg
         print(f"  Loaded {len(self.graphs)} graphs")
@@ -78,7 +78,7 @@ class ConfigStore:
         tool_dir = meta_dir / "tools"
         if tool_dir.exists():
             for f in tool_dir.glob("*.json"):
-                cfg = json.loads(f.read_text())
+                cfg = json.loads(f.read_text(encoding='utf-8'))
                 cfg["id"] = f.stem
                 self.tools[f.stem] = cfg
         print(f"  Loaded {len(self.tools)} tools")
@@ -307,6 +307,12 @@ class AgentRunner:
             raise ValueError(f"PGM agent '{agent['id']}' has no process code")
 
         # Build safe execution environment with plugins
+        def _utf8_open(file, mode='r', *args, **kwargs):
+            """Open file with UTF-8 encoding by default."""
+            if 'b' not in mode and 'encoding' not in kwargs:
+                kwargs['encoding'] = 'utf-8'
+            return open(file, mode, *args, **kwargs)
+
         safe_builtins = {
             'range': range, 'len': len, 'str': str, 'int': int,
             'float': float, 'bool': bool, 'list': list, 'dict': dict,
@@ -315,7 +321,7 @@ class AgentRunner:
             'abs': abs, 'round': round, 'sorted': sorted,
             'isinstance': isinstance, 'hasattr': hasattr, 'getattr': getattr,
             'type': type, 'print': print, 'json': json, 're': re,
-            'open': open, 'Path': Path,
+            'open': _utf8_open, 'Path': Path,
         }
 
         # Plugin loader
@@ -611,7 +617,7 @@ def main():
             sys.exit(1)
     elif args.dataset:
         try:
-            inputs = json.loads(Path(args.dataset).read_text())
+            inputs = json.loads(Path(args.dataset).read_text(encoding='utf-8'))
         except Exception as e:
             print(f"[ERROR] Cannot read dataset: {e}")
             sys.exit(1)
@@ -645,7 +651,7 @@ def main():
         if args.output:
             RESULT_DIR.mkdir(parents=True, exist_ok=True)
             out_path = RESULT_DIR / args.output
-            out_path.write_text(json.dumps(result, indent=2, ensure_ascii=False, default=str))
+            out_path.write_text(json.dumps(result, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
             print(f"\n  Saved to: {out_path}")
 
     except Exception as e:
