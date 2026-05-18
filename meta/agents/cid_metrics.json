@@ -1,0 +1,10 @@
+{
+  "id": "cid_metrics",
+  "name": "CID Metrics Calculator",
+  "type": "PGM",
+  "inputs": ["relations", "ground_truth"],
+  "outputs": {"name": "metrics", "type": "dict"},
+  "persistence": {},
+  "process": "# Calculate precision, recall, F1\npredicted_raw = state.get('relations', [])\nground_truth_raw = state.get('ground_truth', [])\n\n# CRITICAL: Normalize to list (relations may be a string)\nif isinstance(predicted_raw, str):\n    predicted_raw = [predicted_raw]\nelif not isinstance(predicted_raw, list):\n    predicted_raw = [predicted_raw]\nif isinstance(ground_truth_raw, str):\n    ground_truth_raw = [ground_truth_raw]\nelif not isinstance(ground_truth_raw, list):\n    ground_truth_raw = [ground_truth_raw]\n\npred_set = set()\nfor r in predicted_raw:\n    if isinstance(r, dict):\n        h = r.get('chemical', r.get('head','')).lower().strip()\n        t = r.get('disease', r.get('tail','')).lower().strip()\n        if h and t:\n            pred_set.add((h,t))\n    elif isinstance(r, str) and '|' in r:\n        parts = r.split('|')\n        if len(parts) >= 2:\n            h = parts[0].lower().strip()\n            t = parts[1].lower().strip()\n            if h and t and h != 'chemical':\n                pred_set.add((h,t))\n\ngt_set = set()\nfor g in ground_truth_raw:\n    if isinstance(g, dict):\n        h = g.get('chemical', g.get('head','')).lower().strip()\n        t = g.get('disease', g.get('tail','')).lower().strip()\n        if h and t:\n            gt_set.add((h,t))\n    elif isinstance(g, str) and '|' in g:\n        parts = g.split('|')\n        if len(parts) >= 2:\n            gt_set.add((parts[0].lower().strip(), parts[1].lower().strip()))\n\ntp = len(pred_set & gt_set)\nfp = len(pred_set - gt_set)\nfn = len(gt_set - pred_set)\np = tp/(tp+fp) if (tp+fp)>0 else 0\nr = tp/(tp+fn) if (tp+fn)>0 else 0\nf1 = 2*p*r/(p+r) if (p+r)>0 else 0\n\n__result__ = {'TP':tp,'FP':fp,'FN':fn,'precision':round(p,4),'recall':round(r,4),'F1':round(f1,4),'predicted':list(pred_set),'ground_truth':list(gt_set),'correct':list(pred_set&gt_set)}",
+  "created_at": "2026-05-18T12:00:00"
+}

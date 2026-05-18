@@ -250,6 +250,11 @@ class AutoGen:
     # ── Phase 1: Analyze Requirement ──
     def analyze(self, requirement: str) -> Dict[str, Any]:
         """Analyze requirement and determine what components are needed."""
+        # Load existing agents for reuse
+        existing_agents = self.cm.load_all("agents")
+        existing_agent_info = {k: {"type": v.get("type"), "name": v.get("name"), "inputs": v.get("inputs"), "outputs": v.get("outputs")} 
+                               for k, v in existing_agents.items()}
+
         system = textwrap.dedent(f"""\
         You are a workflow architect. Analyze the user's requirement and determine what components are needed.
 
@@ -258,8 +263,24 @@ class AutoGen:
         Existing LLM configs (reuse if possible):
         {json.dumps(list(self.cm.load_all("llms").keys()), indent=2)}
 
+        Existing agents (REUSE if matches user's need - DO NOT recreate):
+        {json.dumps(existing_agent_info, indent=2, ensure_ascii=False)}
+
         Existing tools (reuse if possible):
         {json.dumps({k: v.get("description", "") for k, v in self.cm.load_all("tools").items()}, indent=2)}
+
+        Agent type rules:
+        - LLM: Uses AI to process text, has prompt_template. Use for single text processing tasks.
+        - PGM: Runs Python code, has "process" field with code. Use for data transformation/aggregation.
+        - SUB: CRITICAL - Use ONLY for iterating over a LIST input. The SUB agent itself does NO processing;
+          it calls an inner agent (usually LLM) for EACH item in the list.
+          When using SUB: set "inner_agent" to the agent ID that handles one item.
+          Example: input is a list of texts, inner_agent is "gene_protein_ner" which handles one text.
+
+        Workflow structure for batch processing:
+        1. SUB agent (type=SUB) with inner_agent=existing_agent_id -> iterates over list
+        2. PGM agent -> aggregates SUB results into final JSON
+        Graph: START -> sub_agent -> pgm_agent -> END
 
         Respond with JSON only (no markdown):
         {{
@@ -273,7 +294,8 @@ class AutoGen:
               "type": "LLM|PGM|SUB",
               "purpose": "what this agent does",
               "inputs": ["field1", "field2"],
-              "outputs": {{ "name": "output_field", "type": "str|list|dict" }}
+              "outputs": {{ "name": "output_field", "type": "str|list|dict" }},
+              "inner_agent": "agent_to_call_per_item (only for SUB type)"
             }}
           ],
           "graph_plan": {{
@@ -330,10 +352,49 @@ class AutoGen:
         # 2c. Generate agents
         llm_id = (plan.get("llm_config") or {}).get("id", self._pick_default_llm())
         for agent_plan in plan.get("agent_plan", []):
+            agent_id = agent_plan["id"]
+            
+            # Skip if agent already exists (reuse existing agent)
+            if self.cm.exists("agents", agent_id):
+                print(f"  Reusing existing agent: {agent_id}")
+                # For SUB agents using existing inner agents, just load and continue
+                if agent_plan.get("type") == "SUB":
+                    # Load existing to check if it's suitable
+                    existing = self.cm.load_all("agents").get(agent_id, {})
+                    if existing.get("type") == "SUB":
+                        inner_agent = agent_plan.get("inner_agent", existing.get("inner_agent", "item"))
+                        if not self.cm.exists("graphs", agent_id):
+                            subgraph_cfg = {
+                                "id": agent_id,
+                                "name": f"Subgraph for {agent_id}",
+                                "nodes": ["START", inner_agent, "END"],
+                                "edges": [["START", inner_agent], [inner_agent, "END"]],
+                                "description": f"Auto-generated subgraph for {agent_id}"
+                            }
+                            sg_path = self.cm.save("graphs", subgraph_cfg)
+                            generated.append(sg_path)
+                            print(f"  Generated Subgraph: {agent_id} -> {sg_path}")
+                continue
+            
             agent_cfg = self._generate_agent(agent_plan, llm_id)
             fpath = self.cm.save("agents", agent_cfg)
             generated.append(fpath)
             print(f"  Generated Agent: {agent_cfg['id']} -> {fpath}")
+
+            # If agent is SUB type, auto-create its subgraph
+            if agent_cfg.get("type") == "SUB":
+                subgraph_id = agent_cfg["id"]
+                inner_agent = agent_cfg.get("inner_agent", agent_cfg.get("inputs", ["item"])[0])
+                subgraph_cfg = {
+                    "id": subgraph_id,
+                    "name": f"Subgraph for {subgraph_id}",
+                    "nodes": ["START", inner_agent, "END"],
+                    "edges": [["START", inner_agent], [inner_agent, "END"]],
+                    "description": f"Auto-generated subgraph for {subgraph_id}"
+                }
+                sg_path = self.cm.save("graphs", subgraph_cfg)
+                generated.append(sg_path)
+                print(f"  Generated Subgraph: {subgraph_id} -> {sg_path}")
 
         # 2d. Generate graph
         graph_cfg = plan.get("graph_plan", {})
@@ -563,6 +624,14 @@ class AutoGen:
             cfg["prompt_template"] = pt
         elif agent_type == "PGM":
             cfg.setdefault("process", f"# {cfg.get('name', '')}\n__result__ = state.get('{cfg.get('inputs', ['input'])[0]}', '')")
+        elif agent_type == "SUB":
+            # SUB agent needs idx (loop variables) and a subgraph
+            cfg.setdefault("idx", plan.get("idx", plan.get("inputs", ["item"])))
+            # Store inner_agent for subgraph creation
+            cfg.setdefault("inner_agent", plan.get("inner_agent", cfg["idx"][0] if cfg.get("idx") else "item"))
+
+        # CRITICAL: save() needs cfg["id"], so re-add it before returning
+        cfg["id"] = plan["id"]
 
         return cfg
 
@@ -575,8 +644,12 @@ class AutoGen:
         Tool plan:
         {json.dumps(plan, indent=2)}
 
-        The code must define a `func` function with the specified parameters.
-        Set `__result__` to the return value.
+        Rules:
+        - The code must define a `func` function with the specified parameters
+        - Set `__result__` to the return value
+        - CRITICAL: Do NOT use ANY import statements (json, re, etc. are pre-imported)
+        - CRITICAL: Do NOT use __import__()
+        - Use only basic Python operations
 
         Respond with valid JSON only:
         {{
@@ -606,6 +679,17 @@ class AutoGen:
                 }
 
         cfg.setdefault("id", plan["id"])
+
+        # Sanitize code: remove all import statements (PGM env doesn't allow them)
+        code = cfg.get("code", "")
+        if code:
+            # Remove 'import X' and 'from X import Y' lines
+            import re
+            code = re.sub(r'^(\s*import\s+\w+|\s*from\s+\w+\s+import\s+.*)$', '', code, flags=re.MULTILINE)
+            # Remove empty lines created by removal
+            code = '\n'.join(line for line in code.split('\n') if line.strip())
+            cfg["code"] = code
+
         return cfg
 
     # ── Phase 3: Validate ──
