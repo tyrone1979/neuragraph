@@ -198,7 +198,7 @@ def prompt() -> str:
 def draw_workflow(graph_id: str, meta_dir: Path = META_DIR) -> str:
     """Draw ASCII workflow diagram."""
     try:
-        with open(meta_dir / "graphs" / f"{graph_id}.json") as f:
+        with open(meta_dir / "graphs" / f"{graph_id}.json", encoding="utf-8") as f:
             graph = json.load(f)
     except:
         return f"{C['red']}   Workflow not found: {graph_id}{C['reset']}"
@@ -212,7 +212,7 @@ def draw_workflow(graph_id: str, meta_dir: Path = META_DIR) -> str:
         if nid in ("START", "END"):
             continue
         try:
-            with open(meta_dir / "agents" / f"{nid}.json") as f:
+            with open(meta_dir / "agents" / f"{nid}.json", encoding="utf-8") as f:
                 agent = json.load(f)
             node_info[nid] = f"[{agent.get('type', '?')}] {agent.get('name', nid)}"
         except:
@@ -282,7 +282,7 @@ class LLMCommandParser:
 
     def _load_skill(self) -> str:
         if self.skill_path.exists():
-            return self.skill_path.read_text()
+            return self.skill_path.read_text(encoding='utf-8')
         return textwrap.dedent("""\
         You are a NeuraGraph workflow designer. You generate JSON configs for:
         - agents (LLM/PGM/SUB types)
@@ -307,7 +307,7 @@ class LLMCommandParser:
             items = []
             for f in sorted(d.glob("*.json")):
                 try:
-                    cfg = json.loads(f.read_text())
+                    cfg = json.loads(f.read_text(encoding='utf-8'))
                     name = cfg.get("name", f.stem)
                     items.append(f"- {f.stem}: {name}")
                 except Exception:
@@ -730,7 +730,7 @@ class ChatEngine:
         if meta_path.exists():
             for f in sorted(meta_path.glob("*.json")):
                 try:
-                    cfg = json.loads(f.read_text())
+                    cfg = json.loads(f.read_text(encoding='utf-8'))
                     print(formatter(f.stem, cfg))
                     found = True
                 except Exception:
@@ -745,7 +745,7 @@ class ChatEngine:
 
         # Collect inputs from user
         try:
-            with open(META_DIR / "graphs" / f"{graph_id}.json") as f:
+            with open(META_DIR / "graphs" / f"{graph_id}.json", encoding="utf-8") as f:
                 graph = json.load(f)
         except:
             print(error(f"Workflow '{graph_id}' not found"))
@@ -757,7 +757,7 @@ class ChatEngine:
             if node in ("START", "END"):
                 continue
             try:
-                with open(META_DIR / "agents" / f"{node}.json") as f:
+                with open(META_DIR / "agents" / f"{node}.json", encoding="utf-8") as f:
                     agent = json.load(f)
                 for inp in agent.get("inputs", []):
                     if inp not in inputs:
@@ -935,7 +935,7 @@ class ChatEngine:
             return
 
         try:
-            existing = json.loads(fpath.read_text())
+            existing = json.loads(fpath.read_text(encoding='utf-8'))
         except Exception as e:
             print(error(f"Failed to read config: {e}"))
             return
@@ -989,7 +989,7 @@ class ChatEngine:
 
         # Save back
         try:
-            fpath.write_text(json.dumps(updated, indent=2, ensure_ascii=False))
+            fpath.write_text(json.dumps(updated, indent=2, ensure_ascii=False), encoding="utf-8")
             print(success(f"Updated {entity_id}"))
             print(code_block(json.dumps(updated, indent=2, ensure_ascii=False)))
         except Exception as e:
@@ -1177,7 +1177,7 @@ class ChatEngine:
     def _run_agent(self, agent_id: str):
         """Run a single agent interactively."""
         try:
-            with open(META_DIR / "agents" / f"{agent_id}.json") as f:
+            with open(META_DIR / "agents" / f"{agent_id}.json", encoding="utf-8") as f:
                 agent = json.load(f)
         except:
             print(error(f"Agent '{agent_id}' not found"))
@@ -1232,7 +1232,7 @@ class ChatEngine:
             print(error(f"{label} '{entity_id}' not found"))
             return
         try:
-            cfg = json.loads(fpath.read_text())
+            cfg = json.loads(fpath.read_text(encoding='utf-8'))
             print(f"\n{C['bold']}{label}: {entity_id}{C['reset']}")
             print(code_block(json.dumps(cfg, indent=2, ensure_ascii=False)))
         except Exception as e:
