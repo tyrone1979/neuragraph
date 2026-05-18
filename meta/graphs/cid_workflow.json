@@ -1,0 +1,22 @@
+{
+  "id": "cid_workflow",
+  "name": "CID Relation Extraction Workflow",
+  "nodes": [
+    "START",
+    "cid_ner",
+    "cid_synonym_resolve",
+    "cid_hypernym_filter",
+    "cid_re",
+    "cid_metrics",
+    "END"
+  ],
+  "edges": [
+    ["START", "cid_ner"],
+    ["cid_ner", "cid_synonym_resolve"],
+    ["cid_synonym_resolve", "cid_hypernym_filter"],
+    ["cid_hypernym_filter", "cid_re"],
+    ["cid_re", "cid_metrics"],
+    ["cid_metrics", "END"]
+  ],
+  "description": "Chemical-Induce-Disease relation extraction: NER -> Synonym Resolution -> Hypernym Filter -> RE -> Metrics"
+}

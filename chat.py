@@ -751,20 +751,38 @@ class ChatEngine:
             print(error(f"Workflow '{graph_id}' not found"))
             return
 
-        # Find required input fields from first agent's inputs
+        # Find the first agent (the one directly connected from START)
+        edges = graph.get("edges", [])
+        first_agents = []
+        for e in edges:
+            if len(e) >= 2 and e[0] == "START":
+                first_agents.append(e[1])
+
+        if not first_agents:
+            print(error("Workflow has no START edge"))
+            return
+
+        # Only ask for inputs of the first agent(s)
         inputs = {}
-        for node in graph.get("nodes", []):
-            if node in ("START", "END"):
-                continue
+        for agent_id in first_agents:
             try:
-                with open(META_DIR / "agents" / f"{node}.json", encoding="utf-8") as f:
+                with open(META_DIR / "agents" / f"{agent_id}.json", encoding="utf-8") as f:
                     agent = json.load(f)
                 for inp in agent.get("inputs", []):
                     if inp not in inputs:
-                        print(f"{C['yellow']}   Input '{inp}': {C['reset']}", end="")
+                        print(f"{C['yellow']}   Input '{inp}' (JSON or text): {C['reset']}", end="")
                         val = input()
                         try:
-                            inputs[inp] = json.loads(val)
+                            parsed = json.loads(val)
+                            # If user entered {"inp": value}, extract value
+                            if isinstance(parsed, dict) and inp in parsed and len(parsed) == 1:
+                                inputs[inp] = parsed[inp]
+                            else:
+                                # If dict has multiple fields, use all as workflow inputs
+                                if isinstance(parsed, dict):
+                                    inputs.update(parsed)
+                                else:
+                                    inputs[inp] = parsed
                         except:
                             inputs[inp] = val
             except:
