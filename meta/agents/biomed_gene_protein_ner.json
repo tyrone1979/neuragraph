@@ -2,7 +2,7 @@
   "id": "biomed_gene_protein_ner",
   "type": "LLM",
   "purpose": "接收生物医学文章文本，利用LLM识别并提取所有基因(Gene)和蛋白质(Protein)实体，输出结构化JSON结果",
-  "llm": "functiongemma",
+  "llm": "kimi-2.6",
   "inputs": [
     "text"
   ],
@@ -15,5 +15,5 @@
     "human": "Analyze the following biomedical article text and identify all gene and protein entities:\n\n{text}\n\nReturn only the required JSON object."
   },
   "name": "接收生物医学文章文本，利用LLM识别并提取所有基因(Gene)和蛋白质(Protein)实体，输出结构化JSON结果",
-  "model": "functiongemma"
+  "model": "kimi-2.6"
 }
