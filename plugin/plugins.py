@@ -7,7 +7,7 @@ class Plugin:
         pass
     async def aload(self):
         pass
-
+'''
 class FlairTagger(Plugin):
     def load(self):
         try:
@@ -21,7 +21,7 @@ class FlairTagger(Plugin):
             pass
         print("[INFO] FlairTagger: Flair not available or no local model. Skipping.")
         return {}
-
+'''
 class PGMExecutor(Plugin):
     def load(self):
         safe_builtins = {

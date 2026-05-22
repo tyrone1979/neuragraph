@@ -35,7 +35,9 @@ class GraphEntity(Entity):
 
 
     def invoke(self, state: T) -> Dict[str, Any]:
-        return self.compiled_graph.invoke(state)
+        import uuid
+        config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+        return self.compiled_graph.invoke(state, config=config)
 
     def stream(self, state: T,**kwargs) -> Iterator[dict[str, Any] | Any]:
         config=kwargs.get("config")
@@ -90,6 +92,11 @@ def safe_load(s):
 
 def _call_agent(name: str):
     agent=AgentLoader.load(name)
+    if agent is None:
+        # START/END or missing agent - return passthrough
+        def passthrough(s):
+            return s
+        return passthrough
     if agent.type != "SUB":
         def invoke(s):
             out= agent.invoke(s)
