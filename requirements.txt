@@ -1,12 +1,12 @@
 numpy
-langchain~=1.0.8
-langgraph~=1.0.3
+langchain
+langgraph
 langchain-ollama
 ollama
 #psycopg[binary,pool]
 tqdm~=4.67.1
 Flask[async]~=3.1.2
 flask-sse
-pydantic~=2.12.4
+pydantic
 langchain[openai]
 #flair
