@@ -45,13 +45,16 @@ class AgentEntity(Entity):
             # 获取 llm_url 和 model，如果不存在则提供默认值或处理逻辑
             llm_model_id = meta.get("model", "").strip()  # 默认为空字符串
             llm_info = MetaLoader.load("llms",llm_model_id)
-            if llm_info['type']=='ollama':
+            if llm_info is None:
+                raise ValueError(f"LLM config '{llm_model_id}' not found for agent '{self.id}'")
+            llm_type = llm_info.get('type', '')
+            if llm_type=='ollama':
                 self.model= ChatOllama(
                     model=llm_info['model'],  # ollama list 里看到的模型名
                     base_url=llm_info['base_url'],  # 注意带 /v1
                     temperature=llm_info['temperature'],
                 )
-            elif llm_info['type']=='custom':
+            elif llm_type in ('custom', 'openai'):
                 self.model = ChatOpenAI(
                     model=llm_info['model'],  # ollama list 里看到的模型名
                     base_url=llm_info['base_url'],
@@ -59,6 +62,8 @@ class AgentEntity(Entity):
                     temperature=llm_info['temperature'],
                     max_tokens=llm_info['max_tokens']
                 )
+            else:
+                raise ValueError(f"Unknown LLM type '{llm_type}' for agent '{self.id}'")
 
             self.template = ChatPromptTemplate(
                 [("system", self.template_name["system"]),

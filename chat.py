@@ -483,37 +483,17 @@ def generate_workflow(requirement: str, llm_id: str = "kimi-2.6") -> Optional[Di
 # ═══════════════════════════════════════════════════════════════
 
 def execute_workflow(graph_id: str, inputs: Dict) -> Dict:
-    """Execute workflow and return result."""
-    import run_workflow as rw
-
-    try:
-        rw.STORE.load(META_DIR)
-        runner = rw.GraphRunner(graph_id, verbose=True)
-        result = runner.run(inputs)
-        return {"status": "success", "result": result}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+    """Execute workflow via service layer (TerminalRunner)."""
+    from service.api.terminal import TerminalRunner
+    runner = TerminalRunner(verbose=True)
+    return runner.run(graph_id, inputs)
 
 
 def execute_agent(agent_id: str, inputs: Dict) -> Dict:
-    """Execute a single agent and return result."""
-    import run_workflow as rw
-
-    try:
-        rw.STORE.load(META_DIR)
-        runner = rw.AgentRunner(verbose=True)
-        state = dict(inputs)
-        result = runner.run(agent_id, state)
-
-        # Add output to state
-        agent = rw.STORE.agents.get(agent_id, {})
-        output_name = agent.get("outputs", {}).get("name")
-        if output_name and result is not None:
-            state[output_name] = result
-
-        return {"status": "success", "result": state}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+    """Execute a single agent via service layer (TerminalRunner)."""
+    from service.api.terminal import TerminalRunner
+    runner = TerminalRunner(verbose=True)
+    return runner.run_agent(agent_id, inputs)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -763,11 +743,13 @@ class ChatEngine:
             return
 
         # Only ask for inputs of the first agent(s)
+        from service.meta.loader import MetaLoader
         inputs = {}
         for agent_id in first_agents:
             try:
-                with open(META_DIR / "agents" / f"{agent_id}.json", encoding="utf-8") as f:
-                    agent = json.load(f)
+                agent = MetaLoader.load("agents", agent_id)
+                if not agent:
+                    continue
                 for inp in agent.get("inputs", []):
                     if inp not in inputs:
                         print(f"{C['yellow']}   Input '{inp}' (JSON or text): {C['reset']}", end="")
