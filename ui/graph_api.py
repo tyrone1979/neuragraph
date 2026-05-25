@@ -172,3 +172,17 @@ def search_agent():
     # 按相关度简单排序（匹配开头优先）
     results.sort(key=lambda x: 0 if x['id'].lower().startswith(q) or x['display'].lower().startswith(q) else 1)
     return jsonify({'results': results[:20]})  # 最多20条防刷
+
+
+# ============= New Visual Editor API Endpoints =============
+
+@graph_bp.route('/api/list')
+def api_list_all_graphs():
+    """List all graphs for the visual editor (subgraphs)"""
+    graphs = MetaLoader.loads("graphs")
+    result = []
+    for g in graphs:
+        graph_data = dict(g)
+        graph_data['id'] = graph_data.get('id', '')
+        result.append(graph_data)
+    return jsonify(result)

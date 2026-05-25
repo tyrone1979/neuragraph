@@ -1,0 +1,19 @@
+{
+  "id": "biomed_re_workflow",
+  "name": "Biomedical RE Pipeline (NER + Branch + RE)",
+  "description": "NER (Kimi) -> Branch gate -> Relation extraction (Kimi)",
+  "nodes": [
+    "START",
+    "biomed_ner",
+    "biomed_re_branch",
+    "biomed_relation_extract",
+    "END"
+  ],
+  "edges": [
+    ["START", "biomed_ner"],
+    ["biomed_ner", "biomed_re_branch"],
+    ["biomed_re_branch", "biomed_relation_extract"],
+    ["biomed_relation_extract", "END"]
+  ],
+  "created_at": "2026-05-25T18:00:00"
+}

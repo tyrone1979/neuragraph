@@ -623,7 +623,7 @@ class ChatEngine:
                     lambda stem, cfg: f"  {C['magenta']}{stem:<25}{C['reset']} [{cfg.get('type', '?')}] {cfg.get('model', '?')} @ {cfg.get('base_url', '?')}")
             elif sub in ("experiments", "experiment", "exps", "exp"):
                 self._list_meta("exps", "Experiments",
-                    lambda stem, cfg: f"  {C['yellow']}{stem:<36}{C['reset']} {cfg.get('name', '')} [{cfg.get('status', '?')}] {cfg.get('runner_id', '')}")
+                    lambda stem, cfg: f"  {C['yellow']}{stem:<36}{C['reset']} {cfg.get('name', '')} {cfg.get('samples', '')} [{cfg.get('status', '?')}] {cfg.get('runner_id', '')}")
             else:
                 print(error(f"Unknown list type: {sub}. Try: workflows, agents, tools, datasets, llms, experiments"))
             return True
@@ -1222,8 +1222,93 @@ class ChatEngine:
             print(error(f"Execution failed: {result.get('message', 'Unknown error')}"))
 
     def _run_experiment(self, exp_id: str):
-        """Run an experiment."""
-        print(error("Experiment replay not yet implemented"))
+        """Run an experiment with terminal progress bar.
+        
+        业务逻辑全部委托给 service/api/terminal.py 中的 TerminalRunner，
+        本方法仅负责终端 UI 展示（进度条渲染、结果汇总）。
+        
+        注意：不直接调用 MetaLoader/ResultLoader，所有数据通过 TerminalRunner 封装方法获取。
+        """
+        import sys
+        from service.api.terminal import TerminalRunner
+
+        # ── 1. 初始化 Runner ──
+        runner = TerminalRunner(verbose=self.verbose if hasattr(self, 'verbose') else False)
+
+        # ── 2. 获取实验信息（通过 TerminalRunner 封装，不暴露 MetaLoader）──
+        exp_info = runner.get_experiment_info(exp_id)
+        if not exp_info:
+            print(error(f"Experiment '{exp_id}' not found"))
+            return
+
+        # ── 3. 获取断点续跑计数（通过 TerminalRunner 封装）──
+        resume_count = runner.get_experiment_resume_count(exp_id)
+
+        # ── 4. 打印实验信息头 ──
+        hline = '─' * 60 if _TERMINAL_UNICODE else '-' * 60
+        print()
+        print(f"{C['bold']}{C['cyan']}{hline}{C['reset']}")
+        print(f"{C['bold']}   Experiment: {exp_info['name']}{C['reset']}")
+        print(f"   {C['dim']}Runner:{C['reset']}    {exp_info['runner_display']} [{exp_info['runner_type']}]")
+        print(f"   {C['dim']}Dataset:{C['reset']}   {exp_info['dataset']}")
+        if exp_info['samples']:
+            print(f"   {C['dim']}Samples:{C['reset']}   {exp_info['samples']:,}")
+        if resume_count:
+            print(f"   {C['dim']}Resume:{C['reset']}    {C['green']}{resume_count}{C['reset']} already completed")
+        print(f"{C['bold']}{C['cyan']}{hline}{C['reset']}")
+
+        # ── 5. 定义进度回调（负责终端进度条渲染）──
+        def _progress_callback(current: int, total: int, elapsed: float, success_count: int, fail_count: int):
+            """每步执行后调用，覆盖打印进度条。"""
+            bar_line = TerminalRunner.format_progress_bar(
+                current=current,
+                total=total,
+                elapsed=elapsed,
+                width=28,
+                unicode_mode=_TERMINAL_UNICODE,
+                color_enabled=_TERMINAL_COLOR,
+            )
+            
+            # 如果有失败，将图标改为警告
+            if fail_count > 0:
+                if _TERMINAL_UNICODE:
+                    bar_line = bar_line.replace("✓", "!")
+                else:
+                    bar_line = bar_line.replace("*", "!")
+                bar_line = bar_line.replace("\033[32m", "\033[33m", 1)
+
+            # 覆盖打印同一行
+            sys.stdout.write(chr(13) + bar_line)
+            sys.stdout.flush()
+
+        # ── 6. 执行实验（核心逻辑在 TerminalRunner 中）──
+        try:
+            result = runner.run_experiment(
+                exp_id=exp_id,
+                progress_callback=_progress_callback,
+                unicode_mode=_TERMINAL_UNICODE,
+                color_enabled=_TERMINAL_COLOR,
+            )
+        except KeyboardInterrupt:
+            print()
+            print()
+            print(f"{C['yellow']}   ⚠ Interrupted by user{C['reset']}")
+            return
+        finally:
+            print()
+
+        # ── 7. 处理执行结果 ──
+        if result["status"] == "error":
+            print(error(result.get("message", "Unknown error")))
+            return
+
+        # ── 8. 打印最终汇总（使用 TerminalRunner 的格式化方法）──
+        summary = TerminalRunner.format_experiment_summary(
+            result=result,
+            unicode_mode=_TERMINAL_UNICODE,
+            color_enabled=_TERMINAL_COLOR,
+        )
+        print(summary)
 
     def _show_json(self, subdir: str, entity_id: str, label: str):
         """Show a JSON config file."""

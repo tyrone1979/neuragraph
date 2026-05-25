@@ -1,0 +1,59 @@
+{
+    "id": "nested_entity_extraction",
+    "name": "Nested Entity Extraction",
+    "description": "A nested subgraph for entity extraction",
+    "nodes": [
+        "START",
+        "tokenize",
+        "ner_model",
+        "filter_entities",
+        "END"
+    ],
+    "edges": [
+        ["START", "tokenize"],
+        ["tokenize", "ner_model"],
+        ["ner_model", "filter_entities"],
+        ["filter_entities", "END"]
+    ],
+    "visualData": {
+        "nodes": [
+            {
+                "id": "tokenize",
+                "type": "agent",
+                "originalId": "tokenize",
+                "position": {"x": 50, "y": 200},
+                "data": {
+                    "type": "PGM",
+                    "name": "Tokenizer",
+                    "inputs": ["text"],
+                    "outputs": ["tokens"]
+                }
+            },
+            {
+                "id": "ner_model",
+                "type": "agent",
+                "originalId": "ner_model",
+                "position": {"x": 250, "y": 200},
+                "data": {
+                    "type": "LLM",
+                    "name": "NER Model",
+                    "inputs": ["tokens"],
+                    "outputs": ["entities"]
+                }
+            },
+            {
+                "id": "filter_entities",
+                "type": "agent",
+                "originalId": "filter_entities",
+                "position": {"x": 450, "y": 200},
+                "data": {
+                    "type": "PGM",
+                    "name": "Filter Entities",
+                    "inputs": ["entities"],
+                    "outputs": ["filtered_entities"]
+                }
+            }
+        ],
+        "links": []
+    }
+}

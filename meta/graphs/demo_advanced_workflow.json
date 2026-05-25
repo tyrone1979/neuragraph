@@ -1,0 +1,144 @@
+{
+    "id": "demo_advanced_workflow",
+    "name": "Advanced Workflow Demo",
+    "description": "A demonstration workflow featuring Branch, Loop, and Nested Subgraph nodes",
+    "nodes": [
+        "START",
+        "text_input",
+        "sentence_split",
+        "process_loop",
+        "analysis_branch",
+        "ner_agent",
+        "re_agent",
+        "aggregator",
+        "END"
+    ],
+    "edges": [
+        ["START", "text_input"],
+        ["text_input", "sentence_split"],
+        ["sentence_split", "process_loop"],
+        ["process_loop", "analysis_branch"],
+        ["analysis_branch", "ner_agent"],
+        ["analysis_branch", "re_agent"],
+        ["ner_agent", "aggregator"],
+        ["re_agent", "aggregator"],
+        ["aggregator", "END"]
+    ],
+    "visualData": {
+        "nodes": [
+            {
+                "id": "text_input",
+                "type": "agent",
+                "originalId": "text_input",
+                "position": {"x": 50, "y": 200},
+                "data": {
+                    "type": "LLM",
+                    "name": "Text Input",
+                    "inputs": [],
+                    "outputs": ["text"],
+                    "mappings": {}
+                }
+            },
+            {
+                "id": "sentence_split",
+                "type": "agent",
+                "originalId": "sentence_split",
+                "position": {"x": 250, "y": 200},
+                "data": {
+                    "type": "PGM",
+                    "name": "Sentence Split",
+                    "inputs": ["text"],
+                    "outputs": ["sentences"],
+                    "mappings": {"text": "{{ text_input.text }}"}
+                }
+            },
+            {
+                "id": "process_loop",
+                "type": "loop",
+                "originalId": null,
+                "position": {"x": 450, "y": 200},
+                "data": {
+                    "type": "loop",
+                    "name": "Process Loop",
+                    "inputs": ["items"],
+                    "outputs": ["results"],
+                    "loopConfig": {
+                        "loopType": "foreach",
+                        "array": "{{ sentence_split.sentences }}"
+                    }
+                }
+            },
+            {
+                "id": "analysis_branch",
+                "type": "branch",
+                "originalId": null,
+                "position": {"x": 650, "y": 200},
+                "data": {
+                    "type": "branch",
+                    "name": "Analysis Branch",
+                    "inputs": ["item"],
+                    "outputs": ["ner", "re"],
+                    "conditions": [
+                        {"label": "NER", "condition": "{{ contains_entities(item) }}"},
+                        {"label": "RE", "condition": "{{ contains_relations(item) }}"}
+                    ]
+                }
+            },
+            {
+                "id": "ner_agent",
+                "type": "subgraph",
+                "originalId": "nested_entity_extraction",
+                "position": {"x": 850, "y": 100},
+                "data": {
+                    "type": "SUB",
+                    "name": "Nested Entity Extraction",
+                    "inputs": ["text"],
+                    "outputs": ["filtered_entities"],
+                    "mappings": {"text": "{{ analysis_branch.item }}"},
+                    "nodes": ["START", "tokenize", "ner_model", "filter_entities", "END"],
+                    "edges": [["START", "tokenize"], ["tokenize", "ner_model"], ["ner_model", "filter_entities"], ["filter_entities", "END"]]
+                }
+            },
+            {
+                "id": "re_agent",
+                "type": "subgraph",
+                "originalId": "sub_re",
+                "position": {"x": 850, "y": 300},
+                "data": {
+                    "type": "SUB",
+                    "name": "RE Subgraph",
+                    "inputs": ["text"],
+                    "outputs": ["relations"],
+                    "mappings": {"text": "{{ analysis_branch.item }}"}
+                }
+            },
+            {
+                "id": "aggregator",
+                "type": "agent",
+                "originalId": "aggregator",
+                "position": {"x": 1050, "y": 200},
+                "data": {
+                    "type": "PGM",
+                    "name": "Result Aggregator",
+                    "inputs": ["entities", "relations"],
+                    "outputs": ["final_result"],
+                    "mappings": {
+                        "entities": "{{ ner_agent.filtered_entities }}",
+                        "relations": "{{ re_agent.relations }}"
+                    }
+                }
+            }
+        ],
+        "links": [
+            {"source": {"id": "START", "port": "out_trigger"}, "target": {"id": "text_input", "port": "in_text"}},
+            {"source": {"id": "text_input", "port": "out_text"}, "target": {"id": "sentence_split", "port": "in_text"}},
+            {"source": {"id": "sentence_split", "port": "out_sentences"}, "target": {"id": "process_loop", "port": "in_items"}},
+            {"source": {"id": "process_loop", "port": "out_results"}, "target": {"id": "analysis_branch", "port": "in_item"}},
+            {"source": {"id": "analysis_branch", "port": "out_ner"}, "target": {"id": "ner_agent", "port": "in_text"}},
+            {"source": {"id": "analysis_branch", "port": "out_re"}, "target": {"id": "re_agent", "port": "in_text"}},
+            {"source": {"id": "ner_agent", "port": "out_filtered_entities"}, "target": {"id": "aggregator", "port": "in_entities"}},
+            {"source": {"id": "re_agent", "port": "out_relations"}, "target": {"id": "aggregator", "port": "in_relations"}},
+            {"source": {"id": "aggregator", "port": "out_final_result"}, "target": {"id": "END", "port": "in_input"}}
+        ]
+    }
+}
