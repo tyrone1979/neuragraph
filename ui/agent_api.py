@@ -64,6 +64,17 @@ def api_update(agent_id):
     return jsonify({"success": True})
 
 
+@agent_bp.route('/api/save', methods=['POST'])
+def api_save():
+    """Save agent changes from visual editor"""
+    data = request.json
+    agent_id = data.get("id")
+    if not agent_id:
+        return jsonify({"error": "Missing agent id"}), 400
+    MetaLoader.dump("agents", agent_id, data)
+    return jsonify({"success": True, "id": agent_id})
+
+
 @agent_bp.route('/api/<agent_id>', methods=['DELETE'])
 def api_delete(agent_id):
     if MetaLoader.delete("agents",agent_id):
