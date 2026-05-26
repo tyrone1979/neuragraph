@@ -1,6 +1,6 @@
 {
-  "name": "RE Branch Gate",
-  "type": "branch",
+  "name": "RE Branch Gate (flow node)",
+  "type": "PGM",
   "inputs": [
     "text",
     "entities"
@@ -9,15 +9,6 @@
     "name": "route",
     "type": "str"
   },
-  "conditions": [
-    {
-      "label": "Has entities",
-      "condition": "entities"
-    },
-    {
-      "label": "Skip RE",
-      "condition": "!entities"
-    }
-  ],
+  "process": "route = 'continue'\n__result__ = route",
   "created_at": "2026-05-25T18:00:00"
 }

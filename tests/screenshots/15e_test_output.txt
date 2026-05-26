@@ -1,6 +1,0 @@
-🟦 Node Path: biomed_ner
-📤 Output: biomed_ner  |  Table: entities
-{"Chemical": ["Aspirin", "Metformin"], "Disease": ["heart disease", "type 2 diabetes"]}
-────────────────────────────────────────────────────────────
-
-Workflow 执行完成。 (SSE closed after RE output)

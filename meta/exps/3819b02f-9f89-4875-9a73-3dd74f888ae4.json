@@ -1,0 +1,12 @@
+{
+  "exp_id": "3819b02f-9f89-4875-9a73-3dd74f888ae4",
+  "runner_id": "biomed_re_workflow",
+  "runner_type": "graph",
+  "runner_display": "t",
+  "dataset": "exp_test_2samples.csv",
+  "samples": 2,
+  "name": "t",
+  "status": "pending",
+  "progress": 0,
+  "created_at": "2026-05-26T09:28:53.818329"
+}

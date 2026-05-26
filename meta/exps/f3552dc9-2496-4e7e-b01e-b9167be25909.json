@@ -1,0 +1,14 @@
+{
+  "dataset": "exp_test_2samples.csv",
+  "runner_type": "graph",
+  "runner_id": "biomed_re_workflow",
+  "runner_display": "Biomedical RE Pipeline (Loop + Branch + RE) (biomed_re_workflow) - Workflow",
+  "samples": 2,
+  "exp_id": "f3552dc9-2496-4e7e-b01e-b9167be25909",
+  "name": "biomed_re_workflow_exp_test_2samples.csv_20260526085758",
+  "status": "running",
+  "progress": 0,
+  "created_at": "2026-05-26T08:57:58.293638",
+  "id": "f3552dc9-2496-4e7e-b01e-b9167be25909",
+  "updated_at": "2026-05-26T08:57:58.405407"
+}

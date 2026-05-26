@@ -16,8 +16,16 @@ def load_graph_by_id(graph_id: str):
         agents = GraphMetaLoader.load_agents_by_graph(graph, agents)
 
     displayers = []
+    flow_nodes = graphs[graph_id].get('flowNodes') or {}
     for node in graphs[graph_id]['nodes']:
-        if node in agents:
+        if node in flow_nodes:
+            fk = flow_nodes[node].get('kind', 'flow')
+            display = {
+                'type': fk,
+                'id': node,
+                'display': f"{flow_nodes[node].get('name', node)} ({node}) - {fk.title()}",
+            }
+        elif node in agents:
             type = agents[node]['type']
             display = {
                 'type': type,

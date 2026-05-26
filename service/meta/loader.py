@@ -97,23 +97,36 @@ class GraphMetaLoader:
     @staticmethod
     def load(graph_id: str):
         graphs_cfg = {}
-        cfg = MetaLoader.load("graphs", graph_id)
-        graphs_cfg[graph_id] = cfg
-        graphs_cfg[graph_id]["id"] = graph_id
-        for node in cfg["nodes"]:
-            if node.startswith("sub_"):  # subgraph
-                graphs_cfg[node] = MetaLoader.load("graphs", node)
-                graphs_cfg[node]["id"] = node
+        visited = set()
+
+        def _load(gid):
+            if gid in visited:
+                return
+            visited.add(gid)
+            cfg = MetaLoader.load("graphs", gid)
+            if not cfg:
+                return
+            graphs_cfg[gid] = dict(cfg)
+            graphs_cfg[gid]["id"] = gid
+            for node in cfg.get("nodes", []):
+                if node in ("START", "END"):
+                    continue
+                if MetaLoader.load("graphs", node):
+                    _load(node)
+
+        _load(graph_id)
         return graphs_cfg
 
     @staticmethod
     def load_agents_by_graph(graph, agents):
-        for agent in graph['nodes']:
-            if agent in ['START', 'END']:
+        for agent in graph.get('nodes', []):
+            if agent in ('START', 'END'):
                 continue
             a = MetaLoader.load("agents", agent)
             if a:
                 agents[agent] = a
+                if 'id' not in agents[agent]:
+                    agents[agent]['id'] = agent
         return agents
 
 
