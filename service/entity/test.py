@@ -151,6 +151,18 @@ class TestLoader(EntityLoader):
             return None
 
     @staticmethod
+    def save_csv_rows(agent_id: str, filename: str, fieldnames: list[str], rows: list[dict]) -> Path:
+        """Write a multi-row CSV testset (used by experiments)."""
+        agent_dir = TEST_DIR / agent_id
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        csv_file = agent_dir / filename
+        with open(csv_file, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+        return csv_file
+
+    @staticmethod
     def save(agent_id: str, test_id: str, data: dict):
         """保存测试数据集到CSV文件"""
         # 确保agent目录存在

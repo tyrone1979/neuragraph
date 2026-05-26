@@ -1,6 +1,54 @@
 // NeuraGraph Visual Editor — Dify-style
+var WF_COMPLETE_MSG = 'Workflow completed.';
 let graph, paper, selectedCell = null, historyStack = [], redoStack = [];
-let subgraphRanges = {}, nodeCounter = 0, currentGraph = null;
+let subgraphRanges = {}, nodeCounter = 0, currentGraph = null, graphBindings = {};
+
+function getGraphFlowNodes(wf) {
+    wf = wf || currentGraph || {};
+    return wf.flowNodes || {};
+}
+
+function getGraphBindings(wf) {
+    wf = wf || currentGraph || {};
+    return wf.bindings || {};
+}
+
+function _applyFlowNodeMeta(nid, f) {
+    if (!agentsData[nid]) agentsData[nid] = { id: nid };
+    agentsData[nid].id = nid;
+    agentsData[nid].name = f.name || agentsData[nid].name || nid;
+    agentsData[nid].flowKind = f.kind;
+    if (f.kind === 'loop') {
+        agentsData[nid].loopConfig = f.loopConfig || {};
+        if (!agentsData[nid].type || agentsData[nid].type === 'loop') agentsData[nid].type = 'PGM';
+    } else if (f.kind === 'branch') {
+        agentsData[nid].conditions = f.conditions || [];
+        if (!agentsData[nid].type || agentsData[nid].type === 'branch') agentsData[nid].type = 'PGM';
+    }
+}
+
+function mergeFlowNodesFromGraph(wf) {
+    var fn = getGraphFlowNodes(wf);
+    Object.keys(fn).forEach(function(nid) { _applyFlowNodeMeta(nid, fn[nid]); });
+    if (graphsById) {
+        Object.keys(graphsById).forEach(function(gid) {
+            var gfn = (graphsById[gid] && graphsById[gid].flowNodes) || {};
+            Object.keys(gfn).forEach(function(nid) { _applyFlowNodeMeta(nid, gfn[nid]); });
+        });
+    }
+    graphBindings = Object.assign({}, getGraphBindings(wf));
+    if (graphsById) {
+        Object.keys(graphsById).forEach(function(gid) {
+            var gb = (graphsById[gid] && graphsById[gid].bindings) || {};
+            graphBindings = Object.assign(graphBindings, gb);
+        });
+    }
+}
+
+function getNodeFlowKind(nid, wf) {
+    var fn = getGraphFlowNodes(wf)[nid];
+    return fn ? fn.kind : null;
+}
 let availableLLMs = [];
 
 const nodeStyles = {
@@ -123,7 +171,8 @@ function defineWorkflowNodeShape() {
 function buildNodeLayout(id, agent) {
     var isSE = id === 'START' || id === 'END';
     var type = (agent && agent.type) || 'LLM';
-    var stroke = getNodeStroke(type, isSE);
+    var displayType = (agent && agent.flowKind) || type;
+    var stroke = getNodeStroke(displayType, isSE);
     var name = truncateText((agent && agent.name) || id, 28);
     var inputs = normalizeInputs(agent);
     var outName = (agent && agent.outputs && agent.outputs.name) ? String(agent.outputs.name) : '';
@@ -137,10 +186,10 @@ function buildNodeLayout(id, agent) {
     var showIdRow = agent && agent.id && agent.name && agent.id !== agent.name;
 
     var inRowCount = Math.max(inputs.length, 1);
-    var branchConds = (type === 'branch')
+    var branchConds = (displayType === 'branch')
         ? ((agent && agent.conditions) || [{ label: 'True' }, { label: 'False' }])
         : [];
-    var outRowCount = (type === 'branch') ? Math.max(branchConds.length, 1) : 1;
+    var outRowCount = (displayType === 'branch') ? Math.max(branchConds.length, 1) : 1;
     var bodyH = WF_BODY_PAD
         + (metaLines ? metaLines * 20 + 4 : 0)
         + (showIdRow ? 14 : 0)
@@ -172,7 +221,7 @@ function buildNodeLayout(id, agent) {
     }
 
     var yOutSection = yBase + inRowCount * WF_ROW_H + WF_SECTION_LABEL_H;
-    if (type === 'branch') {
+    if (displayType === 'branch') {
         branchConds.forEach(function(c, i) {
             var yBr = yOutSection + i * WF_ROW_H + WF_ROW_H / 2;
             portItems.push({
@@ -196,8 +245,8 @@ function buildNodeLayout(id, agent) {
         });
     }
 
-    var iconLetter = typeIconLetters[type] || type.charAt(0) || '?';
-    var typeLabel = typeLabels[type] || type;
+    var iconLetter = typeIconLetters[displayType] || typeIconLetters[type] || type.charAt(0) || '?';
+    var typeLabel = typeLabels[displayType] || typeLabels[type] || type;
     var html = '<div class="wf-node" xmlns="' + escHtml('http://www.w3.org/1999/xhtml') + '">';
     html += '<div class="wf-node-header" style="background:' + escHtml(stroke) + '">';
     html += '<span class="wf-node-icon">' + escHtml(iconLetter) + '</span>';
@@ -214,10 +263,10 @@ function buildNodeLayout(id, agent) {
         html += '<div class="wf-node-meta">Rule-based / Python</div>';
     } else if (type === 'SUB') {
         html += '<div class="wf-node-meta">Iterates over list input</div>';
-    } else if (type === 'branch') {
-        html += '<div class="wf-node-meta">Conditional routing</div>';
-    } else if (type === 'loop') {
-        html += '<div class="wf-node-meta">Loop container</div>';
+    } else if (displayType === 'branch') {
+        html += '<div class="wf-node-meta">Conditional routing (graph flow)</div>';
+    } else if (displayType === 'loop') {
+        html += '<div class="wf-node-meta">Loop container (graph flow)</div>';
     }
     if (tools.length) {
         html += '<div class="wf-node-meta" title="' + escHtml(tools.join(', ')) + '">Tools: ' + escHtml(truncateText(tools.join(', '), 40)) + '</div>';
@@ -235,7 +284,7 @@ function buildNodeLayout(id, agent) {
     html += '</div>';
 
     html += '<div class="wf-io-block"><div class="wf-io-label">OUTPUT</div>';
-    if (type === 'branch' && branchConds.length) {
+    if (displayType === 'branch' && branchConds.length) {
         branchConds.forEach(function(c) {
             html += '<div class="wf-io-row"><span class="wf-io-dot wf-io-dot--out"></span>';
             html += '<span class="wf-io-name" title="' + escHtml(c.label) + '">' + escHtml(truncateText(c.label, 20)) + '</span>';
@@ -258,7 +307,8 @@ function buildNodeLayout(id, agent) {
             id: id, name: (agent && agent.name) || id,
             inputs: inputs,
             outputs: agent ? agent.outputs : null,
-            type: type, model: model,
+            type: type, flowKind: (agent && agent.flowKind) || '',
+            model: model,
             tools: tools,
             persistence: (agent && agent.persistence) || null,
             loopConfig: (agent && agent.loopConfig) || {},
@@ -375,7 +425,7 @@ function initJointJS() {
         linkPinning: false, snapLinks: { radius: 30 }, async: true,
         defaultLink: function() {
             var l = new joint.shapes.standard.Link();
-            l.connector('rounded', { radius: 12 });
+            l.connector('smooth', { radius: 20 });
             l.router('normal');
             return l;
         },
@@ -654,7 +704,7 @@ function createLink(sourceId, targetId, opts) {
         },
         wrapper: { strokeWidth: 8, stroke: 'transparent', fill: 'none' }
     });
-    link.connector('rounded', { radius: 12 });
+    link.connector('smooth', { radius: 20 });
     link.router('normal');
     return link;
 }
@@ -674,7 +724,7 @@ function inferLinkPorts(sourceId, targetId) {
     var srcCfg = (agentsData[sourceId]) || (graph.getCell(sourceId) && graph.getCell(sourceId).get('config'));
     var tgtCfg = (agentsData[targetId]) || (graph.getCell(targetId) && graph.getCell(targetId).get('config'));
     if (srcCfg) {
-        if (srcCfg.type === 'branch' && srcCfg.conditions && srcCfg.conditions.length) {
+        if ((srcCfg.flowKind === 'branch' || srcCfg.type === 'branch') && srcCfg.conditions && srcCfg.conditions.length) {
             opts.sourcePort = 'out_' + sanitizePortId(srcCfg.conditions[0].label);
         } else if (srcCfg.outputs && srcCfg.outputs.name) {
             opts.sourcePort = 'out_' + srcCfg.outputs.name;
@@ -692,11 +742,25 @@ function inferLinkPorts(sourceId, targetId) {
 }
 
 // ─── Render workflow ────────────────────────────────
+function collectSubgraphInnerNodes() {
+    var inner = [];
+    Object.keys(subgraphRanges).forEach(function(sgId) {
+        (subgraphRanges[sgId].nodes || []).forEach(function(n) {
+            if (inner.indexOf(n) < 0) inner.push(n);
+        });
+    });
+    return inner;
+}
+
 function renderWorkflow(wf) {
     if (!wf || !wf.nodes || !wf.edges) { createDefaultWorkflow(); return; }
     graph.clear(); subgraphRanges = {};
+    mergeFlowNodesFromGraph(wf);
     var expanded = expandSubgraph(wf);
-    var allNodes = ['START'].concat(expanded.nodes.filter(function(n) { return n !== 'START' && n !== 'END'; }), ['END']);
+    var innerFromSubs = collectSubgraphInnerNodes();
+    var topNodes = expanded.nodes.filter(function(n) { return n !== 'START' && n !== 'END'; });
+    innerFromSubs.forEach(function(n) { if (topNodes.indexOf(n) < 0) topNodes.push(n); });
+    var allNodes = ['START'].concat(topNodes, ['END']);
     var nodeCells = allNodes.map(function(id) { return createNode(id); });
     var linkCells = [];
     expanded.edges.forEach(function(e) {
@@ -718,11 +782,13 @@ function expandSubgraph(wf) {
     var nodes = [], edges = [];
     subgraphRanges = {};
     var isSub = function(nid) {
+        if (getNodeFlowKind(nid, wf) === 'loop') return true;
         if (agentsData[nid] && agentsData[nid].type === 'SUB') return true;
         if (graphsById && graphsById[nid]) return true;
         if (wf.visualData && wf.visualData.nodes) {
             var vn = wf.visualData.nodes.find(function(n) { return n.id === nid || n.originalId === nid; });
-            if (vn && (vn.type === 'subgraph' || (vn.data && vn.data.type === 'SUB'))) return true;
+            if (vn && (vn.type === 'subgraph' || vn.type === 'loop' ||
+                (vn.data && (vn.data.type === 'SUB' || vn.data.type === 'loop')))) return true;
         }
         return false;
     };
@@ -783,20 +849,45 @@ function drawSubgraphContainers() {
     });
 }
 
+function _containerBBox(subId) {
+    var info = subgraphRanges[subId];
+    if (!info) return null;
+    var bbox = null;
+    (info.nodes || []).forEach(function(nid) {
+        var el = graph.getCell(nid);
+        if (el) bbox = bbox ? bbox.union(el.getBBox()) : el.getBBox();
+    });
+    (info.subgraphs || []).forEach(function(childId) {
+        var childCnt = graph.getCell(childId + '_container');
+        if (childCnt) {
+            var cb = childCnt.getBBox();
+            bbox = bbox ? bbox.union(cb) : cb;
+        } else {
+            var nested = _containerBBox(childId);
+            if (nested) {
+                if (!bbox) {
+                    bbox = { x: nested.x, y: nested.y, width: nested.width, height: nested.height };
+                } else {
+                    var x1 = Math.min(bbox.x, nested.x);
+                    var y1 = Math.min(bbox.y, nested.y);
+                    var x2 = Math.max(bbox.x + bbox.width, nested.x + nested.width);
+                    var y2 = Math.max(bbox.y + bbox.height, nested.y + nested.height);
+                    bbox = { x: x1, y: y1, width: x2 - x1, height: y2 - y1 };
+                }
+            }
+        }
+    });
+    return bbox;
+}
+
 function _drawSubgraphContainer(subId) {
     var info = subgraphRanges[subId];
     if (!info) return;
-    // Remove old container if exists
     var old = graph.getCell(subId + '_container');
     if (old) old.remove();
-    var bbox = null;
-    (info.nodes || []).forEach(function(nid) { var el = graph.getCell(nid); if (el) bbox = bbox ? bbox.union(el.getBBox()) : el.getBBox(); });
+    var bbox = _containerBBox(subId);
     if (!bbox) {
-        // Empty loop/subgraph — create a default-sized container
         bbox = { x: 0, y: 0, width: 200, height: 120 };
-    } else {
-        // Expand to full rect
-        bbox = { x: bbox.x, y: bbox.y, width: bbox.width, height: bbox.height };
     }
     var pad = 52;
     var cntId = subId + '_container';
@@ -806,7 +897,12 @@ function _drawSubgraphContainer(subId) {
         size: { width: bbox.width + pad * 2, height: bbox.height + pad * 2 },
         attrs: {
             body: { fill: 'rgba(118,75,162,0.08)', stroke: '#764ba2', strokeDasharray: '8 4', rx: 14, ry: 14, strokeWidth: 1.5 },
-            label: { text: (agentsData[subId] ? agentsData[subId].name : subId), fill: '#764ba2', fontSize: 13, fontWeight: 'bold', refX: 14, refY: 14, textAnchor: 'start', textVerticalAnchor: 'top' }
+            label: {
+                text: (getGraphFlowNodes()[subId] && getGraphFlowNodes()[subId].name) ||
+                    (agentsData[subId] ? agentsData[subId].name : subId),
+                fill: '#764ba2', fontSize: 13, fontWeight: 'bold', refX: 14, refY: 14,
+                textAnchor: 'start', textVerticalAnchor: 'top'
+            }
         },
         subgraph: subId
     });
@@ -815,9 +911,11 @@ function _drawSubgraphContainer(subId) {
 
 // ─── Update container positions when elements move ──
 function updateSubgraphContainerPositions() {
-    Object.keys(subgraphRanges).forEach(function(subId) {
-        var info = subgraphRanges[subId], bbox = null;
-        (info.nodes || []).forEach(function(nid) { var el = graph.getCell(nid); if (el) bbox = bbox ? bbox.union(el.getBBox()) : el.getBBox(); });
+    var ordered = Object.keys(subgraphRanges).sort(function(a, b) {
+        return getSubgraphDepth(b) - getSubgraphDepth(a);
+    });
+    ordered.forEach(function(subId) {
+        var bbox = _containerBBox(subId);
         var cnt = graph.getCell(subId + '_container');
         if (!cnt || !bbox) return;
         var pad = 52;
@@ -864,16 +962,16 @@ function findLlmConfig(llmId) {
 }
 
 function buildLlmSelectorHtml(selectedId) {
-    var html = '<div class="mb-2"><label class="fw-bold small">LLM 配置 (meta/llms)</label>';
+    var html = '<div class="mb-2"><label class="fw-bold small">LLM config (meta/llms)</label>';
     html += '<select id="propLlmSelect" class="form-select form-select-sm">';
-    html += '<option value="">-- 选择 LLM 配置 --</option>';
+    html += '<option value="">-- Select LLM config --</option>';
     availableLLMs.forEach(function(llm) {
         var label = llm.id + ' · ' + (llm.model || '') + ' · ' + (llm.type || 'custom');
         html += '<option value="' + escHtml(llm.id) + '"' + (selectedId === llm.id ? ' selected' : '') + '>' + escHtml(label) + '</option>';
     });
     html += '</select>';
     html += '<div id="propLlmLinkPreview" class="small text-muted mt-1" style="word-break:break-all;"></div>';
-    html += '<a id="propLlmEditLink" class="small" href="#" target="_blank" rel="noopener">编辑 LLM 配置</a>';
+    html += '<a id="propLlmEditLink" class="small" href="#" target="_blank" rel="noopener">Edit LLM config</a>';
     html += '</div>';
     return html;
 }
@@ -883,7 +981,7 @@ function updateLlmLinkPreview(llmId) {
     var $prev = $('#propLlmLinkPreview');
     var $link = $('#propLlmEditLink');
     if (!llm) {
-        $prev.text('未选择 LLM 配置');
+        $prev.text('No LLM config selected');
         $link.attr('href', '#').hide();
         return;
     }
@@ -934,12 +1032,12 @@ function showPropertyPanel(node) {
         if (prompt.relation_schema) html += '<div class="mb-2"><label class="fw-bold small">Relation Schema</label><div class="row g-1"><div class="col-6"><input class="form-control form-control-sm editable-field" data-field="rel_head_type" value="' + (prompt.relation_schema.head_type||'') + '"></div><div class="col-6"><input class="form-control form-control-sm editable-field" data-field="rel_tail_type" value="' + (prompt.relation_schema.tail_type||'') + '"></div></div></div>';
         html += '</div></div>';
     }
-    if (type === 'branch' && cfg.conditions) {
+    if ((cfg.flowKind === 'branch' || type === 'branch') && cfg.conditions) {
         html += '<div class="card mb-3"><div class="card-header bg-warning text-dark"><h6 class="mb-0"><i class="fas fa-code-branch me-2"></i>Conditions</h6></div><div class="card-body">';
         cfg.conditions.forEach(function(c,i) { html += '<div class="mb-2"><span class="badge bg-warning me-1">' + c.label + '</span><input class="form-control form-control-sm d-inline-block w-75 editable-field" data-field="cond_' + i + '" value="' + (c.condition||'') + '" placeholder="e.g. {{ score }} > 0.5"></div>'; });
         html += '</div></div>';
     }
-    if (type === 'loop' && cfg.loopConfig) {
+    if ((cfg.flowKind === 'loop' || type === 'loop') && cfg.loopConfig) {
         var lc = cfg.loopConfig;
         html += '<div class="card mb-3"><div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-redo me-2"></i>Loop Config</h6></div><div class="card-body">';
         html += '<div class="mb-2"><label class="fw-bold small">Loop Type</label><select class="form-control form-control-sm editable-field" data-field="loop_type">';
@@ -957,12 +1055,43 @@ function showPropertyPanel(node) {
     }
     renderIOMapping(node);
 }
+function getUpstreamNodeIds(nodeId) {
+    var ups = [];
+    graph.getLinks().forEach(function(l) {
+        var t = l.get('target'), s = l.get('source');
+        if (t && t.id === nodeId && s && s.id && s.id !== 'START') ups.push(s.id);
+    });
+    return ups;
+}
+
 function renderIOMapping(node) {
-    var cfg = node.get('config') || {}, inputs = cfg.inputs || [], outName = cfg.outputs ? cfg.outputs.name : 'output';
+    var cfg = node.get('config') || {}, nid = cfg.id || node.id;
+    var inputs = cfg.inputs || [], outName = cfg.outputs ? cfg.outputs.name : 'output';
+    var bindings = graphBindings[nid] || {};
+    var upstream = getUpstreamNodeIds(nid);
     var $ic = $('#inputMapping').empty(), $oc = $('#outputPreview').empty();
-    inputs.forEach(function(inp) { $ic.append('<div class="d-flex align-items-center mb-2"><span class="badge bg-secondary me-2" style="min-width:60px">' + inp + '</span><input class="form-control form-control-sm flex-grow-1 mapping-input" value="" placeholder="e.g., {{ prev.' + inp + ' }}"></div>'); });
+    if (upstream.length) {
+        $ic.append('<p class="small text-muted mb-2">Upstream: <code>' + escHtml(upstream.join(', ')) + '</code></p>');
+    }
+    inputs.forEach(function(inp) {
+        var val = bindings[inp] || '';
+        if (!val && upstream.length) {
+            val = '{{ ' + upstream[0] + '.' + inp + ' }}';
+        }
+        $ic.append(
+            '<div class="d-flex align-items-center mb-2">' +
+            '<span class="badge bg-secondary me-2" style="min-width:60px">' + escHtml(inp) + '</span>' +
+            '<input class="form-control form-control-sm flex-grow-1 mapping-input" data-input="' + escHtml(inp) + '" value="' + escHtml(val) + '" placeholder="e.g., {{ node.field }}">' +
+            '</div>'
+        );
+    });
     if (!inputs.length) $ic.html('<p class="text-muted small mb-0">No inputs</p>');
-    $oc.append('<div class="d-flex align-items-center mb-1"><span class="badge bg-success me-2" style="min-width:60px">' + outName + '</span><code class="small text-muted">{{ ' + (cfg.id||node.id) + '.' + outName + ' }}</code></div>');
+    $oc.append('<div class="d-flex align-items-center mb-1"><span class="badge bg-success me-2" style="min-width:60px">' + escHtml(outName) + '</span><code class="small text-muted">{{ ' + escHtml(nid) + '.' + escHtml(outName) + ' }}</code></div>');
+    $('.mapping-input').off('change').on('change', function() {
+        var field = $(this).data('input');
+        if (!graphBindings[nid]) graphBindings[nid] = {};
+        graphBindings[nid][field] = $(this).val();
+    });
 }
 function hidePropertyPanel() { document.getElementById('propertyPanel').classList.add('d-none'); }
 
@@ -1085,10 +1214,23 @@ function saveGraph() {
     $.ajax({ url:'/graph/api/save', method:'POST', contentType:'application/json', data: JSON.stringify(wd), success: function(r) { alert(r.success?'Saved!':'Failed: '+(r.error||'Unknown')); }, error: function(x) { alert('Error: '+(x.responseJSON?x.responseJSON.error:x.statusText)); } });
 }
 function serializeGraph() {
-    var nodes=[], edges=[];
-    graph.getElements().forEach(function(el) { var cfg=el.get('config'); if(cfg&&cfg.id) nodes.push(cfg.id); if(el.get('subgraph')) nodes.push(el.get('subgraph')); });
-    graph.getLinks().forEach(function(l) { var s=l.get('source'),t=l.get('target'); if(s.id&&t.id) edges.push([s.id,t.id]); });
-    return { id:'', name:'', description:'', nodes:Array.from(new Set(nodes)), edges:edges };
+    var nodes = [], edges = [];
+    graph.getElements().forEach(function(el) {
+        var cfg = el.get('config');
+        if (cfg && cfg.id) nodes.push(cfg.id);
+        if (el.get('subgraph')) nodes.push(el.get('subgraph'));
+    });
+    graph.getLinks().forEach(function(l) {
+        var s = l.get('source'), t = l.get('target');
+        if (s.id && t.id) edges.push([s.id, t.id]);
+    });
+    var flowNodes = (currentGraph && currentGraph.flowNodes) ? JSON.parse(JSON.stringify(currentGraph.flowNodes)) : {};
+    var bindings = JSON.parse(JSON.stringify(graphBindings || {}));
+    return {
+        id: '', name: '', description: '',
+        nodes: Array.from(new Set(nodes)), edges: edges,
+        flowNodes: flowNodes, bindings: bindings
+    };
 }
 
 // ─── Test ───────────────────────────────────────────
@@ -1105,14 +1247,14 @@ function runTest() {
     var $o = $('#testOutput').empty();
     var graphId = current;
     if (!graphId) {
-        $o.html('<p class="text-danger">请先保存工作流（需要 workflow ID）。</p>');
+        $o.html('<p class="text-danger">Save the workflow first (workflow ID required).</p>');
         return;
     }
     var input;
     try {
         input = JSON.parse($('#testInput').val() || '{}');
     } catch (e) {
-        $o.html('<p class="text-danger">JSON 无效: ' + escHtml(e.message) + '</p>');
+        $o.html('<p class="text-danger">Invalid JSON: ' + escHtml(e.message) + '</p>');
         return;
     }
     if (window.workflowEventSource) {
@@ -1121,16 +1263,17 @@ function runTest() {
     }
     var params = new URLSearchParams({ graphId: graphId });
     Object.keys(input).forEach(function(k) { params.set(k, input[k]); });
-    $o.append('<p class="text-muted wf-test-status"><i class="fas fa-spinner fa-spin me-1"></i>正在运行 workflow <code>' + escHtml(graphId) + '</code> …</p>');
+    $o.append('<p class="text-muted wf-test-status"><i class="fas fa-spinner fa-spin me-1"></i>Running workflow <code>' + escHtml(graphId) + '</code> …</p>');
     var $runBtn = $('#runTestBtn').prop('disabled', true);
     window._wfTestGotRe = false;
+    window._wfTestGotNer = false;
     window.workflowEventSource = new EventSource('/stream/test?' + params.toString());
 
     function markWorkflowDone(note) {
         $runBtn.prop('disabled', false);
         $o.find('.wf-test-status').remove();
-        if ($o.text().indexOf('Workflow 执行完成') < 0) {
-            $o.append('<hr><h6 class="text-success"><i class="fas fa-check-circle me-2"></i>Workflow 执行完成。' +
+        if ($o.text().indexOf(WF_COMPLETE_MSG) < 0) {
+            $o.append('<hr><h6 class="text-success"><i class="fas fa-check-circle me-2"></i>' + WF_COMPLETE_MSG +
                 (note ? ' <span class="text-muted small">' + escHtml(note) + '</span>' : '') + '</h6>');
         }
     }
@@ -1146,14 +1289,19 @@ function runTest() {
         if (chunk.indexOf('biomed_relation_extract') >= 0) {
             window._wfTestGotRe = true;
         }
+        if (chunk.indexOf('biomed_ner') >= 0 && (chunk.indexOf('entities') >= 0 || chunk.indexOf('Chemical') >= 0)) {
+            window._wfTestGotNer = true;
+        }
         $o.append('<pre class="small mb-2 pb-2 border-bottom wf-test-chunk" style="white-space:pre-wrap;">' + escHtml(chunk) + '</pre>');
         $o.scrollTop($o[0].scrollHeight);
     };
     window.workflowEventSource.onerror = function() {
         if (window._wfTestGotRe) {
             markWorkflowDone('(SSE closed after RE output)');
+        } else if (window._wfTestGotNer) {
+            markWorkflowDone('(SSE closed after NER output)');
         } else {
-            $o.append('<p class="text-warning">SSE 连接中断，请检查 LLM 或稍后重试。</p>');
+            $o.append('<p class="text-warning">SSE connection interrupted. Check LLM config or retry.</p>');
             $runBtn.prop('disabled', false);
         }
         if (window.workflowEventSource) {

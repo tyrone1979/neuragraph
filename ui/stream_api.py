@@ -29,14 +29,19 @@ def run(target_id,scope,form_data,config=None):
     try:
         def event_stream():
             runner = RunnerLoader.load(target_id)
-            for chunk in runner.stream(
-                    form_data,
-                    config=config,
-                    stream_mode="updates",
-                    subgraphs=True
-            ):
-                completed_chunk = process(chunk)
-                yield completed_chunk
+            try:
+                for chunk in runner.stream(
+                        form_data,
+                        config=config,
+                        stream_mode="updates",
+                        subgraphs=True
+                ):
+                    completed_chunk = process(chunk)
+                    if completed_chunk:
+                        yield completed_chunk
+            except Exception as ex:
+                err = str(ex).replace("\n", "\\n")
+                yield f"data: Stream error: {err}\n\n"
             yield "data: [DONE]\n\n"
 
         return Response(event_stream(), mimetype="text/event-stream")
@@ -130,36 +135,30 @@ def stream_exp_batch(exp_id):
     total = len(data)
 
     async def event_generator(exp_id):
-
             runner = await RunnerLoader.aload(runner_id)
-            #runner = load_graph(runner_id, saver) if exp_cfg['runner_type'] == 'graph' else load_agent_as_graph(runner_id, saver)
             completed = 0
             for idx, row in enumerate(data, start=1):
                 config: RunnableConfig = {"configurable": {"thread_id": f'{exp_id}_{idx}'}}
                 try:
-                    async for event in await runner.astream_events(row, config=config):
-                        tags = event.get("tags", [])
-                        if event["event"] == "on_chain_end" and tags == []:
-                            completed += 1
-                            msg = {
-                                'status': 'completed',
-                                'percent': int(completed / total * 100),
-                                'completed': completed,
-                                'total': total,
-                                'current_index': idx  # 添加当前处理的索引
-
-                            }
-                        else:
-                            msg = {
-                                'status': 'running',
-                                'percent': int(completed / total * 100),
-                                'completed': completed,
-                                'total': total,
-                                'current_index': idx  # 添加当前处理的索引
-                            }
-                        yield f'data: {json.dumps(msg)}\n\n'
+                    running_msg = {
+                        'status': 'running',
+                        'percent': int(completed / total * 100),
+                        'completed': completed,
+                        'total': total,
+                        'current_index': idx,
+                    }
+                    yield f'data: {json.dumps(running_msg)}\n\n'
+                    await runner.ainvoke(row, config=config)
+                    completed += 1
+                    done_msg = {
+                        'status': 'completed' if completed >= total else 'running',
+                        'percent': int(completed / total * 100),
+                        'completed': completed,
+                        'total': total,
+                        'current_index': idx,
+                    }
+                    yield f'data: {json.dumps(done_msg)}\n\n'
                 except asyncio.CancelledError:
-                    # 客户端断开连接，正常退出
                     raise
                 except Exception as e:
                     msg = {
@@ -167,10 +166,16 @@ def stream_exp_batch(exp_id):
                         'percent': int(completed / total * 100),
                         'completed': completed,
                         'total': total,
-                        'current_index': idx, # 添加当前处理的索引
-                        'error': str(e)
+                        'current_index': idx,
+                        'error': str(e),
                     }
                     yield f'data: {json.dumps(msg)}\n\n'
+                    break
+            try:
+                RunnerLoader.persistence(exp_cfg)
+            except Exception as persist_ex:
+                err = {"status": "failed", "error": f"persistence: {persist_ex}"}
+                yield f'data: {json.dumps(err)}\n\n'
             yield 'data: [DONE]\n\n'
 
 
@@ -356,29 +361,35 @@ def format_agent_chunk(payload):
     return block
 
 def format_graph_chunk(node_path, payload):
-    # ---- 1. 美化 node_path：只保留 subgraph 名 + 迭代索引 ----
     path_parts = []
     for item in node_path:
         if isinstance(item, str) and ':' in item:
-            # subgraph_name:uuid → 只取 subgraph_name
-            subgraph_name = item.split(':')[0]
-            path_parts.append(subgraph_name)
+            path_parts.append(item.split(':')[0])
         else:
-            # 迭代索引，比如 0, 1, "sentence_001" 等
             path_parts.append(f"#{item}")
 
-    if  isinstance(payload, dict) :
-            (current_node, value), = payload.items()  # 正常解构
-            if  isinstance(value, dict) :
-                    (table_name, content), = value.items()
-                    # 把当前 node 加到路径最后
-                    full_path_parts = path_parts + [current_node]
-                    node_path_str = " → ".join(full_path_parts) if full_path_parts else "START"
-                    block = ascii_block(content)
-                    return (
-                        f"🟦 Node Path: {node_path_str}\n"
-                        f"📤 Output: {current_node}  |  Table: {table_name}\n"
-                        f"{block}\n"
-                        + "─" * 60 + "\n"
-                    )
-    return ''
+    if not isinstance(payload, dict) or not payload:
+        return ''
+
+    blocks = []
+    for current_node, value in payload.items():
+        full_path_parts = path_parts + [str(current_node)]
+        node_path_str = " -> ".join(full_path_parts) if full_path_parts else "START"
+        if isinstance(value, dict):
+            for field_name, content in value.items():
+                block = ascii_block(content)
+                blocks.append(
+                    f"Node Path: {node_path_str}\n"
+                    f"Output: {current_node} | Field: {field_name}\n"
+                    f"{block}\n"
+                    + "-" * 60 + "\n"
+                )
+        else:
+            block = ascii_block(value)
+            blocks.append(
+                f"Node Path: {node_path_str}\n"
+                f"Output: {current_node}\n"
+                f"{block}\n"
+                + "-" * 60 + "\n"
+            )
+    return "\n".join(blocks)

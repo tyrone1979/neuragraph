@@ -38,7 +38,7 @@ class RunnerLoader(EntityLoader):
 
     @staticmethod
     async def aload(id: str,**extra_params) -> Entity | None:
-        checkpointer = await _seek_acheckpointer()
+        checkpointer = _seek_checkpointer()
         meta=MetaLoader.load("agents",id)
         if meta:
             return AgentEntity(meta, checkpointer=checkpointer)

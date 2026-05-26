@@ -24,7 +24,7 @@ class GraphEntity(Entity):
         StateDict = create_state_typeddict(state)
         sg = StateGraph(StateDict)
         for n in meta["nodes"]:
-            sg.add_node(n, _call_agent(n))
+            sg.add_node(n, _call_agent(n, meta))
         # 3. 画边（token 替换）
         for src, tgt in meta["edges"]:
             src_key = token_map.get(src, src) if isinstance(src, str) else [token_map.get(s, s) for s in src]
@@ -51,10 +51,10 @@ class GraphEntity(Entity):
             return self.compiled_graph.stream(state,stream_mode=stream_mode,
                                           subgraphs=True)
 
-    async def ainvoke(self, state: T,**kwargs):
-        config=kwargs.get("config")
-        state=jsonify_state(state)
-        return self.compiled_graph.ainvoke(state,config=config)
+    async def ainvoke(self, state: T, **kwargs):
+        config = kwargs.get("config")
+        state = jsonify_state(state)
+        return await self.compiled_graph.ainvoke(state, config=config)
 
     async def astream_events(self, input, config):
         input = jsonify_state(input)
@@ -90,21 +90,46 @@ def safe_load(s):
             pass
     return s
 
-def _call_agent(name: str):
-    agent=AgentLoader.load(name)
+def _call_agent(name: str, graph_meta: dict | None = None):
+    graph_meta = graph_meta or {}
+    flow_nodes = graph_meta.get("flowNodes") or {}
+    flow = flow_nodes.get(name)
+
+    if flow and flow.get("kind") == "loop":
+        subgraph_id = flow.get("subgraphId") or name
+        subgraph = GraphLoader.load(subgraph_id)
+        if subgraph is None:
+            def passthrough(s):
+                return s
+            return passthrough
+
+        def invoke_loop(s):
+            return subgraph.invoke(s)
+
+        return invoke_loop
+
+    if flow and flow.get("kind") == "branch":
+        def invoke_branch(s):
+            out = dict(s)
+            route = "continue" if s.get("entities") else "skip"
+            out["route"] = route
+            return out
+
+        return invoke_branch
+
+    agent = AgentLoader.load(name)
     if agent is None:
-        # START/END or missing agent - return passthrough
         def passthrough(s):
             return s
         return passthrough
+
     if agent.type != "SUB":
         def invoke(s):
-            out= agent.invoke(s)
+            out = agent.invoke(s)
             return out
         return invoke
     else:
-        # SUBGRAPH：构建子图调用逻辑
-        subgraph = GraphLoader.load(name)  # 递归加载子图
+        subgraph = GraphLoader.load(name)
         def invoke(s):
 
             inputs = s[agent.inputs[0]]

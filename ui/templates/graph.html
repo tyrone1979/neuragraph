@@ -18,14 +18,14 @@
                 class="d-flex align-items-center justify-content-between border-bottom bg-light py-2 px-3"
                 style="height: 60px;"
         >
-            <!-- 左边：标题 + 工作流选择器 -->
+            <!-- Left: title + workflow selector -->
             <div class="d-flex align-items-center gap-3">
                 <h4 class="mb-0" id="currentWorkflowName">
                     {% if is_new %} New Workflow {% else %} {{ current }} {% endif %}
                 </h4>
             </div>
 
-            <!-- 右边：控制按钮组 -->
+            <!-- Right: control buttons -->
             <div class="d-flex align-items-center gap-2">
                 <button class="btn btn-sm btn-primary" id="zoomIn" title="Zoom In">
                     <i class="fas fa-search-plus"></i>
@@ -50,7 +50,7 @@
                 >
                     <i class="fas fa-play"></i> Test
                 </button>
-                <!-- 编辑/新建模式专属：Save + Cancel -->
+                <!-- Edit/new mode: Save + Cancel -->
                 {% if is_edit or is_new %}
                     <button
                             class="btn btn-sm btn-primary"
@@ -63,19 +63,19 @@
             </div>
         </div>
 
-        <!-- 主内容区：三栏布局 -->
+        <!-- Main content: three-column layout -->
         <div class="d-flex" style="height: calc(100vh - 60px);">
-            <!-- 左侧：组件面板 -->
+            <!-- Left: component panel -->
             <div id="componentPanel" class="bg-light border-end" style="width: 300px; overflow-y: auto;">
                 <div class="p-3">
                     <h5 class="mb-3"><i class="fas fa-cubes me-2"></i>Components</h5>
                     
-                    <!-- 搜索框 -->
+                    <!-- Search -->
                     <div class="mb-3">
                         <input type="text" id="componentSearch" class="form-control" placeholder="Search components...">
                     </div>
                     
-                    <!-- 组件分类 -->
+                    <!-- Component categories -->
                     <div class="accordion" id="componentAccordion">
                         <!-- Start/End -->
                         <div class="accordion-item">
@@ -151,9 +151,9 @@
                 </div>
             </div>
 
-            <!-- 中间：画布区域 -->
+            <!-- Center: canvas area -->
             <div class="flex-grow-1 position-relative" id="canvasContainer" style="background: #fafafa;">
-                <!-- 画布工具栏 - 可拖动 -->
+                <!-- Canvas toolbar (draggable) -->
                 <div class="position-absolute bg-white rounded shadow-sm p-2 z-3" id="toolbar" style="cursor: move; touch-action: none;">
                     <div class="d-flex align-items-center gap-1">
                         <button class="btn btn-sm btn-light" id="btnSelect" title="Select">
@@ -173,22 +173,22 @@
                             <i class="fas fa-redo"></i>
                         </button>
                         <div class="vr mx-1"></div>
-                        <!-- 背景颜色选择器 -->
+                        <!-- Background color picker -->
                         <input type="color" id="bgColorPicker" value="#fafafa" title="Background Color" 
                                style="width: 32px; height: 32px; border: none; cursor: pointer;">
                     </div>
                 </div>
                 
-                <!-- JointJS 画布 -->
+                <!-- JointJS canvas -->
                 <div id="paper_panel" class="w-100 h-100"></div>
                 
-                <!-- 提示信息 -->
+                <!-- Canvas hint -->
                 <div id="canvasHint" class="position-absolute bottom-3 start-50 translate-middle-x bg-light rounded px-3 py-2 text-muted small">
                     <i class="fas fa-lightbulb me-1"></i>Drag components from the left panel to the canvas
                 </div>
             </div>
 
-            <!-- 右侧：属性面板 - 默认隐藏 -->
+            <!-- Right: property panel (hidden by default) -->
             <div id="propertyPanel" class="bg-light border-start d-none" style="width: 350px; overflow-y: auto;">
                 <div class="p-3">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -198,22 +198,22 @@
                         </button>
                     </div>
                     
-                    <!-- 节点属性表单 -->
+                    <!-- Node property form -->
                     <div id="propertyForm">
-                        <!-- 基本信息 -->
+                        <!-- Basic info -->
                         <div class="mb-3">
                             <label class="form-label">Node Name</label>
                             <input type="text" class="form-control" id="propName">
                         </div>
                         
-                        <!-- 类型特定的属性 -->
+                        <!-- Type-specific properties -->
                         <div id="typeSpecificProps"></div>
                         
-                        <!-- 输入输出映射 -->
+                        <!-- Input/output mapping -->
                         <div id="ioMappingSection" class="mt-4">
                             <h6 class="mb-2">Input/Output Mapping</h6>
                             
-                            <!-- 输入映射 -->
+                            <!-- Input mapping -->
                             <div class="mb-3">
                                 <label class="form-label small">Inputs</label>
                                 <div id="inputMapping" class="border rounded p-2 bg-white">
@@ -221,7 +221,7 @@
                                 </div>
                             </div>
                             
-                            <!-- 输出预览 -->
+                            <!-- Output preview -->
                             <div class="mb-3">
                                 <label class="form-label small">Outputs</label>
                                 <div id="outputPreview" class="border rounded p-2 bg-white">
@@ -230,7 +230,7 @@
                             </div>
                         </div>
                         
-                        <!-- 分支条件配置 -->
+                        <!-- Branch conditions -->
                         <div id="branchConfigSection" class="mt-4 d-none">
                             <h6 class="mb-2">Branch Conditions</h6>
                             <div id="branchConditions" class="space-y-2">
@@ -241,7 +241,7 @@
                             </button>
                         </div>
                         
-                        <!-- 循环配置 -->
+                        <!-- Loop configuration -->
                         <div id="loopConfigSection" class="mt-4 d-none">
                             <h6 class="mb-2">Loop Configuration</h6>
                             <div class="mb-2">
@@ -270,7 +270,7 @@
             </div>
         </div>
 
-        <!-- 运行测试弹窗 -->
+        <!-- Test workflow modal -->
         <div id="testModal" class="modal fade" tabindex="-1">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
@@ -316,5 +316,5 @@
         let allGraphs = []
         let allTools = []
     </script>
-    <script src="{{ url_for('static', filename='js/graph_visual_editor.js') }}?v=20260525e"></script>
+    <script src="{{ url_for('static', filename='js/graph_visual_editor.js') }}?v=20260526a"></script>
 {% endblock %}

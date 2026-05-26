@@ -118,7 +118,7 @@ class AgentEntity(Entity):
             if typ == "list":
                 return {name: convert_to_list(result)}
             return {name: result}
-        elif self.type in ("PGM", "branch"):
+        elif self.type == "PGM":
             return {name: result} if self.type == "PGM" else {}
         else:
             return state[name]
@@ -202,12 +202,6 @@ class AgentEntity(Entity):
 
     # ---------- 对外 API ----------
     def invoke(self, state: T) -> Dict[str, Any]:
-        if self.type == "branch":
-            out = {k: state[k] for k in self.inputs if k in state}
-            if self.outputs and self.outputs.get("name"):
-                out[self.outputs["name"]] = "continue"
-            return out
-
         # 2. 无 LLM 分支
         if self.type == "PGM":
             result = self.execute_process(self.process, state)
@@ -235,7 +229,7 @@ class AgentEntity(Entity):
         """
         state=jsonify_state(state)
         # ---------- 探针结束 ----------
-        if self.type in ("PGM", "branch"):
+        if self.type == "PGM":
             result = self.invoke(state)
             # 一次性 yield 整块 JSON，调用方按需要解析
             yield json.dumps(result, ensure_ascii=False) + '\n'

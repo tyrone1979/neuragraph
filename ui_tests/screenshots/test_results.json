@@ -1,0 +1,87 @@
+{
+  "results": [
+    {
+      "test": "E1a - Dataset listed for workflow",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E1b - Dataset has 2 samples",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E2a - Page title",
+      "status": "PASS",
+      "detail": "False"
+    },
+    {
+      "test": "E2b - Runner id set",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E2c - Runner type graph",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E2d - Dataset selected",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E2e - Start button visible",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E2f - Preview shows 2 samples",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E3a - Save returns exp_id",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E3b - Stream finished [DONE]",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E3c - API status completed",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E3d - API progress 100",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E3e - Results persisted (2 samples)",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E3f - Detail page shows dataset",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E4a - List page loads",
+      "status": "PASS",
+      "detail": "True"
+    },
+    {
+      "test": "E4b - Experiment in list",
+      "status": "PASS",
+      "detail": "True"
+    }
+  ],
+  "passed": 16,
+  "failed": 0,
+  "errors": []
+}
