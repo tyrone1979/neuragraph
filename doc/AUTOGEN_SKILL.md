@@ -584,9 +584,9 @@ For loops, include `flowNodes` inside `graph_plan` and a matching entry in `subg
 | RE verify subgraph | `meta/graphs/sg_cid_re_verify.json` |
 | Loop + branch NER | `meta/graphs/wf_doc_ner_loop_branch.json` |
 | Branch gate RE | `meta/graphs/wf_cid_re_branch.json` |
-| Meta schema | `doc/META_SCHEMA.md` |
+| Runtime schema and experiment guide | `doc/EXPERIMENT_GUIDE.md` |
 | Prune script | `scripts/prune_meta_unused.py` |
 
 ---
 
-*End of skill — keep this file aligned with `doc/META_SCHEMA.md` and `service/entity/graph.py` when the engine changes.*
+*End of skill — keep this file aligned with `doc/EXPERIMENT_GUIDE.md` and `service/entity/graph.py` when the engine changes.*
