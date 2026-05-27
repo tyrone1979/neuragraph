@@ -88,7 +88,7 @@ def stream_report(exp_id):
     exp_cfg=MetaLoader.load("exps",exp_id)
     if exp_cfg['status']!='completed':
         error= f"The experiment {exp_id} is not completed yet."
-        Response(error, mimetype='text/event-stream')
+        return Response(error, mimetype='text/event-stream')
     snapshots={}
     results=ResultLoader.load(exp_id)
     if not results:
@@ -109,7 +109,7 @@ def stream_report(exp_id):
                 snapshots[idx] = results[idx]['metrics']
 
     input = {}
-    agent=AgentLoader.load('make_report')
+    agent=AgentLoader.load('report_experiment')
     if len(snapshots)>20 and  _is_metrics_list(snapshots): # 符合 metrics 格式
             calculator=get_plugin('MetricsCalculation')
             result=calculator.compute_micro_macro(snapshots)
@@ -137,22 +137,36 @@ def stream_exp_batch(exp_id):
     async def event_generator(exp_id):
             runner = await RunnerLoader.aload(runner_id)
             completed = 0
+            exp_cfg["exp_id"] = exp_id
             for idx, row in enumerate(data, start=1):
                 config: RunnableConfig = {"configurable": {"thread_id": f'{exp_id}_{idx}'}}
                 try:
                     running_msg = {
                         'status': 'running',
-                        'percent': int(completed / total * 100),
+                        'percent': int(completed / total * 100) if total else 0,
                         'completed': completed,
                         'total': total,
                         'current_index': idx,
                     }
                     yield f'data: {json.dumps(running_msg)}\n\n'
-                    await runner.ainvoke(row, config=config)
+                    await runner.ainvoke(dict(row), config=config)
                     completed += 1
+                    try:
+                        RunnerLoader.persistence(exp_cfg)
+                        MetaLoader.update(
+                            "exps",
+                            exp_id,
+                            {
+                                "progress": int(completed / total * 100) if total else 100,
+                                "status": "running" if completed < total else "completed",
+                            },
+                        )
+                    except Exception as persist_ex:
+                        err = {"status": "failed", "error": f"persistence: {persist_ex}"}
+                        yield f'data: {json.dumps(err)}\n\n'
                     done_msg = {
                         'status': 'completed' if completed >= total else 'running',
-                        'percent': int(completed / total * 100),
+                        'percent': int(completed / total * 100) if total else 100,
                         'completed': completed,
                         'total': total,
                         'current_index': idx,
@@ -163,7 +177,7 @@ def stream_exp_batch(exp_id):
                 except Exception as e:
                     msg = {
                         'status': 'failed',
-                        'percent': int(completed / total * 100),
+                        'percent': int(completed / total * 100) if total else 0,
                         'completed': completed,
                         'total': total,
                         'current_index': idx,
@@ -171,11 +185,6 @@ def stream_exp_batch(exp_id):
                     }
                     yield f'data: {json.dumps(msg)}\n\n'
                     break
-            try:
-                RunnerLoader.persistence(exp_cfg)
-            except Exception as persist_ex:
-                err = {"status": "failed", "error": f"persistence: {persist_ex}"}
-                yield f'data: {json.dumps(err)}\n\n'
             yield 'data: [DONE]\n\n'
 
 

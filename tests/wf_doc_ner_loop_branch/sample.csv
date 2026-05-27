@@ -1,0 +1,2 @@
+text,labels,expected_entities
+Aspirin treats pain. Metformin treats diabetes.,"Chemical,Disease","{""Chemical"": [""Aspirin"", ""Metformin""]}"

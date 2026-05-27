@@ -20,18 +20,18 @@ Aspirin may reduce the risk of heart disease. Metformin is commonly used to trea
 
 Node Path: biomed_re_branch
 Output: biomed_re_branch | Field: route
-continue
+Has entities
 ------------------------------------------------------------
 
 Node Path: biomed_relation_extract
 Output: biomed_relation_extract | Field: relations
-+-----------+---------+-----------------+
-|    Col1   |   Col2  |       Col3      |
-+-----------+---------+-----------------+
-|Aspirin    |prevent  |heart disease    |
-+-----------+---------+-----------------+
-|Metformin  |treat    |type 2 diabetes  |
-+-----------+---------+-----------------+
++-----------+----------+-----------------+
+|    Col1   |   Col2   |       Col3      |
++-----------+----------+-----------------+
+|Aspirin    |prevents  |heart disease    |
++-----------+----------+-----------------+
+|Metformin  |treats    |type 2 diabetes  |
++-----------+----------+-----------------+
 ------------------------------------------------------------
 
 Workflow completed.

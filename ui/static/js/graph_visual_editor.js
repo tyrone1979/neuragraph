@@ -20,35 +20,744 @@ function _applyFlowNodeMeta(nid, f) {
     agentsData[nid].flowKind = f.kind;
     if (f.kind === 'loop') {
         agentsData[nid].loopConfig = f.loopConfig || {};
-        if (!agentsData[nid].type || agentsData[nid].type === 'loop') agentsData[nid].type = 'PGM';
+        agentsData[nid].type = 'loop';
+        agentsData[nid].flowKind = 'loop';
+        if (!agentsData[nid].inputs || !agentsData[nid].inputs.length) agentsData[nid].inputs = ['input'];
+        if (!agentsData[nid].outputs) agentsData[nid].outputs = { name: 'output', type: 'list' };
     } else if (f.kind === 'branch') {
         agentsData[nid].conditions = f.conditions || [];
-        if (!agentsData[nid].type || agentsData[nid].type === 'branch') agentsData[nid].type = 'PGM';
+        agentsData[nid].type = 'branch';
+        agentsData[nid].flowKind = 'branch';
+        if (!agentsData[nid].inputs || !agentsData[nid].inputs.length) agentsData[nid].inputs = ['input'];
+        if (!agentsData[nid].outputs) agentsData[nid].outputs = { name: 'output', type: 'dict' };
     }
 }
 
 function mergeFlowNodesFromGraph(wf) {
     var fn = getGraphFlowNodes(wf);
     Object.keys(fn).forEach(function(nid) { _applyFlowNodeMeta(nid, fn[nid]); });
-    if (graphsById) {
-        Object.keys(graphsById).forEach(function(gid) {
-            var gfn = (graphsById[gid] && graphsById[gid].flowNodes) || {};
-            Object.keys(gfn).forEach(function(nid) { _applyFlowNodeMeta(nid, gfn[nid]); });
-        });
-    }
     graphBindings = Object.assign({}, getGraphBindings(wf));
-    if (graphsById) {
-        Object.keys(graphsById).forEach(function(gid) {
-            var gb = (graphsById[gid] && graphsById[gid].bindings) || {};
-            graphBindings = Object.assign(graphBindings, gb);
+
+    function mergeSubgraphMeta(subId, seen) {
+        if (!subId || seen[subId]) return;
+        seen[subId] = true;
+        var sub = graphsById && graphsById[subId];
+        if (!sub) return;
+        var gfn = sub.flowNodes || {};
+        Object.keys(gfn).forEach(function(nid) {
+            _applyFlowNodeMeta(nid, gfn[nid]);
+            var f = gfn[nid];
+            if (f && f.subgraphId) mergeSubgraphMeta(f.subgraphId, seen);
+        });
+        Object.assign(graphBindings, sub.bindings || {});
+        (sub.nodes || []).forEach(function(nid) {
+            if (nid === 'START' || nid === 'END') return;
+            if (graphsById && graphsById[nid]) mergeSubgraphMeta(nid, seen);
         });
     }
+
+    var seen = {};
+    Object.keys(fn).forEach(function(nid) {
+        var f = fn[nid];
+        if (f && f.subgraphId) mergeSubgraphMeta(f.subgraphId, seen);
+    });
+    (wf.nodes || []).forEach(function(nid) {
+        if (nid === 'START' || nid === 'END') return;
+        if (agentsData[nid] && agentsData[nid].type === 'SUB') mergeSubgraphMeta(nid, seen);
+    });
 }
 
 function getNodeFlowKind(nid, wf) {
     var fn = getGraphFlowNodes(wf)[nid];
     return fn ? fn.kind : null;
 }
+
+function isLoopNode(nid, wf) {
+    if (getNodeFlowKind(nid, wf) === 'loop') return true;
+    if (getLoopFlowMeta(nid, wf)) return true;
+    var a = agentsData[nid];
+    return !!(a && (a.flowKind === 'loop' || a.type === 'loop'));
+}
+
+/** Loop flow metadata from workflow or any loaded subgraph JSON. */
+function getLoopFlowMeta(loopNid, wf) {
+    wf = wf || currentGraph || {};
+    var fn = getGraphFlowNodes(wf)[loopNid];
+    if (fn && fn.kind === 'loop') return fn;
+    var gid;
+    for (gid in (graphsById || {})) {
+        var g = graphsById[gid];
+        if (!g || !g.flowNodes) continue;
+        fn = g.flowNodes[loopNid];
+        if (fn && fn.kind === 'loop') return fn;
+    }
+    return null;
+}
+
+/** Inner loops first, then outer (for expand + layout). */
+function discoverNestedLoops(wf) {
+    wf = wf || currentGraph || {};
+    var ordered = [], seen = {};
+    function walkSub(subId) {
+        var sub = resolveSubgraphGraph(subId, wf);
+        if (!sub) return;
+        (sub.nodes || []).forEach(function(n) {
+            if (n === 'START' || n === 'END') return;
+            var cf = (sub.flowNodes || {})[n];
+            if (cf && cf.kind === 'loop') {
+                if (cf.subgraphId) walkSub(cf.subgraphId);
+                if (!seen[n]) { seen[n] = true; ordered.push(n); }
+            }
+        });
+    }
+    Object.keys(getGraphFlowNodes(wf)).forEach(function(nid) {
+        var f = getGraphFlowNodes(wf)[nid];
+        if (f && f.kind === 'loop') {
+            if (f.subgraphId) walkSub(f.subgraphId);
+            if (!seen[nid]) { seen[nid] = true; ordered.push(nid); }
+        }
+    });
+    return ordered;
+}
+
+/** Loops that are not nested inside another loop's subgraph. */
+function getRootLoopIds(wf) {
+    var all = discoverNestedLoops(wf);
+    var nested = {};
+    all.forEach(function(lid) {
+        getLoopInnerIds(lid).forEach(function(nid) {
+            if (isLoopNode(nid)) nested[nid] = true;
+        });
+    });
+    return all.filter(function(lid) { return !nested[lid]; });
+}
+
+function syncFlowNodeAgents(wf) {
+    wf = wf || currentGraph || {};
+    (wf.nodes || []).forEach(function(nid) {
+        var fn = getGraphFlowNodes(wf)[nid];
+        if (fn) _applyFlowNodeMeta(nid, fn);
+    });
+    Object.keys(getGraphFlowNodes(wf)).forEach(function(nid) {
+        _applyFlowNodeMeta(nid, getGraphFlowNodes(wf)[nid]);
+    });
+}
+
+function enrichAgentMeta(nid) {
+    if (getLoopFlowMeta(nid)) return;
+    if (agentsData[nid] && (agentsData[nid].flowKind === 'loop' || agentsData[nid].type === 'loop')) return;
+    if (!agentsData[nid] && typeof allAgents !== 'undefined') {
+        var found = (allAgents || []).find(function(a) { return a && a.id === nid; });
+        if (found) agentsData[nid] = JSON.parse(JSON.stringify(found));
+    }
+}
+
+function findLoopAtPoint(lp) {
+    var hit = null, hitArea = Infinity;
+    Object.keys(subgraphRanges || {}).forEach(function(loopId) {
+        if (!isLoopNode(loopId)) return;
+        var el = graph.getCell(loopId);
+        if (!el) return;
+        var bb = el.getBBox();
+        getLoopInnerIds(loopId).forEach(function(nid) {
+            var inner = graph.getCell(nid);
+            if (inner) bb = bb ? bb.union(inner.getBBox()) : inner.getBBox();
+        });
+        if (bb && lp.x >= bb.x && lp.x <= bb.x + bb.width && lp.y >= bb.y && lp.y <= bb.y + bb.height) {
+            var area = bb.width * bb.height;
+            if (area < hitArea) { hitArea = area; hit = loopId; }
+        }
+    });
+    return hit;
+}
+
+function getLoopInnerIds(loopId) {
+    return (subgraphRanges[loopId] && subgraphRanges[loopId].nodes) ? subgraphRanges[loopId].nodes.slice() : [];
+}
+
+function collectLoopMemberPositions(loopId, store) {
+    getLoopInnerIds(loopId).forEach(function(nid) {
+        var el = graph.getCell(nid);
+        if (el) store[nid] = { x: el.position().x, y: el.position().y };
+        if (isLoopNode(nid)) collectLoopMemberPositions(nid, store);
+    });
+    graph.getLinks().forEach(function(l) {
+        if (l.get('parentLoop') !== loopId) return;
+        var s = l.get('source'), t = l.get('target');
+        if (!s || !t) return;
+        [s.id, t.id].forEach(function(nid) {
+            var el = graph.getCell(nid);
+            if (el && !store[nid]) store[nid] = { x: el.position().x, y: el.position().y };
+        });
+    });
+    getLoopInnerIds(loopId).forEach(function(nid) {
+        if (!isLoopNode(nid)) return;
+        getLoopInnerIds(nid).forEach(function(nid2) {
+            var el2 = graph.getCell(nid2);
+            if (el2 && !store[nid2]) store[nid2] = { x: el2.position().x, y: el2.position().y };
+        });
+    });
+}
+
+function isLoopInnerNode(nid) {
+    var el = graph && graph.getCell(nid);
+    if (el && el.get('parentLoop')) return true;
+    var lid;
+    for (lid in subgraphRanges) {
+        if (!isLoopNode(lid)) continue;
+        if ((subgraphRanges[lid].nodes || []).indexOf(nid) >= 0) return true;
+    }
+    return false;
+}
+
+function hasLoopInners(loopId) {
+    return getLoopInnerIds(loopId).length > 0;
+}
+
+function getLoopParentId(nid) {
+    var el = graph && graph.getCell(nid);
+    if (el && el.get('parentLoop')) return el.get('parentLoop');
+    var lid;
+    for (lid in subgraphRanges) {
+        if (!isLoopNode(lid)) continue;
+        if ((subgraphRanges[lid].nodes || []).indexOf(nid) >= 0) return lid;
+    }
+    return null;
+}
+
+function getLoopInnerEdges(loopId) {
+    var info = subgraphRanges[loopId];
+    if (info && info.edges && info.edges.length) return info.edges.slice();
+    var fn = getGraphFlowNodes()[loopId];
+    var sub = null;
+    if (fn && fn.subgraphId) sub = resolveSubgraphGraph(fn.subgraphId);
+    if (!sub) sub = resolveSubgraphGraph(loopId);
+    if (!sub || !sub.edges) return [];
+    return sub.edges.filter(function(e) { return e[0] !== 'START' && e[1] !== 'END'; });
+}
+
+function resolveSelectionElement(el) {
+    if (!el || !el.isElement || !el.isElement()) return el;
+    var pl = el.get('parentLoop');
+    if (pl && isLoopNode(pl)) {
+        var loopEl = graph.getCell(pl);
+        if (loopEl) return loopEl;
+    }
+    return el;
+}
+
+function getLinkParentLoop(link) {
+    var pl = link.get('parentLoop');
+    if (pl && isLoopNode(pl)) return pl;
+    var s = link.get('source'), t = link.get('target');
+    if (!s || !t || !s.id || !t.id) return null;
+    if (!isLoopInnerNode(s.id) || !isLoopInnerNode(t.id)) return null;
+    var lid;
+    for (lid in subgraphRanges) {
+        if (!isLoopNode(lid)) continue;
+        var nodes = subgraphRanges[lid].nodes || [];
+        if (nodes.indexOf(s.id) >= 0 && nodes.indexOf(t.id) >= 0) return lid;
+    }
+    return null;
+}
+
+function getLoopInnerDisplayNodes(loopId) {
+    return getLoopInnerIds(loopId).map(function(nid) {
+        enrichAgentMeta(nid);
+        var a = agentsData[nid] || { id: nid, name: nid, type: 'LLM' };
+        var t = a.type || 'LLM';
+        if (a.flowKind === 'loop' || t === 'loop') t = 'loop';
+        return { id: nid, name: a.name || nid, type: t };
+    });
+}
+
+function buildLoopInnerBodyHtml(loopId) {
+    var children = getLoopInnerDisplayNodes(loopId);
+    if (!children.length) {
+        return '<div class="wf-loop-empty">Drop agents or subgraphs here</div>';
+    }
+    var html = '<div class="wf-loop-inner">';
+    children.forEach(function(ch) {
+        var dt = ch.type === 'loop' ? 'loop' : ch.type;
+        var stroke = getNodeStroke(dt, false);
+        var letter = typeIconLetters[dt] || typeIconLetters[ch.type] || ch.type.charAt(0) || '?';
+        var label = typeLabels[dt] || typeLabels[ch.type] || ch.type;
+        html += '<div class="wf-loop-child">';
+        html += '<span class="wf-loop-child-icon" style="background:' + escHtml(stroke) + '">' + escHtml(letter) + '</span>';
+        html += '<span class="wf-loop-child-body">';
+        html += '<span class="wf-loop-child-name" title="' + escHtml(ch.name) + '">' + escHtml(truncateText(ch.name, 28)) + '</span>';
+        html += '<span class="wf-loop-child-type">' + escHtml(label) + '</span>';
+        html += '</span></div>';
+    });
+    html += '</div>';
+    return html;
+}
+
+function buildCompoundLoopLayout(id, agent, stroke, flowKind) {
+    var name = truncateText((agent && agent.name) || id, 32);
+    var inputs = normalizeInputs(agent);
+    var outName = (agent && agent.outputs && agent.outputs.name) ? String(agent.outputs.name) : 'output';
+    var lc = (agent && agent.loopConfig) || {};
+    var loopType = lc.loopType || 'foreach';
+    var innerChildren = getLoopInnerDisplayNodes(id);
+    var innerCount = innerChildren.length;
+    var width = Math.max(WF_NODE_WIDTH, 300);
+    var innerBlockH = innerCount ? (innerCount * 48 + 16) : 40;
+    var bodyH = 8 + 18 + innerBlockH + 8 + WF_SECTION_LABEL_H + WF_ROW_H + WF_SECTION_LABEL_H + WF_ROW_H + WF_BODY_PAD;
+    var height = WF_HEADER_H + bodyH;
+    var portItems = [
+        { id: 'in_default', group: 'in', args: { y: portYPercent(height / 2, height) } },
+        { id: 'out_' + outName, group: 'out', args: { y: portYPercent(height / 2, height) } }
+    ];
+    var html = '<div class="wf-node wf-node--loop" xmlns="' + escHtml('http://www.w3.org/1999/xhtml') + '">';
+    html += '<div class="wf-node-header" style="background:' + escHtml(stroke) + '">';
+    html += '<span class="wf-node-icon">↻</span>';
+    html += '<span class="wf-node-title" title="' + escHtml((agent && agent.name) || id) + '">' + escHtml(name) + '</span>';
+    html += '<span class="wf-node-type" title="loop">Loop</span>';
+    html += '</div><div class="wf-node-body">';
+    html += '<div class="wf-loop-meta">Loop: ' + escHtml(loopType) + '</div>';
+    html += buildLoopInnerBodyHtml(id);
+    html += '<div class="wf-io-block wf-io-block--compact"><div class="wf-io-label">INPUT</div>';
+    if (inputs.length) {
+        inputs.forEach(function(inp) {
+            html += '<div class="wf-io-row"><span class="wf-io-dot wf-io-dot--in"></span>';
+            html += '<span class="wf-io-name">' + escHtml(truncateText(inp, 22)) + '</span></div>';
+        });
+    } else {
+        html += '<div class="wf-io-empty">input</div>';
+    }
+    html += '</div>';
+    html += '<div class="wf-io-block wf-io-block--compact"><div class="wf-io-label">OUTPUT</div>';
+    html += '<div class="wf-io-row"><span class="wf-io-dot wf-io-dot--out"></span>';
+    html += '<span class="wf-io-name">' + escHtml(truncateText(outName, 20)) + '</span></div>';
+    html += '</div></div></div>';
+    return {
+        width: width, height: height, html: html, stroke: stroke,
+        portItems: portItems,
+        config: {
+            id: id, name: (agent && agent.name) || id,
+            inputs: inputs,
+            outputs: agent ? agent.outputs : { name: 'output', type: 'list' },
+            type: 'loop', flowKind: flowKind || 'loop',
+            loopConfig: lc,
+            innerNodes: innerChildren.map(function(c) { return c.id; }),
+            conditions: []
+        }
+    };
+}
+
+function estimateLoopRegionSize(loopId) {
+    var innerIds = getLoopInnerIds(loopId);
+    if (!innerIds.length) return { width: 320, height: 180 };
+    var gap = 56;
+    var totalW = 0;
+    var maxH = 0;
+    innerIds.forEach(function(nid) {
+        var w = WF_NODE_WIDTH;
+        var h = 140;
+        if (isLoopNode(nid) && hasLoopInners(nid)) {
+            var nested = estimateLoopRegionSize(nid);
+            w = nested.width;
+            h = nested.height;
+        } else {
+            enrichAgentMeta(nid);
+            var agent = agentsData[nid] || {};
+            var dt = agent.flowKind || agent.type || 'LLM';
+            var metrics = computeWfNodeMetrics(agent, dt, agent.type || 'LLM');
+            h = metrics.height;
+        }
+        totalW += w + gap;
+        maxH = Math.max(maxH, h);
+    });
+    return {
+        width: Math.max(320, totalW + LOOP_PAD * 2),
+        height: Math.max(180, maxH + LOOP_HEADER_H + LOOP_PAD + LOOP_BOTTOM_EXTRA)
+    };
+}
+
+function bboxIntersects(a, b, margin) {
+    margin = margin || 0;
+    return !(a.x + a.width + margin < b.x || b.x + b.width + margin < a.x ||
+        a.y + a.height + margin < b.y || b.y + b.height + margin < a.y);
+}
+
+function isTopLevelCanvasNode(el) {
+    if (!el || !el.isElement || !el.isElement()) return false;
+    var id = el.id;
+    if (!id || id === 'START' || id === 'END') return false;
+    if (String(id).indexOf('_container') >= 0) return false;
+    if (el.get('subgraph') || el.get('parentLoop')) return false;
+    if (isLoopInnerNode(id)) return false;
+    return true;
+}
+
+/** Push top-level nodes away from loop shells after inner layout expands bounds. */
+function resolveLoopTopLevelOverlaps() {
+    if (!graph) return;
+    var loopIds = discoverNestedLoops(currentGraph || {}).slice().reverse();
+    var gap = 56;
+    for (var pass = 0; pass < 2; pass++) {
+    loopIds.forEach(function(loopId) {
+        var loopEl = graph.getCell(loopId);
+        if (!loopEl || !loopEl.get('isLoopShell')) return;
+        var loopBox = loopEl.getBBox();
+        var avoid = {
+            x: loopBox.x - gap,
+            y: loopBox.y - gap,
+            width: loopBox.width + gap * 2,
+            height: loopBox.height + gap * 2
+        };
+        graph.getElements().forEach(function(el) {
+            if (!isTopLevelCanvasNode(el)) return;
+            if (el.id === loopId) return;
+            var bb = el.getBBox();
+            if (!bboxIntersects(avoid, bb, 8)) return;
+            var shiftX = (avoid.x + avoid.width + gap) - bb.x;
+            if (shiftX > 0) {
+                el.position(bb.x + shiftX, bb.y);
+                bb = el.getBBox();
+            }
+            if (bboxIntersects(avoid, bb, 8)) {
+                var shiftY = (avoid.y + avoid.height + gap) - bb.y;
+                if (shiftY > 0) el.position(bb.x, bb.y + shiftY);
+            }
+        });
+    });
+    }
+}
+
+function createLoopShell(loopId, agent, size) {
+    agent = agent || agentsData[loopId] || { id: loopId, name: loopId, type: 'loop', flowKind: 'loop' };
+    var stroke = nodeStyles.loop.stroke;
+    var name = (agent.name || loopId);
+    var outName = (agent.outputs && agent.outputs.name) ? String(agent.outputs.name) : 'output';
+    var lc = agent.loopConfig || {};
+    var loopType = lc.loopType || 'foreach';
+    var label = name + '\n↻ Loop · ' + loopType;
+    var w = (size && size.width) ? size.width : 320;
+    var h = (size && size.height) ? size.height : 180;
+    return new joint.shapes.standard.Rectangle({
+        id: loopId,
+        isLoopShell: true,
+        size: { width: w, height: h },
+        attrs: {
+            body: {
+                fill: 'rgba(59,130,246,0.07)',
+                stroke: stroke,
+                strokeWidth: 1.5,
+                rx: 12,
+                ry: 12
+            },
+            label: {
+                text: label,
+                fill: '#1e40af',
+                fontSize: 12,
+                fontWeight: 'bold',
+                refX: 14,
+                refY: 12,
+                textAnchor: 'start',
+                textVerticalAnchor: 'top',
+                textWrap: { width: w - 28, maxLineCount: 3 }
+            }
+        },
+        ports: {
+            groups: {
+                in: {
+                    position: { name: 'left' },
+                    attrs: { circle: { r: 6, magnet: true, fill: '#fff', stroke: stroke, strokeWidth: 2 } }
+                },
+                out: {
+                    position: { name: 'right' },
+                    attrs: { circle: { r: 6, magnet: true, fill: '#fff', stroke: stroke, strokeWidth: 2 } }
+                }
+            },
+            items: [
+                { id: 'in_default', group: 'in' },
+                { id: 'out_' + outName, group: 'out' }
+            ]
+        },
+        config: {
+            id: loopId,
+            name: name,
+            type: 'loop',
+            flowKind: 'loop',
+            inputs: agent.inputs || ['input'],
+            outputs: agent.outputs || { name: 'output', type: 'list' },
+            loopConfig: lc,
+            subgraphId: agent.subgraphId
+        }
+    });
+}
+
+function ensureLoopShell(loopId) {
+    var el = graph.getCell(loopId);
+    if (!el || !hasLoopInners(loopId)) return el;
+    if (el.get('isLoopShell')) return el;
+    var pos = el.position();
+    var cfg = el.get('config') || agentsData[loopId];
+    el.remove();
+    var shell = createLoopShell(loopId, cfg);
+    shell.position(pos.x, pos.y);
+    graph.addCell(shell);
+    return shell;
+}
+
+function orderNodesHorizontal(ids, edges) {
+    if (!ids || !ids.length) return [];
+    var edgeList = edges || [];
+    var order = [], seen = {}, queue = [];
+    ids.forEach(function(nid) {
+        var hasPred = edgeList.some(function(e) {
+            return e[1] === nid && ids.indexOf(e[0]) >= 0;
+        });
+        if (!hasPred) queue.push(nid);
+    });
+    if (!queue.length) queue.push(ids[0]);
+    while (queue.length) {
+        var nid = queue.shift();
+        if (seen[nid]) continue;
+        seen[nid] = true;
+        order.push(nid);
+        edgeList.forEach(function(e) {
+            if (e[0] === nid && ids.indexOf(e[1]) >= 0 && !seen[e[1]]) queue.push(e[1]);
+        });
+    }
+    ids.forEach(function(nid) { if (!seen[nid]) order.push(nid); });
+    return order;
+}
+
+function computeInnerLayoutPositions(loopId) {
+    var innerIds = getLoopInnerIds(loopId);
+    var edges = getLoopInnerEdges(loopId).filter(function(e) {
+        return innerIds.indexOf(e[0]) >= 0 && innerIds.indexOf(e[1]) >= 0;
+    });
+    var ordered = orderNodesHorizontal(innerIds, edges);
+    var positions = {}, x = 0, gap = 56;
+    ordered.forEach(function(nid) {
+        var el = graph.getCell(nid);
+        var w = el ? el.size().width : WF_NODE_WIDTH;
+        positions[nid] = { x: x, y: 0 };
+        x += w + gap;
+    });
+    return positions;
+}
+
+function filterInnerEdges(edges) {
+    return (edges || []).filter(function(e) {
+        return e[0] !== 'START' && e[1] !== 'END';
+    });
+}
+
+function addInnerGraphLinks(nodeIds, edges, opts) {
+    opts = opts || {};
+    filterInnerEdges(edges).forEach(function(e) {
+        if (nodeIds.indexOf(e[0]) < 0 || nodeIds.indexOf(e[1]) < 0) return;
+        var exists = graph.getLinks().some(function(l) {
+            var s = l.get('source'), t = l.get('target');
+            return s && t && s.id === e[0] && t.id === e[1];
+        });
+        if (exists) return;
+        var link = createLink(e[0], e[1]);
+        if (opts.parentLoop) {
+            link.set('parentLoop', opts.parentLoop);
+            link.set('z', 1);
+        }
+        graph.addCell(link);
+    });
+}
+
+function collectSubgraphMemberPositions(subId) {
+    var positions = { nodes: {}, containers: {} };
+    var info = subgraphRanges[subId];
+    if (!info) return positions;
+    (info.nodes || []).forEach(function(nid) {
+        var el = graph.getCell(nid);
+        if (el && !el.get('parentLoop')) positions.nodes[nid] = el.position();
+    });
+    (info.subgraphs || []).forEach(function(childId) {
+        var cnt = graph.getCell(childId + '_container');
+        if (cnt) positions.containers[childId] = cnt.position();
+        var nested = collectSubgraphMemberPositions(childId);
+        Object.keys(nested.nodes).forEach(function(k) { positions.nodes[k] = nested.nodes[k]; });
+        Object.keys(nested.containers).forEach(function(k) { positions.containers[k] = nested.containers[k]; });
+    });
+    return positions;
+}
+
+function applySubgraphDragDelta(state, dx, dy) {
+    Object.keys(state.members.nodes).forEach(function(nid) {
+        var el = graph.getCell(nid);
+        var p0 = state.members.nodes[nid];
+        if (el && p0) el.position(p0.x + dx, p0.y + dy);
+    });
+    Object.keys(state.members.containers).forEach(function(cid) {
+        var cnt = graph.getCell(cid + '_container');
+        var p0 = state.members.containers[cid];
+        if (cnt && p0) cnt.position(p0.x + dx, p0.y + dy);
+    });
+}
+
+/** Create loop shells and inner nodes/links without final shell placement. */
+function prepareLoopInnerContent(loopId) {
+    if (!graph || !isLoopNode(loopId) || !hasLoopInners(loopId)) return;
+
+    var innerIds = getLoopInnerIds(loopId);
+    innerIds.forEach(function(nid) {
+        if (isLoopNode(nid) && hasLoopInners(nid)) prepareLoopInnerContent(nid);
+    });
+
+    ensureLoopShell(loopId);
+    innerIds.forEach(function(nid) {
+        enrichAgentMeta(nid);
+        if (isLoopNode(nid)) {
+            var meta = getLoopFlowMeta(nid) || {};
+            agentsData[nid] = agentsData[nid] || { id: nid };
+            agentsData[nid].type = 'loop';
+            agentsData[nid].flowKind = 'loop';
+            agentsData[nid].name = meta.name || agentsData[nid].name || nid;
+            agentsData[nid].loopConfig = meta.loopConfig || agentsData[nid].loopConfig || {};
+            if (meta.subgraphId) agentsData[nid].subgraphId = meta.subgraphId;
+        }
+        var el = graph.getCell(nid);
+        if (!el) {
+            el = createNode(nid);
+            graph.addCell(el);
+        } else if (isLoopNode(nid) && hasLoopInners(nid) && !el.get('isLoopShell')) {
+            var pos = el.position();
+            el.remove();
+            el = ensureLoopShell(nid);
+            el.position(pos.x, pos.y);
+            graph.addCell(el);
+        }
+        el.set('parentLoop', loopId);
+        el.set('z', 10);
+    });
+    addInnerGraphLinks(innerIds, getLoopInnerEdges(loopId), { parentLoop: loopId });
+}
+
+function repositionLoopChildren(loopId) {
+    var loopEl = graph.getCell(loopId);
+    if (!loopEl) return;
+    var lp = loopEl.position();
+    var relPos = computeInnerLayoutPositions(loopId);
+    getLoopInnerIds(loopId).forEach(function(nid) {
+        var el = graph.getCell(nid);
+        if (!el) return;
+        var rel = relPos[nid] || { x: 0, y: 0 };
+        el.position(lp.x + LOOP_PAD + rel.x, lp.y + LOOP_HEADER_H + LOOP_PAD + rel.y);
+        if (isLoopNode(nid) && hasLoopInners(nid)) {
+            fitLoopShellToContent(nid, { anchor: true, skipReposition: true });
+            repositionLoopChildren(nid);
+        }
+    });
+}
+
+function layoutLoopRegion(loopId) {
+    if (!graph || !isLoopNode(loopId)) return;
+    if (!hasLoopInners(loopId)) {
+        _refreshLoopVisual(loopId);
+        return;
+    }
+
+    prepareLoopInnerContent(loopId);
+
+    var loopEl = graph.getCell(loopId);
+    if (!loopEl) return;
+    loopEl.set('z', 1);
+
+    repositionLoopChildren(loopId);
+    var anchorShell = !!loopEl.get('parentLoop');
+    fitLoopShellToContent(loopId, { anchor: anchorShell, skipReposition: true });
+    repositionLoopChildren(loopId);
+
+    graph.getLinks().forEach(function(l) {
+        if (l.get('parentLoop') === loopId) l.set('z', 8);
+    });
+    reattachLinkPorts();
+}
+
+function isLoopShellInsideParent(loopId) {
+    var el = graph.getCell(loopId);
+    var parentId = el && el.get('parentLoop');
+    if (!el || !parentId) return true;
+    var parent = graph.getCell(parentId);
+    if (!parent) return true;
+    var ib = el.getBBox();
+    var pb = parent.getBBox();
+    var pad = 4;
+    return ib.x >= pb.x - pad && ib.y >= pb.y - pad
+        && (ib.x + ib.width) <= (pb.x + pb.width + pad)
+        && (ib.y + ib.height) <= (pb.y + pb.height + pad);
+}
+
+/** Re-layout nested loop shells that drifted outside their parent bounds. */
+function syncNestedLoopShellPositions() {
+    if (!graph) return;
+    discoverNestedLoops(currentGraph || {}).forEach(function(loopId) {
+        var el = graph.getCell(loopId);
+        if (!el || !el.get('isLoopShell') || !el.get('parentLoop')) return;
+        if (isLoopShellInsideParent(loopId)) return;
+        var parentId = el.get('parentLoop');
+        repositionLoopChildren(parentId);
+        fitLoopShellToContent(loopId, { anchor: true, skipReposition: true });
+        repositionLoopChildren(loopId);
+    });
+}
+
+function finalizeLoopLayout(wf) {
+    getRootLoopIds(wf || currentGraph || {}).forEach(function(lid) {
+        fitLoopShellToContent(lid, { anchor: false, skipReposition: true });
+        repositionLoopChildren(lid);
+    });
+}
+
+/** Resolve nested graph JSON for a loop node id or subgraph id. */
+function resolveSubgraphGraph(subId, wf) {
+    wf = wf || currentGraph || {};
+    if (graphsById && graphsById[subId]) return graphsById[subId];
+    var fn = getGraphFlowNodes(wf)[subId];
+    if (fn && fn.subgraphId && graphsById && graphsById[fn.subgraphId]) return graphsById[fn.subgraphId];
+    if (wf.visualData && wf.visualData.nodes) {
+        var vn = wf.visualData.nodes.find(function(n) { return n.id === subId || n.originalId === subId; });
+        if (vn && vn.data) return vn.data;
+    }
+    return null;
+}
+
+/** Topology read from JointJS canvas (WYSIWYG). */
+function extractCanvasTopology() {
+    if (!graph || typeof graph.getElements !== 'function') {
+        return { nodes: [], edges: [] };
+    }
+    var ids = [];
+    graph.getElements().forEach(function(el) {
+        var id = el.id;
+        if (!id || id.indexOf('_container') >= 0 || el.get('subgraph')) return;
+        if (el.get('parentLoop') || isLoopInnerNode(id)) return;
+        ids.push(id);
+    });
+    var mid = ids.filter(function(id) { return id !== 'START' && id !== 'END'; }).sort();
+    var nodes = [];
+    if (ids.indexOf('START') >= 0) nodes.push('START');
+    nodes = nodes.concat(mid);
+    if (ids.indexOf('END') >= 0) nodes.push('END');
+    var edges = [];
+    graph.getLinks().forEach(function(link) {
+        var s = link.get('source'), t = link.get('target');
+        if (!s || !s.id || !t || !t.id) return;
+        if (link.get('parentLoop') || isLoopInnerNode(s.id) || isLoopInnerNode(t.id)) return;
+        edges.push([s.id, t.id]);
+    });
+    return { nodes: nodes, edges: edges };
+}
+
+function syncCurrentGraphFromCanvas() {
+    if (!currentGraph) currentGraph = {};
+    var topo = extractCanvasTopology();
+    if (topo.nodes && topo.nodes.length) currentGraph.nodes = topo.nodes;
+    if (topo.edges && topo.edges.length) currentGraph.edges = topo.edges;
+}
+
 let availableLLMs = [];
 
 const nodeStyles = {
@@ -60,15 +769,134 @@ const typeIcons = { PGM:'fa-cog',LLM:'fa-robot',SUB:'fa-project-diagram',branch:
 const typeLabels = { PGM:'Code', LLM:'LLM', SUB:'Subgraph', branch:'IF/ELSE', loop:'Loop', tool:'Tool', flow:'Flow' };
 const typeIconLetters = { PGM:'C', LLM:'L', SUB:'S', branch:'?', loop:'↻', tool:'T', flow:'▶' };
 
+const BRANCH_OPS = [
+    { id: 'not_empty', label: 'Is not empty', needsValue: false },
+    { id: 'empty', label: 'Is empty', needsValue: false },
+    { id: 'exists', label: 'Exists (truthy)', needsValue: false },
+    { id: 'not_exists', label: 'Not exists', needsValue: false },
+    { id: 'eq', label: 'Equals', needsValue: true },
+    { id: 'ne', label: 'Not equals', needsValue: true },
+    { id: 'contains', label: 'Contains', needsValue: true },
+    { id: 'not_contains', label: 'Does not contain', needsValue: true },
+    { id: 'gt', label: 'Greater than', needsValue: true },
+    { id: 'gte', label: 'Greater or equal', needsValue: true },
+    { id: 'lt', label: 'Less than', needsValue: true },
+    { id: 'lte', label: 'Less or equal', needsValue: true }
+];
+
+const COMMON_STATE_FIELDS = ['text', 'entities', 'relations', 'route', 'output'];
+
+function normalizeBranchCondition(c) {
+    if (!c || typeof c !== 'object') return { label: 'Branch', field: '', op: 'not_empty', value: '' };
+    if (c.field || c.op) return {
+        label: c.label || 'Branch',
+        field: c.field || '',
+        op: c.op || 'not_empty',
+        value: c.value != null ? String(c.value) : ''
+    };
+    var expr = (c.condition || '').trim();
+    if (expr.startsWith('!')) {
+        return { label: c.label || 'False', field: expr.slice(1).trim(), op: 'empty', value: '' };
+    }
+    return { label: c.label || 'True', field: expr, op: 'not_empty', value: '' };
+}
+
+function persistFlowNode(nid) {
+    if (!currentGraph) currentGraph = {};
+    if (!currentGraph.flowNodes) currentGraph.flowNodes = {};
+    var cfg = agentsData[nid] || {};
+    var kind = cfg.flowKind || (cfg.type === 'loop' ? 'loop' : (cfg.type === 'branch' ? 'branch' : null));
+    if (!kind) return;
+    var entry = { kind: kind, name: cfg.name || nid };
+    if (kind === 'branch') entry.conditions = (cfg.conditions || []).map(normalizeBranchCondition);
+    if (kind === 'loop') {
+        entry.loopConfig = cfg.loopConfig || {};
+        entry.subgraphId = cfg.subgraphId || nid;
+    }
+    currentGraph.flowNodes[nid] = entry;
+}
+
+function collectUpstreamFieldOptions(nodeId) {
+    var opts = [{ value: '', label: '-- Select source --' }];
+    var seen = {};
+    function add(val, label) {
+        if (!val || seen[val]) return;
+        seen[val] = true;
+        opts.push({ value: val, label: label });
+    }
+    getUpstreamNodeIds(nodeId).forEach(function(uid) {
+        var cell = graph.getCell(uid);
+        var cfg = cell && cell.get('config');
+        if (!cfg) return;
+        var outName = (cfg.outputs && cfg.outputs.name) ? cfg.outputs.name : 'output';
+        (cfg.inputs || []).forEach(function(inp) {
+            add('{{ ' + uid + '.' + inp + ' }}', uid + ' · ' + inp);
+        });
+        add('{{ ' + uid + '.' + outName + ' }}', uid + ' · ' + outName + ' (out)');
+        COMMON_STATE_FIELDS.forEach(function(f) {
+            add('{{ ' + uid + '.' + f + ' }}', uid + ' · ' + f);
+        });
+    });
+    add('{{ text }}', 'workflow · text');
+    return opts;
+}
+
+function buildFieldSelectHtml(nodeId, selectedField, cls) {
+    var opts = collectUpstreamFieldOptions(nodeId);
+    var fields = [{ value: '', label: '-- field --' }];
+    var seenF = {};
+    opts.forEach(function(o) {
+        var m = o.value.match(/\{\{\s*([^.]+)\.([^}\s]+)\s*\}\}/);
+        if (m && !seenF[m[2]]) {
+            seenF[m[2]] = true;
+            fields.push({ value: m[2], label: m[1] + '.' + m[2] });
+        }
+    });
+    COMMON_STATE_FIELDS.forEach(function(f) {
+        if (!seenF[f]) fields.push({ value: f, label: f });
+    });
+    var html = '<select class="form-select form-select-sm ' + cls + '">';
+    fields.forEach(function(f) {
+        html += '<option value="' + escHtml(f.value) + '"' + (f.value === selectedField ? ' selected' : '') + '>' + escHtml(f.label) + '</option>';
+    });
+    html += '</select>';
+    return html;
+}
+
+function buildMappingSelectHtml(nodeId, currentVal) {
+    var opts = collectUpstreamFieldOptions(nodeId);
+    var html = '<select class="form-select form-select-sm mapping-select flex-grow-1">';
+    var matched = false;
+    opts.forEach(function(o) {
+        var sel = (currentVal === o.value) ? ' selected' : '';
+        if (sel) matched = true;
+        html += '<option value="' + escHtml(o.value) + '"' + sel + '>' + escHtml(o.label) + '</option>';
+    });
+    if (currentVal && !matched) {
+        html += '<option value="' + escHtml(currentVal) + '" selected>' + escHtml(currentVal) + ' (custom)</option>';
+    }
+    html += '</select>';
+    return html;
+}
+
 const WF_NODE_WIDTH = 268;
 const ZOOM_MIN = 0.2;
 const ZOOM_MAX = 3;
 const ZOOM_BTN_STEP = 0.2;
 const ZOOM_WHEEL_STEP = 0.08;
 const WF_HEADER_H = 40;
-const WF_ROW_H = 24;
-const WF_SECTION_LABEL_H = 18;
-const WF_BODY_PAD = 12;
+const LOOP_HEADER_H = 52;
+const LOOP_PAD = 24;
+const LOOP_BOTTOM_EXTRA = 20;
+const WF_BODY_PAD_TOP = 10;
+const WF_BODY_PAD_BOTTOM = 12;
+const WF_IO_LABEL_H = 14;
+const WF_IO_BLOCK_GAP = 6;
+const WF_META_LINE_H = 28;
+const WF_ID_ROW_H = 20;
+const WF_ROW_H = 26;
+const WF_SECTION_LABEL_H = WF_IO_LABEL_H;
+const WF_BODY_PAD = WF_BODY_PAD_TOP;
 
 const WF_PORT_GROUPS = {
     in: {
@@ -139,6 +967,138 @@ function getNodeStroke(type, isSE) {
     return (nodeStyles[type] || nodeStyles.LLM).stroke;
 }
 
+/** Height of optional meta line(s) above I/O — must match buildNodeLayout HTML. */
+function measureMetaBlockHeight(agent, displayType, type) {
+    var h = 0;
+    var model = (agent && agent.model) ? agent.model : '';
+    var tools = (agent && agent.tools) || [];
+    if (type === 'LLM' && model) h += WF_META_LINE_H;
+    if (tools.length) h += WF_META_LINE_H;
+    if (displayType === 'branch' || type === 'PGM' || type === 'SUB' || displayType === 'loop') h += WF_META_LINE_H;
+    return h;
+}
+
+/** Shared vertical layout for HTML body and JointJS port positions (must match graph.css). */
+function computeWfNodeMetrics(agent, displayType, type) {
+    var inputs = normalizeInputs(agent);
+    var branchConds = (displayType === 'branch')
+        ? ((agent && agent.conditions) || [{ label: 'True' }, { label: 'False' }])
+        : [];
+    var outName = (agent && agent.outputs && agent.outputs.name) ? String(agent.outputs.name) : '';
+    var showIdRow = agent && agent.id && agent.name && agent.id !== agent.name;
+
+    var y = WF_HEADER_H + WF_BODY_PAD_TOP;
+    var portItems = [];
+
+    y += measureMetaBlockHeight(agent, displayType, type);
+    if (showIdRow) y += WF_ID_ROW_H;
+
+    var yInputBlock = y;
+    y += WF_IO_LABEL_H;
+    if (inputs.length) {
+        inputs.forEach(function(inp, i) {
+            portItems.push({
+                id: 'in_' + inp,
+                group: 'in',
+                yPx: yInputBlock + WF_IO_LABEL_H + i * WF_ROW_H + WF_ROW_H / 2
+            });
+            y += WF_ROW_H;
+        });
+    } else {
+        portItems.push({ id: 'in_default', group: 'in', yPx: y + WF_ROW_H / 2 });
+        y += WF_ROW_H;
+    }
+    y += WF_IO_BLOCK_GAP;
+
+    var yOutputBlock = y;
+    y += WF_IO_LABEL_H;
+    if (displayType === 'branch' && branchConds.length) {
+        branchConds.forEach(function(c, i) {
+            portItems.push({
+                id: 'out_' + sanitizePortId(c.label),
+                group: 'out',
+                yPx: yOutputBlock + WF_IO_LABEL_H + i * WF_ROW_H + WF_ROW_H / 2
+            });
+            y += WF_ROW_H;
+        });
+    } else if (outName) {
+        portItems.push({
+            id: 'out_' + outName,
+            group: 'out',
+            yPx: yOutputBlock + WF_IO_LABEL_H + WF_ROW_H / 2
+        });
+        y += WF_ROW_H;
+    } else {
+        portItems.push({ id: 'out_default', group: 'out', yPx: y + WF_ROW_H / 2 });
+        y += WF_ROW_H;
+    }
+    y += WF_BODY_PAD_BOTTOM;
+
+    var height = y;
+    return {
+        height: height,
+        portItems: portItems.map(function(p) {
+            return {
+                id: p.id,
+                group: p.group,
+                args: { y: portYPercent(p.yPx, height) }
+            };
+        })
+    };
+}
+
+function unionLoopDescendantBBox(loopId) {
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    function addEl(nid) {
+        var el = graph.getCell(nid);
+        if (!el) return;
+        var bb = el.getBBox();
+        minX = Math.min(minX, bb.x);
+        minY = Math.min(minY, bb.y);
+        maxX = Math.max(maxX, bb.x + bb.width);
+        maxY = Math.max(maxY, bb.y + bb.height);
+        if (isLoopNode(nid) && hasLoopInners(nid)) {
+            getLoopInnerIds(nid).forEach(addEl);
+        }
+    }
+    getLoopInnerIds(loopId).forEach(addEl);
+    if (!isFinite(minX)) return null;
+    return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
+}
+
+function fitLoopShellToContent(loopId, opts) {
+    opts = opts || {};
+    var loopEl = graph.getCell(loopId);
+    if (!loopEl || !loopEl.get('isLoopShell')) return;
+    var u = unionLoopDescendantBBox(loopId);
+    if (!u) return;
+    var newW = Math.max(300, u.maxX - u.minX + LOOP_PAD * 2);
+    var newH = Math.max(160, u.maxY - u.minY + LOOP_HEADER_H + LOOP_PAD + LOOP_PAD + LOOP_BOTTOM_EXTRA);
+    var anchor = opts.anchor || loopEl.get('parentLoop');
+    if (anchor) {
+        var cur = loopEl.position();
+        loopEl.resize(newW, newH);
+        loopEl.position(cur.x, cur.y);
+    } else {
+        var old = loopEl.position();
+        var nx = u.minX - LOOP_PAD;
+        var ny = u.minY - LOOP_HEADER_H - LOOP_PAD;
+        var dx = nx - old.x;
+        var dy = ny - old.y;
+        loopEl.position(nx, ny);
+        loopEl.resize(newW, newH);
+        if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+            getLoopInnerIds(loopId).forEach(function(nid) {
+                var ch = graph.getCell(nid);
+                if (!ch) return;
+                var p = ch.position();
+                ch.position(p.x + dx, p.y + dy);
+            });
+        }
+    }
+    if (!opts.skipReposition) repositionLoopChildren(loopId);
+}
+
 function defineWorkflowNodeShape() {
     if (joint.shapes.neuragraph && joint.shapes.neuragraph.WorkflowNode) return;
     var NS = 'http://www.w3.org/1999/xhtml';
@@ -170,8 +1130,14 @@ function defineWorkflowNodeShape() {
 
 function buildNodeLayout(id, agent) {
     var isSE = id === 'START' || id === 'END';
-    var type = (agent && agent.type) || 'LLM';
-    var displayType = (agent && agent.flowKind) || type;
+    var rawType = (agent && agent.type) || 'LLM';
+    var flowKind = (agent && agent.flowKind) || getNodeFlowKind(id) || '';
+    if (!flowKind && (rawType === 'loop' || rawType === 'branch')) flowKind = rawType;
+    var displayType = flowKind || rawType;
+    var type = (flowKind === 'loop' || flowKind === 'branch') ? flowKind : rawType;
+    if (displayType === 'loop' && !hasLoopInners(id)) {
+        return buildCompoundLoopLayout(id, agent, getNodeStroke('loop', false), flowKind);
+    }
     var stroke = getNodeStroke(displayType, isSE);
     var name = truncateText((agent && agent.name) || id, 28);
     var inputs = normalizeInputs(agent);
@@ -180,70 +1146,14 @@ function buildNodeLayout(id, agent) {
     var model = (agent && agent.model) ? truncateText(agent.model, 32) : '';
     var tools = (agent && agent.tools) || [];
 
-    var metaLines = 0;
-    if (type === 'LLM' && model) metaLines++;
-    if (tools.length) metaLines++;
-    var showIdRow = agent && agent.id && agent.name && agent.id !== agent.name;
-
-    var inRowCount = Math.max(inputs.length, 1);
     var branchConds = (displayType === 'branch')
         ? ((agent && agent.conditions) || [{ label: 'True' }, { label: 'False' }])
         : [];
-    var outRowCount = (displayType === 'branch') ? Math.max(branchConds.length, 1) : 1;
-    var bodyH = WF_BODY_PAD
-        + (metaLines ? metaLines * 20 + 4 : 0)
-        + (showIdRow ? 14 : 0)
-        + WF_SECTION_LABEL_H + inRowCount * WF_ROW_H
-        + WF_SECTION_LABEL_H + outRowCount * WF_ROW_H
-        + WF_BODY_PAD;
-    var height = WF_HEADER_H + bodyH;
+    var showIdRow = agent && agent.id && agent.name && agent.id !== agent.name;
+    var metrics = computeWfNodeMetrics(agent, displayType, type);
+    var height = metrics.height;
     var width = WF_NODE_WIDTH;
-
-    var portItems = [];
-    var yBase = WF_HEADER_H + WF_BODY_PAD;
-    if (metaLines) yBase += metaLines * 20 + 4;
-    if (showIdRow) yBase += 14;
-    yBase += WF_SECTION_LABEL_H;
-
-    inputs.forEach(function(inp, i) {
-        var yIn = yBase + i * WF_ROW_H + WF_ROW_H / 2;
-        portItems.push({
-            id: 'in_' + inp,
-            group: 'in',
-            args: { y: portYPercent(yIn, height) }
-        });
-    });
-    if (!inputs.length) {
-        portItems.push({
-            id: 'in_default', group: 'in',
-            args: { y: portYPercent(yBase + WF_ROW_H / 2, height) }
-        });
-    }
-
-    var yOutSection = yBase + inRowCount * WF_ROW_H + WF_SECTION_LABEL_H;
-    if (displayType === 'branch') {
-        branchConds.forEach(function(c, i) {
-            var yBr = yOutSection + i * WF_ROW_H + WF_ROW_H / 2;
-            portItems.push({
-                id: 'out_' + sanitizePortId(c.label),
-                group: 'out',
-                args: { y: portYPercent(yBr, height) }
-            });
-        });
-        if (!branchConds.length) {
-            portItems.push({
-                id: 'out_default', group: 'out',
-                args: { y: portYPercent(yOutSection + WF_ROW_H / 2, height) }
-            });
-        }
-    } else {
-        var yOut = yOutSection + WF_ROW_H / 2;
-        var outId = outName ? ('out_' + outName) : 'out_default';
-        portItems.push({
-            id: outId, group: 'out',
-            args: { y: portYPercent(yOut, height) }
-        });
-    }
+    var portItems = metrics.portItems;
 
     var iconLetter = typeIconLetters[displayType] || typeIconLetters[type] || type.charAt(0) || '?';
     var typeLabel = typeLabels[displayType] || typeLabels[type] || type;
@@ -251,7 +1161,7 @@ function buildNodeLayout(id, agent) {
     html += '<div class="wf-node-header" style="background:' + escHtml(stroke) + '">';
     html += '<span class="wf-node-icon">' + escHtml(iconLetter) + '</span>';
     html += '<span class="wf-node-title" title="' + escHtml((agent && agent.name) || id) + '">' + escHtml(name) + '</span>';
-    html += '<span class="wf-node-type" title="' + escHtml(type) + '">' + escHtml(typeLabel) + '</span>';
+    html += '<span class="wf-node-type" title="' + escHtml(displayType) + '">' + escHtml(typeLabel) + '</span>';
     html += '</div><div class="wf-node-body">';
 
     if (showIdRow) {
@@ -307,7 +1217,7 @@ function buildNodeLayout(id, agent) {
             id: id, name: (agent && agent.name) || id,
             inputs: inputs,
             outputs: agent ? agent.outputs : null,
-            type: type, flowKind: (agent && agent.flowKind) || '',
+            type: type, flowKind: flowKind,
             model: model,
             tools: tools,
             persistence: (agent && agent.persistence) || null,
@@ -328,12 +1238,36 @@ function applyNodeVisual(el, layout, selected) {
         },
         content: { html: layout.html }
     });
-    el.set('ports', { groups: WF_PORT_GROUPS, items: layout.portItems });
+    var portItems = layout.portItems;
+    if (!el.get('isLoopShell') && layout.config) {
+        var cfg = layout.config;
+        var dt = cfg.flowKind || cfg.type;
+        var metrics = computeWfNodeMetrics(agentsData[cfg.id] || cfg, dt, cfg.type);
+        portItems = metrics.portItems;
+    }
+    el.set('ports', { groups: WF_PORT_GROUPS, items: portItems });
 }
 
 function refreshNodeVisual(agentId) {
+    var parentLoop = getLoopParentId(agentId);
     var el = graph.getCell(agentId);
+    if (parentLoop && el && !el.get('isLoopShell')) {
+        var agent = agentsData[agentId] || el.get('config');
+        if (agent) {
+            var layout = buildNodeLayout(agentId, agent);
+            var selected = selectedCell && selectedCell.id === agentId;
+            applyNodeVisual(el, layout, selected);
+            el.set('config', layout.config);
+        }
+        layoutLoopRegion(parentLoop);
+        return;
+    }
+    if (!el) el = graph.getCell(agentId);
     if (!el || el.get('subgraph')) return;
+    if (el.get('isLoopShell')) {
+        layoutLoopRegion(agentId);
+        return;
+    }
     var agent = agentsData[agentId] || el.get('config');
     if (!agent) return;
     var layout = buildNodeLayout(agentId, agent);
@@ -347,14 +1281,10 @@ function refreshNodeVisual(agentId) {
 $(document).ready(function() {
     initJointJS();
     initUI();
-    initToolbarDrag();
     $('#zoomIn').on('click', function() { zoomClamped(ZOOM_BTN_STEP); });
     $('#zoomOut').on('click', function() { zoomClamped(-ZOOM_BTN_STEP); });
     $('#fitToContent').on('click', fitToContent);
     $('#resetView').on('click', resetView);
-    $('#btnDelete').on('click', deleteSelected);
-    $('#btnUndo').on('click', undo);
-    $('#btnRedo').on('click', redo);
     $('#saveGraphBtn').on('click', saveGraph);
     $('#testWorkflow').on('click', openTestModal);
     $('#runTestBtn').on('click', runTest);
@@ -379,35 +1309,14 @@ $(document).ready(function() {
     });
 });
 
-// ─── Toolbar drag ───────────────────────────────────
-function initToolbarDrag() {
-    const tb = document.getElementById('toolbar'), cv = document.getElementById('canvasContainer');
-    if (!tb || !cv) return;
-    let drag = false, sx, sy, ix, iy;
-    tb.addEventListener('mousedown', function(e) {
-        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
-        drag = true; sx = e.clientX; sy = e.clientY;
-        const r = tb.getBoundingClientRect(), cr = cv.getBoundingClientRect();
-        ix = r.left - cr.left; iy = r.top - cr.top; tb.style.cursor = 'grabbing';
-    });
-    document.addEventListener('mousemove', function(e) {
-        if (!drag) return;
-        const cr = cv.getBoundingClientRect(), tr = tb.getBoundingClientRect();
-        let nx = ix + (e.clientX - sx), ny = iy + (e.clientY - sy);
-        nx = Math.max(0, Math.min(nx, cr.width - tr.width));
-        ny = Math.max(0, Math.min(ny, cr.height - tr.height));
-        tb.style.left = nx + 'px'; tb.style.top = ny + 'px'; tb.style.transform = 'none';
-    });
-    document.addEventListener('mouseup', function() { if (drag) { drag = false; tb.style.cursor = 'move'; } });
-}
-
-// ─── Background color ───────────────────────────────
+// ─── Canvas UI ──────────────────────────────────────
 function initUI() {
-    const cp = document.getElementById('bgColorPicker');
-    if (cp) cp.addEventListener('input', function(e) {
-        document.getElementById('canvasContainer').style.backgroundColor = e.target.value;
-        if (paper) { paper.options.background = { color: e.target.value }; paper.render(); }
-    });
+    var container = document.getElementById('canvasContainer');
+    if (container) container.style.backgroundColor = '#ffffff';
+    if (paper) {
+        paper.options.background = { color: '#ffffff' };
+        paper.render();
+    }
     const cb = document.getElementById('closePropertyPanel');
     if (cb) cb.addEventListener('click', function() {
         document.getElementById('propertyPanel').classList.add('d-none'); deselectAll();
@@ -421,7 +1330,7 @@ function initJointJS() {
     const $pp = $('#paper_panel');
     paper = new joint.dia.Paper({
         el: $pp[0], model: graph, width: $pp.width(), height: $pp.height(),
-        gridSize: 10, drawGrid: true, background: { color: '#fafafa' },
+        gridSize: 10, drawGrid: true, background: { color: '#ffffff' },
         linkPinning: false, snapLinks: { radius: 30 }, async: true,
         defaultLink: function() {
             var l = new joint.shapes.standard.Link();
@@ -432,6 +1341,13 @@ function initJointJS() {
         validateConnection: function(cvS, mS, cvT, mT, end, linkView) {
             if (!mT || cvS === cvT) return false;
             var sid = cvS.model.id, tid = cvT.model.id;
+            var sPl = cvS.model.get('parentLoop') || (isLoopInnerNode(sid) ? getLoopParentId(sid) : null);
+            var tPl = cvT.model.get('parentLoop') || (isLoopInnerNode(tid) ? getLoopParentId(tid) : null);
+            var sShell = cvS.model.get('isLoopShell');
+            var tShell = cvT.model.get('isLoopShell');
+            if (sPl && tPl && sPl !== tPl) return false;
+            if (sPl && !tPl && !tShell) return false;
+            if (tPl && !sPl && !sShell) return false;
             if (graph.getLinks().some(function(l) {
                 var s = l.get('source'), t = l.get('target');
                 return s.id === sid && t.id === tid && s.port === mS.id && t.port === mT.id;
@@ -440,17 +1356,29 @@ function initJointJS() {
         },
         sorting: joint.dia.Paper.sorting.APPROX,
         viewport: function(v) { return v.model.get('type') !== 'link-tools'; },
-        interactive: {
-            linkMove: false, elementMove: true, arrowheadMove: false, vertexMove: false, vertexAdd: false, vertexRemove: false
+        interactive: function(cellView) {
+            if (cellView.model.get('subgraph')) {
+                return { elementMove: true, labelMove: false };
+            }
+            if (cellView.model.get('parentLoop')) {
+                return { elementMove: false, labelMove: false };
+            }
+            return {
+                linkMove: false, elementMove: true, arrowheadMove: false,
+                vertexMove: false, vertexAdd: false, vertexRemove: false
+            };
         }
     });
-    // Node click
+    var loopDragState = null;
+    var sgDragState = null;
     paper.on('element:pointerclick', function(ev) {
-        const nd = ev.model.get('config');
-        if (nd) selectNode(ev.model);
+        var m = ev.model;
+        if (m.get('subgraph')) return;
+        var cfg = m.get('config');
+        if (cfg || m.get('isLoopShell')) selectNode(m);
     });
     paper.on('link:pointerclick', function(lv) { selectLink(lv.model); });
-    paper.on('blank:pointerclick', function() { deselectAll(); });
+    initCanvasPan();
     // Dragover/drop
     paper.el.addEventListener('dragover', function(e) { e.preventDefault(); });
     paper.el.addEventListener('drop', function(e) {
@@ -463,10 +1391,23 @@ function initJointJS() {
         e.preventDefault(); e.stopPropagation();
         const lp = paper.clientToLocalPoint({ x: e.clientX, y: e.clientY });
         const cv = typeof paper.findViewAt === 'function' ? paper.findViewAt(lp) : (paper.findViewFromPoint ? paper.findViewFromPoint(lp) : null);
-        deselectAll();
+        if (cv && cv.model.isLink()) {
+            selectLink(cv.model);
+            showLinkContextMenu(e.clientX, e.clientY, cv.model);
+            return;
+        }
         if (cv && cv.model.isElement()) {
+            var subId = cv.model.get('subgraph');
+            if (subId) {
+                var parentEl = graph.getCell(subId);
+                if (parentEl) {
+                    selectNode(parentEl);
+                    showNodeContextMenu(e.clientX, e.clientY, parentEl);
+                    return;
+                }
+            }
             const cfg = cv.model.get('config');
-            if (cfg && !cv.model.get('subgraph')) {
+            if (cfg && cfg.type !== 'flow') {
                 selectNode(cv.model);
                 showNodeContextMenu(e.clientX, e.clientY, cv.model);
                 return;
@@ -482,8 +1423,63 @@ function initJointJS() {
             else if (e.key === 's') { e.preventDefault(); saveGraph(); }
         }
     });
-    // Watch element moves to update subgraph containers
-    paper.on('element:pointerup', function() { updateSubgraphContainerPositions(); });
+    paper.on('element:pointerdown', function(ev) {
+        var m = ev.model;
+        var subId = m.get('subgraph');
+        if (subId) {
+            sgDragState = {
+                subId: subId,
+                cntId: m.id,
+                ox: m.position().x,
+                oy: m.position().y,
+                members: collectSubgraphMemberPositions(subId)
+            };
+            return;
+        }
+        if (isLoopNode(m.id) && m.get('isLoopShell')) {
+            loopDragState = { loopId: m.id, ox: m.position().x, oy: m.position().y, inners: {} };
+            collectLoopMemberPositions(m.id, loopDragState.inners);
+        }
+    });
+    paper.on('element:pointermove', function(ev) {
+        if (sgDragState && ev.model.id === sgDragState.cntId) {
+            var dx = ev.model.position().x - sgDragState.ox;
+            var dy = ev.model.position().y - sgDragState.oy;
+            applySubgraphDragDelta(sgDragState, dx, dy);
+            return;
+        }
+        if (!loopDragState || ev.model.id !== loopDragState.loopId) return;
+        var m = ev.model;
+        var dx = m.position().x - loopDragState.ox;
+        var dy = m.position().y - loopDragState.oy;
+        Object.keys(loopDragState.inners).forEach(function(nid) {
+            var el = graph.getCell(nid);
+            var p0 = loopDragState.inners[nid];
+            if (el && p0) el.position(p0.x + dx, p0.y + dy);
+        });
+    });
+    paper.on('element:pointerup', function() {
+        loopDragState = null;
+        sgDragState = null;
+        updateSubgraphContainerPositions();
+    });
+    graph.on('add', function(cell) {
+        if (!cell.isLink || !cell.isLink()) return;
+        if (cell.get('parentLoop')) return;
+        var pl = getLinkParentLoop(cell);
+        if (!pl) return;
+        cell.set('parentLoop', pl);
+        if (!subgraphRanges[pl]) subgraphRanges[pl] = { nodes: [], subgraphs: [], edges: [] };
+        var s = cell.get('source'), t = cell.get('target');
+        if (s && s.id && t && t.id) {
+            var edges = subgraphRanges[pl].edges || [];
+            var dup = edges.some(function(e) { return e[0] === s.id && e[1] === t.id; });
+            if (!dup) edges.push([s.id, t.id]);
+            subgraphRanges[pl].edges = edges;
+        }
+        layoutLoopRegion(pl);
+        saveToHistory();
+    });
     initCanvasWheelZoom();
 }
 
@@ -520,6 +1516,83 @@ function initCanvasWheelZoom() {
     });
 }
 
+/** Pan canvas with grab hand (blank drag, middle mouse, or Space+drag). */
+function initCanvasPan() {
+    var $panel = $('#paper_panel');
+    var $container = $('#canvasContainer');
+    var pan = null;
+    var blankMoved = false;
+    var spacePan = false;
+
+    function setCursor(c) {
+        if ($panel.length) $panel.css('cursor', c);
+        if ($container.length) $container.css('cursor', c);
+    }
+
+    function isFormTarget(el) {
+        return $(el).is('input, textarea, select') || el.isContentEditable;
+    }
+
+    function startPan(clientX, clientY) {
+        if (!paper) return;
+        var tr = paper.translate();
+        pan = { x: clientX, y: clientY, tx: tr.tx, ty: tr.ty };
+        setCursor('grabbing');
+    }
+
+    function endPan() {
+        pan = null;
+        setCursor(spacePan ? 'grab' : 'grab');
+    }
+
+    setCursor('grab');
+
+    $(document).on('keydown.canvaspan', function(e) {
+        if (e.code !== 'Space' || e.repeat || isFormTarget(e.target)) return;
+        e.preventDefault();
+        spacePan = true;
+        setCursor('grab');
+    });
+    $(document).on('keyup.canvaspan', function(e) {
+        if (e.code !== 'Space') return;
+        spacePan = false;
+        endPan();
+    });
+
+    $(document).on('mousemove.canvaspan', function(e) {
+        if (!pan || !paper) return;
+        if (Math.abs(e.clientX - pan.x) > 2 || Math.abs(e.clientY - pan.y) > 2) blankMoved = true;
+        paper.translate(pan.tx + e.clientX - pan.x, pan.ty + e.clientY - pan.y);
+    });
+    $(document).on('mouseup.canvaspan', function() {
+        if (pan) endPan();
+    });
+
+    if (!paper) return;
+
+    paper.on('blank:pointerdown', function(evt) {
+        if (evt.button === 0 || spacePan) {
+            blankMoved = false;
+            startPan(evt.clientX, evt.clientY);
+        }
+    });
+    paper.on('blank:pointerup', function() {
+        if (!blankMoved) deselectAll();
+        endPan();
+    });
+
+    var el = paper.el;
+    if (el) {
+        el.addEventListener('mousedown', function(e) {
+            if (e.button === 1) {
+                blankMoved = false;
+                startPan(e.clientX, e.clientY);
+                e.preventDefault();
+            }
+        });
+    }
+}
+
 // ─── Load components ────────────────────────────────
 async function loadComponents() {
     try {
@@ -527,8 +1600,29 @@ async function loadComponents() {
             fetch('/agents/api/list'), fetch('/graph/api/list'), fetch('/tools/api/list'),
             fetch('/llms/api/list')
         ]);
-        if (ar.ok) { const data = await ar.json(); data.forEach(function(a) { if (!agentsData[a.id]) agentsData[a.id] = a; }); }
-        if (gr.ok) allGraphs = await gr.json();
+        if (ar.ok) {
+            const data = await ar.json();
+            allAgents = data;
+            data.forEach(function(a) { if (!agentsData[a.id]) agentsData[a.id] = a; });
+        }
+        if (gr.ok) {
+            allGraphs = await gr.json();
+            if (typeof graphsById !== 'object' || graphsById === null) graphsById = {};
+            (allGraphs || []).forEach(function(g) {
+                if (!g || !g.id) return;
+                var prev = graphsById[g.id];
+                if (!prev) {
+                    graphsById[g.id] = g;
+                    return;
+                }
+                graphsById[g.id] = Object.assign({}, prev, g, {
+                    nodes: prev.nodes || g.nodes,
+                    edges: prev.edges || g.edges,
+                    flowNodes: prev.flowNodes || g.flowNodes,
+                    bindings: prev.bindings || g.bindings
+                });
+            });
+        }
         if (tr.ok) allTools = await tr.json();
         if (lr.ok) availableLLMs = await lr.json();
         renderComponentLists();
@@ -562,6 +1656,29 @@ function renderComponentLists() {
 function handleDrop(dataStr, pos) {
     try {
         var d = JSON.parse(dataStr), id, cfg;
+        var parentLoop = findLoopAtPoint(pos);
+        if (parentLoop && (d.type === 'agent' || d.type === 'tool')) {
+            id = d.id || (d.type + '_' + (++nodeCounter));
+            if (d.type === 'agent') {
+                if (!agentsData[id]) {
+                    agentsData[id] = d.data ? JSON.parse(JSON.stringify(d.data)) :
+                        { id: id, name: id, type: 'LLM', inputs: [], outputs: { name: 'output', type: 'str' } };
+                }
+                enrichAgentMeta(id);
+            } else {
+                agentsData[id] = { id: id, name: d.data ? d.data.name || id : 'Tool', type: 'tool',
+                    inputs: (d.data && d.data.inputs) || [], outputs: { name: 'output', type: 'str' } };
+            }
+            _addNodeInsideLoop(parentLoop, id, pos);
+            return;
+        }
+        if (parentLoop && d.type === 'subgraph') {
+            var innerData = (d.data && d.data.nodes) ? d.data : null;
+            if (!innerData && d.data && d.data.id && graphsById && graphsById[d.data.id]) {
+                innerData = graphsById[d.data.id];
+            }
+            if (innerData) { _embedSubgraphInLoop(parentLoop, innerData, pos); return; }
+        }
         if (d.type === 'start') {
             id = 'START'; cfg = { id: 'START', name: 'START', type: 'flow', inputs: [], outputs: [] };
             _addNode(id, cfg, pos);
@@ -573,17 +1690,19 @@ function handleDrop(dataStr, pos) {
             if (!agentsData[id]) { var aname = d.data ? d.data.name || d.id : d.id; agentsData[id] = { id: id, name: aname, type: 'LLM', inputs: [], outputs: { name: 'output', type: 'str' } }; }
             cfg = agentsData[id];
             _addNode(id, cfg, pos);
-        } else if (d.type === 'subgraph' || d.type === 'loop') {
-            id = d.id || d.type + '_' + (++nodeCounter);
-            var srcData = (d.type === 'subgraph' && d.data && d.data.nodes) ? d.data : null;
+        } else if (d.type === 'loop') {
+            id = 'loop_' + (++nodeCounter);
+            _addLoopAt(id, pos, null);
+        } else if (d.type === 'subgraph') {
+            id = d.id || ('subgraph_' + (++nodeCounter));
+            var srcData = (d.data && d.data.nodes) ? d.data : null;
             if (!srcData && d.data && d.data.id && graphsById && graphsById[d.data.id]) srcData = graphsById[d.data.id];
-            var sgName = (d.data && d.data.name) || d.id || (d.type === 'loop' ? 'Loop' : 'Subgraph');
-            var sgId = id;
-            agentsData[sgId] = { id: sgId, name: sgName, type: (d.type === 'loop' ? 'loop' : 'SUB'), inputs: ['input'], outputs: { name: 'output', type: 'list' } };
-            _expandSubgraphAt(sgId, srcData, pos);
+            var sgName = (d.data && d.data.name) || d.id || 'Subgraph';
+            agentsData[id] = { id: id, name: sgName, type: 'SUB', inputs: ['input'], outputs: { name: 'output', type: 'list' } };
+            _expandSubgraphAt(id, srcData, pos);
         } else if (d.type === 'branch') {
             id = 'branch_' + (++nodeCounter);
-            cfg = { id: id, name: 'Branch', type: 'branch', inputs: ['input'], outputs: { name: 'output', type: 'dict' }, conditions: [{ label: 'True', condition: 'true' }, { label: 'False', condition: 'false' }] };
+            cfg = { id: id, name: 'Branch', type: 'branch', inputs: ['input'], outputs: { name: 'output', type: 'dict' }, conditions: [{ label: 'True', field: '', op: 'not_empty', value: '' }, { label: 'False', field: '', op: 'empty', value: '' }] };
             _addNode(id, cfg, pos);
         } else if (d.type === 'tool') {
             id = d.id; cfg = { id: id, name: d.data ? d.data.name || d.id : 'Tool', type: 'tool', inputs: (d.data && d.data.inputs) || [], outputs: { name: 'output', type: 'str' } };
@@ -604,33 +1723,137 @@ function _addNode(id, cfg, pos) {
     saveToHistory();
 }
 
-// ─── Expand subgraph at drop position ────────────────
+function _ensureLoopFlowNode(loopId, name, subgraphId) {
+    if (!currentGraph) currentGraph = {};
+    if (!currentGraph.flowNodes) currentGraph.flowNodes = {};
+    if (!currentGraph.flowNodes[loopId]) {
+        currentGraph.flowNodes[loopId] = {
+            kind: 'loop',
+            name: name || 'Loop',
+            subgraphId: subgraphId || null,
+            loopConfig: { loopType: 'foreach', array: '{{ text }}' }
+        };
+    }
+    _applyFlowNodeMeta(loopId, currentGraph.flowNodes[loopId]);
+}
+
+/** Flow-control Loop: single compound node; inner agents rendered inside its body. */
+function _addLoopAt(loopId, pos, srcData) {
+    agentsData[loopId] = {
+        id: loopId,
+        name: (srcData && srcData.name) || 'Loop',
+        type: 'loop',
+        flowKind: 'loop',
+        inputs: ['input'],
+        outputs: { name: 'output', type: 'list' },
+        loopConfig: { loopType: 'foreach', array: '{{ text }}' }
+    };
+    _ensureLoopFlowNode(loopId, agentsData[loopId].name, srcData && srcData.id);
+    if (!subgraphRanges[loopId]) subgraphRanges[loopId] = { nodes: [], subgraphs: [] };
+    if (srcData && srcData.nodes && srcData.nodes.length) {
+        _embedSubgraphInLoop(loopId, srcData, pos);
+        return;
+    }
+    var loopEl = createNode(loopId);
+    loopEl.position(pos.x, pos.y);
+    graph.addCell(loopEl);
+    persistFlowNode(loopId);
+    saveToHistory();
+}
+
+function _refreshLoopVisual(loopId) {
+    if (hasLoopInners(loopId)) {
+        layoutLoopRegion(loopId);
+        return;
+    }
+    var el = graph.getCell(loopId);
+    if (!el) return;
+    if (el.get('isLoopShell')) {
+        var pos = el.position();
+        el.remove();
+        el = createNode(loopId);
+        el.position(pos.x, pos.y);
+        graph.addCell(el);
+    }
+    var layout = buildNodeLayout(loopId, agentsData[loopId] || el.get('config'));
+    applyNodeVisual(el, layout, selectedCell && selectedCell.id === loopId);
+    el.set('config', layout.config);
+}
+
+function _addNodeInsideLoop(loopId, nodeId, pos) {
+    if (!subgraphRanges[loopId]) subgraphRanges[loopId] = { nodes: [], subgraphs: [], edges: [] };
+    enrichAgentMeta(nodeId);
+    if (subgraphRanges[loopId].nodes.indexOf(nodeId) < 0) subgraphRanges[loopId].nodes.push(nodeId);
+    var stray = graph.getCell(nodeId);
+    if (stray && stray.get('parentLoop') !== loopId && !isLoopNode(nodeId)) {
+        stray.remove();
+    }
+    layoutLoopRegion(loopId);
+    saveToHistory();
+}
+
+function _embedSubgraphInLoop(loopId, srcData, pos) {
+    if (!srcData || !srcData.nodes) return;
+    if (!subgraphRanges[loopId]) subgraphRanges[loopId] = { nodes: [], subgraphs: [] };
+    (srcData.nodes || []).forEach(function(nid) {
+        if (nid === 'START' || nid === 'END') return;
+        enrichAgentMeta(nid);
+        if (!agentsData[nid]) {
+            agentsData[nid] = { id: nid, name: nid, type: 'LLM', inputs: [], outputs: { name: 'output', type: 'str' } };
+        }
+        if (subgraphRanges[loopId].nodes.indexOf(nid) < 0) subgraphRanges[loopId].nodes.push(nid);
+        var stray = graph.getCell(nid);
+        if (stray && stray.get('parentLoop') !== loopId && !isLoopNode(nid)) stray.remove();
+    });
+    subgraphRanges[loopId].edges = filterInnerEdges(srcData.edges);
+    if (!subgraphRanges[loopId].subgraphs) subgraphRanges[loopId].subgraphs = [];
+    (srcData.nodes || []).forEach(function(nid) {
+        if (nid === 'START' || nid === 'END') return;
+        var a = agentsData[nid];
+        if (a && a.type === 'SUB') subgraphRanges[loopId].subgraphs.push(nid);
+    });
+    if (srcData.id && currentGraph && currentGraph.flowNodes && currentGraph.flowNodes[loopId]) {
+        currentGraph.flowNodes[loopId].subgraphId = srcData.id;
+        agentsData[loopId].subgraphId = srcData.id;
+    }
+    var loopEl = graph.getCell(loopId);
+    if (!loopEl) {
+        loopEl = createNode(loopId);
+        loopEl.position(pos.x, pos.y);
+        graph.addCell(loopEl);
+    }
+    layoutLoopRegion(loopId);
+    persistFlowNode(loopId);
+    saveToHistory();
+}
+
+// ─── Expand subgraph at drop position (subgraph list only — purple SUB) ──
 function _expandSubgraphAt(sgId, srcData, pos) {
     if (!srcData || !srcData.nodes || !srcData.nodes.length) {
-        // Empty loop/subgraph: create range and container, no inner nodes
-        subgraphRanges[sgId] = { nodes: [], subgraphs: [] };
+        subgraphRanges[sgId] = { nodes: [], subgraphs: [], edges: [] };
         _drawSubgraphContainer(sgId);
         saveToHistory();
         return;
     }
-    // Build agentsData entries for each node in subgraph
     (srcData.nodes || []).forEach(function(nid) {
         if (nid === 'START' || nid === 'END') return;
+        enrichAgentMeta(nid);
         if (!agentsData[nid]) agentsData[nid] = { id: nid, name: nid, type: 'LLM', inputs: [], outputs: { name: 'output', type: 'str' } };
     });
-    // Create the subgraph range
-    subgraphRanges[sgId] = { nodes: (srcData.nodes || []).filter(function(n) { return n !== 'START' && n !== 'END'; }), subgraphs: [] };
-    // Place internal nodes at relative positions
-    var x0 = pos.x + 50, y0 = pos.y + 40;
-    var idx = 0;
-    (srcData.nodes || []).forEach(function(nid) {
-        if (nid === 'START' || nid === 'END') return;
+    var innerNodes = (srcData.nodes || []).filter(function(n) { return n !== 'START' && n !== 'END'; });
+    var innerEdges = filterInnerEdges(srcData.edges);
+    subgraphRanges[sgId] = { nodes: innerNodes, subgraphs: [], edges: innerEdges };
+    var ordered = orderNodesHorizontal(innerNodes, innerEdges);
+    var x0 = pos.x + 50, y0 = pos.y + 60;
+    var x = x0, gap = 56;
+    ordered.forEach(function(nid) {
         var el = createNode(nid);
-        el.position(x0 + (idx % 2) * 200, y0 + Math.floor(idx / 2) * 100);
+        el.position(x, y0);
         graph.addCell(el);
-        idx++;
+        x += el.size().width + gap;
     });
-    // Draw container
+    addInnerGraphLinks(innerNodes, innerEdges);
+    reattachLinkPorts();
     _drawSubgraphContainer(sgId);
     saveToHistory();
 }
@@ -641,6 +1864,12 @@ function createNode(id) {
     var agent = agentsData[id];
     if (!agent && !isSE) {
         agent = agentsData[id] = { id: id, name: id, type: 'LLM', inputs: [], outputs: { name: 'output', type: 'str' } };
+    }
+    if (!isSE && isLoopNode(id)) {
+        agent.type = 'loop';
+        agent.flowKind = 'loop';
+        if (!agent.loopConfig) agent.loopConfig = { loopType: 'foreach', array: '{{ text }}' };
+        if (hasLoopInners(id)) return createLoopShell(id, agent, estimateLoopRegionSize(id));
     }
     if (isSE) {
         var stroke = nodeStyles.startEnd.stroke;
@@ -696,7 +1925,11 @@ function createLink(sourceId, targetId, opts) {
     link.target(tgtRef);
     var srcCell = graph.getCell(sourceId);
     var color = '#666', sn = srcCell;
-    if (sn) { var st = sn.get('config') ? sn.get('config').type : 'PGM'; color = (nodeStyles[st] || nodeStyles.PGM).stroke; }
+    if (sn) {
+        var sc = sn.get('config') || {};
+        var st = sc.flowKind || sc.type || 'PGM';
+        color = (nodeStyles[st] || nodeStyles.PGM).stroke;
+    }
     link.attr({
         line: {
             stroke: color, strokeWidth: 2,
@@ -719,23 +1952,72 @@ function reattachLinkPorts() {
     });
 }
 
-function inferLinkPorts(sourceId, targetId) {
+function inferBranchSourcePort(sourceId, targetId) {
+    var srcCfg = agentsData[sourceId] || {};
+    if (srcCfg.flowKind !== 'branch' && srcCfg.type !== 'branch') return null;
+    var conds = srcCfg.conditions || [];
+    if (!conds.length) return null;
+    var wf = currentGraph || {};
+    var outs = [];
+    (wf.edges || []).forEach(function(e) {
+        var s = Array.isArray(e[0]) ? e[0][0] : e[0];
+        var t = Array.isArray(e[1]) ? e[1][0] : e[1];
+        if (s === sourceId) outs.push(t);
+    });
+    var idx = outs.indexOf(targetId);
+    if (idx < 0) idx = 0;
+    var c = conds[idx] || conds[0];
+    return 'out_' + sanitizePortId(c.label);
+}
+
+function inferLinkPorts(sourceId, targetId, linkHint) {
     var opts = {};
     var srcCfg = (agentsData[sourceId]) || (graph.getCell(sourceId) && graph.getCell(sourceId).get('config'));
     var tgtCfg = (agentsData[targetId]) || (graph.getCell(targetId) && graph.getCell(targetId).get('config'));
+    var srcCell = graph.getCell(sourceId);
+    var tgtCell = graph.getCell(targetId);
+
     if (srcCfg) {
         if ((srcCfg.flowKind === 'branch' || srcCfg.type === 'branch') && srcCfg.conditions && srcCfg.conditions.length) {
-            opts.sourcePort = 'out_' + sanitizePortId(srcCfg.conditions[0].label);
+            var branchPort = inferBranchSourcePort(sourceId, targetId);
+            if (linkHint && linkHint.branchLabel) {
+                branchPort = 'out_' + sanitizePortId(linkHint.branchLabel);
+            } else if (linkHint && linkHint.sourcePort) {
+                branchPort = linkHint.sourcePort;
+            }
+            if (!branchPort || !srcCell || !(srcCell.getPorts() || []).some(function(p) { return p.id === branchPort; })) {
+                branchPort = 'out_' + sanitizePortId(srcCfg.conditions[0].label);
+            }
+            opts.sourcePort = branchPort;
         } else if (srcCfg.outputs && srcCfg.outputs.name) {
             opts.sourcePort = 'out_' + srcCfg.outputs.name;
         }
     }
     if (tgtCfg && tgtCfg.inputs && tgtCfg.inputs.length) {
+        var inputs = normalizeInputs(tgtCfg);
         var outName = srcCfg && srcCfg.outputs ? srcCfg.outputs.name : null;
-        if (outName && tgtCfg.inputs.indexOf(outName) >= 0) {
-            opts.targetPort = 'in_' + outName;
-        } else {
-            opts.targetPort = 'in_' + tgtCfg.inputs[0];
+        var picked = null;
+        if (linkHint && linkHint.targetPort) {
+            picked = linkHint.targetPort;
+        } else if (outName && inputs.indexOf(outName) >= 0) {
+            picked = 'in_' + outName;
+        } else if (srcCfg && srcCfg.flowKind === 'loop' && inputs.indexOf('text') >= 0) {
+            picked = 'in_text';
+        } else if (inputs.length) {
+            picked = 'in_' + inputs[0];
+        }
+        if (picked && tgtCell && tgtCell.getPorts) {
+            var inPorts = (tgtCell.getPorts() || []).filter(function(p) { return p.group === 'in'; });
+            if (!inPorts.some(function(p) { return p.id === picked; }) && inPorts.length) {
+                picked = inPorts[0].id;
+            }
+        }
+        opts.targetPort = picked;
+    }
+    if (srcCell && srcCell.getPorts && opts.sourcePort) {
+        var outPorts = (srcCell.getPorts() || []).filter(function(p) { return p.group === 'out'; });
+        if (!outPorts.some(function(p) { return p.id === opts.sourcePort; }) && outPorts.length) {
+            opts.sourcePort = outPorts[0].id;
         }
     }
     return opts;
@@ -745,6 +2027,7 @@ function inferLinkPorts(sourceId, targetId) {
 function collectSubgraphInnerNodes() {
     var inner = [];
     Object.keys(subgraphRanges).forEach(function(sgId) {
+        if (isLoopNode(sgId)) return;
         (subgraphRanges[sgId].nodes || []).forEach(function(n) {
             if (inner.indexOf(n) < 0) inner.push(n);
         });
@@ -754,12 +2037,20 @@ function collectSubgraphInnerNodes() {
 
 function renderWorkflow(wf) {
     if (!wf || !wf.nodes || !wf.edges) { createDefaultWorkflow(); return; }
-    graph.clear(); subgraphRanges = {};
+    graph.clear();
+    subgraphRanges = {};
     mergeFlowNodesFromGraph(wf);
+    syncFlowNodeAgents(wf);
     var expanded = expandSubgraph(wf);
+    var nestedLoopOrder = discoverNestedLoops(wf);
+    nestedLoopOrder.forEach(function(nid) { expandLoopInner(nid, wf); });
     var innerFromSubs = collectSubgraphInnerNodes();
-    var topNodes = expanded.nodes.filter(function(n) { return n !== 'START' && n !== 'END'; });
-    innerFromSubs.forEach(function(n) { if (topNodes.indexOf(n) < 0) topNodes.push(n); });
+    var topNodes = expanded.nodes.filter(function(n) {
+        return n !== 'START' && n !== 'END' && !isLoopInnerNode(n);
+    });
+    innerFromSubs.forEach(function(n) {
+        if (topNodes.indexOf(n) < 0 && !isLoopInnerNode(n)) topNodes.push(n);
+    });
     var allNodes = ['START'].concat(topNodes, ['END']);
     var nodeCells = allNodes.map(function(id) { return createNode(id); });
     var linkCells = [];
@@ -769,12 +2060,22 @@ function renderWorkflow(wf) {
                 linkCells.push(createLink(e[0], e[1]));
     });
     graph.resetCells(nodeCells.concat(linkCells));
+    var layoutRankSep = nestedLoopOrder.length ? 240 : 160;
     joint.layout.DirectedGraph.layout(graph, {
-        rankDir: 'LR', nodeSep: 90, rankSep: 160, edgeSep: 50, marginX: 40, marginY: 40
+        rankDir: 'LR', nodeSep: 100, rankSep: layoutRankSep, edgeSep: 50, marginX: 48, marginY: 48
     });
     reattachLinkPorts();
     drawSubgraphContainers();
+    getRootLoopIds(wf).forEach(function(lid) { layoutLoopRegion(lid); });
+    finalizeLoopLayout(wf);
+    syncNestedLoopShellPositions();
+    resolveLoopTopLevelOverlaps();
+    finalizeLoopLayout(wf);
+    syncNestedLoopShellPositions();
+    reattachLinkPorts();
+    updateSubgraphContainerPositions();
     fitToContent(); saveToHistory();
+    syncCurrentGraphFromCanvas();
 }
 
 // ─── Subgraph expand ────────────────────────────────
@@ -782,29 +2083,29 @@ function expandSubgraph(wf) {
     var nodes = [], edges = [];
     subgraphRanges = {};
     var isSub = function(nid) {
-        if (getNodeFlowKind(nid, wf) === 'loop') return true;
+        if (getNodeFlowKind(nid, wf) === 'loop') return false;
         if (agentsData[nid] && agentsData[nid].type === 'SUB') return true;
-        if (graphsById && graphsById[nid]) return true;
+        if (graphsById && graphsById[nid] && wf.nodes && wf.nodes.indexOf(nid) < 0) return true;
         if (wf.visualData && wf.visualData.nodes) {
             var vn = wf.visualData.nodes.find(function(n) { return n.id === nid || n.originalId === nid; });
-            if (vn && (vn.type === 'subgraph' || vn.type === 'loop' ||
-                (vn.data && (vn.data.type === 'SUB' || vn.data.type === 'loop')))) return true;
+            if (vn && (vn.type === 'subgraph' ||
+                (vn.data && vn.data.type === 'SUB'))) return true;
         }
         return false;
     };
     var ensureRange = function(nid) { if (!subgraphRanges[nid]) subgraphRanges[nid] = { nodes: [], subgraphs: [] }; };
     var getEntries = function(subId) {
-        var sub = (graphsById && graphsById[subId]) || (wf.visualData && wf.visualData.nodes ? (wf.visualData.nodes.find(function(n) { return n.id === subId || n.originalId === subId; }) || {}).data : null);
+        var sub = resolveSubgraphGraph(subId, wf);
         if (!sub || !sub.edges) return [];
         return sub.edges.filter(function(e) { return e[0] === 'START'; }).map(function(e) { return e[1]; }).reduce(function(a, t) { return a.concat(isSub(t) ? getEntries(t) : [t]); }, []);
     };
     var getExits = function(subId) {
-        var sub = (graphsById && graphsById[subId]) || (wf.visualData && wf.visualData.nodes ? (wf.visualData.nodes.find(function(n) { return n.id === subId || n.originalId === subId; }) || {}).data : null);
+        var sub = resolveSubgraphGraph(subId, wf);
         if (!sub || !sub.edges) return [];
         return sub.edges.filter(function(e) { return e[1] === 'END'; }).map(function(e) { return e[0]; }).reduce(function(a, s) { return a.concat(isSub(s) ? getExits(s) : [s]); }, []);
     };
     var expandRecursive = function(subId) {
-        var sub = (graphsById && graphsById[subId]) || (wf.visualData && wf.visualData.nodes ? (wf.visualData.nodes.find(function(n) { return n.id === subId || n.originalId === subId; }) || {}).data : null);
+        var sub = resolveSubgraphGraph(subId, wf);
         if (!sub) return;
         ensureRange(subId);
         (sub.nodes || []).forEach(function(n) {
@@ -833,6 +2134,45 @@ function expandSubgraph(wf) {
     });
     var uniq = Array.from(new Set(nodes)), ns = new Set(uniq.concat(['START', 'END']));
     return { nodes: uniq, edges: edges.filter(function(e) { return ns.has(e[0]) && ns.has(e[1]); }) };
+}
+
+function expandLoopInner(loopNid, wf) {
+    wf = wf || currentGraph || {};
+    var fn = getLoopFlowMeta(loopNid, wf);
+    if (!fn || fn.kind !== 'loop') return;
+    var sub = fn.subgraphId ? resolveSubgraphGraph(fn.subgraphId, wf) : resolveSubgraphGraph(loopNid, wf);
+    if (!subgraphRanges[loopNid]) subgraphRanges[loopNid] = { nodes: [], subgraphs: [], edges: [] };
+    if (!sub || !sub.nodes) return;
+
+    var subFn = sub.flowNodes || {};
+    Object.keys(subFn).forEach(function(nid) { _applyFlowNodeMeta(nid, subFn[nid]); });
+
+    (sub.nodes || []).forEach(function(n) {
+        if (n === 'START' || n === 'END') return;
+        var childFn = subFn[n];
+        if (childFn && childFn.kind === 'loop') {
+            expandLoopInner(n, wf);
+            if (subgraphRanges[loopNid].nodes.indexOf(n) < 0) subgraphRanges[loopNid].nodes.push(n);
+            return;
+        }
+        enrichAgentMeta(n);
+        if (!agentsData[n]) {
+            agentsData[n] = { id: n, name: n, type: 'LLM', inputs: [], outputs: { name: 'output', type: 'str' } };
+        }
+        if (subgraphRanges[loopNid].nodes.indexOf(n) < 0) subgraphRanges[loopNid].nodes.push(n);
+    });
+
+    agentsData[loopNid] = agentsData[loopNid] || { id: loopNid };
+    agentsData[loopNid].type = 'loop';
+    agentsData[loopNid].flowKind = 'loop';
+    agentsData[loopNid].name = fn.name || agentsData[loopNid].name || loopNid;
+    agentsData[loopNid].loopConfig = fn.loopConfig || agentsData[loopNid].loopConfig || {};
+    if (fn.subgraphId) agentsData[loopNid].subgraphId = fn.subgraphId;
+
+    var children = subgraphRanges[loopNid].nodes;
+    subgraphRanges[loopNid].edges = filterInnerEdges(sub.edges).filter(function(e) {
+        return children.indexOf(e[0]) >= 0 && children.indexOf(e[1]) >= 0;
+    });
 }
 
 function getSubgraphDepth(id, depth) {
@@ -881,6 +2221,7 @@ function _containerBBox(subId) {
 }
 
 function _drawSubgraphContainer(subId) {
+    if (isLoopNode(subId)) return;
     var info = subgraphRanges[subId];
     if (!info) return;
     var old = graph.getCell(subId + '_container');
@@ -891,17 +2232,24 @@ function _drawSubgraphContainer(subId) {
     }
     var pad = 52;
     var cntId = subId + '_container';
+    var stroke = nodeStyles.SUB.stroke;
+    var fill = 'rgba(118,75,162,0.08)';
+    var labelName = (getGraphFlowNodes()[subId] && getGraphFlowNodes()[subId].name) ||
+        (agentsData[subId] ? agentsData[subId].name : subId);
+    var labelText = 'SUB · ' + labelName;
     var rect = new joint.shapes.standard.Rectangle({
         id: cntId, z: -10,
         position: { x: bbox.x - pad, y: bbox.y - pad },
         size: { width: bbox.width + pad * 2, height: bbox.height + pad * 2 },
         attrs: {
-            body: { fill: 'rgba(118,75,162,0.08)', stroke: '#764ba2', strokeDasharray: '8 4', rx: 14, ry: 14, strokeWidth: 1.5 },
+            body: {
+                fill: fill, stroke: stroke, strokeDasharray: '8 4', rx: 14, ry: 14, strokeWidth: 1.5,
+                cursor: 'move'
+            },
             label: {
-                text: (getGraphFlowNodes()[subId] && getGraphFlowNodes()[subId].name) ||
-                    (agentsData[subId] ? agentsData[subId].name : subId),
-                fill: '#764ba2', fontSize: 13, fontWeight: 'bold', refX: 14, refY: 14,
-                textAnchor: 'start', textVerticalAnchor: 'top'
+                text: labelText,
+                fill: stroke, fontSize: 13, fontWeight: 'bold', refX: 14, refY: 14,
+                textAnchor: 'start', textVerticalAnchor: 'top', pointerEvents: 'none'
             }
         },
         subgraph: subId
@@ -929,7 +2277,10 @@ function selectNode(node) {
     deselectAll();
     selectedCell = node;
     var cfg = node.get('config');
-    if (cfg && cfg.id && cfg.type !== 'flow') {
+    if (node.get('isLoopShell')) {
+        node.attr('body/stroke', '#ff5722');
+        node.attr('body/strokeWidth', 3);
+    } else if (cfg && cfg.id && cfg.type !== 'flow') {
         applyNodeVisual(node, buildNodeLayout(cfg.id, agentsData[cfg.id] || cfg), true);
     } else {
         node.attr('body/stroke', '#ff5722');
@@ -942,7 +2293,10 @@ function deselectAll() {
     if (selectedCell) {
         if (selectedCell.isElement()) {
             var cfg = selectedCell.get('config');
-            if (cfg && cfg.type === 'flow') {
+            if (selectedCell.get('isLoopShell')) {
+                selectedCell.attr('body/stroke', nodeStyles.loop.stroke);
+                selectedCell.attr('body/strokeWidth', 1.5);
+            } else if (cfg && cfg.type === 'flow') {
                 selectedCell.attr('body/stroke', nodeStyles.startEnd.stroke);
                 selectedCell.attr('body/strokeWidth', 2);
             } else if (cfg && cfg.id) {
@@ -1011,7 +2365,8 @@ function bindLlmSelectorEvents(agentId) {
 function showPropertyPanel(node) {
     $('#propertyPanel').removeClass('d-none');
     var cfg = node.get('config') || {}, prompt = node.get('prompt') || {};
-    var type = cfg.type || 'Unknown', id = cfg.id || node.id, name = cfg.name || id;
+    var type = cfg.flowKind || cfg.type || 'Unknown';
+    var id = cfg.id || node.id, name = cfg.name || id;
     $('#propName').val(name);
     var showIO = ['LLM','PGM','branch','loop','tool','SUB'].indexOf(type) >= 0 || (cfg.inputs && cfg.inputs.length > 0);
     $('#ioMappingSection').toggle(showIO);
@@ -1032,11 +2387,6 @@ function showPropertyPanel(node) {
         if (prompt.relation_schema) html += '<div class="mb-2"><label class="fw-bold small">Relation Schema</label><div class="row g-1"><div class="col-6"><input class="form-control form-control-sm editable-field" data-field="rel_head_type" value="' + (prompt.relation_schema.head_type||'') + '"></div><div class="col-6"><input class="form-control form-control-sm editable-field" data-field="rel_tail_type" value="' + (prompt.relation_schema.tail_type||'') + '"></div></div></div>';
         html += '</div></div>';
     }
-    if ((cfg.flowKind === 'branch' || type === 'branch') && cfg.conditions) {
-        html += '<div class="card mb-3"><div class="card-header bg-warning text-dark"><h6 class="mb-0"><i class="fas fa-code-branch me-2"></i>Conditions</h6></div><div class="card-body">';
-        cfg.conditions.forEach(function(c,i) { html += '<div class="mb-2"><span class="badge bg-warning me-1">' + c.label + '</span><input class="form-control form-control-sm d-inline-block w-75 editable-field" data-field="cond_' + i + '" value="' + (c.condition||'') + '" placeholder="e.g. {{ score }} > 0.5"></div>'; });
-        html += '</div></div>';
-    }
     if ((cfg.flowKind === 'loop' || type === 'loop') && cfg.loopConfig) {
         var lc = cfg.loopConfig;
         html += '<div class="card mb-3"><div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-redo me-2"></i>Loop Config</h6></div><div class="card-body">';
@@ -1053,8 +2403,73 @@ function showPropertyPanel(node) {
         updateLlmLinkPreview(cfg.model || '');
         bindLlmSelectorEvents(id);
     }
+    var isBranchFlow = (cfg.flowKind === 'branch' || type === 'branch');
+    $('#branchConfigSection').toggleClass('d-none', !isBranchFlow);
+    $('#loopConfigSection').toggleClass('d-none', !(cfg.flowKind === 'loop' || type === 'loop'));
+    if (isBranchFlow) renderBranchConditionsPanel(id, cfg.conditions || []);
     renderIOMapping(node);
 }
+
+function renderBranchConditionsPanel(nodeId, conditions) {
+    var $box = $('#branchConditions').empty();
+    if (!conditions.length) {
+        conditions = [{ label: 'True', field: '', op: 'not_empty', value: '' }];
+    }
+    conditions.forEach(function(raw, i) {
+        var c = normalizeBranchCondition(raw);
+        var opOpts = BRANCH_OPS.map(function(o) {
+            return '<option value="' + o.id + '"' + (o.id === c.op ? ' selected' : '') + '>' + o.label + '</option>';
+        }).join('');
+        var needsVal = (BRANCH_OPS.find(function(o) { return o.id === c.op; }) || {}).needsValue;
+        var row = $('<div class="branch-cond-row border rounded p-2 mb-2" data-idx="' + i + '">');
+        row.append(
+            '<div class="row g-1 align-items-center">' +
+            '<div class="col-12"><label class="small text-muted">Label</label>' +
+            '<input type="text" class="form-control form-control-sm cond-label" value="' + escHtml(c.label) + '"></div>' +
+            '<div class="col-5"><label class="small text-muted">Field</label></div>' +
+            '<div class="col-7"><label class="small text-muted">Operator</label></div>' +
+            '<div class="col-5 cond-field-wrap"></div>' +
+            '<div class="col-7"><select class="form-select form-select-sm cond-op">' + opOpts + '</select></div>' +
+            '<div class="col-12 cond-value-wrap mt-1' + (needsVal ? '' : ' d-none') + '">' +
+            '<label class="small text-muted">Compare value</label>' +
+            '<input type="text" class="form-control form-control-sm cond-value" value="' + escHtml(c.value) + '"></div>' +
+            '<div class="col-12 text-end"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-cond"><i class="fas fa-trash"></i></button></div>' +
+            '</div>'
+        );
+        row.find('.cond-field-wrap').html(buildFieldSelectHtml(nodeId, c.field, 'cond-field'));
+        $box.append(row);
+    });
+    $('#addBranchCondition').off('click').on('click', function() {
+        var cur = readBranchConditionsFromPanel();
+        cur.push({ label: 'Else', field: '', op: 'empty', value: '' });
+        renderBranchConditionsPanel(nodeId, cur);
+    });
+    $box.off('change', '.cond-op').on('change', '.cond-op', function() {
+        var op = $(this).val();
+        var needs = (BRANCH_OPS.find(function(o) { return o.id === op; }) || {}).needsValue;
+        $(this).closest('.branch-cond-row').find('.cond-value-wrap').toggleClass('d-none', !needs);
+    });
+    $box.off('click', '.btn-remove-cond').on('click', '.btn-remove-cond', function() {
+        $(this).closest('.branch-cond-row').remove();
+        if (!$box.find('.branch-cond-row').length) {
+            renderBranchConditionsPanel(nodeId, [{ label: 'True', field: '', op: 'not_empty', value: '' }]);
+        }
+    });
+}
+
+function readBranchConditionsFromPanel() {
+    var list = [];
+    $('#branchConditions .branch-cond-row').each(function() {
+        list.push({
+            label: $(this).find('.cond-label').val() || 'Branch',
+            field: $(this).find('.cond-field').val() || '',
+            op: $(this).find('.cond-op').val() || 'not_empty',
+            value: $(this).find('.cond-value').val() || ''
+        });
+    });
+    return list;
+}
+
 function getUpstreamNodeIds(nodeId) {
     var ups = [];
     graph.getLinks().forEach(function(l) {
@@ -1079,21 +2494,26 @@ function renderIOMapping(node) {
             val = '{{ ' + upstream[0] + '.' + inp + ' }}';
         }
         $ic.append(
-            '<div class="d-flex align-items-center mb-2">' +
+            '<div class="d-flex align-items-center mb-2 mapping-row" data-input="' + escHtml(inp) + '">' +
             '<span class="badge bg-secondary me-2" style="min-width:60px">' + escHtml(inp) + '</span>' +
-            '<input class="form-control form-control-sm flex-grow-1 mapping-input" data-input="' + escHtml(inp) + '" value="' + escHtml(val) + '" placeholder="e.g., {{ node.field }}">' +
+            buildMappingSelectHtml(nid, val) +
             '</div>'
         );
     });
     if (!inputs.length) $ic.html('<p class="text-muted small mb-0">No inputs</p>');
     $oc.append('<div class="d-flex align-items-center mb-1"><span class="badge bg-success me-2" style="min-width:60px">' + escHtml(outName) + '</span><code class="small text-muted">{{ ' + escHtml(nid) + '.' + escHtml(outName) + ' }}</code></div>');
-    $('.mapping-input').off('change').on('change', function() {
-        var field = $(this).data('input');
+    $('.mapping-select').off('change').on('change', function() {
+        var row = $(this).closest('.mapping-row');
+        var field = row.data('input');
         if (!graphBindings[nid]) graphBindings[nid] = {};
         graphBindings[nid][field] = $(this).val();
     });
 }
-function hidePropertyPanel() { document.getElementById('propertyPanel').classList.add('d-none'); }
+function hidePropertyPanel() {
+    document.getElementById('propertyPanel').classList.add('d-none');
+    $('#branchConfigSection').addClass('d-none');
+    $('#loopConfigSection').addClass('d-none');
+}
 
 function saveAgentChanges(agentId) {
     var node = graph.getCell(agentId); if (!node) return;
@@ -1113,13 +2533,18 @@ function saveAgentChanges(agentId) {
         else if (field === 'rel_head_type') { if (!prompt.relation_schema) prompt.relation_schema = {}; prompt.relation_schema.head_type = val; }
         else if (field === 'rel_tail_type') { if (!prompt.relation_schema) prompt.relation_schema = {}; prompt.relation_schema.tail_type = val; }
     });
+    if ($('#branchConditions .branch-cond-row').length) {
+        cfg.conditions = readBranchConditionsFromPanel();
+    }
     cfg.prompt_template = prompt;
     node.set('config', cfg);
     node.set('prompt', prompt);
     if (agentsData[agentId]) {
         Object.assign(agentsData[agentId], cfg);
         agentsData[agentId].prompt_template = prompt;
+        agentsData[agentId].conditions = cfg.conditions;
     }
+    persistFlowNode(agentId);
     refreshNodeVisual(agentId);
     $.ajax({
         url: '/agents/api/save', method: 'POST', contentType: 'application/json',
@@ -1141,10 +2566,62 @@ function fitToContent() {
     var bbox = graph.getBBox(), pw = paper.el.clientWidth, ph = paper.el.clientHeight;
     if (bbox) { var sc = Math.min(pw/bbox.width, ph/bbox.height) * 0.9; paper.scale(sc, sc); paper.translate(-bbox.x*sc+(pw-bbox.width*sc)/2, -bbox.y*sc+(ph-bbox.height*sc)/2); }
 }
-function saveToHistory() { historyStack.push(JSON.stringify(graph.toJSON())); redoStack = []; $('#btnUndo').prop('disabled', false); }
+function saveToHistory() {
+    historyStack.push(JSON.stringify(graph.toJSON()));
+    redoStack = [];
+    if ($('#btnUndo').length) $('#btnUndo').prop('disabled', false);
+}
 function undo() { if (historyStack.length <= 1) return; redoStack.push(historyStack.pop()); graph.fromJSON(JSON.parse(historyStack[historyStack.length-1])); deselectAll(); }
 function redo() { if (!redoStack.length) return; historyStack.push(redoStack.pop()); graph.fromJSON(JSON.parse(historyStack[historyStack.length-1])); deselectAll(); }
-function deleteSelected() { if (!selectedCell || !confirm('Delete?')) return; graph.getConnectedLinks(selectedCell).forEach(function(l) { l.remove(); }); selectedCell.remove(); selectedCell = null; hidePropertyPanel(); saveToHistory(); }
+
+function deleteCell(cell) {
+    if (!cell) return false;
+    if (cell.isLink()) {
+        cell.remove();
+        return true;
+    }
+    if (!cell.isElement()) return false;
+    var id = cell.id;
+    if (id === 'START' || id === 'END') return false;
+    if (cell.get('subgraph')) {
+        var subId = cell.get('subgraph');
+        var parent = graph.getCell(subId);
+        if (parent) return deleteCell(parent);
+        cell.remove();
+        return true;
+    }
+    var cnt = graph.getCell(id + '_container');
+    if (cnt) cnt.remove();
+    if (subgraphRanges[id]) {
+        if (isLoopNode(id)) {
+            (subgraphRanges[id].nodes || []).forEach(function(nid) {
+                var inner = graph.getCell(nid);
+                if (inner && !isLoopNode(nid)) inner.remove();
+            });
+        } else {
+            (subgraphRanges[id].nodes || []).forEach(function(nid) {
+                var inner = graph.getCell(nid);
+                if (inner) inner.remove();
+            });
+        }
+        delete subgraphRanges[id];
+    }
+    graph.getConnectedLinks(cell).forEach(function(l) { l.remove(); });
+    if (agentsData[id]) delete agentsData[id];
+    cell.remove();
+    return true;
+}
+
+function deleteSelected() {
+    if (!selectedCell) return;
+    if (!confirm('Delete selected?')) return;
+    if (deleteCell(selectedCell)) {
+        selectedCell = null;
+        hidePropertyPanel();
+        updateSubgraphContainerPositions();
+        saveToHistory();
+    }
+}
 
 // ─── Context menus ──────────────────────────────────
 var $contextMenu = $('<div id="customContextMenu">').css({ position:'fixed', background:'#fff', border:'1px solid #e0e0e0', boxShadow:'0 8px 24px rgba(0,0,0,0.15)', display:'none', zIndex:10000, borderRadius:'8px', padding:'6px 0', minWidth:'200px' }).appendTo('body');
@@ -1165,7 +2642,12 @@ function showMenu(x, y, items) {
     $(document).one('click', function() { $contextMenu.hide(); });
 }
 function showBlankContextMenu(x, y, lp) {
-    showMenu(x, y, [
+    var items = [];
+    if (selectedCell) {
+        items.push({ label: 'Delete', icon: 'fa-trash', action: deleteSelected });
+        items.push({ divider: true });
+    }
+    items.push(
         { label:'Create Agent', icon:'fa-robot', action: function() {
             var aid = prompt('Agent ID:') || 'agent_'+(++nodeCounter);
             if (!agentsData[aid]) agentsData[aid] = { id:aid, name:aid, type:'LLM', inputs:[], outputs:{ name:'output', type:'str' } };
@@ -1173,15 +2655,12 @@ function showBlankContextMenu(x, y, lp) {
         }},
         { label:'Create Branch', icon:'fa-code-branch', action: function() {
             var bid = 'branch_'+(++nodeCounter);
-            agentsData[bid] = { id:bid, name:'Branch', type:'branch', inputs:['input'], outputs:{ name:'output', type:'dict' }, conditions:[{ label:'True', condition:'true' },{ label:'False', condition:'false' }] };
+            agentsData[bid] = { id:bid, name:'Branch', type:'branch', inputs:['input'], outputs:{ name:'output', type:'dict' }, conditions:[{ label:'True', field:'', op:'not_empty', value:'' },{ label:'False', field:'', op:'empty', value:'' }] };
             var el = createNode(bid); el.position(lp.x, lp.y); graph.addCell(el); saveToHistory();
         }},
         { label:'Create Loop', icon:'fa-redo', action: function() {
-            var lid = 'loop_'+(++nodeCounter);
-            agentsData[lid] = { id:lid, name:'Loop', type:'loop', inputs:['input'], outputs:{ name:'output', type:'list' }, loopConfig:{ loopType:'for', count:10 } };
-            subgraphRanges[lid] = { nodes:[], subgraphs:[] };
-            _drawSubgraphContainer(lid);
-            saveToHistory();
+            var lid = 'loop_' + (++nodeCounter);
+            _addLoopAt(lid, lp, null);
         }},
         { divider:true },
         { label:'Export as SVG', icon:'fa-file-image', action: downloadSVG },
@@ -1189,16 +2668,30 @@ function showBlankContextMenu(x, y, lp) {
         { divider:true },
         { label:'Fit to Content', icon:'fa-expand', action: fitToContent },
         { label:'Reset View', icon:'fa-sync', action: resetView }
-    ]);
+    );
+    showMenu(x, y, items);
 }
 function showNodeContextMenu(x, y, node) {
     var cfg = node.get('config') || {};
-    showMenu(x, y, [
+    var canDelete = node.id !== 'START' && node.id !== 'END';
+    var items = [
         { label:'Node: '+(cfg.name||node.id), icon:'fa-cube', action: function(){} },
         { divider:true },
-        { label:'View Properties', icon:'fa-edit', action: function() { showPropertyPanel(node); } },
-        { label:'Delete Node', icon:'fa-trash', action: function() {
-            if (confirm('Delete?')) { graph.getConnectedLinks(node).forEach(function(l){l.remove();}); node.remove(); deselectAll(); hidePropertyPanel(); saveToHistory(); }
+        { label:'Properties', icon:'fa-edit', action: function() { showPropertyPanel(node); } }
+    ];
+    if (canDelete) {
+        items.push({ label:'Delete', icon:'fa-trash', action: function() {
+            if (!confirm('Delete this node?')) return;
+            if (deleteCell(node)) { deselectAll(); hidePropertyPanel(); updateSubgraphContainerPositions(); saveToHistory(); }
+        }});
+    }
+    showMenu(x, y, items);
+}
+function showLinkContextMenu(x, y, link) {
+    showMenu(x, y, [
+        { label:'Delete', icon:'fa-trash', action: function() {
+            if (!confirm('Delete this connection?')) return;
+            if (deleteCell(link)) { deselectAll(); saveToHistory(); }
         }}
     ]);
 }
@@ -1214,23 +2707,23 @@ function saveGraph() {
     $.ajax({ url:'/graph/api/save', method:'POST', contentType:'application/json', data: JSON.stringify(wd), success: function(r) { alert(r.success?'Saved!':'Failed: '+(r.error||'Unknown')); }, error: function(x) { alert('Error: '+(x.responseJSON?x.responseJSON.error:x.statusText)); } });
 }
 function serializeGraph() {
-    var nodes = [], edges = [];
-    graph.getElements().forEach(function(el) {
-        var cfg = el.get('config');
-        if (cfg && cfg.id) nodes.push(cfg.id);
-        if (el.get('subgraph')) nodes.push(el.get('subgraph'));
-    });
-    graph.getLinks().forEach(function(l) {
-        var s = l.get('source'), t = l.get('target');
-        if (s.id && t.id) edges.push([s.id, t.id]);
-    });
-    var flowNodes = (currentGraph && currentGraph.flowNodes) ? JSON.parse(JSON.stringify(currentGraph.flowNodes)) : {};
-    var bindings = JSON.parse(JSON.stringify(graphBindings || {}));
-    return {
-        id: '', name: '', description: '',
-        nodes: Array.from(new Set(nodes)), edges: edges,
-        flowNodes: flowNodes, bindings: bindings
+    syncCurrentGraphFromCanvas();
+    var wf = currentGraph ? JSON.parse(JSON.stringify(currentGraph)) : {
+        nodes: ['START', 'END'],
+        edges: [['START', 'END']],
+        flowNodes: {},
+        bindings: {}
     };
+    wf.flowNodes = JSON.parse(JSON.stringify((currentGraph && currentGraph.flowNodes) || {}));
+    wf.bindings = JSON.parse(JSON.stringify(getGraphBindings(currentGraph) || {}));
+    wf.name = $('#currentWorkflowName').text() || wf.name || '';
+    if (!wf.nodes || !wf.nodes.length) {
+        wf.nodes = ['START', 'END'];
+    }
+    if (!wf.edges || !wf.edges.length) {
+        wf.edges = [['START', 'END']];
+    }
+    return wf;
 }
 
 // ─── Test ───────────────────────────────────────────
@@ -1289,7 +2782,7 @@ function runTest() {
         if (chunk.indexOf('biomed_relation_extract') >= 0) {
             window._wfTestGotRe = true;
         }
-        if (chunk.indexOf('biomed_ner') >= 0 && (chunk.indexOf('entities') >= 0 || chunk.indexOf('Chemical') >= 0)) {
+        if (chunk.indexOf('ner_llm') >= 0 && (chunk.indexOf('entities') >= 0 || chunk.indexOf('Chemical') >= 0)) {
             window._wfTestGotNer = true;
         }
         $o.append('<pre class="small mb-2 pb-2 border-bottom wf-test-chunk" style="white-space:pre-wrap;">' + escHtml(chunk) + '</pre>');

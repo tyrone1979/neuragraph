@@ -1,0 +1,40 @@
+{
+  "id": "wf_cid_ner_llm_eval",
+  "name": "CID NER Eval (LLM)",
+  "description": "Chemical/Disease NER with LLM and generic metrics.",
+  "dataset": "cid",
+  "task": "ner",
+  "engine": "llm",
+  "flow_pattern": "linear",
+  "nodes": [
+    "START",
+    "ner_llm",
+    "eval_metrics",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_llm"
+    ],
+    [
+      "ner_llm",
+      "eval_metrics"
+    ],
+    [
+      "eval_metrics",
+      "END"
+    ]
+  ],
+  "flowNodes": {},
+  "bindings": {
+    "ner_llm": {
+      "text": "{{ START.text }}",
+      "labels": "Chemical, Disease"
+    },
+    "eval_metrics": {
+      "expected": "{{ START.expected_entities }}",
+      "predicted": "{{ ner_llm.entities }}"
+    }
+  }
+}

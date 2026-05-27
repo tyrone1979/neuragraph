@@ -1,0 +1,54 @@
+{
+  "id": "wf_re_verify_llm_loop",
+  "name": "RE Verify (pair loop)",
+  "description": "Generate evaluation pairs → loop verify subgraph → metrics.",
+  "dataset": "re_verify",
+  "task": "re_verify",
+  "engine": "llm",
+  "flow_pattern": "loop",
+  "nodes": [
+    "START",
+    "eval_pair_generate",
+    "verify_pairs_loop",
+    "eval_metrics",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "eval_pair_generate"
+    ],
+    [
+      "eval_pair_generate",
+      "verify_pairs_loop"
+    ],
+    [
+      "verify_pairs_loop",
+      "eval_metrics"
+    ],
+    [
+      "eval_metrics",
+      "END"
+    ]
+  ],
+  "flowNodes": {
+    "verify_pairs_loop": {
+      "kind": "loop",
+      "name": "Verify each pair",
+      "subgraphId": "sg_relation_verify",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ pairs }}"
+      }
+    }
+  },
+  "bindings": {
+    "eval_pair_generate": {
+      "expected_entities": "{{ START.expected_entities }}"
+    },
+    "eval_metrics": {
+      "expected": "{{ START.expected_relations }}",
+      "predicted": "{{ predicted }}"
+    }
+  }
+}

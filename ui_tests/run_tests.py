@@ -3,7 +3,9 @@ Run Playwright UI tests.
 
   python ui_tests/run_tests.py --suite current     # flaky / new tests (default)
   python ui_tests/run_tests.py --suite regression  # stable tests 1-14
-  python ui_tests/run_tests.py --suite experiment # batch experiment UI
+  python ui_tests/run_tests.py --suite experiment     # batch experiment UI
+  python ui_tests/run_tests.py --suite cid-experiment # CID NER+RE from dev.txt
+  python ui_tests/run_tests.py --suite graphs     # all graphs round-trip + run
   python ui_tests/run_tests.py --suite all
 """
 import argparse
@@ -42,6 +44,15 @@ def ensure_playwright() -> None:
         sys.exit(1)
 
 
+def start_plugin_servers():
+    """Start all enabled sandboxes from manifest."""
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    from plugin.sandbox_process import start_all_sandboxes
+
+    return start_all_sandboxes()
+
+
 def start_server():
     env = os.environ.copy()
     env["PYTHONPATH"] = str(ROOT)
@@ -61,14 +72,26 @@ def start_server():
 
     for _ in range(40):
         time.sleep(0.5)
+        if proc.poll() is not None:
+            out = proc.stdout.read().decode("utf-8", errors="replace") if proc.stdout else ""
+            err = proc.stderr.read().decode("utf-8", errors="replace") if proc.stderr else ""
+            raise RuntimeError(
+                f"Server exited early (code={proc.returncode}).\nstderr:\n{err[-2000:]}\nstdout:\n{out[-500:]}"
+            )
         try:
             urllib.request.urlopen(f"{BASE}/", timeout=2)
             print("[OK] Server started")
             return proc
         except Exception:
             pass
+    # Warm up graph editor (first load can be slow)
+    try:
+        urllib.request.urlopen(f"{BASE}/graph/new", timeout=30)
+    except Exception:
+        pass
+    err = proc.stderr.read().decode("utf-8", errors="replace") if proc.stderr else ""
     proc.terminate()
-    raise RuntimeError("Server did not start")
+    raise RuntimeError(f"Server did not start within 20s.\nstderr:\n{err[-2000:]}")
 
 
 def stop_server(proc):
@@ -84,10 +107,17 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--suite",
-        choices=["current", "regression", "experiment", "all"],
+        choices=["current", "regression", "experiment", "cid-experiment", "graphs", "all"],
         default="current",
     )
+    parser.add_argument(
+        "--external-server",
+        action="store_true",
+        help="Do not start Flask; assume server already running at --base",
+    )
+    parser.add_argument("--base", default=BASE, help="Base URL (default http://127.0.0.1:5001)")
     args = parser.parse_args()
+    base_url = args.base.rstrip("/")
 
     os.chdir(str(ROOT))
     if str(ROOT) not in sys.path:
@@ -101,41 +131,69 @@ def main():
 
     from ui_tests import common
     from ui_tests import current_test
+    from ui_tests import cid_experiment_ui_test
     from ui_tests import experiment_test
+    from ui_tests import graph_test
     from ui_tests import regression_test
 
-    server = start_server()
+    os.environ.setdefault("PLUGIN_SANDBOX", "1")
+    os.environ.setdefault("PLUGIN_SERVER_URL", "http://127.0.0.1:5002")
+
+    plugin_procs = []
+    server = None
+    if not args.external_server:
+        plugin_procs = start_plugin_servers() or []
+        server = start_server()
     exit_code = 1
     suite_timeout = 900 if args.suite in ("experiment", "all") else None
+    if args.suite == "cid-experiment":
+        suite_timeout = None
+    if args.suite == "graphs":
+        suite_timeout = None  # graph run uses per-graph timeouts (long)
     try:
         with sync_playwright() as pw:
             browser = pw.chromium.launch(headless=True)
             page = browser.new_page(viewport={"width": 1920, "height": 1080})
             page.on("pageerror", lambda e: common.page_errors.append(str(e)))
 
-            reg_code = cur_code = exp_code = 0
+            reg_code = cur_code = exp_code = graph_code = 0
 
             if args.suite in ("regression", "all"):
                 common.reset_results()
-                regression_test.run(page, BASE, str(SCREENSHOTS))
+                regression_test.run(page, base_url, str(SCREENSHOTS))
                 reg_code = common.write_results(str(SCREENSHOTS))
 
             if args.suite in ("current", "all"):
                 if args.suite == "all":
                     common.reset_results()
-                current_test.run(page, BASE, str(SCREENSHOTS), TESTS_DATA)
+                current_test.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
                 cur_code = common.write_results(str(SCREENSHOTS))
 
             if args.suite in ("experiment", "all"):
                 if args.suite == "all":
                     common.reset_results()
-                experiment_test.run(page, BASE, str(SCREENSHOTS), TESTS_DATA)
+                experiment_test.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
                 exp_code = common.write_results(str(SCREENSHOTS))
 
+            if args.suite in ("cid-experiment", "all"):
+                common.reset_results()
+                cid_experiment_ui_test.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
+                exp_code = max(exp_code, common.write_results(str(SCREENSHOTS)))
+
+            if args.suite in ("graphs", "all"):
+                common.reset_results()
+                if args.suite == "all":
+                    pass  # already reset
+                graph_test.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
+                graph_code = common.write_results(str(SCREENSHOTS))
+
             browser.close()
-            exit_code = max(reg_code, cur_code, exp_code)
+            exit_code = max(reg_code, cur_code, exp_code, graph_code)
     finally:
         stop_server(server)
+        from plugin.sandbox_process import stop_processes
+
+        stop_processes(plugin_procs)
 
     sys.exit(exit_code)
 

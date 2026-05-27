@@ -1,14 +1,16 @@
 function renderTestset(data){
-    datasetSelect.innerHTML='';
+    const $datasetSelect = $('#datasetSelect');
+    $datasetSelect.empty();
     if (data) {
         data.forEach(f => {
             const selected = f.name === defaultFilename ? 'selected' : '';
-            datasetSelect.innerHTML += `<option value="${f.name}" ${selected} data-samples="${f.count}">${f.name} (${f.count} samples)</option>`;
+            $datasetSelect.append(
+                `<option value="${f.name}" ${selected} data-samples="${f.count}">${f.name} (${f.count} samples)</option>`
+            );
         });
 
-        // 如果有默认文件，显示运行按钮
-        if (defaultFilename && datasetSelect.querySelector(`option[value="${defaultFilename}"]`)) {
-            $('#runExpBtn').removeClass('d-none').show();  // 显示
+        if (defaultFilename && $datasetSelect.find(`option[value="${defaultFilename}"]`).length) {
+            $('#runExpBtn').removeClass('d-none').show();
         }
     }
 }
@@ -22,14 +24,16 @@ $(document).ready(function () {
     const observer = new MutationObserver(function () {
         const id = runnerId.val();
         if (!id) {
-            datasetSelect.html('<option value="">-- Select a runner first --</option>');
             return;
         }
 
         $.getJSON(`/testset/api/by_agent/${id}`)
             .done(function(data) {
-                renderTestset(data);
-                renderTable(datasetSelect.val());
+                const lite = (data || []).map((t) => ({
+                    name: t.name,
+                    count: t.count,
+                }));
+                renderTestset(lite);
             })
             .fail(function() {
                 datasetSelect.html('<option value="">-- Error loading test sets --</option>');
@@ -58,9 +62,11 @@ $(document).ready(function () {
     });
 
     $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function (e) {
-        const paneId = $(e.target).attr('href');   // 例如 "#report"
-        if(paneId==='#report' && expId && progress===100 ) {
-            renderReport(expId);
+        const paneId = $(e.target).attr('href');
+        const id = $('#exp_id').data('id') || expId;
+        const prog = parseInt($('#overallProgress').text(), 10) || progress;
+        if (paneId === '#report' && id && (prog >= 100 || $('#overallProgress').width() > 0)) {
+            renderReport(id);
         }
     });
 });

@@ -1,0 +1,2 @@
+# Deprecated — use sandbox/flair/requirements.txt
+# Install: .\sandbox\setup_venv.ps1 -Name flair

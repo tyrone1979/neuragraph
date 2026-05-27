@@ -1,0 +1,30 @@
+{
+  "id": "wf_word_seg_llm_eval",
+  "name": "Word Segmentation Eval",
+  "description": "LLM word segmentation with boundary metrics.",
+  "dataset": "word_seg",
+  "task": "segment",
+  "engine": "llm",
+  "flow_pattern": "linear",
+  "nodes": [
+    "START",
+    "text_word_segment",
+    "eval_metrics_segment",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "text_word_segment"
+    ],
+    [
+      "text_word_segment",
+      "eval_metrics_segment"
+    ],
+    [
+      "eval_metrics_segment",
+      "END"
+    ]
+  ],
+  "flowNodes": {}
+}

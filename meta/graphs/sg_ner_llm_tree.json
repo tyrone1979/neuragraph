@@ -1,0 +1,39 @@
+{
+  "id": "sg_ner_llm_tree",
+  "name": "Tree-based LLM NER",
+  "description": "syntax_dep_parse → ner_from_tree_llm per sentence.",
+  "dataset": "internal",
+  "task": "subgraph",
+  "engine": "mixed",
+  "flow_pattern": "linear",
+  "nodes": [
+    "START",
+    "syntax_dep_parse",
+    "ner_from_tree_llm",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "syntax_dep_parse"
+    ],
+    [
+      "syntax_dep_parse",
+      "ner_from_tree_llm"
+    ],
+    [
+      "ner_from_tree_llm",
+      "END"
+    ]
+  ],
+  "flowNodes": {},
+  "bindings": {
+    "syntax_dep_parse": {
+      "sentence": "{{ sentence }}"
+    },
+    "ner_from_tree_llm": {
+      "tree": "{{ syntax_dep_parse.tree }}",
+      "labels": "{{ labels }}"
+    }
+  }
+}

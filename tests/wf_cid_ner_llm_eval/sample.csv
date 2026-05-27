@@ -1,0 +1,2 @@
+text,labels,expected_entities
+Aspirin may reduce the risk of heart disease.,"Chemical,Disease","{""Chemical"": [""Aspirin""], ""Disease"": [""heart disease""]}"

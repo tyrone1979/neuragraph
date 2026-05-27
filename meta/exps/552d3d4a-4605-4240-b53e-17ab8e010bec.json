@@ -1,0 +1,14 @@
+{
+  "dataset": "cid_dev_2samples.csv",
+  "runner_type": "graph",
+  "runner_id": "wf_cid_ner_llm_eval",
+  "runner_display": "CID NER Eval (LLM) (wf_cid_ner_llm_eval) - Workflow",
+  "samples": 2,
+  "exp_id": "552d3d4a-4605-4240-b53e-17ab8e010bec",
+  "name": "wf_cid_ner_llm_eval_cid_dev_2samples.csv_20260527101145",
+  "status": "running",
+  "progress": 0,
+  "created_at": "2026-05-27T10:11:45.114301",
+  "id": "552d3d4a-4605-4240-b53e-17ab8e010bec",
+  "updated_at": "2026-05-27T10:11:48.421920"
+}

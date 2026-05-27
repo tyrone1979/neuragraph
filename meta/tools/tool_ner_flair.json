@@ -18,5 +18,7 @@
     ]
   },
   "code": "def func(sentence:str,label:str):\n    from flair.data import Sentence\n    tagger=get_plugin(\"tag\")\n    s= Sentence(sentence)\n    tagger.predict(s)\n    labels=label.split(',')\n    __result__={}\n    for one in labels:\n        __result__[one ]=[]\n        for entity in s.get_spans('ner'):\n            if entity.tag==one :\n                __result__[one ].append(entity.text)\n    return __result__",
+  "sandbox": "flair",
+  "engine": "flair",
   "created_at": "2026-01-28T12:48:46.259223"
 }

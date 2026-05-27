@@ -1,0 +1,4 @@
+flask>=3.0,<4
+numpy
+scikit-learn
+flair>=0.13

@@ -9,24 +9,50 @@ from playwright.sync_api import Page
 
 from ui_tests.common import fail, goto, ok, results, shot
 
-RUNNER_ID = "biomed_re_workflow"
+RUNNER_ID = "wf_doc_re_nested_branch"
 DATASET_FILE = "exp_test_2samples.csv"
-RUNNER_DISPLAY = "Biomedical RE Pipeline (Loop + Branch + RE) (biomed_re_workflow) - Workflow"
+RUNNER_DISPLAY = "Doc RE (nested loop + branch) (wf_doc_re_nested_branch) - Workflow"
 
 
 def ensure_dataset(tests_data_dir: Path) -> None:
     rows = [
-        {"text": "Aspirin may reduce the risk of heart disease."},
-        {"text": "Metformin is commonly used to treat type 2 diabetes."},
+        {
+            "text": "Aspirin may reduce the risk of heart disease.",
+            "gold_entities": '{"Chemical": ["Aspirin"], "Disease": ["heart disease"]}',
+            "gold_relations": "Aspirin | treats | heart disease",
+        },
+        {
+            "text": "Metformin is commonly used to treat type 2 diabetes.",
+            "gold_entities": '{"Chemical": ["Metformin"], "Disease": ["type 2 diabetes"]}',
+            "gold_relations": "Metformin | treats | type 2 diabetes",
+        },
     ]
     from service.entity.test import TestLoader
 
-    TestLoader.save_csv_rows(RUNNER_ID, DATASET_FILE, ["text"], rows)
+    TestLoader.save_csv_rows(
+        RUNNER_ID, DATASET_FILE, ["text", "gold_entities", "gold_relations"], rows
+    )
 
 
 def api_get_json(url: str) -> dict:
     with urllib.request.urlopen(url, timeout=30) as resp:
         return json.loads(resp.read().decode("utf-8"))
+
+
+def wait_report_stream(base: str, exp_id: str, timeout: int = 180) -> str:
+    url = f"{base}/stream/report/{exp_id}"
+    buf = ""
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as resp:
+            for raw in resp:
+                line = raw.decode("utf-8", errors="replace").strip()
+                if line == "data: [DONE]":
+                    break
+                if line.startswith("data: "):
+                    buf += line[6:].replace("\\n", "\n")
+    except Exception as ex:
+        print(f"  [report] {ex}")
+    return buf
 
 
 def wait_stream_done(base: str, exp_id: str, timeout: int = 400) -> bool:
@@ -80,6 +106,7 @@ def run(page: Page, base: str, screenshots_dir: str, tests_data_dir: Path) -> No
     ok("E2e - Start button visible", page.locator("#runExpBtn").is_visible())
     preview_text = page.locator("#config").inner_text()
     ok("E2f - Preview shows 2 samples", "2" in preview_text and DATASET_FILE in preview_text)
+    ok("E2g - Preview shows gold_entities column", "gold_entities" in preview_text)
 
     print("\n=== E3. RUN EXPERIMENT (SSE) ===")
     page.on("dialog", lambda d: d.accept())
@@ -116,6 +143,7 @@ def run(page: Page, base: str, screenshots_dir: str, tests_data_dir: Path) -> No
     )
 
     goto(page, base, f"/exp/{exp_id}", 4)
+    page.wait_for_load_state("networkidle", timeout=30000)
     shot(page, screenshots_dir, "e3_exp_done")
 
     from service.result.loader import ResultLoader
@@ -125,7 +153,54 @@ def run(page: Page, base: str, screenshots_dir: str, tests_data_dir: Path) -> No
     ok("E3e - Results persisted (2 samples)", len(sample_keys) >= 2) if len(sample_keys) >= 2 else fail(
         "E3e", f"result_keys={list(results.keys())}"
     )
+    has_metrics = any(
+        isinstance(results.get(k), dict) and "metrics" in results[k] for k in sample_keys
+    )
+    ok("E3e2 - Gold metrics on at least one sample", has_metrics) if has_metrics else fail(
+        "E3e2", str({k: list((results.get(k) or {}).keys()) for k in sample_keys})[:200]
+    )
     ok("E3f - Detail page shows dataset", DATASET_FILE in page.content())
+
+    print("\n=== E5. REPORT TAB ===")
+    report_md = wait_report_stream(base, exp_id, timeout=180)
+    ok("E5a - Report stream returned content", len(report_md.strip()) > 20) if len(
+        report_md.strip()
+    ) > 20 else fail("E5a", report_md[:120])
+
+    page.locator('a[href="#report"]').click()
+    if report_md.strip():
+        page.evaluate(
+            """(md) => {
+                const el = document.getElementById('reportMarkdown');
+                if (!el) return;
+                if (typeof marked !== 'undefined') el.innerHTML = marked.parse(md);
+                else el.innerHTML = '<pre>' + md + '</pre>';
+            }""",
+            report_md,
+        )
+    else:
+        page.evaluate(
+            """(expId) => { if (typeof renderReport === 'function') renderReport(expId); }""",
+            exp_id,
+        )
+        try:
+            page.wait_for_function(
+                """() => {
+                    const el = document.getElementById('reportMarkdown');
+                    if (!el) return false;
+                    const html = el.innerHTML || '';
+                    return html.length > 30 && !html.includes('spinner-border');
+                }""",
+                timeout=180000,
+            )
+        except Exception as ex:
+            fail("E5b - Report tab rendered HTML", str(ex)[:120])
+    shot(page, screenshots_dir, "e5_report_tab")
+    report_html = page.locator("#reportMarkdown").inner_html()
+    ok(
+        "E5b - Report tab rendered HTML",
+        len(report_html) > 30 and "spinner-border" not in report_html,
+    ) if len(report_html) > 30 else fail("E5b", report_html[:120] or "(empty)")
 
     print("\n=== E4. EXPERIMENT LIST ===")
     goto(page, base, "/exp/", 3)

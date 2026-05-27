@@ -47,13 +47,13 @@ START → sentence_split → sub_ner(metrics) → END
 
 其中 `sub_ner` 展开为：
 ```
-START → map_cid_txt_4_ner → bio_ner → END
+START → bio_ner → END
 ```
 
 **组件说明**:
 - `sentence_split`: 将文档拆分为句子
-- `map_cid_txt_4_ner` (PGM): 将 `expected_entities` 映射为 `sentence` 列表
-- `bio_ner` (LLM Agent): 对每句进行 NER，提取 chemical 和 disease
+- `sub_ner` (SUB): 对每句调用 `bio_ner` (Flair PGM)
+- `bio_ner`: HunFlair2 句级 NER；workflow `bindings` 将 `expected_entities` 传入 metrics
 
 **Prompt 模板** (bio_ner):
 ```
