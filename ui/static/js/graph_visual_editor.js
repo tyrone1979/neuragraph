@@ -879,6 +879,107 @@ function buildMappingSelectHtml(nodeId, currentVal) {
     return html;
 }
 
+function collectSubgraphInputFields(subgraphId) {
+    var sub = resolveSubgraphGraph(subgraphId);
+    if (!sub) return [];
+    var seen = {}, fields = [];
+    function add(f) {
+        if (!f || seen[f]) return;
+        seen[f] = true;
+        fields.push(f);
+    }
+    (sub.nodes || []).forEach(function(nid) {
+        if (nid === 'START' || nid === 'END') return;
+        var a = agentsData[nid];
+        if (a && a.inputs) a.inputs.forEach(add);
+        var binds = (sub.bindings || {})[nid];
+        if (binds) Object.keys(binds).forEach(add);
+    });
+    return fields;
+}
+
+function buildLoopItemBindingSelectHtml(currentVal, loopNid) {
+    var opts = [{ value: '', label: '-- expression --' }];
+    var meta = loopNid ? getLoopFlowMeta(loopNid) : null;
+    var subId = (meta && meta.subgraphId) || (loopNid && agentsData[loopNid] && agentsData[loopNid].subgraphId);
+    var seen = {};
+    function addOpt(value, label) {
+        if (!value || seen[value]) return;
+        seen[value] = true;
+        opts.push({ value: value, label: label });
+    }
+    if (loopNid) {
+        collectUpstreamFieldOptions(loopNid).forEach(function(o) { addOpt(o.value, o.label); });
+    }
+    collectSubgraphInputFields(subId).forEach(function(f) {
+        addOpt('{{ ' + f + ' }}', 'item · ' + f);
+    });
+    addOpt('{{ item }}', 'item · raw');
+    var html = '<select class="form-select form-select-sm loop-item-binding-select flex-grow-1">';
+    var matched = false;
+    opts.forEach(function(o) {
+        var sel = (currentVal === o.value) ? ' selected' : '';
+        if (sel) matched = true;
+        html += '<option value="' + escHtml(o.value) + '"' + sel + '>' + escHtml(o.label) + '</option>';
+    });
+    if (currentVal && !matched) {
+        html += '<option value="' + escHtml(currentVal) + '" selected>' + escHtml(currentVal) + ' (custom)</option>';
+    }
+    html += '</select>';
+    return html;
+}
+
+function updateLoopConfigVisibility(loopType) {
+    var t = loopType || 'foreach';
+    $('#forLoopConfig').toggleClass('d-none', t !== 'for');
+    $('#whileLoopConfig').toggleClass('d-none', t !== 'while');
+    $('#foreachLoopConfig').toggleClass('d-none', t !== 'foreach');
+}
+
+function syncLoopPanelToAgent(loopNid) {
+    if (!loopNid || !agentsData[loopNid]) return;
+    var lc = agentsData[loopNid].loopConfig || {};
+    if ($('#loopType').length) lc.loopType = $('#loopType').val() || lc.loopType || 'foreach';
+    if ($('#loopArray').length) lc.array = $('#loopArray').val() || lc.array || '';
+    if ($('#loopCount').length) lc.count = parseInt($('#loopCount').val(), 10) || lc.count || 10;
+    agentsData[loopNid].loopConfig = lc;
+    persistFlowNode(loopNid);
+}
+
+function renderLoopItemBindings(loopNid) {
+    var meta = getLoopFlowMeta(loopNid);
+    var subId = (meta && meta.subgraphId) || (agentsData[loopNid] && agentsData[loopNid].subgraphId);
+    var lc = (agentsData[loopNid] && agentsData[loopNid].loopConfig) || {};
+    var fields = collectSubgraphInputFields(subId);
+    var ib = lc.itemBindings || {};
+    var $sec = $('#loopItemBindingsSection');
+    var $box = $('#loopItemBindings').empty();
+    if (!subId || !fields.length) {
+        $sec.addClass('d-none');
+        return;
+    }
+    $sec.removeClass('d-none');
+    fields.forEach(function(field) {
+        var val = ib[field] || '{{ ' + field + ' }}';
+        $box.append(
+            '<div class="d-flex align-items-center mb-2 loop-item-binding-row" data-field="' + escHtml(field) + '">' +
+            '<span class="badge bg-secondary me-2" style="min-width:60px">' + escHtml(field) + '</span>' +
+            buildLoopItemBindingSelectHtml(val, loopNid) +
+            '</div>'
+        );
+    });
+    $('.loop-item-binding-select').off('change').on('change', function() {
+        var row = $(this).closest('.loop-item-binding-row');
+        var field = row.data('field');
+        if (!agentsData[loopNid].loopConfig) agentsData[loopNid].loopConfig = {};
+        if (!agentsData[loopNid].loopConfig.itemBindings) agentsData[loopNid].loopConfig.itemBindings = {};
+        var v = $(this).val();
+        if (v) agentsData[loopNid].loopConfig.itemBindings[field] = v;
+        else delete agentsData[loopNid].loopConfig.itemBindings[field];
+        persistFlowNode(loopNid);
+    });
+}
+
 const WF_NODE_WIDTH = 268;
 const ZOOM_MIN = 0.2;
 const ZOOM_MAX = 3;
@@ -2405,7 +2506,34 @@ function showPropertyPanel(node) {
     }
     var isBranchFlow = (cfg.flowKind === 'branch' || type === 'branch');
     $('#branchConfigSection').toggleClass('d-none', !isBranchFlow);
-    $('#loopConfigSection').toggleClass('d-none', !(cfg.flowKind === 'loop' || type === 'loop'));
+    var isLoopFlow = (cfg.flowKind === 'loop' || type === 'loop');
+    $('#loopConfigSection').toggleClass('d-none', !isLoopFlow);
+    if (isLoopFlow) {
+        var lc = cfg.loopConfig || {};
+        $('#loopType').val(lc.loopType || 'foreach');
+        $('#loopArray').val(lc.array || '');
+        $('#loopCount').val(lc.count || 10);
+        updateLoopConfigVisibility(lc.loopType || 'foreach');
+        renderLoopItemBindings(id);
+        $('#loopType').off('change.loopPanel').on('change.loopPanel', function() {
+            updateLoopConfigVisibility($(this).val());
+            syncLoopPanelToAgent(id);
+        });
+        $('#loopArray, #loopCount').off('change.loopPanel input.loopPanel')
+            .on('change.loopPanel input.loopPanel', function() { syncLoopPanelToAgent(id); });
+        $('#syncLoopItemBindings').off('click').on('click', function() {
+            var meta = getLoopFlowMeta(id);
+            var subId = (meta && meta.subgraphId) || agentsData[id].subgraphId;
+            var fields = collectSubgraphInputFields(subId);
+            if (!agentsData[id].loopConfig) agentsData[id].loopConfig = {};
+            var ib = agentsData[id].loopConfig.itemBindings = agentsData[id].loopConfig.itemBindings || {};
+            fields.forEach(function(field) {
+                if (!ib[field]) ib[field] = '{{ ' + field + ' }}';
+            });
+            persistFlowNode(id);
+            renderLoopItemBindings(id);
+        });
+    }
     if (isBranchFlow) renderBranchConditionsPanel(id, cfg.conditions || []);
     renderIOMapping(node);
 }
@@ -2708,6 +2836,11 @@ function saveGraph() {
 }
 function serializeGraph() {
     syncCurrentGraphFromCanvas();
+    if (selectedCell && selectedCell.isElement()) {
+        var sc = selectedCell.get('config') || {};
+        var sid = sc.id || selectedCell.id;
+        if (sc.flowKind === 'loop' || sc.type === 'loop') syncLoopPanelToAgent(sid);
+    }
     var wf = currentGraph ? JSON.parse(JSON.stringify(currentGraph)) : {
         nodes: ['START', 'END'],
         edges: [['START', 'END']],
@@ -2727,13 +2860,49 @@ function serializeGraph() {
 }
 
 // ─── Test ───────────────────────────────────────────
-function openTestModal() {
-    if (!$('#testInput').val().trim()) {
-        $('#testInput').val(JSON.stringify({
-            text: 'Aspirin may reduce the risk of heart disease. Metformin is commonly used to treat type 2 diabetes.'
-        }, null, 2));
+var _lastTestGraphId = null;
+
+function _hasTestSample(obj) {
+    return obj && typeof obj === 'object' && Object.keys(obj).length > 0;
+}
+
+function _applyTestInputSample(sample) {
+    if (_hasTestSample(sample)) {
+        $('#testInput').val(JSON.stringify(sample, null, 2));
+    } else {
+        $('#testInput').val('');
     }
-    new bootstrap.Modal('#testModal').show();
+}
+
+function _loadWorkflowTestSample(graphId, done) {
+    if (_hasTestSample(workflowTestDefault)) {
+        done(workflowTestDefault);
+        return;
+    }
+    fetch('/graph/api/test-default/' + encodeURIComponent(graphId))
+        .then(function(r) { return r.json(); })
+        .then(function(data) { done(_hasTestSample(data) ? data : null); })
+        .catch(function() { done(null); });
+}
+
+function openTestModal() {
+    var graphId = current;
+    if (!graphId) {
+        alert('Save the workflow first (workflow ID required).');
+        return;
+    }
+    function showModal() {
+        new bootstrap.Modal('#testModal').show();
+    }
+    if ($('#testInput').val().trim() && _lastTestGraphId === graphId) {
+        showModal();
+        return;
+    }
+    _loadWorkflowTestSample(graphId, function(sample) {
+        _applyTestInputSample(sample);
+        _lastTestGraphId = graphId;
+        showModal();
+    });
 }
 
 function runTest() {
@@ -2755,7 +2924,14 @@ function runTest() {
         window.workflowEventSource = null;
     }
     var params = new URLSearchParams({ graphId: graphId });
-    Object.keys(input).forEach(function(k) { params.set(k, input[k]); });
+    Object.keys(input).forEach(function(k) {
+        var v = input[k];
+        if (v !== null && typeof v === 'object') {
+            params.set(k, JSON.stringify(v));
+        } else if (v !== undefined && v !== null) {
+            params.set(k, String(v));
+        }
+    });
     $o.append('<p class="text-muted wf-test-status"><i class="fas fa-spinner fa-spin me-1"></i>Running workflow <code>' + escHtml(graphId) + '</code> …</p>');
     var $runBtn = $('#runTestBtn').prop('disabled', true);
     window._wfTestGotRe = false;

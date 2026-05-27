@@ -8,8 +8,14 @@ from flask import render_template, Blueprint, request, jsonify
 
 _UI_ROOT = Path(__file__).resolve().parent
 
-
 graph_bp = Blueprint('graph', __name__, url_prefix='/graph')
+
+
+def workflow_test_default(graph_id: str | None):
+    """First-row test payload from tests/<graph_id>/*.csv (see TestLoader)."""
+    if not graph_id:
+        return None
+    return TestLoader.workflow_test_input(graph_id)
 
 
 def _editor_template_ctx():
@@ -86,6 +92,14 @@ def api_list_graphs():
     return jsonify(result)
 
 
+@graph_bp.route('/api/test-default/<graph_id>', methods=['GET'])
+def api_workflow_test_default(graph_id):
+    sample = workflow_test_default(graph_id)
+    if sample is None:
+        return jsonify({})
+    return jsonify(sample)
+
+
 @graph_bp.route('/<graph_id>/edit', methods=['GET'])
 def edit_graph(graph_id):
     graphs,agents,test_sets,displayers=load_graph_by_id(graph_id)
@@ -95,6 +109,7 @@ def edit_graph(graph_id):
         agents=agents,
         current=graph_id,
         test_sets=test_sets,
+        test_default=workflow_test_default(graph_id),
         is_edit=True,
         runner_displayers=displayers,
         active_page='graph',
@@ -109,6 +124,7 @@ def new_graph():
         agents={},
         current=None,
         test_sets={},
+        test_default=None,
         is_new=True,
         active_page='graph',
         **_editor_template_ctx(),

@@ -43,7 +43,8 @@
       "subgraphId": "sg_re_tree",
       "loopConfig": {
         "loopType": "foreach",
-        "array": "{{ sentences }}"
+        "array": "{{ sentences }}",
+        "scalarItemField": "sentence"
       }
     }
   },

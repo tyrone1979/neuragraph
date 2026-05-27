@@ -12,12 +12,18 @@ from service.entity.agent import AgentLoader
 from service.entity.entity import Entity, EntityLoader
 from typing import Dict, Any, Iterator
 from service.meta.loader import MetaLoader
-from utils.conversion import  T,jsonify_state
-from utils.graphutils import compute_states,create_state_typeddict
+from utils.conversion import T, jsonify_state
+from utils.graphutils import (
+    collect_loop_merge_keys,
+    collect_loop_scalar_item_fields,
+    compute_states,
+    create_state_typeddict,
+)
 from utils.bindings import (
+    apply_loop_item_bindings,
     apply_node_bindings,
-    inject_loop_item,
     merge_loop_values,
+    normalize_loop_item,
     resolve_loop_items,
 )
 logger = getLogger(__name__)
@@ -43,7 +49,7 @@ class GraphEntity(Entity):
     def invoke(self, state: T) -> Dict[str, Any]:
         import uuid
         config = {"configurable": {"thread_id": str(uuid.uuid4())}}
-        return self.compiled_graph.invoke(state, config=config)
+        return self.compiled_graph.invoke(jsonify_state(dict(state)), config=config)
 
     def stream(self, state: T,**kwargs) -> Iterator[dict[str, Any] | Any]:
         config=kwargs.get("config")
@@ -113,12 +119,23 @@ def _call_agent(name: str, graph_meta: dict | None = None):
                 return s
             return passthrough
 
+        item_bindings = loop_cfg.get("itemBindings") or {}
+        graph_id = graph_meta.get("id") or name
+        merge_keys = collect_loop_merge_keys(graph_id, name)
+        merge_aliases = loop_cfg.get("mergeAliases") or {}
+        scalar_fields = collect_loop_scalar_item_fields(graph_id, name)
+
         def invoke_loop(s):
             items = resolve_loop_items(array_expr, s)
             accum = dict(s)
-            merge_keys = ("entities", "predicted", "triples", "relations", "pairs")
             for item in items:
-                iter_state = inject_loop_item(accum, item)
+                if isinstance(item, dict) and item.get("error"):
+                    continue
+                iter_state = jsonify_state(
+                    apply_loop_item_bindings(
+                        accum, item, item_bindings, scalar_fields=scalar_fields
+                    )
+                )
                 out = subgraph.invoke(iter_state)
                 if not isinstance(out, dict):
                     continue
@@ -126,10 +143,9 @@ def _call_agent(name: str, graph_meta: dict | None = None):
                 for key in merge_keys:
                     if key in out and out[key] is not None:
                         accum[key] = merge_loop_values(accum.get(key), out[key])
-                if "predicted" in out and out["predicted"] is not None and "entities" not in out:
-                    accum["entities"] = merge_loop_values(
-                        accum.get("entities"), out["predicted"]
-                    )
+                for src, dst in merge_aliases.items():
+                    if src in out and out[src] is not None:
+                        accum[dst] = merge_loop_values(accum.get(dst), out[src])
             return accum
 
         return invoke_loop

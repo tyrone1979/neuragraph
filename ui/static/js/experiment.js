@@ -63,9 +63,9 @@ $(document).ready(function () {
 
     $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function (e) {
         const paneId = $(e.target).attr('href');
-        const id = $('#exp_id').data('id') || expId;
+        const id = $('#exp_id').attr('data-id') || $('#exp_id').data('id') || expId;
         const prog = parseInt($('#overallProgress').text(), 10) || progress;
-        if (paneId === '#report' && id && (prog >= 100 || $('#overallProgress').width() > 0)) {
+        if (paneId === '#report' && id && id !== 'Not saved yet' && (prog >= 100 || $('#overallProgress').width() > 0)) {
             renderReport(id);
         }
     });
@@ -277,8 +277,9 @@ function stream(exp_id){
             if(msg.status==='failed'){
                $('#error_message').text(msg.error);
                current_status='failed';
+               updateTableRow(msg.current_index, {"status": "failed"});
             }else{
-                current_status='running';
+                current_status = msg.batch_status || msg.status;
                 current_process=msg.percent;
                 updateProgress(current_process);
                 updateTableRow(msg.current_index, {"status": msg.status});
@@ -303,18 +304,30 @@ function renderReport(exp_id) {
     $('#reportMarkdown').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Make report...');
     window.agentEventSource?.close();
     let buffer = '';
-    /* 6. 新开 SSE */
-    window.agentEventSource = new EventSource(`/stream/report/${exp_id}`);
+    window.agentEventSource = new EventSource(`/stream/report/${encodeURIComponent(exp_id)}`);
     window.agentEventSource.onmessage = e => {
         if (e.data === '[DONE]') {
-            $('#reportMarkdown').html(marked.parse(buffer));  // 实时解析成 HTML
+            $('#reportMarkdown').html(marked.parse(buffer));
             window.agentEventSource.close();
             return;
         }
-        buffer+=e.data.replace(/\\n/g,'\n');
+        buffer += e.data.replace(/\\n/g, '\n');
+        if (buffer.trim()) {
+            $('#reportMarkdown').html(marked.parse(buffer));
+        }
     };
     window.agentEventSource.onerror = err => {
         console.error('SSE error:', err);
         window.agentEventSource.close();
+        if (!buffer.trim()) {
+            $('#reportMarkdown').html(
+                '<p class="text-danger">Report failed. Ensure <code>result/' +
+                escHtml(exp_id) + '/states.json</code> exists and the experiment status is completed.</p>'
+            );
+        }
     };
+}
+
+function escHtml(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

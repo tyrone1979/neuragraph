@@ -264,23 +264,29 @@ def build() -> dict[str, dict]:
     graphs["wf_cid_re_llm_linear"] = wf(
         "wf_cid_re_llm_linear",
         "CID RE Pipeline (linear)",
-        "NER → ontology cleanup → relation extract → relation metrics.",
+        "NER → LLM synonym resolve → LLM hypernym filter → relation extract (metrics via Metrics plugin at persistence).",
         "cid",
         "re",
         "llm",
         "linear",
-        ["ner_llm", "ontology_synonym_resolve", "ontology_hypernym_filter", "relation_extract_llm", "eval_metrics_relation"],
+        ["ner_llm", "ontology_synonym_resolve", "ontology_hypernym_filter", "relation_extract_llm"],
         [
             ["START", "ner_llm"],
             ["ner_llm", "ontology_synonym_resolve"],
             ["ontology_synonym_resolve", "ontology_hypernym_filter"],
             ["ontology_hypernym_filter", "relation_extract_llm"],
-            ["relation_extract_llm", "eval_metrics_relation"],
-            ["eval_metrics_relation", "END"],
+            ["relation_extract_llm", "END"],
         ],
         {
             "ner_llm": {"text": "{{ START.text }}", "labels": "Chemical, Disease"},
-            "ontology_synonym_resolve": {"entities": "{{ ner_llm.entities }}"},
+            "ontology_synonym_resolve": {
+                "text": "{{ START.text }}",
+                "entities": "{{ ner_llm.entities }}",
+            },
+            "ontology_hypernym_filter": {
+                "entities": "{{ ner_llm.entities }}",
+                "synonyms": "{{ ontology_synonym_resolve.synonyms }}",
+            },
             "relation_extract_llm": {
                 "text": "{{ START.text }}",
                 "entities": "{{ ontology_hypernym_filter.filtered_entities }}",

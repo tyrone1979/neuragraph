@@ -18,8 +18,12 @@ class ToolLoader(EntityLoader):
     @staticmethod
     def load(id:str,**extra_params):
         meta=MetaLoader.load("tools",id)
-        name = meta.get("name", id)
+        # API function names must be [a-zA-Z0-9_-]; use tool id, not display title.
+        name = id
         description = meta.get("description", "No description")
+        display = meta.get("name")
+        if display and display != id:
+            description = f"{display}. {description}"
         parameters =meta.get("parameters", {"type": "object", "properties": {}, "required": []})
         code = meta.get("code")
         if not code:

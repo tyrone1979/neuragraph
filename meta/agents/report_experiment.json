@@ -8,7 +8,7 @@
     "name": "text",
     "type": "str"
   },
-  "model": "kimi-2.6",
+  "model": "deepseek",
   "prompt_template": {
     "description": "According to the experiment result, markdown it as a report",
     "system": "You are a reporter.",

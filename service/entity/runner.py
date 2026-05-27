@@ -6,13 +6,29 @@ from service.entity.graph import GraphEntity
 from service.entity.entity import Entity, EntityLoader
 from typing import TypedDict, TypeVar, Dict, Any
 from service.entity.test import TestLoader
-from service.eval.gold_metrics import evaluate_sample
 from service.meta.loader import MetaLoader
 from langchain_core.runnables import RunnableConfig
 from pathlib import Path
 
 T = TypeVar("T", bound=TypedDict)
 RESULT_DIR = Path(__file__).resolve().parent.parent.parent  / "result"
+
+
+def _apply_plugin_metrics(
+    row: Dict[str, Any],
+    values: Dict[str, Any],
+    graph_id: str | None = None,
+) -> Dict[str, Any]:
+    """Attach precision/recall/f1 from graph metrics config + test row gold columns."""
+    from utils.workflow_metrics import compute_workflow_metrics
+
+    metrics = compute_workflow_metrics(graph_id, row or {}, values or {})
+    if not metrics:
+        return values
+    out = dict(values)
+    out["metrics"] = metrics
+    return out
+
 
 def _seek_checkpointer():
     postgres_checkpoint = get_plugin("AsyncPostgresSaver")
@@ -69,15 +85,22 @@ class RunnerLoader(EntityLoader):
             if state and state.values:
                 values = dict(state.values)
                 row = rows[idx - 1] if idx - 1 < len(rows) else {}
-                metrics = evaluate_sample(row, values)
-                if metrics:
-                    values["metrics"] = metrics
+                values = _apply_plugin_metrics(
+                    row, values, graph_id=meta.get("runner_id")
+                )
                 result[str(idx)] = values
+
+        if not result:
+            import logging
+            logging.getLogger(__name__).warning(
+                "persistence: no checkpoint state for exp %s (samples=%s)", exp_id, total
+            )
+            return {}
 
         # 写入文件
         (path / "states.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2),
-            encoding="utf-8"
+            encoding="utf-8",
         )
         return result
 

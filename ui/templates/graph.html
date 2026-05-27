@@ -238,6 +238,14 @@
                                 <label class="form-label small">Array Input</label>
                                 <input type="text" class="form-control" id="loopArray" placeholder="{{ items }}">
                             </div>
+                            <div id="loopItemBindingsSection" class="mb-2 d-none">
+                                <label class="form-label small">Item input mapping (per iteration)</label>
+                                <p class="small text-muted mb-1">Maps subgraph agent inputs from workflow state + current array element.</p>
+                                <div id="loopItemBindings" class="border rounded p-2 bg-white"></div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="syncLoopItemBindings">
+                                    Sync fields from subgraph
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -256,7 +264,7 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <h6>Input Data</h6>
-                                <textarea id="testInput" class="form-control font-monospace" rows="10" placeholder='{"text": "Hello World"}'></textarea>
+                                <textarea id="testInput" class="form-control font-monospace" rows="12" placeholder="Paste JSON input, or leave empty — uses tests/&lt;workflow-id&gt;/sample.csv first row when available"></textarea>
                                 <button class="btn btn-primary mt-2" id="runTestBtn">
                                     <i class="fas fa-play"></i> Run
                                 </button>
@@ -286,6 +294,8 @@
         let current = {{ current | tojson }}
         let agentsData = {{ agents | tojson }}
         let testSetsData = {{ test_sets | tojson }}
+        let workflowTestDefault = {{ test_default | tojson }}
+        let graphGlobalInputs = {{ graphs.get('inputs', []) | tojson }}
         let allAgents = []
         let allGraphs = []
         let allTools = []

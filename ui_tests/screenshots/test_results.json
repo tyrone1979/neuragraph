@@ -1,367 +1,142 @@
 {
   "results": [
     {
-      "test": "G1a - Backup present",
+      "test": "cid_ner-dataset-listed",
       "status": "PASS",
       "detail": "True"
     },
     {
-      "test": "G1b - meta/graphs cleared",
+      "test": "cid_ner-dataset-2-samples",
       "status": "PASS",
       "detail": "True"
     },
     {
-      "test": "G2d-wf_cid_ner_flair_eval",
+      "test": "cid_ner-runner-id",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": ""
     },
     {
-      "test": "G2c-wf_cid_ner_flair_eval",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"eval_metrics\": {\"expected\": \"{{ START.expected_entities }}\", \"predicted\": \"{{ ner_flair_doc.entities }}\"}, \"ner_flair_ != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-wf_cid_ner_llm_eval",
+      "test": "cid_ner-dataset-select",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": ""
     },
     {
-      "test": "G2c-wf_cid_ner_llm_eval",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"eval_metrics\": {\"expected\": \"{{ START.expected_entities }}\", \"predicted\": \"{{ ner_llm.entities }}\"}, \"ner_llm\": {\"text != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-wf_cid_re_branch",
+      "test": "cid_ner-preview-gold",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": ""
     },
     {
-      "test": "G2c-wf_cid_re_branch",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"ner_llm\": {\"text\": \"{{ START.text }}\", \"labels\": \"Chemical, Disease\"}, \"ontology_synonym_resolve\": {\"entities\": \"{{ ne != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-wf_cid_re_llm_linear",
+      "test": "cid_ner-exp-id",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-wf_cid_re_llm_linear",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"ner_llm\": {\"text\": \"{{ START.text }}\", \"labels\": \"Chemical, Disease\"}, \"ontology_synonym_resolve\": {\"entities\": \"{{ ne != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-wf_doc_ner_flair_eval",
+      "test": "cid_ner-results-file",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-wf_doc_ner_flair_eval",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"eval_metrics\": {\"expected\": \"{{ START.expected_entities }}\", \"predicted\": \"{{ ner_flair_doc.entities }}\"}, \"ner_flair_ != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-wf_doc_ner_llm_eval",
+      "test": "cid_ner-results-page",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": ""
     },
     {
-      "test": "G2c-wf_doc_ner_llm_eval",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"eval_metrics\": {\"expected\": \"{{ START.expected_entities }}\", \"predicted\": \"{{ ner_llm.entities }}\"}, \"ner_llm\": {\"text != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-wf_doc_ner_loop_branch",
+      "test": "cid_ner-results-persisted",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-wf_doc_ner_loop_branch",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"eval_metrics\": {\"expected\": \"{{ START.expected_entities }}\", \"predicted\": \"{{ ner_llm.entities }}\"}, \"ner_llm\": {\"text != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-wf_doc_re_nested_branch",
+      "test": "cid_ner-has-metrics",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-wf_doc_re_nested_branch",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"relation_extract_llm\": {\"text\": \"{{ re_gate.text }}\", \"entities\": \"{{ re_process_loop.entities }}\"}} != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_relations }}\"}, \"eval_"
-    },
-    {
-      "test": "G2d-wf_general_report_linear",
+      "test": "cid_ner-has-entities",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-wf_general_report_linear",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"report_format_json\": {\"text\": \"{{ START.text }}\", \"summary\": \"{{ text_summarize.summary }}\"}} != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_relations }}\"}, \"eval_pair_ge"
-    },
-    {
-      "test": "G2d-wf_kg_flair_full",
+      "test": "cid_ner-report-html",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-wf_kg_flair_full",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"kg_triple_extract_llm\": {\"text\": \"{{ START.text }}\", \"entities\": \"{{ ner_flair_doc.entities }}\"}, \"kg_triple_merge\": { != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-wf_kg_llm_full",
+      "test": "cid_re-dataset-listed",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-wf_kg_llm_full",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"kg_triple_merge\": {\"relations\": \"{{ relation_extract_llm.relations }}\", \"entity_link\": \"{{ ontology_entity_link.entity != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-wf_kg_syntax_loop",
+      "test": "cid_re-dataset-2-samples",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-wf_kg_syntax_loop",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"text_sentence_split\": {\"text\": \"{{ text_coreference.text }}\"}} != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_relations }}\"}, \"eval_pair_generate\": {\"expected_entities\": "
-    },
-    {
-      "test": "G2d-wf_re_verify_llm_loop",
+      "test": "cid_re-runner-id",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": ""
     },
     {
-      "test": "G2c-wf_re_verify_llm_loop",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"eval_metrics\": {\"expected\": \"{{ START.expected_relations }}\"}, \"eval_pair_generate\": {\"expected_entities\": \"{{ START.e != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-wf_word_seg_llm_eval",
+      "test": "cid_re-dataset-select",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": ""
     },
     {
-      "test": "G2c-wf_word_seg_llm_eval",
-      "status": "FAIL",
-      "detail": "bindings: backup=null != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_relations }}\"}, \"eval_pair_generate\": {\"expected_entities\": \"{{ START.e"
-    },
-    {
-      "test": "G2d-sg_ner_flair_sent",
+      "test": "cid_re-preview-gold",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": ""
     },
     {
-      "test": "G2c-sg_ner_flair_sent",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"ner_flair_sent\": {\"labels\": \"{{ labels }}\", \"sentence\": \"{{ sentence }}\"}} != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_relations }}\"}, \"eval_pair_generate\": {\"expected"
-    },
-    {
-      "test": "G2d-sg_ner_llm_tree",
+      "test": "cid_re-exp-id",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-sg_ner_llm_tree",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"ner_from_tree_llm\": {\"tree\": \"{{ syntax_dep_parse.tree }}\", \"labels\": \"{{ labels }}\"}, \"syntax_dep_parse\": {\"sentence\" != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_rela"
-    },
-    {
-      "test": "G2d-sg_preprocess_inner",
+      "test": "cid_re-results-file",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-sg_preprocess_inner",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"report_format_json\": {\"text\": \"{{ text }}\", \"summary\": \"{{ text }}\"}} != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_relations }}\"}, \"eval_pair_generate\": {\"expected_enti"
-    },
-    {
-      "test": "G2d-sg_re_preprocess",
+      "test": "cid_re-results-page",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": ""
     },
     {
-      "test": "G2c-sg_re_preprocess",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"ner_llm\": {\"text\": \"{{ text }}\", \"labels\": \"Chemical, Disease\"}} != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_relations }}\"}, \"eval_pair_generate\": {\"expected_entities\""
-    },
-    {
-      "test": "G2d-sg_re_tree",
+      "test": "cid_re-results-persisted",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-sg_re_tree",
-      "status": "FAIL",
-      "detail": "bindings: backup={\"relation_from_tree_llm\": {\"tree\": \"{{ syntax_dep_parse.tree }}\"}, \"syntax_dep_parse\": {\"sentence\": \"{{ sentence }}\"}} != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_relat"
-    },
-    {
-      "test": "G2d-sg_relation_verify",
+      "test": "cid_re-has-metrics",
       "status": "PASS",
-      "detail": "canvas matches backup (WYSIWYG)"
+      "detail": "True"
     },
     {
-      "test": "G2c-sg_relation_verify",
-      "status": "FAIL",
-      "detail": "bindings: backup=null != saved={\"eval_metrics\": {\"expected\": \"{{ START.expected_relations }}\"}, \"eval_pair_generate\": {\"expected_entities\": \"{{ START.e"
-    },
-    {
-      "test": "G3-wf_cid_re_branch",
+      "test": "cid_re-has-entities",
       "status": "PASS",
-      "detail": "branch_conds=4 (json)"
+      "detail": "True"
     },
     {
-      "test": "G3-ui-wf_cid_re_branch",
-      "status": "FAIL",
-      "detail": "snapshot skipped: Page.goto: Timeout 90000ms exceeded.\nCall log:\n  - navigating to \"http://127.0.0"
-    },
-    {
-      "test": "G3-wf_doc_ner_loop_branch",
+      "test": "cid_re-report-html",
       "status": "PASS",
-      "detail": "branch_conds=4 (json)"
+      "detail": "True"
     },
     {
-      "test": "G3-ui-wf_doc_ner_loop_branch",
-      "status": "FAIL",
-      "detail": "snapshot skipped: Page.goto: Timeout 90000ms exceeded.\nCall log:\n  - navigating to \"http://127.0.0"
-    },
-    {
-      "test": "G3-wf_doc_re_nested_branch",
+      "test": "cid-list-page",
       "status": "PASS",
-      "detail": "branch_conds=4 (json)"
+      "detail": "True"
     },
     {
-      "test": "G3-ui-wf_doc_re_nested_branch",
-      "status": "FAIL",
-      "detail": "snapshot skipped: Page.goto: net::ERR_NETWORK_CHANGED at http://127.0.0.1:5001/graph/wf_doc_re_nes"
+      "test": "cid-list-ner",
+      "status": "PASS",
+      "detail": "True"
     },
     {
-      "test": "G4-wf_cid_ner_flair_eval",
-      "status": "FAIL",
-      "detail": "timed out"
-    },
-    {
-      "test": "G4-wf_cid_ner_llm_eval",
-      "status": "FAIL",
-      "detail": "[WinError 10054] ?????????????????"
-    },
-    {
-      "test": "G4-wf_cid_re_branch",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_cid_re_llm_linear",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_doc_ner_flair_eval",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_doc_ner_llm_eval",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_doc_ner_loop_branch",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_doc_re_nested_branch",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_general_report_linear",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_kg_flair_full",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_kg_llm_full",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_kg_syntax_loop",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_re_verify_llm_loop",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-wf_word_seg_llm_eval",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-sg_ner_flair_sent",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-sg_ner_llm_tree",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-sg_preprocess_inner",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-sg_re_preprocess",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-sg_re_tree",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-sg_relation_verify",
-      "status": "FAIL",
-      "detail": "<urlopen error [WinError 10061] ?????????????????>"
-    },
-    {
-      "test": "G4-shot-sg_ner_flair_sent",
-      "status": "FAIL",
-      "detail": "Page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5001/graph/sg_ner_flair_sent/edit\nCall lo"
-    },
-    {
-      "test": "G4-shot-wf_doc_ner_flair_eval",
-      "status": "FAIL",
-      "detail": "Page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5001/graph/wf_doc_ner_flair_eval/edit\nCal"
-    },
-    {
-      "test": "G4-shot-wf_cid_re_branch",
-      "status": "FAIL",
-      "detail": "Page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5001/graph/wf_cid_re_branch/edit\nCall log"
-    },
-    {
-      "test": "G4-shot-wf_doc_re_nested_branch",
-      "status": "FAIL",
-      "detail": "Page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5001/graph/wf_doc_re_nested_branch/edit\nC"
+      "test": "cid-list-re",
+      "status": "PASS",
+      "detail": "True"
     }
   ],
-  "passed": 25,
-  "failed": 47,
+  "passed": 27,
+  "failed": 0,
   "errors": []
 }

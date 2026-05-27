@@ -16,10 +16,8 @@ if str(ROOT) not in sys.path:
 
 from data.data_parser import CIDParser  # noqa: E402
 from service.entity.test import TestLoader  # noqa: E402
-from service.eval.gold_metrics import evaluate_sample  # noqa: E402
-from service.meta.loader import MetaLoader  # noqa: E402
-from service.result.loader import ResultLoader  # noqa: E402
 from service.entity.runner import RunnerLoader  # noqa: E402
+from service.meta.loader import MetaLoader  # noqa: E402
 from langchain_core.runnables import RunnableConfig  # noqa: E402
 from utils.conversion import jsonify_state  # noqa: E402
 
@@ -28,10 +26,7 @@ DATASET_NAME = "cid_dev_2samples.csv"
 NER_RUNNER = "wf_cid_ner_llm_eval"
 RE_RUNNER = "wf_cid_re_llm_linear"
 BASE = "http://127.0.0.1:5001"
-FIELDS = ["text", "labels", "gold_entities", "gold_relations"]
-
-
-def article_to_row(art) -> dict[str, str]:
+def ner_row(art) -> dict[str, str]:
     mesh_to_text = {e.mesh: e.text for e in art.entities}
     rel_lines = []
     for head_mesh, tail_mesh in art.expected_relations:
@@ -46,18 +41,42 @@ def article_to_row(art) -> dict[str, str]:
     }
 
 
-def load_two_samples(dev_path: Path) -> list[dict[str, str]]:
+def re_row(art) -> dict[str, str]:
+    entities = [
+        {"text": e.text, "id": e.mesh, "label": e.etype}
+        for e in art.entities
+    ]
+    rel_lines = [f"{head_mesh} | {tail_mesh}" for head_mesh, tail_mesh in art.expected_relations]
+    return {
+        "text": art.text,
+        "entities": json.dumps(entities, ensure_ascii=False),
+        "gold_relations": "\n".join(rel_lines) if rel_lines else "",
+    }
+
+
+def load_two_samples(dev_path: Path) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
     text = dev_path.read_text(encoding="utf-8")
     articles = CIDParser(text).get_articles()[:2]
     if len(articles) < 2:
         raise RuntimeError(f"Need at least 2 articles in {dev_path}, got {len(articles)}")
-    return [article_to_row(a) for a in articles]
+    return [ner_row(a) for a in articles], [re_row(a) for a in articles]
 
 
-def save_datasets(rows: list[dict[str, str]]) -> None:
-    for runner_id in (NER_RUNNER, RE_RUNNER):
-        TestLoader.save_csv_rows(runner_id, DATASET_NAME, FIELDS, rows)
-        print(f"  wrote tests/{runner_id}/{DATASET_NAME}")
+def save_datasets(ner_rows: list[dict[str, str]], re_rows: list[dict[str, str]]) -> None:
+    TestLoader.save_csv_rows(
+        NER_RUNNER,
+        DATASET_NAME,
+        ["text", "labels", "gold_entities", "gold_relations"],
+        ner_rows,
+    )
+    TestLoader.save_csv_rows(
+        RE_RUNNER,
+        DATASET_NAME,
+        ["text", "entities", "gold_relations"],
+        re_rows,
+    )
+    print(f"  wrote tests/{NER_RUNNER}/{DATASET_NAME}")
+    print(f"  wrote tests/{RE_RUNNER}/{DATASET_NAME}")
 
 
 def run_experiment_local(runner_id: str, rows: list[dict]) -> tuple[str, dict]:
@@ -86,9 +105,6 @@ def run_experiment_local(runner_id: str, rows: list[dict]) -> tuple[str, dict]:
         else:
             state = runner.invoke(params) or {}
         if isinstance(state, dict):
-            metrics = evaluate_sample(row, state)
-            if metrics:
-                state["metrics"] = metrics
             results[str(idx)] = state
         print(f"    sample {idx} done keys={list(state.keys()) if isinstance(state, dict) else '?'}")
 
@@ -142,20 +158,20 @@ def main() -> int:
         return 1
 
     print(f"Parsing first 2 articles from {dev_path} ...")
-    rows = load_two_samples(dev_path)
-    for i, r in enumerate(rows, 1):
-        print(f"  [{i}] pmid text len={len(r['text'])}  gold_entities={r['gold_entities'][:80]}...")
+    ner_rows, re_rows = load_two_samples(dev_path)
+    for i, r in enumerate(re_rows, 1):
+        print(f"  [{i}] text len={len(r['text'])}  entities={r['entities'][:80]}...")
         print(f"       gold_relations lines={len(r['gold_relations'].splitlines())}")
 
     print("\nSaving test datasets ...")
-    save_datasets(rows)
+    save_datasets(ner_rows, re_rows)
 
     print(f"\n=== NER experiment ({NER_RUNNER}) ===")
-    ner_exp, ner_res = run_experiment_local(NER_RUNNER, rows)
+    ner_exp, ner_res = run_experiment_local(NER_RUNNER, ner_rows)
     summarize_results(NER_RUNNER, ner_res)
 
     print(f"\n=== RE experiment ({RE_RUNNER}) ===")
-    re_exp, re_res = run_experiment_local(RE_RUNNER, rows)
+    re_exp, re_res = run_experiment_local(RE_RUNNER, re_rows)
     summarize_results(RE_RUNNER, re_res)
 
     print("\n=== Reports (requires Flask on :5001) ===")

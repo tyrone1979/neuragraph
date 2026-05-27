@@ -33,8 +33,15 @@
       "labels": "Chemical, Disease"
     },
     "eval_metrics": {
-      "expected": "{{ START.expected_entities }}",
+      "expected": "{{ START.gold_entities }}",
       "predicted": "{{ ner_llm.entities }}"
     }
-  }
+  },
+  "metrics": [
+    {
+      "type": "entity_dict",
+      "expected": { "from": "input", "field": "gold_entities" },
+      "predicted": { "from": "state", "field": "entities" }
+    }
+  ]
 }
