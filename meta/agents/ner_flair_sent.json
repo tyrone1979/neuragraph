@@ -12,9 +12,5 @@
   "process": "from flair.data import Sentence\ntagger=get_plugin(\"tag\")\nsentence = Sentence(state['sentence'])\ntagger.predict(sentence)\n__result__={}\n\nlabels=[]\nif isinstance(state['labels'],str):\n    labels=state['labels'].split(',')\nelse:\n    labels=state['labels']\n\nfor label in labels:\n    __result__[label]=[]\n    for entity in sentence.get_spans('ner'):\n        if entity.tag==label:\n            __result__[label].append(entity.text)",
   "sandbox": "flair",
   "created_at": "2026-01-30T13:57:52.708763",
-  "description": "HunFlair2 tagging on a single sentence; labels comma-separated or list.",
-  "layer": "ner",
-  "engine": "flair",
-  "granularity": "sentence",
-  "id": "ner_flair_sent"
+  "engine": "flair"
 }

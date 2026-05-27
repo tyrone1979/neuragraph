@@ -1,11 +1,6 @@
 {
-  "id": "sg_relation_verify",
   "name": "Relation verify pair",
   "description": "relation_verify_llm → relation_verify_to_pair for one head/tail pair.",
-  "dataset": "internal",
-  "task": "subgraph",
-  "engine": "mixed",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "relation_verify_llm",
@@ -26,7 +21,6 @@
       "END"
     ]
   ],
-  "flowNodes": {},
   "bindings": {
     "relation_verify_llm": {
       "text": "{{ text }}",

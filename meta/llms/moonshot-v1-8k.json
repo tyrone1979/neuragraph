@@ -1,14 +1,9 @@
 {
-  "id": "moonshot-v1-8k",
   "type": "openai",
   "model": "moonshot-v1-8k",
   "base_url": "https://api.moonshot.cn/v1",
   "api_key": "sk-mlLFs7AOFYB5LoW9lwRsJOki0pRxCukxynFCQ4SWbkgj63Ss",
   "temperature": 0.7,
   "max_tokens": 4000,
-  "timeout": 60,
-  "max_retries": 3,
-  "rate_limit": 60,
-  "metadata": {},
   "updated_at": "2026-05-18T10:45:00.000000"
 }

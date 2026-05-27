@@ -277,7 +277,7 @@ class LLMCommandParser:
         import autogen
         self.llm = autogen.LLMClient(llm_config)
         self.meta_dir = meta_dir
-        self.skill_path = Path(__file__).parent / "SKILL.md"
+        self.skill_path = Path(__file__).parent / "doc" / "AUTOGEN_SKILL.md"
         self.skill_context = self._load_skill()
 
     def _load_skill(self) -> str:

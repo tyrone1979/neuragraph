@@ -1,7 +1,5 @@
 {
-  "id": "relation_verify_to_id_pair",
   "name": "Relation Verify → ID Pair",
-  "description": "Map positive verification ($) to Chemical id | Disease id line.",
   "type": "PGM",
   "inputs": [
     "result",
@@ -14,7 +12,5 @@
   },
   "process": "if state.get('result') == '$':\n    hid = state.get('head_id') or ''\n    tid = state.get('tail_id') or ''\n    line = f\"{hid} | {tid}\" if hid and tid else ''\n    __result__ = [line] if line else []\nelse:\n    __result__ = []\n",
   "created_at": "2026-05-27T12:00:00",
-  "layer": "relation",
-  "engine": "pgm",
-  "relation_mode": "verify"
+  "engine": "pgm"
 }

@@ -1,11 +1,6 @@
 {
-  "id": "wf_doc_ner_flair_eval",
   "name": "Doc NER Eval (Flair)",
   "description": "Document Flair NER with metrics (replaces bio_ner_graph).",
-  "dataset": "doc_ner",
-  "task": "ner",
-  "engine": "flair",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "ner_flair_doc",
@@ -26,7 +21,6 @@
       "END"
     ]
   ],
-  "flowNodes": {},
   "bindings": {
     "ner_flair_doc": {
       "text": "{{ START.text }}",

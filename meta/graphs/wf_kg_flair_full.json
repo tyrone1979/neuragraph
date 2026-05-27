@@ -1,11 +1,6 @@
 {
-  "id": "wf_kg_flair_full",
   "name": "KG Build (Flair NER)",
   "description": "Flair doc NER → entity link → triple extract → merge → RDF.",
-  "dataset": "kg",
-  "task": "kg",
-  "engine": "mixed",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "ner_flair_doc",
@@ -41,7 +36,6 @@
       "END"
     ]
   ],
-  "flowNodes": {},
   "bindings": {
     "ner_flair_doc": {
       "text": "{{ START.text }}",

@@ -1,5 +1,4 @@
 {
-  "id": "ontology_synonym_resolve",
   "name": "Synonym Resolution (LLM)",
   "type": "LLM",
   "model": "kimi-2.6",
@@ -16,9 +15,6 @@
     "system": "You are a biomedical synonym specialist.",
     "human": "Task:\n1. Identify every noun term/phrase in the abstract that has at least one exact biomedical synonym (abbreviations, CAS numbers, alternative names, plural forms all allowed).\n2. Use the NER entity list below as hints; only include pairs where both strings appear in the abstract.\n3. For each such term/phrase, generate one standalone declarative sentence of the form:\noriginal|is|synonym1\noriginal|is|synonym2\n...\n4. Output only those sentences, one per line, no header, no abstract.\n- Do not add any introductory sentences like \"Here is the output...\"\n- Ensure that all terms and synonyms are exactly as they appear in the abstract. No variations or additional text.\n\nNER entities (JSON, hints only):\n{entities}\n\nAbstract:\n{text}"
   },
-  "tools": [],
   "created_at": "2026-05-18T12:00:00",
-  "description": "Extract synonym pairs as original|is|synonym lines from abstract text.",
-  "layer": "ontology",
   "engine": "llm"
 }

@@ -1,5 +1,7 @@
 # Quick User Manual
 
+[README](../README.md) · [META_SCHEMA](META_SCHEMA.md) · [STARTUP_GUIDE](STARTUP_GUIDE.md)
+
 ## 1. First-time Setup
 1. Start server 
 ```bash

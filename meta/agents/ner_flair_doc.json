@@ -1,6 +1,5 @@
 {
   "name": "NER (Flair, document)",
-  "description": "Split document into sentences, run Flair per sentence, aggregate by label.",
   "type": "PGM",
   "inputs": [
     "text",
@@ -12,9 +11,6 @@
   },
   "process": "from flair.data import Sentence\ntagger = get_plugin('tag')\nif tagger is None:\n    raise RuntimeError('Flair tagger plugin not loaded. Install flair and place model under models/hunflair2-ner/')\nlabels = state.get('labels') or 'Chemical,Disease'\nif isinstance(labels, str):\n    labels = [x.strip() for x in labels.split(',') if x.strip()]\ntext = state.get('text') or ''\nimport re\nsents = [s.strip() for s in re.split(r'(?<=[.!?])\\s+', text) if s.strip()]\nif not sents:\n    sents = [text]\n__result__ = {lb: [] for lb in labels}\nseen = {lb: set() for lb in labels}\nfor sent_text in sents:\n    s = Sentence(sent_text)\n    tagger.predict(s)\n    for span in s.get_spans('ner'):\n        tag = span.tag\n        if tag in __result__ and span.text not in seen[tag]:\n            seen[tag].add(span.text)\n            __result__[tag].append(span.text)",
   "created_at": "2026-05-26T12:00:00",
-  "layer": "ner",
   "engine": "flair",
-  "sandbox": "flair",
-  "granularity": "document",
-  "id": "ner_flair_doc"
+  "sandbox": "flair"
 }

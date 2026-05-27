@@ -1,11 +1,6 @@
 {
-  "id": "wf_doc_re_nested_branch",
   "name": "Doc RE (nested loop + branch)",
   "description": "Outer loop with nested preprocess + NER, 4-way branch, then RE.",
-  "dataset": "doc_re",
-  "task": "re",
-  "engine": "llm",
-  "flow_pattern": "branch_nested_loop",
   "nodes": [
     "START",
     "re_process_loop",

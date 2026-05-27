@@ -1,11 +1,6 @@
 {
-  "id": "sg_re_preprocess",
   "name": "RE preprocess + NER",
   "description": "Nested inner loop then ner_llm (outer loop body for doc RE).",
-  "dataset": "internal",
-  "task": "subgraph",
-  "engine": "mixed",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "inner_preprocess_loop",

@@ -1,11 +1,6 @@
 {
-  "id": "wf_doc_ner_loop_branch",
   "name": "Doc NER loop + branch",
   "description": "Sentence split → loop Flair NER → 4-way branch → optional LLM → metrics.",
-  "dataset": "doc_ner",
-  "task": "ner",
-  "engine": "mixed",
-  "flow_pattern": "loop_branch",
   "nodes": [
     "START",
     "text_sentence_split",

@@ -1,199 +1,112 @@
-# NeuraGraph: A lightweight platform for building LLM-powered agent workflows specialized in NLP and Knowledge Graph tasks
+# NeuraGraph
 
-Paper link: [comming soon]
+A lightweight platform for building LLM-powered agent workflows for biomedical NLP and knowledge-graph tasks.
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status: Early Development](https://img.shields.io/badge/status-early%20development-orange)](https://github.com/tyrone1979/neuragraph)
 
-## Abstract
+## What it does
 
-Focus: Biomedical text mining pipelines (NER, Relation Extraction, Coreference Resolution, Synonym/Hypernym extraction, Dependency Parsing → Triple conversion, etc.)  
-Drag-and-drop LLM + rule-based + Flair components into reusable workflows to extract structured knowledge (entities, relations, triples) from biomedical abstracts—with experiment tracking, metric comparison, and persistence.
+- Compose **workflows** (`meta/graphs`) from **agents** (LLM / PGM / loop / branch flow nodes).
+- Run **experiments** on CSV test sets under `tests/<graph_id>/`.
+- Stream node output over SSE; persist checkpoint state to `result/<exp_id>/states.json`.
+- Compute **precision / recall / F1** via the `MetricsCalculation` plugin after each run (no eval node required in the graph).
 
-## Key Use Cases
+Typical pipelines: NER, relation extraction (CID), hypernym filtering, pair verification loops, KG triple export.
 
-- Sentence-level / document-level **Named Entity Recognition** (e.g., Chemical, Disease) and **Relation Extraction** (e.g., Chemical–Disease links)
-- Sentence splitting and medical-specific word segmentation
-- Synonym & hypernym detection in biomedical context (using MeSH codes)
-- Coreference resolution for cleaner entity linking
-- Dependency parse tree analysis (CoNLL-U output via LLM)
-- Side-by-side comparison of LLM vs. Flair vs. rule-based pipelines
-- Metrics calculation (precision/recall/F1) + error analysis
-- Auto-generated reports (Markdown tables + conclusions)
-- Persistence of triples/entities to CSV for downstream KG building
-- ... (expand as you hack more)
+## Quick start
 
-## Tech Stack Highlights
-
-- **Backend**: Flask + Python 3.12+
-- **Frontend**: Bootstrap 5 + JointJS (interactive graph editor)
-- **Workflow Engine**: Custom lightweight DAG (START → nodes/subgraphs → END; future: langgraph migration?)
-- **LLM Integration**: OpenAI, Ollama, custom endpoints, …
-- **Experiment & Data**:
-  - SSE streaming progress + final Markdown reports
-  - CSV/TXT/JSON data file support
-- **Persistence**: JSON metadata + results (PostgreSQL optional for workflow state)
-
-
-## Quick Start
-
-### Software Requirements
-- OS: Ubuntu 24.04.6 LTS (GNU/Linux 5.4.0-205-generic x86_64) tested
-- Python: 3.12.3 or 3.11.11 tested
-- Optional: PostgreSQL (for state persistence), Ollama (local LLM)
-- **Flair / HunFlair2** (recommended for biomedical NER): install `flair` and place the model under `models/hunflair2-ner/` (first startup loads the tagger and may take longer)
-
-### Setup
 ```bash
-# Clone if you haven't
-git clone https://github.com/tyrone1979/neuragraph.git  # assuming this is your repo
-cd neuragraph
-
-# Virtualenv (highly recommended)
 python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install deps
+source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
+# Windows (recommended)
+.\start.bat
+# or: python -m ui.app
 ```
 
-### Run
+Open **http://127.0.0.1:5001**
+
+Optional: HunFlair2 under `models/hunflair2-ner/` for Flair NER agents.
+
+### First steps in the UI
+
+1. **LLMs** — add at least one model config (`meta/llms/`).
+2. **Workflows** — open e.g. `wf_cid_re_llm_linear` or `wf_doc_ner_llm_eval`.
+3. **Datasets** — CSV in `tests/<workflow_id>/` (columns must match workflow inputs + gold fields).
+4. **Experiments** — select workflow + dataset → run → view report.
+
+## Example workflows
+
+| Graph ID | Description |
+|----------|-------------|
+| `wf_cid_re_llm_linear` | Gold entities → hypernym filter → pairs → loop RE verify → MeSH relation lines |
+| `wf_cid_ner_llm_eval` | Document LLM NER + metrics |
+| `wf_doc_ner_loop_branch` | Sentence loop + branch (Flair vs LLM) |
+| `wf_re_verify_llm_loop` | Pair generation + verify loop |
+| `wf_kg_syntax_loop` | Per-sentence tree-based RE |
+| `wf_kg_llm_full` | Full KG pipeline (NER → link → triples) |
+
+Subgraphs (`sg_*`) are loop/branch bodies; run **`wf_*`** graphs in experiments.
+
+## Metrics (experiments)
+
+Graph JSON may declare:
+
+```json
+"metrics": [{
+  "type": "relation_pairs",
+  "expected": { "from": "input", "field": "gold_relations" },
+  "predicted": { "from": "state", "field": "relations" }
+}]
+```
+
+When a run finishes, `RunnerLoader.persistence` loads each sample’s checkpoint + CSV row and calls `MetricsCalculation`. Results appear in `states.json` under `metrics` and in the experiment report.
+
+See [doc/META_SCHEMA.md](doc/META_SCHEMA.md) for all supported meta fields.
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [doc/MANUAL.md](doc/MANUAL.md) | UI walkthrough (LLM, agents, workflows, experiments) |
+| [doc/STARTUP_GUIDE.md](doc/STARTUP_GUIDE.md) | Install, `start.bat`, troubleshooting |
+| [doc/CODE_GUIDELINES.md](doc/CODE_GUIDELINES.md) | Code style and layout |
+| [doc/CODE_WIKI.md](doc/CODE_WIKI.md) | Architecture, modules, APIs |
+| [doc/META_SCHEMA.md](doc/META_SCHEMA.md) | Runtime JSON schema for `meta/` |
+| [doc/EXPERIMENT_GUIDE.md](doc/EXPERIMENT_GUIDE.md) | BC5CDR / pharmacology evaluation notes |
+| [doc/AUTOGEN_SKILL.md](doc/AUTOGEN_SKILL.md) | **LLM skill**: generate complex workflows, loops, metrics, experiments |
+
+Agents live in `meta/agents/<id>.json` (browse in UI or on disk).
+
+## Project layout
+
+```
+meta/          agents, graphs, llms, tools, exps
+service/       GraphEntity, AgentEntity, Runner, metrics
+ui/            Flask app + visual editor
+plugin/        MetricsCalculation, Flair tagger, checkpointers
+tests/         per-workflow CSV test sets
+result/        experiment outputs (states.json)
+utils/         bindings, graphutils, workflow_metrics
+scripts/       prune_meta_unused.py, smoke tests, migrations
+```
+
+## Maintenance scripts
+
 ```bash
-python run.sh
-# or python app.py
+# Remove unused keys from meta JSON (safe to re-run)
+python scripts/prune_meta_unused.py
 ```
-
-### Open Browser
-Hit http://127.0.0.1:5001  
-![homepage.png](doc/images/homepage.png)
-
-### First 5-Minute Tour
-- **LLMs** tab → Add at least one LLM config (Ollama recommended for quick start)
-- **Agents** → Browse agents by `layer` (e.g., `text_sentence_split`, `ner_llm`, `relation_extract_llm`)
-- **Workflows** → Open an example graph (e.g., `wf_doc_ner_llm_eval`)
-- **Datasets** → Upload a small test set (abstracts + optional gold NER/RE)
-- **Experiments** → Pick a graph + dataset → Run → Watch streaming output & report
-
-### Guidelines and Manual
-- [CODE_GUIDELINES.md](doc/CODE_GUIDELINES.md) – For hacking on the code
-- [MANUAL.md](doc/MANUAL.md) – Step-by-step ops guide with screenshots
-
-## Agent Catalog
-
-Agents: `meta/agents/<id>.json` — each file includes **`layer`**, **`engine`**, **`name`**, **`description`**.  
-Domain-specific behaviour is configured via **`labels`**, **`entity_types`**, prompts — not via `cid_` / `biomed_` prefixes.
-
-### `layer=document` · `engine=llm`
-
-| ID | Name |
-|----|------|
-| `text_sentence_split` | Sentence Split |
-| `text_word_segment` | Word Segmentation |
-| `text_coreference` | Coreference Resolution |
-| `text_summarize` | Text Summarization |
-
-### `layer=syntax` · `engine=llm`
-
-| ID | Name |
-|----|------|
-| `syntax_dep_parse` | Dependency Parse (CoNLL-U) |
-
-### `layer=ner`
-
-| ID | engine | granularity | Name |
-|----|--------|-------------|------|
-| `ner_llm` | llm | document | NER (LLM, configurable `{labels}`) |
-| `ner_flair_sent` | flair | sentence | NER (Flair, sentence) |
-| `ner_flair_doc` | flair | document | NER (Flair, document) |
-| `ner_from_tree_llm` | llm | sentence | NER from Dependency Tree |
-
-### `layer=relation`
-
-| ID | engine | mode | Name |
-|----|--------|------|------|
-| `relation_extract_llm` | llm | extract | Relation Extraction (text + entities) |
-| `relation_from_tree_llm` | llm | from_tree | Relation Extraction from CoNLL-U |
-| `relation_verify_llm` | llm | verify | Relation Verification ($ / ~) |
-| `relation_verify_to_pair` | pgm | verify | Verify → entity pair |
-| `relation_dti_analyze` | llm | extract | Drug–Target Interaction (`tags: dti`) |
-
-### `layer=ontology`
-
-| ID | engine | Name |
-|----|--------|------|
-| `ontology_synonym_extract` | llm | Synonym Extraction |
-| `ontology_synonym_resolve` | pgm | Synonym Resolution |
-| `ontology_hypernym_identify` | llm | Hypernym Identification |
-| `ontology_hypernym_filter` | pgm | Hypernym Filter |
-| `ontology_entity_link` | llm | Entity Linking / Normalization |
-
-### `layer=kg`
-
-| ID | engine | Name |
-|----|--------|------|
-| `kg_triple_extract_llm` | llm | Triple Extraction |
-| `kg_triple_merge` | pgm | Triple Merge |
-| `kg_rdf_export` | pgm | RDF-JSON Export |
-| `kg_triple_persist` | pgm | Triple CSV Persistence |
-
-### `layer=evaluate` · `engine=pgm`
-
-| ID | Name |
-|----|------|
-| `eval_metrics` | Generic P/R/F1 |
-| `eval_metrics_segment` | Segmentation boundaries |
-| `eval_metrics_relation` | Relation set metrics |
-| `eval_pair_generate` | Head×tail pair generator |
-
-### `layer=report`
-
-| ID | engine | Name |
-|----|--------|------|
-| `report_experiment` | llm | Experiment Markdown report |
-| `report_format_json` | pgm | Result JSON formatter |
-
-**Migration script:** `scripts/migrate_agents_taxonomy.py` (re-run only on a clean backup).
-
-### Example Workflows (`meta/graphs/wf_*.json`)
-
-| Graph ID | dataset | task | flow_pattern |
-|----------|---------|------|--------------|
-| `wf_doc_re_nested_branch` | doc_re | re | **branch + nested loop** (4 branches) |
-| `wf_doc_ner_loop_branch` | doc_ner | ner | **loop + branch** (4 branches) |
-| `wf_cid_re_branch` | cid | re | **branch** (4 branches) |
-| `wf_re_verify_llm_loop` | re_verify | re_verify | **loop** |
-| `wf_kg_syntax_loop` | kg_triple | kg | **loop** |
-| `wf_cid_ner_llm_eval` | cid | ner | linear |
-| `wf_cid_ner_flair_eval` | cid | ner | linear |
-| `wf_doc_ner_llm_eval` | doc_ner | ner | linear |
-| `wf_doc_ner_flair_eval` | doc_ner | ner | linear |
-| `wf_cid_re_llm_linear` | cid | re | linear |
-| `wf_kg_llm_full` | kg | kg | linear |
-| `wf_kg_flair_full` | kg | kg | linear |
-| `wf_word_seg_llm_eval` | word_seg | segment | linear |
-| `wf_general_report_linear` | general | report | linear |
-
-Subgraphs (`sg_*`) are loop/branch bodies — not used as Experiment runners directly.
-
-Migration: `scripts/migrate_graphs_taxonomy.py`
-
-## Roadmap (as of Jan 22, 2026 – HK time, yo!)
-- [x] Visual graph editor & basic execution
-- [x] LLM/Flair integration for BioNLP primitives
-- [x] Experiment runner with SSE & reports
-- [ ] Multiple dataset format supports.
-- [x] Agent catalog cleanup + biomedical KG agents (Flair + LLM)
-
 
 ## Citation
-```
+
+```bibtex
 @misc{neuragraph2026,
   author = {Lei Zhao},
-  title = {NeuraGraph:A Lightweight Platform for Building LLM-Powered Agent Workflows Specialized in Biomedical NLP and Knowledge Graph Tasks },
+  title = {NeuraGraph: A Lightweight Platform for LLM-Powered Agent Workflows},
   year = {2026},
-  publisher = {GitHub},
-  journal = {GitHub repository},
   howpublished = {\url{https://github.com/tyrone1979/neuragraph}}
 }
 ```

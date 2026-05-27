@@ -1,11 +1,6 @@
 {
-  "id": "wf_kg_llm_full",
   "name": "KG Build (LLM NER)",
   "description": "LLM NER → entity link → RE → triple merge → RDF export.",
-  "dataset": "kg",
-  "task": "kg",
-  "engine": "llm",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "ner_llm",
@@ -41,7 +36,6 @@
       "END"
     ]
   ],
-  "flowNodes": {},
   "bindings": {
     "ner_llm": {
       "text": "{{ START.text }}",

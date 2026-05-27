@@ -1,11 +1,6 @@
 {
-  "id": "wf_re_verify_llm_loop",
   "name": "RE Verify (pair loop)",
   "description": "Generate evaluation pairs → loop verify subgraph → metrics.",
-  "dataset": "re_verify",
-  "task": "re_verify",
-  "engine": "llm",
-  "flow_pattern": "loop",
   "nodes": [
     "START",
     "eval_pair_generate",

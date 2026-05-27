@@ -1,11 +1,6 @@
 {
-  "id": "wf_kg_syntax_loop",
   "name": "KG from syntax (sentence loop)",
   "description": "Coreference → split → loop tree-RE subgraph → CSV persist.",
-  "dataset": "kg_triple",
-  "task": "kg",
-  "engine": "llm",
-  "flow_pattern": "loop",
   "nodes": [
     "START",
     "text_coreference",
