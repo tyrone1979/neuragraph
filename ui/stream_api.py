@@ -4,22 +4,24 @@ from service.entity.test import TestLoader
 from langchain_core.runnables import RunnableConfig
 from service.meta.loader import MetaLoader
 from service.entity.agent import AgentLoader
-from service.result.loader import ResultLoader
+from service.result.loader import ResultLoader, compact_sample_for_report, iter_sample_indices
+from service.entity.runner import _apply_plugin_metrics
 from service.entity.runner import RunnerLoader
 from plugin.plugin_loader import get_plugin
+from utils.graphutils import collect_loop_stream_fields, is_loop_flow_node
 import json
 from datetime import datetime
 import asyncio
 sse_bp = Blueprint('sse', __name__, url_prefix='/stream')
 
-def process(chunk):
+def process(chunk, graph_id: str | None = None):
     if isinstance(chunk, str):
         pretty_text = format_agent_chunk(chunk)
         safe_chunk = pretty_text.replace("\n", "\\n")
         return f"data: {safe_chunk}\n\n"
     if isinstance(chunk, tuple):
         node_path, payload = chunk
-        pretty_text = format_graph_chunk(node_path, payload)
+        pretty_text = format_graph_chunk(node_path, payload, graph_id=graph_id)
         safe_chunk = pretty_text.replace("\n", "$$")
         return f"data: {safe_chunk}\n\n"
     return chunk
@@ -29,6 +31,10 @@ def run(target_id,scope,form_data,config=None):
     try:
         def event_stream():
             runner = RunnerLoader.load(target_id)
+            graph_id = None
+            if runner is not None:
+                meta = getattr(runner, "metadata", None) or {}
+                graph_id = meta.get("id") or target_id
             try:
                 for chunk in runner.stream(
                         form_data,
@@ -36,7 +42,7 @@ def run(target_id,scope,form_data,config=None):
                         stream_mode="updates",
                         subgraphs=True
                 ):
-                    completed_chunk = process(chunk)
+                    completed_chunk = process(chunk, graph_id=graph_id)
                     if completed_chunk:
                         yield completed_chunk
             except Exception as ex:
@@ -83,145 +89,171 @@ def _is_metrics_list(obj) -> bool:
         {'f1', 'precision', 'recall'}.issubset(sample.keys())
     )
 
+def _snapshot_for_report(
+    row: dict | None, state: dict, graph_id: str | None = None
+) -> dict:
+    """Prefer metrics; otherwise compute from gold columns or compact state."""
+    if isinstance(state, dict) and state.get("metrics"):
+        return state["metrics"]
+    if row and isinstance(state, dict):
+        enriched = _apply_plugin_metrics(row, dict(state), graph_id=graph_id)
+        if enriched.get("metrics"):
+            return enriched["metrics"]
+    return compact_sample_for_report(state)
+
+
+def _load_report_snapshots(exp_id: str, exp_cfg: dict) -> dict:
+    snapshots: dict = {}
+    results = ResultLoader.load(exp_id)
+    rows: list[dict] = []
+    if exp_cfg.get("runner_id") and exp_cfg.get("dataset"):
+        try:
+            _fields, rows = TestLoader.load_by_id_file(
+                exp_cfg["runner_id"], exp_cfg["dataset"]
+            )
+            rows = [dict(r) for r in rows]
+        except Exception:
+            rows = []
+
+    if results:
+        for idx in iter_sample_indices(results):
+            row = rows[int(idx) - 1] if int(idx) - 1 < len(rows) else {}
+            state = results[idx]
+            if isinstance(state, dict):
+                snapshots[idx] = _snapshot_for_report(
+                    row, state, graph_id=exp_cfg.get("runner_id")
+                )
+            else:
+                snapshots[idx] = state
+        return snapshots
+
+    runner_id = exp_cfg.get("runner_id")
+    dataset = exp_cfg.get("dataset")
+    if not runner_id or not dataset:
+        return snapshots
+    runner = RunnerLoader.load(runner_id)
+    if runner is None:
+        return snapshots
+    for idx, row in enumerate(rows, start=1):
+        config: RunnableConfig = {"configurable": {"thread_id": f"{exp_id}_{idx}"}}
+        state = runner.get_state(config)
+        values = state.values if state and isinstance(state.values, dict) else {}
+        if values:
+            snapshots[str(idx)] = _snapshot_for_report(
+                row, values, graph_id=runner_id
+            )
+    return snapshots
+
+
 @sse_bp.route('/report/<exp_id>', methods=['GET'])
 def stream_report(exp_id):
-    exp_cfg=MetaLoader.load("exps",exp_id)
-    if exp_cfg['status']!='completed':
-        error= f"The experiment {exp_id} is not completed yet."
+    exp_cfg = MetaLoader.load("exps", exp_id)
+    if not exp_cfg:
+        return Response(f"Experiment {exp_id} not found.", mimetype='text/event-stream')
+    if exp_cfg.get('status') != 'completed':
+        error = f"The experiment {exp_id} is not completed yet."
         return Response(error, mimetype='text/event-stream')
-    snapshots={}
-    results=ResultLoader.load(exp_id)
-    if not results:
-        dataset = exp_cfg['dataset']
-        runner_id = exp_cfg['runner_id']
-        fields, data = TestLoader.load_by_id_file(runner_id, dataset)
-        runner = RunnerLoader.load(runner_id)
-        for idx, data in enumerate(data, start=1):
-                config: RunnableConfig = {"configurable": {"thread_id": f'{exp_id}_{idx}'}}
-                state = runner.get_state(config)
-                if isinstance(state.values, dict) and 'metrics' in state.values.keys():
-                    snapshots[str(idx)] = state.values['metrics']
-                else:
-                    snapshots[str(idx)] = state.values
-    else:
-        for idx in results:
-            if isinstance(results[idx], dict) and 'metrics' in results[idx]:
-                snapshots[idx] = results[idx]['metrics']
 
-    input = {}
-    agent=AgentLoader.load('report_experiment')
-    if len(snapshots)>20 and  _is_metrics_list(snapshots): # 符合 metrics 格式
-            calculator=get_plugin('MetricsCalculation')
-            result=calculator.compute_micro_macro(snapshots)
-            input={'text': result}
+    snapshots = _load_report_snapshots(exp_id, exp_cfg)
+    if not snapshots:
+        msg = (
+            f"No experiment results found for {exp_id}. "
+            f"Expected result/{exp_id}/states.json or checkpoint state."
+        )
+        return Response(msg, mimetype='text/event-stream')
+
+    agent = AgentLoader.load('report_experiment')
+    if len(snapshots) > 20 and _is_metrics_list(snapshots):
+        calculator = get_plugin('MetricsCalculation')
+        result = calculator.compute_micro_macro(snapshots)
+        text_payload = result if isinstance(result, str) else json.dumps(result, ensure_ascii=False, indent=2)
     else:
-            input={'text': snapshots}
+        text_payload = json.dumps(snapshots, ensure_ascii=False, indent=2)
 
     def generate():
-        chunk=agent.invoke(input)
+        chunk = agent.invoke({'text': text_payload})
         safe_chunk = chunk['text'].replace("\n", "\\n")
         yield f"data: {safe_chunk}\n\n"
         yield "data: [DONE]\n\n"
-    return Response(generate(),mimetype='text/event-stream')
+    return Response(generate(), mimetype='text/event-stream')
 
 
 
 @sse_bp.route('/run/<exp_id>', methods=['GET'])
 def stream_exp_batch(exp_id):
-    exp_cfg = MetaLoader.load("exps",exp_id)
-    dataset = exp_cfg['dataset']
-    runner_id = exp_cfg['runner_id']
-    fields, data = TestLoader.load_by_id_file(runner_id, dataset)
+    """Batch-run experiment samples. Uses sync graph.invoke (same as local runner) to avoid
+    nested asyncio event-loop deadlocks inside Flask SSE workers."""
+    exp_cfg = MetaLoader.load("exps", exp_id)
+    dataset = exp_cfg["dataset"]
+    runner_id = exp_cfg["runner_id"]
+    _fields, data = TestLoader.load_by_id_file(runner_id, dataset)
     total = len(data)
-
-    async def event_generator(exp_id):
-            runner = await RunnerLoader.aload(runner_id)
-            completed = 0
-            exp_cfg["exp_id"] = exp_id
-            for idx, row in enumerate(data, start=1):
-                config: RunnableConfig = {"configurable": {"thread_id": f'{exp_id}_{idx}'}}
-                try:
-                    running_msg = {
-                        'status': 'running',
-                        'percent': int(completed / total * 100) if total else 0,
-                        'completed': completed,
-                        'total': total,
-                        'current_index': idx,
-                    }
-                    yield f'data: {json.dumps(running_msg)}\n\n'
-                    await runner.ainvoke(dict(row), config=config)
-                    completed += 1
-                    try:
-                        RunnerLoader.persistence(exp_cfg)
-                        MetaLoader.update(
-                            "exps",
-                            exp_id,
-                            {
-                                "progress": int(completed / total * 100) if total else 100,
-                                "status": "running" if completed < total else "completed",
-                            },
-                        )
-                    except Exception as persist_ex:
-                        err = {"status": "failed", "error": f"persistence: {persist_ex}"}
-                        yield f'data: {json.dumps(err)}\n\n'
-                    done_msg = {
-                        'status': 'completed' if completed >= total else 'running',
-                        'percent': int(completed / total * 100) if total else 100,
-                        'completed': completed,
-                        'total': total,
-                        'current_index': idx,
-                    }
-                    yield f'data: {json.dumps(done_msg)}\n\n'
-                except asyncio.CancelledError:
-                    raise
-                except Exception as e:
-                    msg = {
-                        'status': 'failed',
-                        'percent': int(completed / total * 100) if total else 0,
-                        'completed': completed,
-                        'total': total,
-                        'current_index': idx,
-                        'error': str(e),
-                    }
-                    yield f'data: {json.dumps(msg)}\n\n'
-                    break
-            yield 'data: [DONE]\n\n'
-
+    exp_cfg["exp_id"] = exp_id
 
     def generate():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        gen = event_generator(exp_id)
-        try:
-            while True:
-                try:
-                    data = loop.run_until_complete(anext(gen))
-                    yield data
-                except StopAsyncIteration:
-                    break
-                except GeneratorExit:
-                    # 客户端关闭连接
-                    break
-                except asyncio.CancelledError:
-                    break
-        finally:
-            # 确保事件循环正确关闭（关键！）
+        runner = RunnerLoader.load(runner_id)
+        if runner is None:
+            yield f'data: {json.dumps({"status": "failed", "error": f"runner not found: {runner_id}"})}\n\n'
+            yield "data: [DONE]\n\n"
+            return
+
+        completed = 0
+        for idx, row in enumerate(data, start=1):
+            config: RunnableConfig = {"configurable": {"thread_id": f"{exp_id}_{idx}"}}
             try:
-                # 取消所有 pending tasks
-                pending = asyncio.all_tasks(loop)
-                for task in pending:
-                    task.cancel()
+                running_msg = {
+                    "status": "running",
+                    "batch_status": "running",
+                    "percent": int(completed / total * 100) if total else 0,
+                    "completed": completed,
+                    "total": total,
+                    "current_index": idx,
+                }
+                yield f"data: {json.dumps(running_msg)}\n\n"
 
-                if pending:
-                    loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                if hasattr(runner, "compiled_graph"):
+                    runner.compiled_graph.invoke(dict(row), config=config)
+                else:
+                    runner.invoke(dict(row), config=config)
 
-                loop.run_until_complete(loop.shutdown_asyncgens())
-                loop.close()
+                completed += 1
+                try:
+                    RunnerLoader.persistence(exp_cfg)
+                    MetaLoader.update(
+                        "exps",
+                        exp_id,
+                        {
+                            "progress": int(completed / total * 100) if total else 100,
+                            "status": "running" if completed < total else "completed",
+                        },
+                    )
+                except Exception as persist_ex:
+                    err = {"status": "failed", "error": f"persistence: {persist_ex}"}
+                    yield f"data: {json.dumps(err)}\n\n"
+
+                done_msg = {
+                    "status": "completed",
+                    "batch_status": "completed" if completed >= total else "running",
+                    "percent": int(completed / total * 100) if total else 100,
+                    "completed": completed,
+                    "total": total,
+                    "current_index": idx,
+                }
+                yield f"data: {json.dumps(done_msg)}\n\n"
             except Exception as e:
-                pass
+                msg = {
+                    "status": "failed",
+                    "percent": int(completed / total * 100) if total else 0,
+                    "completed": completed,
+                    "total": total,
+                    "current_index": idx,
+                    "error": str(e),
+                }
+                yield f"data: {json.dumps(msg)}\n\n"
+                break
+        yield "data: [DONE]\n\n"
 
-
-    return Response(generate(),mimetype='text/event-stream')
+    return Response(generate(), mimetype="text/event-stream")
 
 
 import textwrap
@@ -369,7 +401,7 @@ def format_agent_chunk(payload):
     block=payload
     return block
 
-def format_graph_chunk(node_path, payload):
+def format_graph_chunk(node_path, payload, graph_id: str | None = None):
     path_parts = []
     for item in node_path:
         if isinstance(item, str) and ':' in item:
@@ -384,8 +416,13 @@ def format_graph_chunk(node_path, payload):
     for current_node, value in payload.items():
         full_path_parts = path_parts + [str(current_node)]
         node_path_str = " -> ".join(full_path_parts) if full_path_parts else "START"
+        loop_stream_fields = None
+        if graph_id and is_loop_flow_node(graph_id, str(current_node)):
+            loop_stream_fields = collect_loop_stream_fields(graph_id, str(current_node))
         if isinstance(value, dict):
             for field_name, content in value.items():
+                if loop_stream_fields is not None and field_name not in loop_stream_fields:
+                    continue
                 block = ascii_block(content)
                 blocks.append(
                     f"Node Path: {node_path_str}\n"

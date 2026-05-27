@@ -14,7 +14,7 @@ import csv
 from typing_extensions import get_type_hints
 from typing import Dict, Any, List, get_type_hints, Iterator
 from service.entity.tool import ToolLoader
-from utils.conversion import convert_to_list, T,jsonify_state
+from utils.conversion import convert_to_list, parse_entity_list, T, jsonify_state
 from service.entity.entity import Entity, EntityLoader
 from service.meta.loader import MetaLoader
 from utils.graphutils import create_graph
@@ -25,6 +25,60 @@ from dataclasses import dataclass
 
 
 logger = getLogger(__name__)
+
+
+def _llm_extra_body(llm_info: dict) -> dict | None:
+    """OpenAI-compatible extra_body (e.g. disable Kimi thinking / reasoning)."""
+    extra = dict(llm_info.get("extra_body") or {})
+    meta = llm_info.get("metadata") or {}
+    if isinstance(meta.get("extra_body"), dict):
+        extra = {**meta["extra_body"], **extra}
+    model_name = (llm_info.get("model") or "").lower()
+    base_url = (llm_info.get("base_url") or "").lower()
+    if "moonshot" in base_url or "kimi" in model_name:
+        thinking = extra.get("thinking") if isinstance(extra.get("thinking"), dict) else {}
+        if thinking.get("type") != "enabled":
+            extra["thinking"] = {"type": "disabled"}
+    return extra or None
+
+
+def _build_chat_openai(llm_info: dict) -> ChatOpenAI:
+    kwargs: dict = {
+        "model": llm_info["model"],
+        "base_url": llm_info["base_url"],
+        "api_key": llm_info["api_key"],
+        "temperature": llm_info.get("temperature", 0),
+    }
+    if llm_info.get("max_tokens") is not None:
+        kwargs["max_tokens"] = llm_info["max_tokens"]
+    extra_body = _llm_extra_body(llm_info)
+    if extra_body:
+        kwargs["extra_body"] = extra_body
+    return ChatOpenAI(**kwargs)
+
+
+def _strip_reasoning_from_messages(messages: list) -> list:
+    """Remove Kimi reasoning_content from history so follow-up calls do not 400."""
+    cleaned = []
+    for msg in messages:
+        if isinstance(msg, AIMessage):
+            ak = dict(getattr(msg, "additional_kwargs", None) or {})
+            ak.pop("reasoning_content", None)
+            rc = getattr(msg, "response_metadata", None) or {}
+            if isinstance(rc, dict) and "reasoning_content" in rc:
+                rc = {k: v for k, v in rc.items() if k != "reasoning_content"}
+            cleaned.append(
+                AIMessage(
+                    content=msg.content,
+                    additional_kwargs=ak,
+                    tool_calls=getattr(msg, "tool_calls", None) or [],
+                    id=getattr(msg, "id", None),
+                    response_metadata=rc if rc else {},
+                )
+            )
+        else:
+            cleaned.append(msg)
+    return cleaned
 
 
 class AgentEntity(Entity):
@@ -61,13 +115,7 @@ class AgentEntity(Entity):
                     temperature=llm_info['temperature'],
                 )
             elif llm_type in ('custom', 'openai'):
-                self.model = ChatOpenAI(
-                    model=llm_info['model'],  # ollama list 里看到的模型名
-                    base_url=llm_info['base_url'],
-                    api_key=llm_info['api_key'],
-                    temperature=llm_info['temperature'],
-                    max_tokens=llm_info['max_tokens']
-                )
+                self.model = _build_chat_openai(llm_info)
             else:
                 raise ValueError(f"Unknown LLM type '{llm_type}' for agent '{self.id}'")
 
@@ -122,6 +170,22 @@ class AgentEntity(Entity):
         typ = self.outputs.get("type", "str").lower()
         if self.type=='LLM':
             if typ == "list":
+                parse_as = (
+                    self.outputs.get("parse_as")
+                    or self.meta.get("output_parse")
+                    or ("entity_list" if name in ("filtered_entities", "entities") else None)
+                )
+                if parse_as == "entity_list":
+                    parsed = parse_entity_list(result)
+                    if not parsed and isinstance(state, dict):
+                        parsed = parse_entity_list(state.get("entities"))
+                    return {name: parsed}
+                if isinstance(result, list):
+                    if result and all(isinstance(x, dict) for x in result):
+                        parsed = parse_entity_list(result)
+                        if parsed:
+                            return {name: parsed}
+                    return {name: result}
                 return {name: convert_to_list(result)}
             if typ == "dict" and isinstance(result, str):
                 try:
@@ -135,7 +199,11 @@ class AgentEntity(Entity):
                 return {name: parsed}
             return {name: result}
         elif self.type == "PGM":
-            return {name: result} if self.type == "PGM" else {}
+            if isinstance(result, dict) and "error" in result and name not in result:
+                if typ == "list":
+                    return {name: []}
+                return {name: None}
+            return {name: result}
         else:
             return state[name]
 
@@ -234,12 +302,19 @@ class AgentEntity(Entity):
                 if default_labels:
                     base_dict["labels"] = default_labels
             prompt_value = self.template.invoke(base_dict)
-            ai_msg = self.model.invoke(prompt_value)
-            if ai_msg and hasattr(ai_msg, 'content'):
-                result = ai_msg.content
-                out = self._build_output_dict(result, state)
-                # self._persistence(state["doc"], state["doc_id"], out)
-                return out
+            if self.tools:
+                messages = _strip_reasoning_from_messages(prompt_value.to_messages())
+                agent_out = self.agent.invoke({"messages": messages})
+                out_messages = agent_out.get("messages", []) if isinstance(agent_out, dict) else []
+                ai_msg = next(
+                    (m for m in reversed(out_messages) if isinstance(m, AIMessage)),
+                    None,
+                )
+                result = ai_msg.content if ai_msg else ""
+            else:
+                ai_msg = self.model.invoke(prompt_value)
+                result = ai_msg.content if ai_msg and hasattr(ai_msg, "content") else ""
+            return self._build_output_dict(result, state)
         return {}
 
 
@@ -268,8 +343,9 @@ class AgentEntity(Entity):
             # ---------- 5. 逐 chunk 推流 ----------
             try:
                 if self.tools:
-                    config=kwargs.get("config")
-                    for chunk in self.agent.stream(prompt_value,config=config):
+                    config = kwargs.get("config")
+                    messages = _strip_reasoning_from_messages(prompt_value.to_messages())
+                    for chunk in self.agent.stream({"messages": messages}, config=config):
                         if isinstance(chunk, dict):
                             if 'model' in chunk and 'messages' in chunk['model']:
                                 message = chunk['model']['messages'][-1]

@@ -159,15 +159,78 @@ class Metrics(Plugin):
         class MetricsCalculation:
 
             @staticmethod
+            def parse_relation_pairs(raw):
+                """Parse CID/RE pipe lines 'head | rel | tail' into [(head, tail), ...]."""
+                if raw is None or raw == "":
+                    return []
+                lines = []
+                if isinstance(raw, str):
+                    lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
+                elif isinstance(raw, list):
+                    for item in raw:
+                        if isinstance(item, str):
+                            lines.extend(
+                                ln.strip()
+                                for ln in item.splitlines()
+                                if ln.strip()
+                            )
+                        else:
+                            lines.append(item)
+                else:
+                    return []
+
+                pairs = []
+                for item in lines:
+                    if isinstance(item, dict):
+                        h = (
+                            item.get("head_entity")
+                            or item.get("chemical")
+                            or item.get("head")
+                            or ""
+                        ).lower().strip()
+                        t = (
+                            item.get("tail_entity")
+                            or item.get("disease")
+                            or item.get("tail")
+                            or ""
+                        ).lower().strip()
+                        if h and t:
+                            pairs.append((h, t))
+                    elif isinstance(item, str) and "|" in item:
+                        parts = [p.strip() for p in item.split("|")]
+                        if len(parts) >= 3:
+                            h, t = parts[0].lower(), parts[-1].lower()
+                        elif len(parts) == 2:
+                            h, t = parts[0].lower(), parts[1].lower()
+                        else:
+                            continue
+                        if h in ("chemical", "head") or t in ("disease", "tail"):
+                            continue
+                        if h and t:
+                            pairs.append((h, t))
+                    elif isinstance(item, (list, tuple)):
+                        if len(item) >= 3:
+                            pairs.append((str(item[0]).lower(), str(item[2]).lower()))
+                        elif len(item) == 2:
+                            pairs.append((str(item[0]).lower(), str(item[1]).lower()))
+                return pairs
+
+            @staticmethod
             def calculate(expected, predicted):
                 from ast import literal_eval
                 from sklearn.metrics import precision_recall_fscore_support
 
                 # --------------- 统一字符串 → Python 对象 ---------------
                 if isinstance(expected, str):
-                    expected = literal_eval(expected)
+                    if "|" in expected:
+                        expected = MetricsCalculation.parse_relation_pairs(expected)
+                    else:
+                        expected = literal_eval(expected)
                 if isinstance(predicted, str):
-                    predicted = literal_eval(predicted)
+                    if "|" in predicted:
+                        predicted = MetricsCalculation.parse_relation_pairs(predicted)
+                    else:
+                        predicted = literal_eval(predicted)
 
                 def flatten_to_binary(gold_set, pred_set):
                     """将两个集合转换为二进制标签列表"""
@@ -187,7 +250,9 @@ class Metrics(Plugin):
                     def normalize_list_of_pairs(lst):
                         result = []
                         for item in lst:
-                            if len(item) == 2:
+                            if len(item) == 3:
+                                result.append((str(item[0]).lower(), str(item[2]).lower()))
+                            elif len(item) == 2:
                                 entity, label = item
                                 result.append((entity.lower(), label.lower()))
                         return result

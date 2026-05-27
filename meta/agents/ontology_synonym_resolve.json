@@ -1,18 +1,24 @@
 {
   "id": "ontology_synonym_resolve",
-  "name": "Synonym Resolution (PGM)",
-  "type": "PGM",
+  "name": "Synonym Resolution (LLM)",
+  "type": "LLM",
+  "model": "kimi-2.6",
   "inputs": [
+    "text",
     "entities"
   ],
   "outputs": {
-    "name": "synonym_resolved",
-    "type": "list"
+    "name": "synonyms",
+    "type": "str"
   },
-  "persistence": {},
-  "process": "# Synonym resolution - merge entities with same canonical form\nentities = state.get('entities', [])\nif isinstance(entities, str):\n    # Parse from LLM text output\n    parsed = []\n    for line in entities.strip().split('\\n'):\n        line = line.strip()\n        if '|' not in line or line.startswith('Entity'):\n            continue\n        parts = line.split('|')\n        if len(parts) >= 2:\n            entity_type = parts[0].strip()\n            name = parts[1].strip()\n            if entity_type in ('Chemical', 'Disease') and name:\n                parsed.append({'type': entity_type, 'name': name, 'canonical': name.lower().replace('-', ' ')})\n    entities = parsed\n\n# Group by canonical form and resolve synonyms\ncanonical = {}\nfor e in entities:\n    if isinstance(e, dict):\n        key = (e.get('type', ''), e.get('canonical', e.get('name', '').lower()))\n        if key not in canonical:\n            canonical[key] = {'type': e['type'], 'names': set(), 'canonical': key[1]}\n        canonical[key]['names'].add(e.get('name', e.get('canonical', '')))\n\nresult = []\nfor k, v in canonical.items():\n    # Use shortest name as representative\n    rep = min(v['names'], key=len) if v['names'] else k[1]\n    result.append({'type': v['type'], 'name': rep, 'canonical': v['canonical'], 'synonyms': list(v['names'])})\n\n__result__ = result",
+  "prompt_template": {
+    "description": "Biomedical abstract synonym extraction (aligned with synonym_extraction)",
+    "system": "You are a biomedical synonym specialist.",
+    "human": "Task:\n1. Identify every noun term/phrase in the abstract that has at least one exact biomedical synonym (abbreviations, CAS numbers, alternative names, plural forms all allowed).\n2. Use the NER entity list below as hints; only include pairs where both strings appear in the abstract.\n3. For each such term/phrase, generate one standalone declarative sentence of the form:\noriginal|is|synonym1\noriginal|is|synonym2\n...\n4. Output only those sentences, one per line, no header, no abstract.\n- Do not add any introductory sentences like \"Here is the output...\"\n- Ensure that all terms and synonyms are exactly as they appear in the abstract. No variations or additional text.\n\nNER entities (JSON, hints only):\n{entities}\n\nAbstract:\n{text}"
+  },
+  "tools": [],
   "created_at": "2026-05-18T12:00:00",
-  "description": "Merge synonym mentions to canonical representative forms.",
+  "description": "Extract synonym pairs as original|is|synonym lines from abstract text.",
   "layer": "ontology",
-  "engine": "pgm"
+  "engine": "llm"
 }

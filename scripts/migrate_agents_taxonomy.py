@@ -303,8 +303,8 @@ def build_agents() -> dict[str, dict]:
         (
             "cid_synonym_resolve",
             "ontology_synonym_resolve",
-            "Synonym Resolution (PGM)",
-            "Merge synonym mentions to canonical representative forms.",
+            "Synonym Resolution (LLM)",
+            "LLM-based synonym merging for Chemical/Disease entities.",
         ),
         (
             "hypernym_identification",
@@ -315,8 +315,8 @@ def build_agents() -> dict[str, dict]:
         (
             "cid_hypernym_filter",
             "ontology_hypernym_filter",
-            "Hypernym Filter (PGM)",
-            "Remove overly generic hypernym terms from entity lists.",
+            "Hypernym Filter (LLM)",
+            "LLM-based filtering of generic hypernym entities.",
         ),
     ]:
         src = load_agent(old)

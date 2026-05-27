@@ -38,7 +38,13 @@
       "subgraphId": "sg_relation_verify",
       "loopConfig": {
         "loopType": "foreach",
-        "array": "{{ pairs }}"
+        "array": "{{ pairs }}",
+        "itemBindings": {
+          "text": "{{ text }}",
+          "head": "{{ head }}",
+          "tail": "{{ tail }}",
+          "entity_link": "{{ entity_link }}"
+        }
       }
     }
   },

@@ -52,7 +52,11 @@
       "subgraphId": "sg_ner_flair_sent",
       "loopConfig": {
         "loopType": "foreach",
-        "array": "{{ sentences }}"
+        "array": "{{ sentences }}",
+        "scalarItemField": "sentence",
+        "mergeAliases": {
+          "predicted": "entities"
+        }
       }
     },
     "ner_route": {

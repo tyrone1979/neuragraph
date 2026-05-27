@@ -97,7 +97,12 @@ def render_html(template, runner_id,test_file,runner_type,runner_display, progre
                 item_dict['status'] = '<span class="badge text-bg-success">Completed</span>'
                 item_dict['actions'] = f'''<a class="btn btn-outline-info btn-replay" title="Replay" data-index='{idx}'>
                                                                                               <i class="fas fa-play"></i></a>'''
-                snapshots[idx] = results[idx_str]
+                # Keep inline JSON small (full state can be MB for long CID articles).
+                row_result = results[idx_str]
+                if isinstance(row_result, dict) and "metrics" in row_result:
+                    snapshots[idx] = {"metrics": row_result["metrics"]}
+                else:
+                    snapshots[idx] = row_result
             else:
                 item_dict['status'] = '<span class="badge text-bg-warning">Pending</span>'
                 item_dict['actions'] = ''

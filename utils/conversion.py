@@ -142,6 +142,96 @@ def convert_to_list(raw: str) -> list:
     return result
 
 
+_ENTITY_KEYS = frozenset({"text", "id", "label"})
+
+
+def normalize_entity_record(item: Any) -> dict[str, Any] | None:
+    """Normalize one entity dict to {text, id, label}."""
+    if not isinstance(item, dict):
+        return None
+    text = (item.get("text") or item.get("name") or "").strip()
+    eid = (item.get("id") or item.get("mesh") or item.get("mesh_id") or "").strip()
+    label = (item.get("label") or item.get("type") or "").strip()
+    if not text or not eid:
+        return None
+    return {"text": text, "id": eid, "label": label}
+
+
+def parse_entity_list(raw: Any) -> list[dict[str, Any]]:
+    """
+    Parse LLM output into [{text, id, label}, ...].
+    Ignores chain-of-thought lines; prefers the last JSON array of entity objects.
+    """
+    if raw is None:
+        return []
+    if isinstance(raw, list):
+        if raw and all(isinstance(x, dict) for x in raw):
+            out = [normalize_entity_record(x) for x in raw]
+            return [e for e in out if e]
+        if raw and all(isinstance(x, str) for x in raw):
+            raw = "\n".join(raw)
+        elif not raw:
+            return []
+    if not isinstance(raw, str):
+        return []
+
+    text = raw.strip()
+    if not text:
+        return []
+
+    candidates: list[str] = []
+
+    for block in re.findall(r"```(?:json)?\s*([\s\S]*?)\s*```", text, flags=re.IGNORECASE):
+        block = block.strip()
+        if block.startswith("["):
+            candidates.append(block)
+
+    i = 0
+    while i < len(text):
+        if text[i] != "[":
+            i += 1
+            continue
+        depth = 0
+        for j in range(i, len(text)):
+            ch = text[j]
+            if ch == "[":
+                depth += 1
+            elif ch == "]":
+                depth -= 1
+                if depth == 0:
+                    snippet = text[i : j + 1]
+                    if '"text"' in snippet and '"id"' in snippet:
+                        candidates.append(snippet)
+                    i = j + 1
+                    break
+        else:
+            break
+
+    for candidate in reversed(candidates):
+        try:
+            parsed = json.loads(candidate)
+        except json.JSONDecodeError:
+            try:
+                import ast
+                parsed = ast.literal_eval(candidate)
+            except (SyntaxError, ValueError):
+                continue
+        if not isinstance(parsed, list):
+            continue
+        out = [normalize_entity_record(x) for x in parsed]
+        out = [e for e in out if e]
+        if out:
+            return out
+
+    try:
+        parsed = json.loads(text)
+        if isinstance(parsed, list):
+            out = [normalize_entity_record(x) for x in parsed]
+            return [e for e in out if e]
+    except json.JSONDecodeError:
+        pass
+
+    return []
 
 
 def jsonify_state(state: T) -> T:

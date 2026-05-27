@@ -3,6 +3,7 @@ from typing import Any
 from logging import getLogger
 
 import csv
+import json
 from pathlib import Path
 from data.data_parser import CIDParser
 from service.entity.entity import EntityLoader
@@ -12,6 +13,58 @@ logger = getLogger(__name__)
 
 
 class TestLoader(EntityLoader):
+
+    @staticmethod
+    def parse_jsonish_row(row: dict[str, str]) -> dict[str, Any]:
+        """Parse CSV string cells that hold JSON lists/objects into Python values."""
+        out: dict[str, Any] = dict(row)
+        for key, val in list(out.items()):
+            if not isinstance(val, str):
+                continue
+            stripped = val.strip()
+            if stripped.startswith("[") or stripped.startswith("{"):
+                try:
+                    out[key] = json.loads(stripped)
+                except json.JSONDecodeError:
+                    pass
+        return out
+
+    @staticmethod
+    def first_sample_row(graph_id: str) -> dict[str, str] | None:
+        """First data row from tests/<graph_id>/sample.csv, else first *.csv in that folder."""
+        graph_dir = TEST_DIR / graph_id
+        if not graph_dir.is_dir():
+            return None
+        sample_csv = graph_dir / "sample.csv"
+        if sample_csv.is_file():
+            csv_path = sample_csv
+        else:
+            csv_files = sorted(graph_dir.glob("*.csv"))
+            if not csv_files:
+                return None
+            csv_path = csv_files[0]
+        try:
+            with open(csv_path, newline="", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                if not rows:
+                    return None
+                return {
+                    k.strip(): (v.strip() if isinstance(v, str) else v)
+                    for k, v in rows[0].items()
+                    if k and k.strip()
+                }
+        except OSError as e:
+            logger.warning("first_sample_row %s: %s", csv_path, e)
+            return None
+
+    @staticmethod
+    def workflow_test_input(graph_id: str) -> dict[str, Any] | None:
+        """Payload for graph UI test run: first row from tests/<graph_id>/*.csv, or None."""
+        row = TestLoader.first_sample_row(graph_id)
+        if not row:
+            return None
+        return TestLoader.parse_jsonish_row(row)
 
     @staticmethod
     def load_by_id_file(id:str,file:str) -> None | tuple[list[Any], list[Any]] | tuple[list[Any], list]:

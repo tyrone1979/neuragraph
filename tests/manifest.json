@@ -16,9 +16,14 @@
       "gold_relations": "Aspirin|causes|headache"
     },
     "wf_cid_re_llm_linear": {
-      "text": "Aspirin may cause headache.",
-      "labels": "Chemical,Disease",
-      "gold_relations": "Aspirin|causes|headache"
+      "text": "Aspirin may reduce the risk of heart disease. Metformin is commonly used to treat type 2 diabetes.",
+      "entities": [
+        {"text": "Aspirin", "id": "D001241", "label": "Chemical"},
+        {"text": "Metformin", "id": "D008687", "label": "Chemical"},
+        {"text": "heart disease", "id": "D006331", "label": "Disease"},
+        {"text": "type 2 diabetes", "id": "D003924", "label": "Disease"}
+      ],
+      "gold_relations": "D001241 | D003924"
     },
     "wf_doc_ner_flair_eval": {
       "text": "Aspirin may reduce the risk of heart disease.",

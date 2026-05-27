@@ -1,62 +1,73 @@
 {
   "id": "wf_cid_re_llm_linear",
   "name": "CID RE Pipeline (linear)",
-  "description": "NER → ontology cleanup → relation extract → relation metrics.",
+  "description": "Gold entities → hypernym filter → pair list → foreach RE verify → id pairs.",
   "dataset": "cid",
   "task": "re",
   "engine": "llm",
-  "flow_pattern": "linear",
+  "flow_pattern": "loop",
   "nodes": [
     "START",
-    "ner_llm",
-    "ontology_synonym_resolve",
     "ontology_hypernym_filter",
-    "relation_extract_llm",
-    "eval_metrics_relation",
+    "cid_pair_generate",
+    "cid_re_verify_loop",
     "END"
   ],
   "edges": [
     [
       "START",
-      "ner_llm"
-    ],
-    [
-      "ner_llm",
-      "ontology_synonym_resolve"
-    ],
-    [
-      "ontology_synonym_resolve",
       "ontology_hypernym_filter"
     ],
     [
       "ontology_hypernym_filter",
-      "relation_extract_llm"
+      "cid_pair_generate"
     ],
     [
-      "relation_extract_llm",
-      "eval_metrics_relation"
+      "cid_pair_generate",
+      "cid_re_verify_loop"
     ],
     [
-      "eval_metrics_relation",
+      "cid_re_verify_loop",
       "END"
     ]
   ],
-  "flowNodes": {},
+  "metrics": [
+    {
+      "type": "relation_pairs",
+      "expected": {
+        "from": "input",
+        "field": "gold_relations"
+      },
+      "predicted": {
+        "from": "state",
+        "field": "relations"
+      }
+    }
+  ],
+  "flowNodes": {
+    "cid_re_verify_loop": {
+      "kind": "loop",
+      "name": "Verify each Chemical–Disease pair",
+      "subgraphId": "sg_cid_re_verify",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ pairs }}",
+        "itemBindings": {
+          "text": "{{ text }}",
+          "head": "{{ head }}",
+          "tail": "{{ tail }}",
+          "head_id": "{{ head_id }}",
+          "tail_id": "{{ tail_id }}"
+        }
+      }
+    }
+  },
   "bindings": {
-    "ner_llm": {
-      "text": "{{ START.text }}",
-      "labels": "Chemical, Disease"
+    "ontology_hypernym_filter": {
+      "entities": "{{ START.entities }}"
     },
-    "ontology_synonym_resolve": {
-      "entities": "{{ ner_llm.entities }}"
-    },
-    "relation_extract_llm": {
-      "text": "{{ START.text }}",
-      "entities": "{{ ontology_hypernym_filter.filtered_entities }}"
-    },
-    "eval_metrics_relation": {
-      "relations": "{{ relations }}",
-      "ground_truth": "{{ START.gold_relations }}"
+    "cid_pair_generate": {
+      "filtered_entities": "{{ filtered_entities }}"
     }
   }
 }

@@ -1,0 +1,42 @@
+{
+  "id": "sg_cid_re_verify",
+  "name": "CID RE verify pair",
+  "description": "Verify one Chemical–Disease pair; output id | id if induce ($).",
+  "dataset": "internal",
+  "task": "subgraph",
+  "engine": "mixed",
+  "flow_pattern": "linear",
+  "nodes": [
+    "START",
+    "relation_verify_llm",
+    "relation_verify_to_id_pair",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "relation_verify_llm"
+    ],
+    [
+      "relation_verify_llm",
+      "relation_verify_to_id_pair"
+    ],
+    [
+      "relation_verify_to_id_pair",
+      "END"
+    ]
+  ],
+  "flowNodes": {},
+  "bindings": {
+    "relation_verify_llm": {
+      "text": "{{ text }}",
+      "head": "{{ head }}",
+      "tail": "{{ tail }}"
+    },
+    "relation_verify_to_id_pair": {
+      "result": "{{ result }}",
+      "head_id": "{{ head_id }}",
+      "tail_id": "{{ tail_id }}"
+    }
+  }
+}

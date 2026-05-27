@@ -24,7 +24,8 @@ NER_RUNNER = "wf_cid_ner_llm_eval"
 RE_RUNNER = "wf_cid_re_llm_linear"
 DATASET_FILE = "cid_dev_2samples.csv"
 STREAM_TIMEOUT = 3600  # background SSE reader; per-sample ~2-3 min LLM
-RESULTS_POLL_TIMEOUT = 900  # wait for incremental states.json (2 samples)
+RESULTS_POLL_TIMEOUT = 720  # HTTP /stream/run fallback poll
+RE_BATCH_EXTRA = 900  # RE linear pipeline needs more time per sample
 
 
 def ensure_cid_dataset(tests_data_dir: Path) -> None:
@@ -33,7 +34,8 @@ def ensure_cid_dataset(tests_data_dir: Path) -> None:
     from service.entity.test import TestLoader
 
     ner_csv = tests_data_dir / NER_RUNNER / DATASET_FILE
-    if ner_csv.is_file():
+    re_csv = tests_data_dir / RE_RUNNER / DATASET_FILE
+    if ner_csv.is_file() and re_csv.is_file():
         return
 
     dev_path = tests_data_dir.parent / "dev.txt"
@@ -44,7 +46,7 @@ def ensure_cid_dataset(tests_data_dir: Path) -> None:
     if len(articles) < 2:
         raise RuntimeError(f"Need 2 articles in {dev_path}")
 
-    def article_to_row(art) -> dict[str, str]:
+    def ner_row(art) -> dict[str, str]:
         mesh_to_text = {e.mesh: e.text for e in art.entities}
         rel_lines = []
         for head_mesh, tail_mesh in art.expected_relations:
@@ -58,10 +60,32 @@ def ensure_cid_dataset(tests_data_dir: Path) -> None:
             "gold_relations": "\n".join(rel_lines) if rel_lines else "",
         }
 
-    rows = [article_to_row(a) for a in articles]
-    fields = ["text", "labels", "gold_entities", "gold_relations"]
-    for runner_id in (NER_RUNNER, RE_RUNNER):
-        TestLoader.save_csv_rows(runner_id, DATASET_FILE, fields, rows)
+    def re_row(art) -> dict[str, str]:
+        entities = [
+            {"text": e.text, "id": e.mesh, "label": e.etype}
+            for e in art.entities
+        ]
+        rel_lines = [f"{h} | {t}" for h, t in art.expected_relations]
+        return {
+            "text": art.text,
+            "entities": json.dumps(entities, ensure_ascii=False),
+            "gold_relations": "\n".join(rel_lines) if rel_lines else "",
+        }
+
+    ner_rows = [ner_row(a) for a in articles]
+    re_rows = [re_row(a) for a in articles]
+    TestLoader.save_csv_rows(
+        NER_RUNNER,
+        DATASET_FILE,
+        ["text", "labels", "gold_entities", "gold_relations"],
+        ner_rows,
+    )
+    TestLoader.save_csv_rows(
+        RE_RUNNER,
+        DATASET_FILE,
+        ["text", "entities", "gold_relations"],
+        re_rows,
+    )
 
 
 def api_get_json(url: str) -> dict:
@@ -105,6 +129,48 @@ def wait_results_file(exp_id: str, min_samples: int = 2, timeout: int = RESULTS_
                 pass
         time.sleep(5)
     return False
+
+
+def goto_exp_results_page(page: Page, base: str, exp_id: str) -> bool:
+    for attempt in range(3):
+        try:
+            goto(page, base, f"/exp/{exp_id}", 2, wait_until="commit", timeout=60000)
+            return True
+        except Exception as ex:
+            print(f"  goto /exp/{exp_id} attempt {attempt + 1}: {ex}")
+            time.sleep(3)
+    return False
+
+
+def run_batch_inprocess(exp_id: str, runner_id: str) -> bool:
+    """Run workflow samples in-process (same as fixed /stream/run). Avoids Flask SSE thread contention during Playwright."""
+    from langchain_core.runnables import RunnableConfig
+    from service.entity.runner import RunnerLoader
+    from service.entity.test import TestLoader
+    from service.meta.loader import MetaLoader
+
+    exp_cfg = MetaLoader.load("exps", exp_id)
+    exp_cfg["exp_id"] = exp_id
+    _, rows = TestLoader.load_by_id_file(runner_id, DATASET_FILE)
+    runner = RunnerLoader.load(runner_id)
+    if runner is None:
+        return False
+    for idx, row in enumerate(rows, start=1):
+        config: RunnableConfig = {"configurable": {"thread_id": f"{exp_id}_{idx}"}}
+        if hasattr(runner, "compiled_graph"):
+            runner.compiled_graph.invoke(dict(row), config=config)
+        else:
+            runner.invoke(dict(row), config=config)
+        RunnerLoader.persistence(exp_cfg)
+        MetaLoader.update(
+            "exps",
+            exp_id,
+            {
+                "progress": int(idx / len(rows) * 100) if rows else 100,
+                "status": "running" if idx < len(rows) else "completed",
+            },
+        )
+    return wait_results_file(exp_id, min_samples=2, timeout=30)
 
 
 def start_stream_background(base: str, exp_id: str) -> threading.Thread:
@@ -239,26 +305,26 @@ def _run_experiment_ui(
     except Exception as ex:
         print(f"  [{tag}] update(running) failed: {ex}")
 
-    print(f"  [{runner_id}] starting /stream/run in background, polling states.json ...")
-    stream_thread = start_stream_background(base, exp_id)
-    file_ready = wait_results_file(exp_id, min_samples=2, timeout=RESULTS_POLL_TIMEOUT)
+    est = "5-15" if runner_id == NER_RUNNER else "15-30"
+    print(f"  [{runner_id}] running batch in-process (~{est} min) ...")
+    file_ready = run_batch_inprocess(exp_id, runner_id)
     if file_ready:
         print(f"  [{tag}] states.json has >=2 samples")
+    else:
+        print(f"  [{tag}] in-process failed, trying HTTP /stream/run ...")
+        start_stream_background(base, exp_id)
+        file_ready = wait_results_file(exp_id, min_samples=2, timeout=RESULTS_POLL_TIMEOUT)
     ok(f"{tag}-results-file", file_ready) if file_ready else fail(f"{tag}-results-file", "states.json missing/incomplete")
 
-    try:
-        api_post_json(
-            f"{base}/exp/api/update",
-            {"exp_id": exp_id, "status": "completed", "progress": 100},
-        )
-    except Exception as ex:
-        print(f"  [{tag}] update(completed) failed: {ex}")
+    from service.meta.loader import MetaLoader
 
-    goto(page, base, f"/exp/{exp_id}", 2, wait_until="domcontentloaded", timeout=120000)
-    try:
-        page.wait_for_load_state("networkidle", timeout=30000)
-    except Exception:
-        time.sleep(2)
+    MetaLoader.update("exps", exp_id, {"status": "completed", "progress": 100})
+
+    if not goto_exp_results_page(page, base, exp_id):
+        fail(f"{tag}-results-page", "could not open experiment detail")
+    else:
+        ok(f"{tag}-results-page")
+    time.sleep(1)
     shot_exp(page, screenshots_dir, f"{prefix}04_results")
 
     from service.result.loader import ResultLoader
