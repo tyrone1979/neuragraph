@@ -1,11 +1,6 @@
 {
-  "id": "wf_cid_ner_llm_eval",
   "name": "CID NER Eval (LLM)",
   "description": "Chemical/Disease NER with LLM and generic metrics.",
-  "dataset": "cid",
-  "task": "ner",
-  "engine": "llm",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "ner_llm",
@@ -26,7 +21,6 @@
       "END"
     ]
   ],
-  "flowNodes": {},
   "bindings": {
     "ner_llm": {
       "text": "{{ START.text }}",
@@ -40,8 +34,14 @@
   "metrics": [
     {
       "type": "entity_dict",
-      "expected": { "from": "input", "field": "gold_entities" },
-      "predicted": { "from": "state", "field": "entities" }
+      "expected": {
+        "from": "input",
+        "field": "gold_entities"
+      },
+      "predicted": {
+        "from": "state",
+        "field": "entities"
+      }
     }
   ]
 }

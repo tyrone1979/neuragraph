@@ -1,11 +1,6 @@
 {
-  "id": "wf_cid_re_llm_linear",
   "name": "CID RE Pipeline (linear)",
   "description": "Gold entities → hypernym filter → pair list → foreach RE verify → id pairs.",
-  "dataset": "cid",
-  "task": "re",
-  "engine": "llm",
-  "flow_pattern": "loop",
   "nodes": [
     "START",
     "ontology_hypernym_filter",

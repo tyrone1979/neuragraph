@@ -1,5 +1,4 @@
 {
-  "id": "cid_pair_generate",
   "name": "CID Pair Generator (PGM)",
   "type": "PGM",
   "inputs": [
@@ -11,7 +10,5 @@
   },
   "process": "raw = state.get('filtered_entities') or []\nif isinstance(raw, str):\n    raw = []\nchem = {}\ndis = {}\nfor e in raw:\n    if not isinstance(e, dict):\n        continue\n    lbl = e.get('label') or e.get('type') or ''\n    eid = e.get('id') or e.get('mesh') or ''\n    txt = e.get('text') or ''\n    if not eid or not txt:\n        continue\n    if lbl == 'Chemical':\n        chem[eid] = txt\n    elif lbl == 'Disease':\n        dis[eid] = txt\npairs = []\nfor hid, htxt in chem.items():\n    for tid, ttxt in dis.items():\n        pairs.append({'head': htxt, 'tail': ttxt, 'head_id': hid, 'tail_id': tid})\n__result__ = pairs\n",
   "created_at": "2026-05-27T12:00:00",
-  "description": "Build Chemical×Disease candidate pairs with text and MeSH ids.",
-  "layer": "relation",
   "engine": "pgm"
 }

@@ -1,11 +1,6 @@
 {
-  "id": "sg_cid_re_verify",
   "name": "CID RE verify pair",
   "description": "Verify one Chemical–Disease pair; output id | id if induce ($).",
-  "dataset": "internal",
-  "task": "subgraph",
-  "engine": "mixed",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "relation_verify_llm",
@@ -26,7 +21,6 @@
       "END"
     ]
   ],
-  "flowNodes": {},
   "bindings": {
     "relation_verify_llm": {
       "text": "{{ text }}",

@@ -10,7 +10,6 @@
     "type": "list",
     "parse_as": "entity_list"
   },
-  "persistence": null,
   "prompt_template": {
     "description": "Identify same-type hypernyms by MeSH id; drop hypernym rows from entity list",
     "human": "Input entities (JSON array of {{text, id, label}}):\n{entities}\n\nStep 1 — Build lists and call tool `merge_heads_tails_to_entities` once:\n- heads: label Chemical → {{\"text\", \"type\": \"Chemical\", \"mesh\": id}}\n- tails: label Disease → {{\"text\", \"type\": \"Disease\", \"mesh\": id}}\n\nStep 2 — After the tool returns, apply rules on the merged list only:\n- Hypernyms must share the same label (Chemical vs Disease).\n- Find immediate hypernyms within the same label (MeSH prefix / broader term).\n- Remove hypernym rows; keep more specific entities.\n- Do not invent cross-label links.\n\nStep 3 — FINAL MESSAGE (required): output ONLY a JSON array, same schema as input:\n[{{\"text\": \"...\", \"id\": \"...\", \"label\": \"Chemical\"|\"Disease\"}}]\nNo markdown fences, no bullet points, no reasoning, no extra keys.",
@@ -20,7 +19,5 @@
     "merge_heads_tails_to_entities"
   ],
   "output_parse": "entity_list",
-  "conditions": [],
-  "loopConfig": {},
   "created_at": "2026-05-27T13:48:37.685456"
 }

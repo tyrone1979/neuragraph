@@ -18,15 +18,14 @@ This is **not** an enterprise monorepo with 100+ engineers — it's a focused Bi
 │   ├── data_parser.py
 │   └── data_load.py
 ├── .gitignore
-├── meta                        # Meta directory 
-│   ├── agents                  # Agent meta data JSON files
-│   │   └── ...                 # e.g., sentence_split.json, dependency_parse.json
-│   ├── graphs                  # Graph meta data JSON files
-│   │   └── ...                 # e.g., bt.json, ner_4_doc_llm.json
-│   ├── llms                    # LLM configurations
-│   ├── tools                   # Tool definitions (LLM or PGM based)
-│   ├── exps                    # Experiment history and results
-│   └── tests                   # Test datasets (uploaded or generated)
+├── meta                        # JSON configs (see doc/META_SCHEMA.md)
+│   ├── agents                  # Agent definitions (LLM / PGM)
+│   ├── graphs                  # Workflows (wf_*) and subgraphs (sg_*)
+│   ├── llms                    # LLM endpoints
+│   ├── tools                   # LangChain tools for LLM agents
+│   └── exps                    # Experiment run metadata
+├── tests                       # CSV test sets per workflow id
+├── result                      # Experiment outputs (states.json)
 ├── plugin/                     # Pluggable components
 │   ├── plugin_loader.py        # Plugin loader
 │   └── plugins.py              # Plugin definitions (e.g., Flair, Postgres)

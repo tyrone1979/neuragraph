@@ -1,5 +1,4 @@
 {
-  "id": "ner_llm",
   "name": "NER (LLM, configurable types)",
   "type": "LLM",
   "model": "kimi-2.6",
@@ -16,13 +15,6 @@
     "system": "You are a biomedical Named Entity Recognition (NER) expert. \nExtract all entities of the specified types from the given text.\nReturn ONLY a valid JSON object with entity types as keys and lists of extracted entities as values.\nDo not include any explanation or markdown formatting.",
     "human": "Text: {text}\n\nEntity types to extract: {labels}\n\nExtract all entities and return as JSON in this exact format:\n{{'Disease': ['entity1', 'entity2'], 'Chemical': ['entity3']}}\n\nIf no entities of a type are found, use an empty list [].\n\nJSON output:"
   },
-  "description": "Extract entities for configurable types via {labels} or default entity_types in metadata.",
-  "layer": "ner",
   "engine": "llm",
-  "granularity": "document",
-  "entity_types": [
-    "Chemical",
-    "Disease"
-  ],
   "default_labels": "Chemical, Disease"
 }

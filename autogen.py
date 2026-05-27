@@ -33,7 +33,7 @@ import requests
 
 # ── Configuration ──
 META_DIR = Path(__file__).parent / "meta"
-SKILL_MD = Path(__file__).parent / "SKILL.md"
+SKILL_MD = Path(__file__).parent / "doc" / "AUTOGEN_SKILL.md"
 
 # ── LLM Client ──
 class LLMClient:

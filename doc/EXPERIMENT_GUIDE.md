@@ -1,6 +1,8 @@
 # NeuraGraph 药理学性能评估实验指南
 ## BC5CDR (BioCreative V) 化学-疾病关系提取
 
+> **UI 实验指标**：Workflow 配置 `metrics` 后，运行结束由 `RunnerLoader.persistence` 自动调用 `MetricsCalculation` 插件，无需在图中添加 `eval_metrics` 节点。详见 [META_SCHEMA.md](META_SCHEMA.md)。
+
 ---
 
 ## 1. 实验概述

@@ -1,11 +1,6 @@
 {
-  "id": "wf_cid_ner_flair_eval",
   "name": "CID NER Eval (Flair doc)",
   "description": "Document-level Flair NER with metrics.",
-  "dataset": "cid",
-  "task": "ner",
-  "engine": "flair",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "ner_flair_doc",
@@ -26,7 +21,6 @@
       "END"
     ]
   ],
-  "flowNodes": {},
   "bindings": {
     "ner_flair_doc": {
       "text": "{{ START.text }}",

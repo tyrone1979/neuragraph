@@ -1,11 +1,6 @@
 {
-  "id": "sg_preprocess_inner",
   "name": "Inner preprocess loop body",
   "description": "Format / pass-through inner loop step.",
-  "dataset": "internal",
-  "task": "subgraph",
-  "engine": "mixed",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "report_format_json",
@@ -21,7 +16,6 @@
       "END"
     ]
   ],
-  "flowNodes": {},
   "bindings": {
     "report_format_json": {
       "text": "{{ text }}",

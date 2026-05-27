@@ -11,14 +11,10 @@
     "name": "result",
     "type": "str"
   },
-  "persistence": null,
   "prompt_template": {
     "description": "Strict biomedical relation verifier based on triple list",
     "human": "Refer to below article, please give answer '$' or '~' only based on below conditions:\n**Assumptions**:\n1.1 if 'patient had/exhibited {tail} on the Xth day of {head} treatment', please do not use it and find other reason.\n1.2 if 'difference did not reach statistical significance compared to groups' appeared, please do not use it and find other reason.\n**Conditions**:\n1. if the article gave the conclusion that the interaction between {head} and another chemical induce {tail}, or {head} induce {tail}, answer '$'\n2. else if the article mentioned {tail} was reported in the percentage of patients because of {head}, answer '$'\n3. else the article mentioned '{head} is  mediating/attenuating {tail}, answer '~'\n4. else if {head} and {tail} have no relationship, answer '~'.\nDO NOT output any other message.\n**article**:\n {text}",
     "system": "You are a biomedical relation specialist."
   },
-  "tools": [],
-  "conditions": [],
-  "loopConfig": {},
   "created_at": "2026-05-27T13:48:50.624521"
 }

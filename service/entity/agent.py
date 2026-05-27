@@ -90,7 +90,7 @@ class AgentEntity(Entity):
         self.type: str | None = meta.get("type").strip()
         self.template_name = meta.get("prompt_template", {})  # 默认为空字符串
         self.inputs: List[str] = meta.get("inputs", [])
-        self.persistence: Dict[str, Any] = meta.get("persistence", {})
+        self.persistence: Dict[str, Any] = meta.get("persistence") or {}
         self.outputs: Dict[str, str] = meta.get("outputs", {})
 
         self.idx: str | None = meta.get("idx")

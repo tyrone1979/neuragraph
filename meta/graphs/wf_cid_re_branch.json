@@ -1,11 +1,6 @@
 {
-  "id": "wf_cid_re_branch",
   "name": "CID RE (multi-branch gate)",
   "description": "NER then 4-way branch gate before relation extraction.",
-  "dataset": "cid",
-  "task": "re",
-  "engine": "llm",
-  "flow_pattern": "branch",
   "nodes": [
     "START",
     "ner_llm",

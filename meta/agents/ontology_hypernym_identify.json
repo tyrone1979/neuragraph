@@ -19,8 +19,5 @@
     "merge_heads_tails_to_entities"
   ],
   "created_at": "2026-01-24T12:43:00.743448",
-  "description": "Identify same-type hypernyms using ontology-style reasoning.",
-  "layer": "ontology",
-  "engine": "llm",
-  "id": "ontology_hypernym_identify"
+  "engine": "llm"
 }

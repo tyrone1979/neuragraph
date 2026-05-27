@@ -1,5 +1,4 @@
 {
-  "id": "text_summarize",
   "name": "Text Summarization (LLM)",
   "type": "LLM",
   "model": "kimi-2.6",
@@ -15,7 +14,5 @@
     "system": "You are a summarization assistant. Provide concise summaries in Chinese or English.",
     "human": "Please summarize the following text in 2-3 sentences:\n\n{text}\n\nSummary:"
   },
-  "description": "Produce a short summary of the input text.",
-  "layer": "document",
   "engine": "llm"
 }

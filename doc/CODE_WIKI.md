@@ -438,51 +438,23 @@ def load(name: str, id: str) -> Dict[str, Any] | None:
 
 ---
 
-### Graph 配置格式 ([meta/graphs/](file:///d:/projects/agentic_llmre/meta/graphs))
+### Graph 配置格式 ([meta/graphs/](../meta/graphs))
 
-**文件命名**: `{graph_id}.json`
+见 **[META_SCHEMA.md](META_SCHEMA.md)**。要点：
 
-```json
-{
-  "id": "graph_id",
-  "name": "Workflow 名称",
-  "description": "描述",
-  "nodes": ["START", "agent1", "sub_graph", "END"],
-  "edges": [
-    ["START", "agent1"],
-    ["agent1", "sub_graph"],
-    ["sub_graph", "END"]
-  ],
-  "created_at": "2026-01-01T00:00:00"
-}
-```
+- `nodes` / `edges`：LangGraph DAG
+- `bindings`：节点输入绑定（`{{ START.field }}`、`{{ other.field }}`）
+- `flowNodes`：`kind: loop | branch`，含 `loopConfig`（`itemBindings`、`mergeKeys`、`scalarItemField` 等）
+- `metrics`：实验结束后由 plugin 计算 F1（非图内节点）
 
-**子图**: 若 node ID 以 `sub_` 开头，会被识别为子图。
-
-**示例**: [bio_ner_graph.json](file:///d:/projects/agentic_llmre/meta/graphs/bio_ner_graph.json)
+子图：`flowNodes.*.subgraphId` 或节点 ID 对应 `meta/graphs/sg_*.json`。
 
 ---
 
-### LLM 配置格式 ([meta/llms/](file:///d:/projects/agentic_llmre/meta/llms))
+### LLM 配置格式 ([meta/llms/](../meta/llms))
 
-**文件命名**: `{llm_id}.json`
-
-```json
-{
-  "id": "llm_id",
-  "type": "openai|ollama|custom",
-  "model": "model-name",
-  "base_url": "https://api.example.com/v1",
-  "api_key": "",
-  "temperature": 0.7,
-  "max_tokens": 1000,
-  "timeout": 300,
-  "max_retries": 3,
-  "rate_limit": 60
-}
-```
-
-**示例**: [kimi-2.6.json](file:///d:/projects/agentic_llmre/meta/llms/kimi-2.6.json)
+运行时读取：`type`, `model`, `base_url`, `api_key`, `temperature`, `max_tokens`, `extra_body`, `metadata`。  
+示例：[kimi-2.6.json](../meta/llms/kimi-2.6.json)
 
 ---
 
@@ -548,29 +520,21 @@ __result__ = result
 
 ## 实验与评估
 
-### 实验运行 ([experiments/run_experiment.py](file:///d:/projects/agentic_llmre/experiments/run_experiment.py))
+### UI / Runner 实验（推荐）
 
-支持多种模式:
+1. 在 **Experiments** 选择 `runner_id`（workflow）和 `dataset`（`tests/<runner_id>/*.csv`）。
+2. 批量执行：`GET /stream/run/<exp_id>` 对每个样本 `invoke`，完成后调用 `RunnerLoader.persistence`。
+3. **指标**：`persistence` 读取 checkpoint + CSV gold 列，经 `utils/workflow_metrics.py` 调用插件 `MetricsCalculation`，写入 `result/<exp_id>/states.json` 的 `metrics` 字段。
+4. 报告：`GET /stream/report/<exp_id>`（`report_experiment` agent）。
+
+Workflow 在 JSON 中声明 `metrics`（见 [META_SCHEMA.md](META_SCHEMA.md)），**不必**在图内挂 `eval_metrics` 节点。
+
+### 离线脚本 ([experiments/run_experiment.py](../experiments/run_experiment.py))
+
+BC5CDR 等批量评测仍可使用 `experiments/` 下脚本；与 UI 实验并行存在。
 
 ```bash
-# 1. 完整流程: NeuraGraph + 基线 + 评估 + 报告
-python experiments/run_experiment.py \
-    --full \
-    --workflow bio_ner_graph \
-    --dataset testsets/bio_ner/test.txt \
-    --output-prefix results/bc5cdr
-
-# 2. 仅运行 NeuraGraph
-python experiments/run_experiment.py \
-    --workflow bio_ner_graph \
-    --dataset testsets/bio_ner/test.txt \
-    --output results/neuragraph.json
-
-# 3. 仅运行基线
-python experiments/run_experiment.py --baseline --dataset ...
-
-# 4. 仅评估已有结果
-python experiments/run_experiment.py --evaluate --gold ... --pred ...
+python experiments/run_experiment.py --full --workflow wf_cid_ner_llm_eval ...
 ```
 
 ### 评估脚本 ([experiments/evaluate.py](file:///d:/projects/agentic_llmre/experiments/evaluate.py))
@@ -795,5 +759,6 @@ class MyDataParser(DataParser):
 - [MANUAL.md](doc/MANUAL.md) - 用户操作手册
 - [CODE_GUIDELINES.md](doc/CODE_GUIDELINES.md) - 代码规范
 - [README.md](README.md) - 项目说明
-- [SKILL.md](SKILL.md) - AutoGen 技能文档
+- [AUTOGEN_SKILL.md](AUTOGEN_SKILL.md) - AutoGen 技能文档
+- [META_SCHEMA.md](META_SCHEMA.md) - 运行时 meta JSON 字段说明
 

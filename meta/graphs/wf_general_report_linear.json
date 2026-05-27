@@ -1,11 +1,6 @@
 {
-  "id": "wf_general_report_linear",
   "name": "Summarize + format",
   "description": "Summarize text and pack into JSON result.",
-  "dataset": "general",
-  "task": "report",
-  "engine": "llm",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "text_summarize",
@@ -26,7 +21,6 @@
       "END"
     ]
   ],
-  "flowNodes": {},
   "bindings": {
     "report_format_json": {
       "text": "{{ START.text }}",

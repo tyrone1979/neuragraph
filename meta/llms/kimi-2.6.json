@@ -1,19 +1,14 @@
 {
   "api_key": "",
   "base_url": "https://api.moonshot.cn/v1",
-  "id": "kimi-2.6",
-  "max_retries": 3,
   "max_tokens": 8000,
   "model": "kimi-k2.6",
-  "rate_limit": 60,
   "temperature": 1,
-  "timeout": 300,
   "type": "openai",
   "extra_body": {
     "thinking": {
       "type": "disabled"
     }
   },
-  "metadata": {},
   "updated_at": "2026-05-16T15:24:34.177963"
 }

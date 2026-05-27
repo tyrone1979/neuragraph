@@ -1,11 +1,6 @@
 {
-  "id": "wf_doc_ner_llm_eval",
   "name": "Doc NER Eval (LLM)",
   "description": "Split document then LLM NER with metrics.",
-  "dataset": "doc_ner",
-  "task": "ner",
-  "engine": "llm",
-  "flow_pattern": "linear",
   "nodes": [
     "START",
     "text_sentence_split",
@@ -31,7 +26,6 @@
       "END"
     ]
   ],
-  "flowNodes": {},
   "bindings": {
     "ner_llm": {
       "text": "{{ START.text }}",

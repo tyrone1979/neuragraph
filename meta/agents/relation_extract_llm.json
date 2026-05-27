@@ -10,20 +10,11 @@
     "name": "relations",
     "type": "list"
   },
-  "persistence": {},
   "prompt_template": {
     "description": "Strict biomedical CID relation verifier for chemical–disease pairs",
     "system": "You are a biomedical relation specialist.",
     "human": "Verify each chemical–disease pair from the entity lists below against the article.\n\nEntities (JSON):\n{entities}\n\nConsider every Chemical (head) × Disease (tail) combination from the JSON above. For each pair, substitute head and tail into the rules below.\n\n**Assumptions**:\n1.1 if 'patient had/exhibited {{tail}} on the Xth day of {{head}} treatment', please do not use it and find other reason.\n1.2 if 'difference did not reach statistical significance compared to groups' appeared, please do not use it and find other reason.\n**Conditions**:\n1. if the article gave the conclusion that the interaction between {{head}} and another chemical induce {{tail}}, or {{head}} induce {{tail}}, answer '$'\n2. else if the article mentioned {{tail}} was reported in the percentage of patients because of {{head}}, answer '$'\n3. else the article mentioned '{{head}} is  mediating/attenuating {{tail}}, answer '~'\n4. else if {{head}} and {{tail}} have no relationship, answer '~'.\n\nOutput ONLY pairs with answer '$', one per line:\nhead | CID | tail\nDO NOT output any other message.\n**article**:\n {text}"
   },
-  "tools": [],
   "created_at": "2026-05-25T18:00:00",
-  "description": "CID relation verification: output positive head | CID | tail lines only.",
-  "layer": "relation",
-  "engine": "llm",
-  "relation_mode": "verify",
-  "alternate_inputs": {
-    "filtered_entities": "entities"
-  },
-  "id": "relation_extract_llm"
+  "engine": "llm"
 }
