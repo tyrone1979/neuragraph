@@ -1,0 +1,31 @@
+{
+  "id": "sg_ner_flair_sent",
+  "name": "Sentence Flair NER",
+  "description": "Run ner_flair_sent on one sentence (loop body).",
+  "dataset": "internal",
+  "task": "subgraph",
+  "engine": "mixed",
+  "flow_pattern": "linear",
+  "nodes": [
+    "START",
+    "ner_flair_sent",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_flair_sent"
+    ],
+    [
+      "ner_flair_sent",
+      "END"
+    ]
+  ],
+  "flowNodes": {},
+  "bindings": {
+    "ner_flair_sent": {
+      "labels": "{{ labels }}",
+      "sentence": "{{ sentence }}"
+    }
+  }
+}

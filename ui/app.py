@@ -1,4 +1,4 @@
-from flask import Flask,render_template,jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from ui.dataset_api import dataset_bp
 from ui.graph_api import graph_bp
@@ -19,7 +19,16 @@ if sys.platform == 'win32':
 
 def create_app():
     app = Flask(__name__)
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+    @app.after_request
+    def _no_cache_static_in_dev(response):
+        if request.path.startswith('/static/'):
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+        return response
 
     def close_sync_plugins(exc=None):
         """关闭所有同步资源"""

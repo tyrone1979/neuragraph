@@ -1,0 +1,95 @@
+{
+  "id": "wf_doc_ner_loop_branch",
+  "name": "Doc NER loop + branch",
+  "description": "Sentence split → loop Flair NER → 4-way branch → optional LLM → metrics.",
+  "dataset": "doc_ner",
+  "task": "ner",
+  "engine": "mixed",
+  "flow_pattern": "loop_branch",
+  "nodes": [
+    "START",
+    "text_sentence_split",
+    "ner_sentence_loop",
+    "ner_route",
+    "ner_llm",
+    "eval_metrics",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "text_sentence_split"
+    ],
+    [
+      "text_sentence_split",
+      "ner_sentence_loop"
+    ],
+    [
+      "ner_sentence_loop",
+      "ner_route"
+    ],
+    [
+      "ner_route",
+      "ner_llm"
+    ],
+    [
+      "ner_route",
+      "eval_metrics"
+    ],
+    [
+      "ner_llm",
+      "eval_metrics"
+    ],
+    [
+      "eval_metrics",
+      "END"
+    ]
+  ],
+  "flowNodes": {
+    "ner_sentence_loop": {
+      "kind": "loop",
+      "name": "Sentence NER loop",
+      "subgraphId": "sg_ner_flair_sent",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ sentences }}"
+      }
+    },
+    "ner_route": {
+      "kind": "branch",
+      "name": "NER Route",
+      "conditions": [
+        {
+          "label": "Merge Flair results",
+          "field": "entities",
+          "op": "not_empty"
+        },
+        {
+          "label": "LLM fallback NER",
+          "field": "entities",
+          "op": "empty"
+        },
+        {
+          "label": "Long document",
+          "field": "text",
+          "op": "not_empty"
+        },
+        {
+          "label": "Empty input",
+          "field": "text",
+          "op": "empty"
+        }
+      ]
+    }
+  },
+  "bindings": {
+    "ner_llm": {
+      "text": "{{ START.text }}",
+      "labels": "{{ START.labels }}"
+    },
+    "eval_metrics": {
+      "expected": "{{ START.expected_entities }}",
+      "predicted": "{{ entities }}"
+    }
+  }
+}

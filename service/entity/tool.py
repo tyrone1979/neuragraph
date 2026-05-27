@@ -5,6 +5,8 @@ from service.entity.entity import Entity,EntityLoader
 from pydantic import create_model, Field
 from langchain_core.tools import StructuredTool
 from plugin.plugin_loader import get_plugin
+from plugin.plugin_client import is_available, run_tool_resolved, sandbox_enabled
+from plugin.sandbox_manifest import resolve_sandbox
 import re
 
 logger = getLogger(__name__)
@@ -22,10 +24,11 @@ class ToolLoader(EntityLoader):
         code = meta.get("code")
         if not code:
             raise ValueError("Missing 'code' field")
+        tool_meta = {"sandbox": meta.get("sandbox"), "engine": meta.get("engine")}
         # 1. 动态创建输入 schema
         InputSchema = _create_input_schema(id, parameters)
         # 2. 从 code 提取函数
-        func = _exec_code_to_func(code)
+        func = _exec_code_to_func(code, meta=tool_meta)
         # 3. 创建 StructuredTool
         return StructuredTool.from_function(func=func,name=name,description=description,args_schema=InputSchema,)
 
@@ -84,18 +87,32 @@ def _create_input_schema(tool_id: str, parameters: dict):
     return create_model(model_name, **fields)
 
 
-def _exec_code_to_func(code: str):
+def _exec_code_to_func(code: str, meta: dict | None = None):
     """
     从 code 字符串中提取 def func(...) 的函数
     危险操作！仅用于完全可信的内部工具
     """
+    meta = meta or {}
+    sandbox_id = resolve_sandbox(code, meta=meta, engine=meta.get("engine"))
+
+    if sandbox_enabled() and sandbox_id:
+
+        def func(**kwargs):
+            if not is_available(sandbox_id, force_check=True):
+                raise RuntimeError(
+                    f"Sandbox '{sandbox_id}' is not running. "
+                    f"Run .\\sandbox\\setup_venv.ps1 -Name {sandbox_id}"
+                )
+            return run_tool_resolved(code, meta=meta, **kwargs)
+
+        return func
+
     local_ns = {}
     try:
         exec(code, globals(), local_ns)
         func = local_ns.get("func")
         if callable(func):
             return func
-        else:
-            raise ValueError("Code must define a callable named 'func'")
+        raise ValueError("Code must define a callable named 'func'")
     except Exception as e:
         raise RuntimeError(f"Failed to execute tool code: {e}")

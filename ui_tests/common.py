@@ -23,8 +23,8 @@ def shot(page: Page, screenshots_dir: str, name: str):
     page.screenshot(path=f"{screenshots_dir}/{name}.png", full_page=True)
 
 
-def goto(page: Page, base: str, path: str, sleep: float = 3):
-    page.goto(f"{base}{path}", timeout=60000, wait_until="domcontentloaded")
+def goto(page: Page, base: str, path: str, sleep: float = 3, wait_until: str = "commit", timeout: int = 90000):
+    page.goto(f"{base}{path}", timeout=timeout, wait_until=wait_until)
     time.sleep(sleep)
 
 

@@ -1,0 +1,2 @@
+text,labels,gold_relations
+Aspirin may cause headache.,"Chemical,Disease",Aspirin|causes|headache

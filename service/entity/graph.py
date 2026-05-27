@@ -14,6 +14,12 @@ from typing import Dict, Any, Iterator
 from service.meta.loader import MetaLoader
 from utils.conversion import  T,jsonify_state
 from utils.graphutils import compute_states,create_state_typeddict
+from utils.bindings import (
+    apply_node_bindings,
+    inject_loop_item,
+    merge_loop_values,
+    resolve_loop_items,
+)
 logger = getLogger(__name__)
 
 class GraphEntity(Entity):
@@ -92,26 +98,102 @@ def safe_load(s):
 
 def _call_agent(name: str, graph_meta: dict | None = None):
     graph_meta = graph_meta or {}
+    bindings_map = graph_meta.get("bindings") or {}
     flow_nodes = graph_meta.get("flowNodes") or {}
     flow = flow_nodes.get(name)
 
     if flow and flow.get("kind") == "loop":
         subgraph_id = flow.get("subgraphId") or name
         subgraph = GraphLoader.load(subgraph_id)
+        loop_cfg = flow.get("loopConfig") or {}
+        array_expr = loop_cfg.get("array") or "{{ text }}"
+
         if subgraph is None:
             def passthrough(s):
                 return s
             return passthrough
 
         def invoke_loop(s):
-            return subgraph.invoke(s)
+            items = resolve_loop_items(array_expr, s)
+            accum = dict(s)
+            merge_keys = ("entities", "predicted", "triples", "relations", "pairs")
+            for item in items:
+                iter_state = inject_loop_item(accum, item)
+                out = subgraph.invoke(iter_state)
+                if not isinstance(out, dict):
+                    continue
+                accum.update({k: v for k, v in out.items() if k not in merge_keys})
+                for key in merge_keys:
+                    if key in out and out[key] is not None:
+                        accum[key] = merge_loop_values(accum.get(key), out[key])
+                if "predicted" in out and out["predicted"] is not None and "entities" not in out:
+                    accum["entities"] = merge_loop_values(
+                        accum.get("entities"), out["predicted"]
+                    )
+            return accum
 
         return invoke_loop
 
     if flow and flow.get("kind") == "branch":
+        conditions = flow.get("conditions") or []
+
+        def _truthy(val):
+            if val is None:
+                return False
+            if isinstance(val, (list, dict)):
+                return len(val) > 0
+            if isinstance(val, str):
+                return bool(val.strip())
+            return bool(val)
+
+        def _eval_cond(cond, state):
+            if isinstance(cond, str):
+                expr = cond.strip()
+                if expr.startswith("!"):
+                    return not _truthy(state.get(expr[1:].strip()))
+                return _truthy(state.get(expr))
+            field = cond.get("field") or cond.get("condition", "")
+            if isinstance(field, str) and field.startswith("!"):
+                return not _truthy(state.get(field[1:].strip()))
+            op = (cond.get("op") or "not_empty").lower()
+            raw = state.get(field) if field else None
+            val = cond.get("value", "")
+            if op in ("exists", "not_empty"):
+                return _truthy(raw)
+            if op in ("not_exists", "empty"):
+                return not _truthy(raw)
+            if op == "eq":
+                return str(raw) == str(val)
+            if op == "ne":
+                return str(raw) != str(val)
+            if op == "contains":
+                return str(val) in str(raw or "")
+            if op == "not_contains":
+                return str(val) not in str(raw or "")
+            try:
+                num_raw, num_val = float(raw), float(val)
+                if op == "gt":
+                    return num_raw > num_val
+                if op == "gte":
+                    return num_raw >= num_val
+                if op == "lt":
+                    return num_raw < num_val
+                if op == "lte":
+                    return num_raw <= num_val
+            except (TypeError, ValueError):
+                pass
+            return _truthy(raw)
+
         def invoke_branch(s):
             out = dict(s)
-            route = "continue" if s.get("entities") else "skip"
+            route = "skip"
+            for cond in conditions:
+                label = cond.get("label", "branch") if isinstance(cond, dict) else str(cond)
+                if _eval_cond(cond, s):
+                    route = label
+                    break
+            if route == "skip" and not conditions:
+                route = "continue" if s.get("entities") else "skip"
             out["route"] = route
             return out
 
@@ -125,8 +207,8 @@ def _call_agent(name: str, graph_meta: dict | None = None):
 
     if agent.type != "SUB":
         def invoke(s):
-            out = agent.invoke(s)
-            return out
+            bound = apply_node_bindings(s, name, bindings_map)
+            return agent.invoke(bound)
         return invoke
     else:
         subgraph = GraphLoader.load(name)

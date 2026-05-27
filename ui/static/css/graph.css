@@ -36,6 +36,17 @@
   cursor: grabbing;
 }
 
+.branch-cond-row {
+  background: #fffbeb;
+  border-color: #fcd34d !important;
+}
+
+.branch-cond-row .cond-op,
+.branch-cond-row .cond-field,
+.mapping-select {
+  font-size: 0.8rem;
+}
+
 .component-item i {
   font-size: 18px;
 }
@@ -110,8 +121,13 @@
 }
 
 /* Make canvas take full height */
+#canvasContainer {
+  background: #ffffff !important;
+}
+
 #paper_panel {
   height: 100%;
+  background: #ffffff;
 }
 
 /* ─── Dify-style workflow nodes (foreignObject content) ─── */
@@ -209,6 +225,100 @@
   margin-bottom: 0;
 }
 
+/* Loop: empty compound node (drop target) */
+.wf-node--loop .wf-node-body {
+  padding-top: 8px;
+}
+
+/* Loop inner agents sit on canvas inside shell; clicks select parent loop */
+[joint-selector="wrapper"] .wf-node {
+  pointer-events: auto;
+}
+
+.wf-loop-meta {
+  font-size: 10px;
+  font-weight: 600;
+  color: #3b82f6;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.wf-loop-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  min-height: 40px;
+}
+
+.wf-loop-empty {
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+  padding: 12px 8px;
+}
+
+.wf-loop-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  min-height: 36px;
+}
+
+.wf-loop-child-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wf-loop-child-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wf-loop-child-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-loop-child-type {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.wf-io-block--compact {
+  margin-bottom: 4px;
+}
+
+.wf-io-block--compact .wf-io-label {
+  margin-bottom: 2px;
+}
+
 .wf-io-label {
   font-size: 10px;
   font-weight: 700;
@@ -230,6 +340,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
+  visibility: hidden;
 }
 
 .wf-io-dot--in {

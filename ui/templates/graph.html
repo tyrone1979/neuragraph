@@ -10,7 +10,7 @@
     />
     <link
             rel="stylesheet"
-            href="{{ url_for('static', filename='css/graph.css') }}"
+            href="{{ url_for('static', filename='css/graph.css') }}?v={{ graph_css_ver }}"
     />
 
     <div class="container-fluid px-0" style="height: 100vh; overflow: hidden;">
@@ -152,33 +152,7 @@
             </div>
 
             <!-- Center: canvas area -->
-            <div class="flex-grow-1 position-relative" id="canvasContainer" style="background: #fafafa;">
-                <!-- Canvas toolbar (draggable) -->
-                <div class="position-absolute bg-white rounded shadow-sm p-2 z-3" id="toolbar" style="cursor: move; touch-action: none;">
-                    <div class="d-flex align-items-center gap-1">
-                        <button class="btn btn-sm btn-light" id="btnSelect" title="Select">
-                            <i class="fas fa-mouse-pointer"></i>
-                        </button>
-                        <button class="btn btn-sm btn-light" id="btnConnect" title="Connect Nodes">
-                            <i class="fas fa-link"></i>
-                        </button>
-                        <button class="btn btn-sm btn-light" id="btnDelete" title="Delete Selected">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        <div class="vr mx-1"></div>
-                        <button class="btn btn-sm btn-light" id="btnUndo" title="Undo">
-                            <i class="fas fa-undo"></i>
-                        </button>
-                        <button class="btn btn-sm btn-light" id="btnRedo" title="Redo">
-                            <i class="fas fa-redo"></i>
-                        </button>
-                        <div class="vr mx-1"></div>
-                        <!-- Background color picker -->
-                        <input type="color" id="bgColorPicker" value="#fafafa" title="Background Color" 
-                               style="width: 32px; height: 32px; border: none; cursor: pointer;">
-                    </div>
-                </div>
-                
+            <div class="flex-grow-1 position-relative" id="canvasContainer" style="background: #ffffff;">
                 <!-- JointJS canvas -->
                 <div id="paper_panel" class="w-100 h-100"></div>
                 
@@ -316,5 +290,5 @@
         let allGraphs = []
         let allTools = []
     </script>
-    <script src="{{ url_for('static', filename='js/graph_visual_editor.js') }}?v=20260526a"></script>
+    <script src="{{ url_for('static', filename='js/graph_visual_editor.js') }}?v={{ editor_asset_ver }}"></script>
 {% endblock %}

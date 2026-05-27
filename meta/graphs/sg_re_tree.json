@@ -1,0 +1,38 @@
+{
+  "id": "sg_re_tree",
+  "name": "Tree-based RE",
+  "description": "syntax_dep_parse → relation_from_tree_llm per sentence.",
+  "dataset": "internal",
+  "task": "subgraph",
+  "engine": "mixed",
+  "flow_pattern": "linear",
+  "nodes": [
+    "START",
+    "syntax_dep_parse",
+    "relation_from_tree_llm",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "syntax_dep_parse"
+    ],
+    [
+      "syntax_dep_parse",
+      "relation_from_tree_llm"
+    ],
+    [
+      "relation_from_tree_llm",
+      "END"
+    ]
+  ],
+  "flowNodes": {},
+  "bindings": {
+    "syntax_dep_parse": {
+      "sentence": "{{ sentence }}"
+    },
+    "relation_from_tree_llm": {
+      "tree": "{{ syntax_dep_parse.tree }}"
+    }
+  }
+}

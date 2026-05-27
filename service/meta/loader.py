@@ -113,6 +113,12 @@ class GraphMetaLoader:
                     continue
                 if MetaLoader.load("graphs", node):
                     _load(node)
+            for fn in (cfg.get("flowNodes") or {}).values():
+                if not isinstance(fn, dict):
+                    continue
+                sub_id = fn.get("subgraphId")
+                if sub_id and MetaLoader.load("graphs", sub_id):
+                    _load(sub_id)
 
         _load(graph_id)
         return graphs_cfg

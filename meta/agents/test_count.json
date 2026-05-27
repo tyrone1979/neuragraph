@@ -1,8 +1,0 @@
-{
-  "id": "test_count",
-  "name": "Test Count",
-  "type": "PGM",
-  "inputs": ["words"],
-  "outputs": {"name": "count", "type": "int"},
-  "process": "__result__ = len(state.get('words', []))"
-}

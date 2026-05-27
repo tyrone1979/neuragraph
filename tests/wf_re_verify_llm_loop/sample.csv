@@ -1,0 +1,2 @@
+text,expected_entities,expected_relations,entity_link
+Aspirin may cause headache.,"{""Chemical"": [""Aspirin""], ""Disease"": [""headache""]}",Aspirin|causes|headache,"{""Aspirin"": ""Aspirin"", ""headache"": ""headache""}"

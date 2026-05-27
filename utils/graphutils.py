@@ -1,4 +1,5 @@
 from typing import Dict, Any, List, TypedDict,Type
+import re
 from service.meta.loader import MetaLoader,GraphMetaLoader
 
 try:
@@ -28,20 +29,43 @@ def create_state_typeddict(state_def: Dict[str, Any] | List[str]) -> Type[TypedD
 
 def compute_states(graph_id):
     graphs = GraphMetaLoader.load(graph_id)
+    g = graphs[graph_id]
     state = set()
-    # 收集 inputs 和 outputs.name
-    for node in graphs[graph_id]["nodes"]:
-        agent = MetaLoader.load("agents",node)
+    start_ref = re.compile(r"\{\{\s*START\.(\w+)\s*\}\}")
+    simple_ref = re.compile(r"\{\{\s*(\w+)\s*\}\}")
+
+    for node in g["nodes"]:
+        agent = MetaLoader.load("agents", node)
         if not agent:
             continue
-        # inputs
         for inp in agent.get("inputs", []):
             state.add(inp)
-        # outputs
         outputs = agent.get("outputs", {})
         if "name" in outputs:
             state.add(outputs["name"])
 
+    for _node, binds in (g.get("bindings") or {}).items():
+        for field in binds:
+            state.add(field)
+        for expr in binds.values():
+            if not isinstance(expr, str):
+                continue
+            m = start_ref.search(expr)
+            if m:
+                state.add(m.group(1))
+
+    for key in compute_graph_global_inputs(graph_id):
+        state.add(key)
+
+    for _nid, flow in (g.get("flowNodes") or {}).items():
+        if flow.get("kind") == "loop":
+            lc = flow.get("loopConfig") or {}
+            arr = lc.get("array", "")
+            if isinstance(arr, str):
+                m = simple_ref.search(arr)
+                if m:
+                    state.add(m.group(1))
+            state.update({"sentence", "text", "item", "head", "tail", "entity_link"})
 
     return sorted(list(state))
 

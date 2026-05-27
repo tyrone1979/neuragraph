@@ -1,0 +1,27 @@
+{
+  "id": "relation_dti_analyze",
+  "type": "LLM",
+  "purpose": "基于药物化学信息和靶点蛋白信息，分析药物-靶点相互作用机制、预测结合亲和力、识别作用模式，并输出结构化的互作分析报告",
+  "llm": "kimi-2.6",
+  "prompt_template": {
+    "system": "你是一位资深的计算化学、药物化学和结构生物学专家，专注于药物-靶点相互作用（DTI）研究。你擅长根据药物的化学结构信息（如SMILES、分子量、官能团、已知活性）和靶点蛋白信息（如UniProt ID、蛋白家族、结合口袋特征、已知配体），推断分子互作机制、预测结合亲和力、识别关键作用模式，并以严格的结构化字典（dict）形式输出分析报告。你必须确保推理过程科学、依据充分，输出必须是可被Python直接解析的标准字典格式，不要使用markdown代码块。",
+    "human": "请根据以下提供的输入数据，完成药物-靶点相互作用（DTI）的深度分析任务：\n\n【药物信息】\n{drug_info}\n\n【靶点蛋白信息】\n{target_info}\n\n请依次完成以下分析，并将最终结果整合为单个Python字典：\n1. **相互作用机制（mechanism）**：推断药物与靶点最可能的结合机制，例如竞争性抑制、非竞争性抑制、变构调节、拮抗剂、激动剂、共价结合等，并简要说明推理依据。\n2. **结合亲和力预测（affinity_prediction）**：基于药物化学特征（分子量、脂溶性、氢键供受体数、极性表面积等）和靶点口袋属性（疏水性、电荷分布、关键残基），定性或半定量预测结合强度（如高亲和力：<10 nM；中等：10 nM–1 μM；低：>1 μM），并说明理由。\n3. **作用模式与关键相互作用（binding_mode / key_interactions）**：详细描述药物在结合口袋中可能形成的关键相互作用类型，如氢键、疏水作用、π-π堆积、阳离子-π、盐桥、范德华力等，并指出可能的关键氨基酸残基。\n4. **综合评估（assessment）**：从选择性、潜在耐药性、成药性（druggability）及与已知同类药物的对比角度进行简要评估。\n5. **置信度（confidence）**：给出你对本次分析总体结论的置信度（高/中/低）及原因。\n\n输出格式要求：\n- 直接输出一个标准的Python字典（dict），键名使用英文小写加下划线，如：\"mechanism\", \"affinity_prediction\", \"binding_mode\", \"key_interactions\", \"assessment\", \"confidence\"。\n- 值可以是字符串、列表或嵌套字典，确保类型明确且便于下游程序解析。\n- 不要在字典前后添加任何解释性文字、注释或markdown标记（如```python）。"
+  },
+  "inputs": [
+    "drug_info",
+    "target_info"
+  ],
+  "outputs": {
+    "name": "dti_result",
+    "type": "dict"
+  },
+  "name": "Drug–Target Interaction Analysis (LLM)",
+  "model": "kimi-2.6",
+  "description": "Analyze drug–target pairs (mechanism, affinity, binding).",
+  "layer": "relation",
+  "engine": "llm",
+  "relation_mode": "extract",
+  "tags": [
+    "dti"
+  ]
+}

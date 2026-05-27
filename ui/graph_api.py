@@ -1,10 +1,30 @@
-from service.meta.loader import MetaLoader,GraphMetaLoader
-from utils.graphutils import compute_states,compute_graph_global_inputs
+import os
+from pathlib import Path
+
+from service.meta.loader import MetaLoader, GraphMetaLoader
+from utils.graphutils import compute_states, compute_graph_global_inputs
 from service.entity.test import TestLoader
-from flask import render_template, Blueprint, request , jsonify
+from flask import render_template, Blueprint, request, jsonify
+
+_UI_ROOT = Path(__file__).resolve().parent
 
 
 graph_bp = Blueprint('graph', __name__, url_prefix='/graph')
+
+
+def _editor_template_ctx():
+    """Cache-bust static assets from file mtime (avoids stale JS/CSS after edits)."""
+    js = _UI_ROOT / 'static' / 'js' / 'graph_visual_editor.js'
+    css = _UI_ROOT / 'static' / 'css' / 'graph.css'
+    try:
+        editor_asset_ver = str(int(js.stat().st_mtime))
+    except OSError:
+        editor_asset_ver = '0'
+    try:
+        graph_css_ver = str(int(css.stat().st_mtime))
+    except OSError:
+        graph_css_ver = '0'
+    return {'editor_asset_ver': editor_asset_ver, 'graph_css_ver': graph_css_ver}
 
 
 def load_graph_by_id(graph_id: str):
@@ -69,24 +89,30 @@ def api_list_graphs():
 @graph_bp.route('/<graph_id>/edit', methods=['GET'])
 def edit_graph(graph_id):
     graphs,agents,test_sets,displayers=load_graph_by_id(graph_id)
-    return render_template("graph.html",
-                           graphs=graphs,
-                           agents=agents,
-                           current=graph_id,
-                           test_sets=test_sets,
-                           is_edit=True,
-                           runner_displayers=displayers,
-                           active_page='graph')
+    return render_template(
+        "graph.html",
+        graphs=graphs,
+        agents=agents,
+        current=graph_id,
+        test_sets=test_sets,
+        is_edit=True,
+        runner_displayers=displayers,
+        active_page='graph',
+        **_editor_template_ctx(),
+    )
 
 @graph_bp.route('/new', methods=['GET'])
 def new_graph():
-    return render_template("graph.html",
-                           graphs={},
-                           agents={},
-                           current=None,
-                           test_sets={},
-                           is_new=True,
-                           active_page='graph')
+    return render_template(
+        "graph.html",
+        graphs={},
+        agents={},
+        current=None,
+        test_sets={},
+        is_new=True,
+        active_page='graph',
+        **_editor_template_ctx(),
+    )
 
 
 @graph_bp.route('/api/save', methods=['POST'])

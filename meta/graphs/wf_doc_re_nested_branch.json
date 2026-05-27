@@ -1,0 +1,95 @@
+{
+  "id": "wf_doc_re_nested_branch",
+  "name": "Doc RE (nested loop + branch)",
+  "description": "Outer loop with nested preprocess + NER, 4-way branch, then RE.",
+  "dataset": "doc_re",
+  "task": "re",
+  "engine": "llm",
+  "flow_pattern": "branch_nested_loop",
+  "nodes": [
+    "START",
+    "re_process_loop",
+    "re_gate",
+    "relation_extract_llm",
+    "eval_metrics",
+    "kg_triple_merge",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "re_process_loop"
+    ],
+    [
+      "re_process_loop",
+      "re_gate"
+    ],
+    [
+      "re_gate",
+      "relation_extract_llm"
+    ],
+    [
+      "re_gate",
+      "eval_metrics"
+    ],
+    [
+      "re_gate",
+      "kg_triple_merge"
+    ],
+    [
+      "relation_extract_llm",
+      "END"
+    ],
+    [
+      "eval_metrics",
+      "END"
+    ],
+    [
+      "kg_triple_merge",
+      "END"
+    ]
+  ],
+  "flowNodes": {
+    "re_process_loop": {
+      "kind": "loop",
+      "name": "RE Processing Loop",
+      "subgraphId": "sg_re_preprocess",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ text }}"
+      }
+    },
+    "re_gate": {
+      "kind": "branch",
+      "name": "RE Route Gate",
+      "conditions": [
+        {
+          "label": "Has entities",
+          "field": "entities",
+          "op": "not_empty"
+        },
+        {
+          "label": "Has relations",
+          "field": "relations",
+          "op": "not_empty"
+        },
+        {
+          "label": "Text only",
+          "field": "text",
+          "op": "not_empty"
+        },
+        {
+          "label": "Skip downstream",
+          "field": "entities",
+          "op": "empty"
+        }
+      ]
+    }
+  },
+  "bindings": {
+    "relation_extract_llm": {
+      "text": "{{ re_gate.text }}",
+      "entities": "{{ re_process_loop.entities }}"
+    }
+  }
+}

@@ -1,4 +1,0 @@
-labels,sentence,expected_entities
-"Chemical|Disease","Tricuspid valve regurgitation and lithium carbonate toxicity in a newborn infant.","Tricuspid valve regurgitation|Disease
-lithium carbonate|Chemical
-toxicity|Disease"

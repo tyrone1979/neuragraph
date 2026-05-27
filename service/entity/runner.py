@@ -5,6 +5,8 @@ from service.entity.agent import AgentEntity
 from service.entity.graph import GraphEntity
 from service.entity.entity import Entity, EntityLoader
 from typing import TypedDict, TypeVar, Dict, Any
+from service.entity.test import TestLoader
+from service.eval.gold_metrics import evaluate_sample
 from service.meta.loader import MetaLoader
 from langchain_core.runnables import RunnableConfig
 from pathlib import Path
@@ -52,19 +54,30 @@ class RunnerLoader(EntityLoader):
         path = RESULT_DIR / exp_id
         path.mkdir(parents=True, exist_ok=True)
 
-        total = meta["samples"]
         runner = RunnerLoader.load(meta["runner_id"])
+        rows = []
+        try:
+            _, rows = TestLoader.load_by_id_file(meta["runner_id"], meta.get("dataset", ""))
+        except Exception:
+            rows = []
+        total = len(rows) if rows else int(meta.get("samples") or 0)
 
         result = {}
         for idx in range(1, total + 1):
             config = {"configurable": {"thread_id": f"{exp_id}_{idx}"}}
             state = runner.get_state(config)
-            if state and state.values and state.created_at:
-                result[idx] = state.values
+            if state and state.values:
+                values = dict(state.values)
+                row = rows[idx - 1] if idx - 1 < len(rows) else {}
+                metrics = evaluate_sample(row, values)
+                if metrics:
+                    values["metrics"] = metrics
+                result[str(idx)] = values
 
         # 写入文件
         (path / "states.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2),
             encoding="utf-8"
         )
+        return result
 

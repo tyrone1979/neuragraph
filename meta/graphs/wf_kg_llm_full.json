@@ -1,0 +1,62 @@
+{
+  "id": "wf_kg_llm_full",
+  "name": "KG Build (LLM NER)",
+  "description": "LLM NER → entity link → RE → triple merge → RDF export.",
+  "dataset": "kg",
+  "task": "kg",
+  "engine": "llm",
+  "flow_pattern": "linear",
+  "nodes": [
+    "START",
+    "ner_llm",
+    "ontology_entity_link",
+    "relation_extract_llm",
+    "kg_triple_merge",
+    "kg_rdf_export",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_llm"
+    ],
+    [
+      "ner_llm",
+      "ontology_entity_link"
+    ],
+    [
+      "ontology_entity_link",
+      "relation_extract_llm"
+    ],
+    [
+      "relation_extract_llm",
+      "kg_triple_merge"
+    ],
+    [
+      "kg_triple_merge",
+      "kg_rdf_export"
+    ],
+    [
+      "kg_rdf_export",
+      "END"
+    ]
+  ],
+  "flowNodes": {},
+  "bindings": {
+    "ner_llm": {
+      "text": "{{ START.text }}",
+      "labels": "Chemical, Disease"
+    },
+    "ontology_entity_link": {
+      "entities": "{{ ner_llm.entities }}"
+    },
+    "relation_extract_llm": {
+      "text": "{{ START.text }}",
+      "entities": "{{ ner_llm.entities }}"
+    },
+    "kg_triple_merge": {
+      "relations": "{{ relation_extract_llm.relations }}",
+      "entity_link": "{{ ontology_entity_link.entity_link }}"
+    }
+  }
+}

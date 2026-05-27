@@ -1,4 +1,5 @@
 from typing import List, Dict, Any
+import os
 import numpy as np
 
 class Plugin:
@@ -7,48 +8,112 @@ class Plugin:
         pass
     async def aload(self):
         pass
-'''
-class FlairTagger(Plugin):
-    def load(self):
-        try:
-            import pathlib
-            from flair.models import SequenceTagger
-            MODEL_DIR = pathlib.Path(__file__).resolve().parent.parent / "models" / "hunflair2-ner" / "pytorch_model.bin"
-            if MODEL_DIR.exists():
-                flair_tagger = SequenceTagger.load(str(MODEL_DIR))
-                return {"tag": flair_tagger}
-        except ImportError:
-            pass
-        print("[INFO] FlairTagger: Flair not available or no local model. Skipping.")
-        return {}
-'''
-class PGMExecutor(Plugin):
+
+
+# FlairTagger + full PGM with flair: sandbox/plugins_impl.py
+# Main process keeps lightweight exec_globals for metrics-only PGM agents.
+
+
+class PGMExecutorLite(Plugin):
+    """In-process PGM (no flair). Used for eval_metrics and similar agents."""
+
     def load(self):
         safe_builtins = {
-                    'range': range, 'len': len, 'str': str, 'int': int,
-                    'float': float, 'bool': bool, 'list': list, 'dict': dict,
-                    'set': set, 'tuple': tuple, 'enumerate': enumerate,
-                    'zip': zip, 'max': max, 'min': min, 'sum': sum,
-                    'abs': abs, 'round': round, 'sorted': sorted,
-                    'isinstance': isinstance
+            "range": range,
+            "len": len,
+            "str": str,
+            "int": int,
+            "float": float,
+            "bool": bool,
+            "list": list,
+            "dict": dict,
+            "set": set,
+            "tuple": tuple,
+            "enumerate": enumerate,
+            "zip": zip,
+            "max": max,
+            "min": min,
+            "sum": sum,
+            "abs": abs,
+            "round": round,
+            "sorted": sorted,
+            "isinstance": isinstance,
         }
 
         def safe_import(name, globals=None, locals=None, fromlist=(), level=0):
-                allowed = {
-                        'flair',
-                        'flair.data'
-                }
-                if name not in allowed:
-                        raise ImportError(f"Import {name} not allowed")
-                return __import__(name, globals, locals, fromlist, level)
+            raise ImportError(
+                f"Import {name} not allowed in main-process PGM; use plugin sandbox for flair."
+            )
 
-        safe_builtins['__import__'] = safe_import
-        exec_globals = {
-            '__builtins__': safe_builtins,
-            '__result__': None
+        safe_builtins["__import__"] = safe_import
+        return {
+            "exec_globals": {
+                "__builtins__": safe_builtins,
+                "__result__": None,
+            }
         }
 
-        return {"exec_globals": exec_globals}
+
+class PGMExecutorInProcess(Plugin):
+    """Full in-process PGM when PLUGIN_SANDBOX=0 (includes flair via safe_import)."""
+
+    def load(self):
+        safe_builtins = {
+            "range": range,
+            "len": len,
+            "str": str,
+            "int": int,
+            "float": float,
+            "bool": bool,
+            "list": list,
+            "dict": dict,
+            "set": set,
+            "tuple": tuple,
+            "enumerate": enumerate,
+            "zip": zip,
+            "max": max,
+            "min": min,
+            "sum": sum,
+            "abs": abs,
+            "round": round,
+            "sorted": sorted,
+            "isinstance": isinstance,
+        }
+
+        def safe_import(name, globals=None, locals=None, fromlist=(), level=0):
+            allowed = {"flair", "flair.data"}
+            if name not in allowed:
+                raise ImportError(f"Import {name} not allowed")
+            return __import__(name, globals, locals, fromlist, level)
+
+        safe_builtins["__import__"] = safe_import
+        try:
+            import pathlib
+            from flair.models import SequenceTagger
+
+            model_dir = (
+                pathlib.Path(__file__).resolve().parent.parent
+                / "models"
+                / "hunflair2-ner"
+                / "pytorch_model.bin"
+            )
+            tag = None
+            if model_dir.exists():
+                tag = SequenceTagger.load(str(model_dir))
+        except ImportError:
+            tag = None
+        out = {
+            "exec_globals": {
+                "__builtins__": safe_builtins,
+                "__result__": None,
+            }
+        }
+        if tag is not None:
+            out["tag"] = tag
+        return out
+
+
+# PGMExecutorInProcess used only when PLUGIN_SANDBOX=0 (see plugin_loader skip rules)
 
 
 

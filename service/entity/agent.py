@@ -19,6 +19,8 @@ from service.entity.entity import Entity, EntityLoader
 from service.meta.loader import MetaLoader
 from utils.graphutils import create_graph
 from plugin.plugin_loader import get_plugin
+from plugin.plugin_client import is_available, run_pgm, sandbox_enabled
+from plugin.sandbox_manifest import resolve_sandbox
 from dataclasses import dataclass
 
 
@@ -38,7 +40,11 @@ class AgentEntity(Entity):
         self.outputs: Dict[str, str] = meta.get("outputs", {})
 
         self.idx: str | None = meta.get("idx")
+        self.engine: str | None = (meta.get("engine") or "").strip() or None
+        self.sandbox: str | None = meta.get("sandbox")
         self.process = meta.get("process", None)
+        self.meta = meta
+        self.default_labels = meta.get("default_labels")
         if self.type=="PGM":
             self.agent = create_graph(self,self.checkpointer)
         if self.type == "LLM":
@@ -117,6 +123,16 @@ class AgentEntity(Entity):
         if self.type=='LLM':
             if typ == "list":
                 return {name: convert_to_list(result)}
+            if typ == "dict" and isinstance(result, str):
+                try:
+                    import ast
+                    parsed = json.loads(result.strip())
+                except json.JSONDecodeError:
+                    try:
+                        parsed = ast.literal_eval(result.strip())
+                    except (SyntaxError, ValueError):
+                        parsed = result
+                return {name: parsed}
             return {name: result}
         elif self.type == "PGM":
             return {name: result} if self.type == "PGM" else {}
@@ -210,8 +226,13 @@ class AgentEntity(Entity):
             return out
 
         if self.type=="LLM":
-            # 3. 构造 LLM 输入（只给 llm_inputs 里出现的字段）
             base_dict = {k: state[k] for k in self.inputs if k in state}
+            if "labels" in self.inputs and "labels" not in base_dict:
+                default_labels = getattr(self, "default_labels", None) or (
+                    (self.meta or {}).get("default_labels")
+                )
+                if default_labels:
+                    base_dict["labels"] = default_labels
             prompt_value = self.template.invoke(base_dict)
             ai_msg = self.model.invoke(prompt_value)
             if ai_msg and hasattr(ai_msg, 'content'):
@@ -236,8 +257,13 @@ class AgentEntity(Entity):
             return
 
         if self.type=="LLM":
-            # ---------- 3. 构造 LLM prompt ----------
             base_dict = {k: state[k] for k in self.inputs if k in state}
+            if "labels" in self.inputs and "labels" not in base_dict:
+                default_labels = getattr(self, "default_labels", None) or (
+                    (self.meta or {}).get("default_labels")
+                )
+                if default_labels:
+                    base_dict["labels"] = default_labels
             prompt_value = self.template.invoke(base_dict)
             # ---------- 5. 逐 chunk 推流 ----------
             try:
@@ -282,10 +308,36 @@ class AgentEntity(Entity):
 
             # 清理代码
             cleaned_code = normalize_indent(code_string)
-            exec_globals = get_plugin('exec_globals')
-            exec_globals['state']=state
-            exec_globals['get_plugin']=get_plugin
-            # 4. 直接执行清理后的代码
+            agent_meta = {"sandbox": self.sandbox, "engine": self.engine}
+            sandbox_id = resolve_sandbox(
+                cleaned_code, meta=agent_meta, engine=self.engine
+            )
+            if sandbox_enabled() and sandbox_id:
+                if not is_available(sandbox_id, force_check=True):
+                    state = dict(state)
+                    state["error"] = (
+                        f"Plugin sandbox '{sandbox_id}' is not running. "
+                        f"Run: .\\sandbox\\setup_venv.ps1 -Name {sandbox_id} then .\\start.ps1"
+                    )
+                    return state
+                try:
+                    from plugin.plugin_client import run_pgm
+
+                    return run_pgm(cleaned_code, state, sandbox_id)
+                except Exception as e:
+                    state = dict(state)
+                    state["error"] = f"Sandbox execution error: {str(e)}"
+                    return state
+
+            exec_globals = get_plugin("exec_globals")
+            if not exec_globals:
+                state = dict(state)
+                state["error"] = "exec_globals not available (enable PLUGIN_SANDBOX or PLUGIN_SANDBOX=0)"
+                return state
+            exec_globals = dict(exec_globals)
+            exec_globals["__result__"] = None
+            exec_globals["state"] = state
+            exec_globals["get_plugin"] = get_plugin
             exec(cleaned_code, exec_globals)
             # 5. 获取结果
             if '__result__' in exec_globals and exec_globals['__result__'] is not None:

@@ -116,8 +116,10 @@ def render_html(template, runner_id,test_file,runner_type,runner_display, progre
         extra_params['filename'] = test_file
 
 
+    # Client JS only needs filenames + counts (full row payloads break inline JSON / bloat DOM).
+    dataset_options = [{"name": t["name"], "count": t["count"]} for t in tests]
     base_context = {
-        'datasets': tests,
+        'datasets': dataset_options,
         'active_page': 'exp',
         'runner_type': runner_type,
         'runner_id': runner_id,
@@ -284,7 +286,7 @@ async def run_experiment_background(exp_id, exp_cfg, dataset):
 
 # 启动端点
 @exp_bp.route('/api/update', methods=['POST'])
-async def update_exp():
+def update_exp():
     data = request.get_json(force=True)  # force=True 防止 Content-Type 不对时报错
     exp_id=data['exp_id']
     exp_cfg = MetaLoader.load("exps",exp_id)

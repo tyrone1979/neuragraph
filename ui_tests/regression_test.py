@@ -7,7 +7,7 @@ from ui_tests.common import canvas_center, fail, goto, ok, paper_scale, shot, wf
 def run(page: Page, base: str, screenshots_dir: str) -> None:
         # ═══ 1. LOAD ═══
         print("\n=== 1. LOAD ===")
-        goto(page, base, "/graph/bio_ner_graph/edit", 4)
+        goto(page, base, "/graph/wf_doc_ner_flair_eval/edit", 4)
         shot(page, screenshots_dir, "01_load")
         ok("1a - Page title", page.title())
         ok("1b - Canvas", page.locator("#paper_panel").is_visible())
@@ -50,7 +50,7 @@ def run(page: Page, base: str, screenshots_dir: str) -> None:
             ok("2f - Config name present", named) if named else fail(
                 "2f", str([(a["id"], a["name"]) for a in agents])
             )
-            bio = next((a for a in agents if a["id"] == "bio_ner"), None)
+            bio = next((a for a in agents if a["id"] == "ner_flair_sent"), None)
             if bio:
                 ok("2g - bio_ner HTML shows name", "Flair" in bio["html"] or "bio" in bio["html"].lower())
                 ok("2h - bio_ner has inputs in config", len(bio.get("inputs") or []) >= 1)

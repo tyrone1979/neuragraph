@@ -1,0 +1,62 @@
+{
+  "id": "wf_cid_re_llm_linear",
+  "name": "CID RE Pipeline (linear)",
+  "description": "NER → ontology cleanup → relation extract → relation metrics.",
+  "dataset": "cid",
+  "task": "re",
+  "engine": "llm",
+  "flow_pattern": "linear",
+  "nodes": [
+    "START",
+    "ner_llm",
+    "ontology_synonym_resolve",
+    "ontology_hypernym_filter",
+    "relation_extract_llm",
+    "eval_metrics_relation",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_llm"
+    ],
+    [
+      "ner_llm",
+      "ontology_synonym_resolve"
+    ],
+    [
+      "ontology_synonym_resolve",
+      "ontology_hypernym_filter"
+    ],
+    [
+      "ontology_hypernym_filter",
+      "relation_extract_llm"
+    ],
+    [
+      "relation_extract_llm",
+      "eval_metrics_relation"
+    ],
+    [
+      "eval_metrics_relation",
+      "END"
+    ]
+  ],
+  "flowNodes": {},
+  "bindings": {
+    "ner_llm": {
+      "text": "{{ START.text }}",
+      "labels": "Chemical, Disease"
+    },
+    "ontology_synonym_resolve": {
+      "entities": "{{ ner_llm.entities }}"
+    },
+    "relation_extract_llm": {
+      "text": "{{ START.text }}",
+      "entities": "{{ ontology_hypernym_filter.filtered_entities }}"
+    },
+    "eval_metrics_relation": {
+      "relations": "{{ relations }}",
+      "ground_truth": "{{ START.gold_relations }}"
+    }
+  }
+}

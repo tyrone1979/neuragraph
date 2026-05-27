@@ -41,7 +41,8 @@ Drag-and-drop LLM + rule-based + Flair components into reusable workflows to ext
 ### Software Requirements
 - OS: Ubuntu 24.04.6 LTS (GNU/Linux 5.4.0-205-generic x86_64) tested
 - Python: 3.12.3 or 3.11.11 tested
-- Optional: PostgreSQL (for state persistence), Ollama (local LLM), Flair (BioNER)
+- Optional: PostgreSQL (for state persistence), Ollama (local LLM)
+- **Flair / HunFlair2** (recommended for biomedical NER): install `flair` and place the model under `models/hunflair2-ner/` (first startup loads the tagger and may take longer)
 
 ### Setup
 ```bash
@@ -69,8 +70,8 @@ Hit http://127.0.0.1:5001
 
 ### First 5-Minute Tour
 - **LLMs** tab → Add at least one LLM config (Ollama recommended for quick start)
-- **Agents** → Browse existing agents (e.g., sentence_split, dependency_parse, bio_ner, relation_extraction)
-- **Workflows** → Open an example graph (e.g., ner_4_doc_llm.json)
+- **Agents** → Browse agents by `layer` (e.g., `text_sentence_split`, `ner_llm`, `relation_extract_llm`)
+- **Workflows** → Open an example graph (e.g., `wf_doc_ner_llm_eval`)
 - **Datasets** → Upload a small test set (abstracts + optional gold NER/RE)
 - **Experiments** → Pick a graph + dataset → Run → Watch streaming output & report
 
@@ -78,11 +79,111 @@ Hit http://127.0.0.1:5001
 - [CODE_GUIDELINES.md](doc/CODE_GUIDELINES.md) – For hacking on the code
 - [MANUAL.md](doc/MANUAL.md) – Step-by-step ops guide with screenshots
 
+## Agent Catalog
+
+Agents: `meta/agents/<id>.json` — each file includes **`layer`**, **`engine`**, **`name`**, **`description`**.  
+Domain-specific behaviour is configured via **`labels`**, **`entity_types`**, prompts — not via `cid_` / `biomed_` prefixes.
+
+### `layer=document` · `engine=llm`
+
+| ID | Name |
+|----|------|
+| `text_sentence_split` | Sentence Split |
+| `text_word_segment` | Word Segmentation |
+| `text_coreference` | Coreference Resolution |
+| `text_summarize` | Text Summarization |
+
+### `layer=syntax` · `engine=llm`
+
+| ID | Name |
+|----|------|
+| `syntax_dep_parse` | Dependency Parse (CoNLL-U) |
+
+### `layer=ner`
+
+| ID | engine | granularity | Name |
+|----|--------|-------------|------|
+| `ner_llm` | llm | document | NER (LLM, configurable `{labels}`) |
+| `ner_flair_sent` | flair | sentence | NER (Flair, sentence) |
+| `ner_flair_doc` | flair | document | NER (Flair, document) |
+| `ner_from_tree_llm` | llm | sentence | NER from Dependency Tree |
+
+### `layer=relation`
+
+| ID | engine | mode | Name |
+|----|--------|------|------|
+| `relation_extract_llm` | llm | extract | Relation Extraction (text + entities) |
+| `relation_from_tree_llm` | llm | from_tree | Relation Extraction from CoNLL-U |
+| `relation_verify_llm` | llm | verify | Relation Verification ($ / ~) |
+| `relation_verify_to_pair` | pgm | verify | Verify → entity pair |
+| `relation_dti_analyze` | llm | extract | Drug–Target Interaction (`tags: dti`) |
+
+### `layer=ontology`
+
+| ID | engine | Name |
+|----|--------|------|
+| `ontology_synonym_extract` | llm | Synonym Extraction |
+| `ontology_synonym_resolve` | pgm | Synonym Resolution |
+| `ontology_hypernym_identify` | llm | Hypernym Identification |
+| `ontology_hypernym_filter` | pgm | Hypernym Filter |
+| `ontology_entity_link` | llm | Entity Linking / Normalization |
+
+### `layer=kg`
+
+| ID | engine | Name |
+|----|--------|------|
+| `kg_triple_extract_llm` | llm | Triple Extraction |
+| `kg_triple_merge` | pgm | Triple Merge |
+| `kg_rdf_export` | pgm | RDF-JSON Export |
+| `kg_triple_persist` | pgm | Triple CSV Persistence |
+
+### `layer=evaluate` · `engine=pgm`
+
+| ID | Name |
+|----|------|
+| `eval_metrics` | Generic P/R/F1 |
+| `eval_metrics_segment` | Segmentation boundaries |
+| `eval_metrics_relation` | Relation set metrics |
+| `eval_pair_generate` | Head×tail pair generator |
+
+### `layer=report`
+
+| ID | engine | Name |
+|----|--------|------|
+| `report_experiment` | llm | Experiment Markdown report |
+| `report_format_json` | pgm | Result JSON formatter |
+
+**Migration script:** `scripts/migrate_agents_taxonomy.py` (re-run only on a clean backup).
+
+### Example Workflows (`meta/graphs/wf_*.json`)
+
+| Graph ID | dataset | task | flow_pattern |
+|----------|---------|------|--------------|
+| `wf_doc_re_nested_branch` | doc_re | re | **branch + nested loop** (4 branches) |
+| `wf_doc_ner_loop_branch` | doc_ner | ner | **loop + branch** (4 branches) |
+| `wf_cid_re_branch` | cid | re | **branch** (4 branches) |
+| `wf_re_verify_llm_loop` | re_verify | re_verify | **loop** |
+| `wf_kg_syntax_loop` | kg_triple | kg | **loop** |
+| `wf_cid_ner_llm_eval` | cid | ner | linear |
+| `wf_cid_ner_flair_eval` | cid | ner | linear |
+| `wf_doc_ner_llm_eval` | doc_ner | ner | linear |
+| `wf_doc_ner_flair_eval` | doc_ner | ner | linear |
+| `wf_cid_re_llm_linear` | cid | re | linear |
+| `wf_kg_llm_full` | kg | kg | linear |
+| `wf_kg_flair_full` | kg | kg | linear |
+| `wf_word_seg_llm_eval` | word_seg | segment | linear |
+| `wf_general_report_linear` | general | report | linear |
+
+Subgraphs (`sg_*`) are loop/branch bodies — not used as Experiment runners directly.
+
+Migration: `scripts/migrate_graphs_taxonomy.py`
+
 ## Roadmap (as of Jan 22, 2026 – HK time, yo!)
 - [x] Visual graph editor & basic execution
 - [x] LLM/Flair integration for BioNLP primitives
 - [x] Experiment runner with SSE & reports
 - [ ] Multiple dataset format supports.
+- [x] Agent catalog cleanup + biomedical KG agents (Flair + LLM)
 
 
 ## Citation

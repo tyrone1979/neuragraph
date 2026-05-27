@@ -1,0 +1,15 @@
+{
+  "exp_id": "041cdb1e-b1de-421d-8fc2-620399d8ad57",
+  "name": "CID wf_cid_re_llm_linear (2 samples)",
+  "runner_id": "wf_cid_re_llm_linear",
+  "runner_type": "graph",
+  "dataset": "cid_dev_2samples.csv",
+  "samples": 2,
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-05-27T08:32:21.757684",
+  "config": {
+    "runner": "wf_cid_re_llm_linear",
+    "dataset": "cid_dev_2samples.csv"
+  }
+}

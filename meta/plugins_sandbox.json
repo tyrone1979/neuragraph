@@ -1,0 +1,25 @@
+{
+  "sandboxes": {
+    "flair": {
+      "port": 5002,
+      "venv": "sandbox/flair/venv",
+      "entry": "sandbox/flair/plugin_server.py",
+      "markers": [
+        "flair",
+        "get_plugin(\"tag\")",
+        "get_plugin('tag')"
+      ],
+      "engines": ["flair"],
+      "description": "HunFlair2 / torch / flair PGM and tools"
+    },
+    "custom": {
+      "port": 5003,
+      "venv": "sandbox/custom/venv",
+      "entry": "sandbox/custom/plugin_server.py",
+      "markers": ["my_sandbox_plugin"],
+      "engines": [],
+      "enabled": false,
+      "description": "Template sandbox — copy sandbox/_template to sandbox/custom, set enabled:true"
+    }
+  }
+}
