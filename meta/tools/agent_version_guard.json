@@ -1,0 +1,21 @@
+{
+  "name": "Agent Version Guard",
+  "description": "Policy-based guard for keep/alert/rollback decisions using metric deltas.",
+  "parameters": {
+    "properties": {
+      "metrics_delta": {
+        "type": "object",
+        "description": "Metrics delta object, e.g., {\"precision\": ..., \"recall\": ..., \"f1\": ...}."
+      },
+      "policy": {
+        "type": "object",
+        "description": "Optional guard policy thresholds."
+      }
+    },
+    "required": [
+      "metrics_delta"
+    ]
+  },
+  "code": "def func(metrics_delta: dict, policy: dict = None):\n    from service.tools.analysis_tools import agent_version_guard\n    return agent_version_guard(metrics_delta=metrics_delta, policy=policy)"
+}
+

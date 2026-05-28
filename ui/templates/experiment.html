@@ -54,6 +54,7 @@ runner_selector %} {% block content %}
               id="overallProgress"
               class="progress-bar progress-bar-striped progress-bar-animated"
               role="progressbar"
+              title="Experiment progress"
               style="width: {{ progress }}%">
                     {{ progress }}%
             </div>
@@ -73,6 +74,16 @@ runner_selector %} {% block content %}
 
     <!-- 报告 Tab -->
     <div class="tab-pane fade" id="report">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <button type="button" class="btn btn-sm btn-outline-primary" id="optimizeLoopBtn">
+                Optimize Loop
+            </button>
+            <span id="optimizeLoopStatus" class="small text-muted"></span>
+        </div>
+        <div class="progress mb-3" style="height: 20px;">
+            <div id="optimizeLoopProgress" class="progress-bar" role="progressbar" title="Optimize loop progress" style="width: 0%">0%</div>
+        </div>
+        <div id="optimizeLoopResult" class="mb-3"></div>
         <div id="reportMarkdown" class="markdown-body overflow-auto"
             style="max-height:1000px; padding:1rem; border:1px solid #dee2e6;"></div>
     </div>

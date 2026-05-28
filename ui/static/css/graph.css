@@ -207,6 +207,11 @@
   text-overflow: ellipsis;
 }
 
+.wf-node-version {
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
 .wf-node-id {
   font-size: 10px;
   color: #9ca3af;

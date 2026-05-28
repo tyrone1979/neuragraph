@@ -9,6 +9,7 @@ from ui.tool_api import tool_bp
 from ui.llm_api import llm_bp
 from ui.experiment_api import exp_bp
 from ui.components.runner_selector import common_bp
+from ui.chat_api import chat_bp
 from plugin.plugin_loader import get_plugin, _aclose_plugins
 import sys
 import asyncio
@@ -64,6 +65,7 @@ def create_app():
     app.register_blueprint(llm_bp)
     app.register_blueprint(exp_bp)
     app.register_blueprint(common_bp)
+    app.register_blueprint(chat_bp)
 
     # 🔹 5. 路由
     @app.route("/", methods=["GET"])

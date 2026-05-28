@@ -11,12 +11,14 @@ from langchain.messages import AIMessage
 from pathlib import Path
 import json
 import csv
+import re
 from typing_extensions import get_type_hints
 from typing import Dict, Any, List, get_type_hints, Iterator
 from service.entity.tool import ToolLoader
 from utils.conversion import convert_to_list, parse_entity_list, T, jsonify_state
 from service.entity.entity import Entity, EntityLoader
 from service.meta.loader import MetaLoader
+from service.meta.agent_version import AgentVersionStore
 from utils.graphutils import create_graph
 from plugin.plugin_loader import get_plugin
 from plugin.plugin_client import is_available, run_pgm, sandbox_enabled
@@ -25,6 +27,21 @@ from dataclasses import dataclass
 
 
 logger = getLogger(__name__)
+
+
+def _escape_json_literal_braces(text: str) -> str:
+    """
+    Escape JSON literal braces in prompt templates so ChatPromptTemplate
+    does not treat keys like {"evidence_sentence": ...} as variables.
+    Keep normal placeholders such as {text}/{head}/{tail} unchanged.
+    """
+    if not isinstance(text, str) or "{" not in text:
+        return text
+    # opening brace before a quoted key: {"key": ...} -> {{"key": ...}
+    text = re.sub(r'(?<!\{)\{(?=\s*")', "{{", text)
+    # closing brace after a quoted value/key segment -> ..."} -> ..."}}
+    text = re.sub(r'(?<=")\}(?!\})', "}}", text)
+    return text
 
 
 def _llm_extra_body(llm_info: dict) -> dict | None:
@@ -119,9 +136,11 @@ class AgentEntity(Entity):
             else:
                 raise ValueError(f"Unknown LLM type '{llm_type}' for agent '{self.id}'")
 
+            system_prompt = _escape_json_literal_braces(self.template_name["system"])
+            human_prompt = _escape_json_literal_braces(self.template_name["human"])
             self.template = ChatPromptTemplate(
-                [("system", self.template_name["system"]),
-                 ("human", self.template_name["human"])]
+                [("system", system_prompt),
+                 ("human", human_prompt)]
             )
 
             tool_ids=meta.get('tools',"")
@@ -478,6 +497,7 @@ class AgentEntity(Entity):
 
 
 class AgentLoader(EntityLoader):
+    _version_store = AgentVersionStore()
 
     @staticmethod
     def load(id: str,**extra_params) -> AgentEntity | None:
@@ -486,4 +506,19 @@ class AgentLoader(EntityLoader):
         if meta:
             return AgentEntity(meta, checkpointer=checkpointer)
         return None
+
+    @staticmethod
+    def load_version(id: str, version: str, **extra_params) -> AgentEntity | None:
+        """Load a historical agent version snapshot as an executable AgentEntity."""
+        checkpointer: Checkpointer = extra_params.get("checkpointer")
+        payload = AgentLoader._version_store.load_version(id, version)
+        if not payload:
+            return None
+        content = payload.get("content") or {}
+        if not isinstance(content, dict):
+            return None
+        # keep runtime id aligned with agent filename id
+        content = dict(content)
+        content["id"] = id
+        return AgentEntity(content, checkpointer=checkpointer)
 

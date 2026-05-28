@@ -1,6 +1,9 @@
 # exp_api.py
-from flask import Blueprint,  render_template, request, jsonify
+from flask import Blueprint,  render_template, request, jsonify, Response
 import uuid
+import json
+import time
+import threading
 from datetime import datetime
 from ui.components.paginated_api import get_paginated_data
 from service.result.loader import ResultLoader
@@ -10,7 +13,14 @@ from langchain_core.runnables import RunnableConfig
 from service.entity.test import TestLoader
 from service.meta.loader import MetaLoader
 from service.entity.runner import RunnerLoader
+from service.experiment_optimize import (
+    run_optimize_loop_by_exp,
+    run_optimize_loop_by_exp_with_progress,
+)
 exp_bp = Blueprint('exp', __name__, url_prefix='/exp')
+
+_optimize_tasks: dict[str, dict] = {}
+_optimize_lock = threading.Lock()
 
 def render_list(search='',page=1,per_page=20):
     all_history = MetaLoader.loads("exps")  # 你的函数，返回 list of dict
@@ -309,4 +319,117 @@ def update_exp():
         'exp_id': exp_id,
         'message': 'Experiment started in background',
     })
+
+
+@exp_bp.route('/api/optimize-loop', methods=['POST'])
+def optimize_loop():
+    data = request.get_json(force=True) or {}
+    exp_id = (data.get("exp_id") or "").strip()
+    if not exp_id:
+        return jsonify({"success": False, "error": "exp_id is required"}), 400
+    candidate_graph_id = (data.get("candidate_graph_id") or "").strip()
+    try:
+        summary = run_optimize_loop_by_exp(
+            exp_id,
+            candidate_graph_id=candidate_graph_id,
+        )
+        return jsonify({"success": True, "summary": summary})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@exp_bp.route('/api/optimize-loop/start', methods=['POST'])
+def optimize_loop_start():
+    data = request.get_json(force=True) or {}
+    exp_id = (data.get("exp_id") or "").strip()
+    if not exp_id:
+        return jsonify({"success": False, "error": "exp_id is required"}), 400
+    candidate_graph_id = (data.get("candidate_graph_id") or "").strip()
+    task_id = f"opt_{uuid.uuid4().hex}"
+    task = {
+        "task_id": task_id,
+        "exp_id": exp_id,
+        "status": "running",
+        "progress": 0,
+        "stage": "queued",
+        "message": "Queued",
+        "error": "",
+        "summary": None,
+        "updated_at": time.time(),
+    }
+    with _optimize_lock:
+        _optimize_tasks[task_id] = task
+
+    def _runner():
+        def _on_progress(evt: dict):
+            with _optimize_lock:
+                t = _optimize_tasks.get(task_id)
+                if not t:
+                    return
+                t["progress"] = int(evt.get("progress") or t["progress"])
+                t["stage"] = evt.get("stage") or t["stage"]
+                t["message"] = evt.get("message") or t["message"]
+                t["updated_at"] = time.time()
+
+        try:
+            summary = run_optimize_loop_by_exp_with_progress(
+                exp_id,
+                candidate_graph_id=candidate_graph_id,
+                progress_cb=_on_progress,
+            )
+            with _optimize_lock:
+                t = _optimize_tasks.get(task_id)
+                if t:
+                    t["status"] = "completed"
+                    t["progress"] = 100
+                    t["stage"] = "done"
+                    t["message"] = "Optimize loop completed"
+                    t["summary"] = summary
+                    t["updated_at"] = time.time()
+        except Exception as ex:
+            with _optimize_lock:
+                t = _optimize_tasks.get(task_id)
+                if t:
+                    t["status"] = "failed"
+                    t["message"] = "Optimize loop failed"
+                    t["error"] = str(ex)
+                    t["updated_at"] = time.time()
+
+    threading.Thread(target=_runner, daemon=True).start()
+    return jsonify({"success": True, "task_id": task_id})
+
+
+@exp_bp.route('/stream/optimize-loop/<task_id>', methods=['GET'])
+def optimize_loop_stream(task_id):
+    def generate():
+        last_payload = None
+        while True:
+            with _optimize_lock:
+                task = dict(_optimize_tasks.get(task_id) or {})
+            if not task:
+                payload = {"status": "failed", "error": f"task not found: {task_id}"}
+                yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
+                yield "data: [DONE]\n\n"
+                return
+            payload = {
+                "task_id": task_id,
+                "status": task.get("status"),
+                "progress": task.get("progress", 0),
+                "stage": task.get("stage", ""),
+                "message": task.get("message", ""),
+                "error": task.get("error", ""),
+            }
+            if task.get("summary") is not None:
+                payload["summary"] = task["summary"]
+
+            if payload != last_payload:
+                yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
+                last_payload = payload
+
+            if task.get("status") in ("completed", "failed"):
+                yield "data: [DONE]\n\n"
+                return
+            time.sleep(0.8)
+
+    return Response(generate(), mimetype='text/event-stream')
 

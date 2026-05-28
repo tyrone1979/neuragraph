@@ -1,0 +1,21 @@
+{
+  "name": "Report Quality Scorer",
+  "description": "Score report quality on evidence, executability, and traceability.",
+  "parameters": {
+    "properties": {
+      "report_text": {
+        "type": "string",
+        "description": "Report markdown/text to score."
+      },
+      "context": {
+        "type": "object",
+        "description": "Optional context object (e.g., report payload) for traceability hints."
+      }
+    },
+    "required": [
+      "report_text"
+    ]
+  },
+  "code": "def func(report_text: str, context: dict = None):\n    from service.tools.analysis_tools import report_quality_scorer\n    return report_quality_scorer(report_text=report_text, context=context)"
+}
+

@@ -92,6 +92,15 @@ def api_list_graphs():
     return jsonify(result)
 
 
+@graph_bp.route('/api/<graph_id>', methods=['GET'])
+def api_get_graph(graph_id):
+    graph = MetaLoader.load("graphs", graph_id)
+    if not graph:
+        return jsonify({"error": f"Graph '{graph_id}' not found"}), 404
+    graph["id"] = graph_id
+    return jsonify(graph)
+
+
 @graph_bp.route('/api/test-default/<graph_id>', methods=['GET'])
 def api_workflow_test_default(graph_id):
     sample = workflow_test_default(graph_id)
@@ -169,6 +178,35 @@ def api_save_graph():
         "message": f"Graph '{graph_id}' saved successfully",
         "id": graph_id
     })
+
+
+@graph_bp.route('/api/<graph_id>', methods=['DELETE'])
+def api_delete_graph(graph_id):
+    graph = MetaLoader.load("graphs", graph_id)
+    if not graph:
+        return jsonify({"error": f"Graph '{graph_id}' not found"}), 404
+    MetaLoader.delete("graphs", graph_id)
+    return jsonify({"success": True, "id": graph_id})
+
+
+@graph_bp.route('/api/<graph_id>/copy', methods=['POST'])
+def api_copy_graph(graph_id):
+    source = MetaLoader.load("graphs", graph_id)
+    if not source:
+        return jsonify({"error": f"Graph '{graph_id}' not found"}), 404
+    data = request.get_json(silent=True) or {}
+    new_id = (data.get("id") or "").strip()
+    if not new_id:
+        return jsonify({"error": "Missing target id"}), 400
+    if MetaLoader.exists("graphs", new_id):
+        return jsonify({"error": f"Graph '{new_id}' already exists"}), 409
+
+    copied = dict(source)
+    copied["name"] = data.get("name") or f"{source.get('name', graph_id)} (copy)"
+    copied["description"] = data.get("description") or source.get("description", "")
+    copied.pop("id", None)
+    MetaLoader.dump("graphs", new_id, copied)
+    return jsonify({"success": True, "id": new_id})
 
 
 @graph_bp.route('/api/search_agent')

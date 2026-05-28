@@ -2,7 +2,7 @@
 from flask import Blueprint, request, jsonify,Response
 from service.entity.test import TestLoader
 from langchain_core.runnables import RunnableConfig
-from service.meta.loader import MetaLoader
+from service.meta.loader import MetaLoader, GraphMetaLoader
 from service.entity.agent import AgentLoader
 from service.result.loader import ResultLoader, compact_sample_for_report, iter_sample_indices
 from service.entity.runner import _apply_plugin_metrics
@@ -145,6 +145,73 @@ def _load_report_snapshots(exp_id: str, exp_cfg: dict) -> dict:
     return snapshots
 
 
+def _load_report_agents(graphs_cfg: dict[str, dict]) -> dict[str, dict]:
+    """Collect all agent meta referenced by the experiment graph package."""
+    agents: dict[str, dict] = {}
+    for graph in graphs_cfg.values():
+        GraphMetaLoader.load_agents_by_graph(graph, agents)
+    return agents
+
+
+def _resolve_report_agent_versions(
+    graphs_cfg: dict[str, dict], agents_cfg: dict[str, dict]
+) -> dict[str, dict]:
+    """
+    Build explicit agent version mapping per graph for report visibility:
+    - pinned: raw graph.agentVersions
+    - resolved: each runtime agent node -> pinned version or "current"
+    """
+    out: dict[str, dict] = {}
+    for gid, g in (graphs_cfg or {}).items():
+        pinned = (g or {}).get("agentVersions") or {}
+        resolved: dict[str, str] = {}
+        for node_id in (g or {}).get("nodes", []):
+            if node_id in ("START", "END"):
+                continue
+            if node_id not in agents_cfg:
+                continue
+            resolved[node_id] = pinned.get(node_id) or "current"
+        out[gid] = {"pinned": pinned, "resolved": resolved}
+    return out
+
+
+def _build_report_payload(exp_id: str, exp_cfg: dict) -> dict:
+    """
+    Build full report payload for LLM:
+    - experiment config
+    - executed graph (including subgraphs when present)
+    - all agent meta used by those graphs
+    - full states.json content
+    """
+    runner_id = exp_cfg.get("runner_id")
+    graphs_cfg: dict[str, dict] = {}
+    if runner_id:
+        graphs_cfg = GraphMetaLoader.load(runner_id) or {}
+
+    agents_cfg = _load_report_agents(graphs_cfg)
+    agent_versions = _resolve_report_agent_versions(graphs_cfg, agents_cfg)
+
+    states = ResultLoader.load(exp_id)
+    if not states:
+        # best effort recovery: persist from checkpoints then reload
+        exp_for_persistence = dict(exp_cfg)
+        exp_for_persistence["exp_id"] = exp_id
+        try:
+            RunnerLoader.persistence(exp_for_persistence)
+            states = ResultLoader.load(exp_id)
+        except Exception:
+            states = None
+
+    return {
+        "exp_id": exp_id,
+        "experiment": exp_cfg,
+        "graphs": graphs_cfg,
+        "agents": agents_cfg,
+        "agent_versions": agent_versions,
+        "states": states or {},
+    }
+
+
 @sse_bp.route('/report/<exp_id>', methods=['GET'])
 def stream_report(exp_id):
     exp_cfg = MetaLoader.load("exps", exp_id)
@@ -154,8 +221,8 @@ def stream_report(exp_id):
         error = f"The experiment {exp_id} is not completed yet."
         return Response(error, mimetype='text/event-stream')
 
-    snapshots = _load_report_snapshots(exp_id, exp_cfg)
-    if not snapshots:
+    full_payload = _build_report_payload(exp_id, exp_cfg)
+    if not full_payload.get("states"):
         msg = (
             f"No experiment results found for {exp_id}. "
             f"Expected result/{exp_id}/states.json or checkpoint state."
@@ -163,12 +230,7 @@ def stream_report(exp_id):
         return Response(msg, mimetype='text/event-stream')
 
     agent = AgentLoader.load('report_experiment')
-    if len(snapshots) > 20 and _is_metrics_list(snapshots):
-        calculator = get_plugin('MetricsCalculation')
-        result = calculator.compute_micro_macro(snapshots)
-        text_payload = result if isinstance(result, str) else json.dumps(result, ensure_ascii=False, indent=2)
-    else:
-        text_payload = json.dumps(snapshots, ensure_ascii=False, indent=2)
+    text_payload = json.dumps(full_payload, ensure_ascii=False, indent=2)
 
     def generate():
         chunk = agent.invoke({'text': text_payload})

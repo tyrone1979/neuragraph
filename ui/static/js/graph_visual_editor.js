@@ -13,6 +13,22 @@ function getGraphBindings(wf) {
     return wf.bindings || {};
 }
 
+function getGraphAgentVersions(wf) {
+    wf = wf || currentGraph || {};
+    return wf.agentVersions || {};
+}
+
+function getPinnedAgentVersion(agentId, wf) {
+    return getGraphAgentVersions(wf)[agentId] || '';
+}
+
+function setPinnedAgentVersion(agentId, version) {
+    if (!currentGraph) currentGraph = {};
+    if (!currentGraph.agentVersions) currentGraph.agentVersions = {};
+    if (version) currentGraph.agentVersions[agentId] = version;
+    else delete currentGraph.agentVersions[agentId];
+}
+
 function _applyFlowNodeMeta(nid, f) {
     if (!agentsData[nid]) agentsData[nid] = { id: nid };
     agentsData[nid].id = nid;
@@ -759,6 +775,7 @@ function syncCurrentGraphFromCanvas() {
 }
 
 let availableLLMs = [];
+let agentVersionCache = {};
 
 const nodeStyles = {
     startEnd: { stroke: '#17a2b8' }, PGM: { stroke: '#28a745' },
@@ -1073,8 +1090,11 @@ function measureMetaBlockHeight(agent, displayType, type) {
     var h = 0;
     var model = (agent && agent.model) ? agent.model : '';
     var tools = (agent && agent.tools) || [];
+    var agentId = (agent && agent.id) || '';
+    var pinnedVersion = agentId ? getPinnedAgentVersion(agentId) : '';
     if (type === 'LLM' && model) h += WF_META_LINE_H;
     if (tools.length) h += WF_META_LINE_H;
+    if (pinnedVersion) h += WF_META_LINE_H;
     if (displayType === 'branch' || type === 'PGM' || type === 'SUB' || displayType === 'loop') h += WF_META_LINE_H;
     return h;
 }
@@ -1246,6 +1266,7 @@ function buildNodeLayout(id, agent) {
     var outType = (agent && agent.outputs && agent.outputs.type) ? String(agent.outputs.type) : '';
     var model = (agent && agent.model) ? truncateText(agent.model, 32) : '';
     var tools = (agent && agent.tools) || [];
+    var pinnedVersion = getPinnedAgentVersion(id) || '';
 
     var branchConds = (displayType === 'branch')
         ? ((agent && agent.conditions) || [{ label: 'True' }, { label: 'False' }])
@@ -1278,6 +1299,9 @@ function buildNodeLayout(id, agent) {
         html += '<div class="wf-node-meta">Conditional routing (graph flow)</div>';
     } else if (displayType === 'loop') {
         html += '<div class="wf-node-meta">Loop container (graph flow)</div>';
+    }
+    if (pinnedVersion) {
+        html += '<div class="wf-node-meta wf-node-version" title="Pinned agent version">Version: ' + escHtml(pinnedVersion) + '</div>';
     }
     if (tools.length) {
         html += '<div class="wf-node-meta" title="' + escHtml(tools.join(', ')) + '">Tools: ' + escHtml(truncateText(tools.join(', '), 40)) + '</div>';
@@ -2462,6 +2486,62 @@ function bindLlmSelectorEvents(agentId) {
     });
 }
 
+function buildAgentVersionSelectorHtml(agentId) {
+    var pinned = getPinnedAgentVersion(agentId) || '';
+    var html = '<div class="mb-2"><label class="fw-bold small">Agent version pin</label>';
+    html += '<select id="propAgentVersionSelect" class="form-select form-select-sm">';
+    html += '<option value="">(use current version)</option>';
+    html += '</select>';
+    html += '<div id="propAgentVersionHint" class="small text-muted mt-1">';
+    html += pinned ? ('Pinned: ' + escHtml(pinned)) : 'Using current agent version';
+    html += '</div></div>';
+    return html;
+}
+
+function loadAgentVersions(agentId) {
+    if (agentVersionCache[agentId]) {
+        return Promise.resolve(agentVersionCache[agentId]);
+    }
+    return fetch('/agents/api/' + encodeURIComponent(agentId) + '/versions')
+        .then(function(r) { return r.ok ? r.json() : { versions: [] }; })
+        .then(function(data) {
+            var versions = (data && data.versions) || [];
+            agentVersionCache[agentId] = versions;
+            return versions;
+        })
+        .catch(function() { return []; });
+}
+
+function renderAgentVersionSelector(agentId) {
+    var $sel = $('#propAgentVersionSelect');
+    var $hint = $('#propAgentVersionHint');
+    if (!$sel.length) return;
+    var pinned = getPinnedAgentVersion(agentId) || '';
+    $sel.prop('disabled', true);
+    $sel.html('<option value="">Loading...</option>');
+    loadAgentVersions(agentId).then(function(versions) {
+        var opts = ['<option value="">(use current version)</option>'];
+        versions.forEach(function(v) {
+            var note = (v.change_note || '').trim();
+            var lbl = v.version + (note ? (' | ' + note) : '');
+            opts.push('<option value="' + escHtml(v.version) + '"' + (pinned === v.version ? ' selected' : '') + '>' + escHtml(lbl) + '</option>');
+        });
+        $sel.html(opts.join(''));
+        $sel.prop('disabled', false);
+        if (pinned) $sel.val(pinned);
+        $hint.text(pinned ? ('Pinned: ' + pinned) : 'Using current agent version');
+    });
+}
+
+function bindAgentVersionSelectorEvents(agentId) {
+    $('#propAgentVersionSelect').off('change').on('change', function() {
+        var v = $(this).val() || '';
+        setPinnedAgentVersion(agentId, v);
+        $('#propAgentVersionHint').text(v ? ('Pinned: ' + v) : 'Using current agent version');
+        refreshNodeVisual(agentId);
+    });
+}
+
 // ─── Property panel ─────────────────────────────────
 function showPropertyPanel(node) {
     $('#propertyPanel').removeClass('d-none');
@@ -2476,6 +2556,9 @@ function showPropertyPanel(node) {
     html += '<div class="mb-2"><label class="fw-bold small">ID</label><input class="form-control form-control-sm" value="' + id + '" readonly></div>';
     html += '<div class="mb-2"><label class="fw-bold small">Type</label><span class="badge ms-2 ' + (type==='LLM'?'bg-indigo':type==='PGM'?'bg-success':type==='SUB'?'bg-purple':type==='branch'?'bg-warning':type==='loop'?'bg-info':'bg-secondary') + '">' + type + '</span></div>';
     if (type === 'LLM') html += buildLlmSelectorHtml(cfg.model || '');
+    if (id !== 'START' && id !== 'END' && !cfg.flowKind && type !== 'flow' && type !== 'branch' && type !== 'loop') {
+        html += buildAgentVersionSelectorHtml(id);
+    }
     html += '<div class="mb-2"><label class="fw-bold small">Inputs</label><input class="form-control form-control-sm editable-field" data-field="inputs" value="' + ((cfg.inputs||[]).join(', ')) + '"></div>';
     if (cfg.outputs) html += '<div class="mb-2"><label class="fw-bold small">Outputs</label><div class="row g-1"><div class="col-6"><input class="form-control form-control-sm editable-field" data-field="outputs_name" value="' + (cfg.outputs.name||'') + '" placeholder="name"></div><div class="col-6"><input class="form-control form-control-sm editable-field" data-field="outputs_type" value="' + (cfg.outputs.type||'') + '" placeholder="type"></div></div></div>';
     if (cfg.persistence && (cfg.persistence.file_path || cfg.persistence.file_type)) html += '<div class="mb-2"><label class="fw-bold small">Persistence</label><div class="row g-1"><div class="col-8"><input class="form-control form-control-sm editable-field" data-field="persistence_file_path" value="' + (cfg.persistence.file_path||'') + '"></div><div class="col-4"><input class="form-control form-control-sm editable-field" data-field="persistence_file_type" value="' + (cfg.persistence.file_type||'') + '"></div></div></div>';
@@ -2503,6 +2586,10 @@ function showPropertyPanel(node) {
     if (type === 'LLM') {
         updateLlmLinkPreview(cfg.model || '');
         bindLlmSelectorEvents(id);
+    }
+    if (id !== 'START' && id !== 'END' && !cfg.flowKind && type !== 'flow' && type !== 'branch' && type !== 'loop') {
+        renderAgentVersionSelector(id);
+        bindAgentVersionSelectorEvents(id);
     }
     var isBranchFlow = (cfg.flowKind === 'branch' || type === 'branch');
     $('#branchConfigSection').toggleClass('d-none', !isBranchFlow);
@@ -2845,10 +2932,12 @@ function serializeGraph() {
         nodes: ['START', 'END'],
         edges: [['START', 'END']],
         flowNodes: {},
-        bindings: {}
+        bindings: {},
+        agentVersions: {}
     };
     wf.flowNodes = JSON.parse(JSON.stringify((currentGraph && currentGraph.flowNodes) || {}));
     wf.bindings = JSON.parse(JSON.stringify(getGraphBindings(currentGraph) || {}));
+    wf.agentVersions = JSON.parse(JSON.stringify(getGraphAgentVersions(currentGraph) || {}));
     wf.name = $('#currentWorkflowName').text() || wf.name || '';
     if (!wf.nodes || !wf.nodes.length) {
         wf.nodes = ['START', 'END'];

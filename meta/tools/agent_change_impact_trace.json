@@ -1,0 +1,27 @@
+{
+  "name": "Agent Change Impact Trace",
+  "description": "Estimate per-agent metric contribution from version_map and two experiment states.",
+  "parameters": {
+    "properties": {
+      "version_map": {
+        "type": "object",
+        "description": "Changed agent->version mapping."
+      },
+      "baseline_states": {
+        "type": "object",
+        "description": "Baseline states.json object."
+      },
+      "candidate_states": {
+        "type": "object",
+        "description": "Candidate states.json object."
+      }
+    },
+    "required": [
+      "version_map",
+      "baseline_states",
+      "candidate_states"
+    ]
+  },
+  "code": "def func(version_map: dict, baseline_states: dict, candidate_states: dict):\n    from service.tools.analysis_tools import agent_change_impact_trace\n    return agent_change_impact_trace(version_map=version_map, baseline_states=baseline_states, candidate_states=candidate_states)"
+}
+

@@ -106,6 +106,8 @@ def _call_agent(name: str, graph_meta: dict | None = None):
     graph_meta = graph_meta or {}
     bindings_map = graph_meta.get("bindings") or {}
     flow_nodes = graph_meta.get("flowNodes") or {}
+    agent_versions = graph_meta.get("agentVersions") or {}
+    pinned_version = agent_versions.get(name)
     flow = flow_nodes.get(name)
 
     if flow and flow.get("kind") == "loop":
@@ -215,7 +217,14 @@ def _call_agent(name: str, graph_meta: dict | None = None):
 
         return invoke_branch
 
-    agent = AgentLoader.load(name)
+    agent = AgentLoader.load_version(name, pinned_version) if pinned_version else AgentLoader.load(name)
+    if agent is None and pinned_version:
+        logger.warning(
+            "Pinned version not found for agent '%s': %s. Falling back to current.",
+            name,
+            pinned_version,
+        )
+        agent = AgentLoader.load(name)
     if agent is None:
         def passthrough(s):
             return s

@@ -1,0 +1,34 @@
+{
+  "name": "Prompt Patch Apply Safe",
+  "description": "Apply structured prompt patch (append/replace) with validation and safety checks.",
+  "parameters": {
+    "properties": {
+      "original_prompt": {
+        "type": "object",
+        "description": "Prompt template object with keys system/human."
+      },
+      "patch": {
+        "type": "object",
+        "description": "Patch object supporting prompt_system_append/prompt_human_append/prompt_system_replace/prompt_human_replace."
+      },
+      "max_system_chars": {
+        "type": "integer",
+        "description": "Max system prompt chars (default 1200)."
+      },
+      "max_human_chars": {
+        "type": "integer",
+        "description": "Max human prompt chars (default 1800)."
+      },
+      "allowed_placeholders": {
+        "type": "array",
+        "description": "Optional allowed template placeholders list."
+      }
+    },
+    "required": [
+      "original_prompt",
+      "patch"
+    ]
+  },
+  "code": "def func(original_prompt: dict, patch: dict, max_system_chars: int = 1200, max_human_chars: int = 1800, allowed_placeholders: list = None):\n    from service.tools.analysis_tools import prompt_patch_apply_safe\n    return prompt_patch_apply_safe(original_prompt=original_prompt, patch=patch, max_system_chars=max_system_chars, max_human_chars=max_human_chars, allowed_placeholders=allowed_placeholders)"
+}
+

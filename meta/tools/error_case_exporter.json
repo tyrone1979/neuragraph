@@ -1,0 +1,21 @@
+{
+  "name": "Error Case Exporter",
+  "description": "Export worst-k error cases from states into markdown and jsonl payloads for review/regression.",
+  "parameters": {
+    "properties": {
+      "states": {
+        "type": "object",
+        "description": "states.json object."
+      },
+      "worst_k": {
+        "type": "integer",
+        "description": "How many worst samples to export."
+      }
+    },
+    "required": [
+      "states"
+    ]
+  },
+  "code": "def func(states: dict, worst_k: int = 10):\n    from service.tools.analysis_tools import error_case_exporter\n    return error_case_exporter(states=states, worst_k=worst_k)"
+}
+

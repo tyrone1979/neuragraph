@@ -2,8 +2,25 @@
 from flask import Blueprint, render_template, request, jsonify, abort
 from service.entity.test import TestLoader
 from service.meta.loader import MetaLoader
+from service.meta.agent_version import AgentVersionStore
 
 agent_bp = Blueprint('runner', __name__, url_prefix='/agents')
+version_store = AgentVersionStore()
+
+
+def _save_agent_with_version(agent_id: str, data: dict, change_note: str = "", source: str = "save"):
+    ok = MetaLoader.dump("agents", agent_id, data)
+    if not ok:
+        return {"success": False, "error": "failed to save agent"}
+    saved = MetaLoader.load("agents", agent_id) or dict(data)
+    snapshot = version_store.save_snapshot(
+        agent_id,
+        saved,
+        change_note=change_note,
+        source=source,
+        created_by="ui",
+    )
+    return {"success": True, "id": agent_id, "version": snapshot.get("version"), "version_created": snapshot.get("created", False)}
 
 
 @agent_bp.route('/')
@@ -53,15 +70,21 @@ def api_get(agent_id):
 def api_create():
     data = request.json
     agent_id = data.get("id")
-    MetaLoader.dump("agents",agent_id, data)
-    return jsonify({"success": True, "id": agent_id})
+    if not agent_id:
+        return jsonify({"error": "Missing agent id"}), 400
+    change_note = (data or {}).pop("change_note", "")
+    result = _save_agent_with_version(agent_id, data, change_note=change_note, source="create")
+    code = 200 if result.get("success") else 500
+    return jsonify(result), code
 
 
 @agent_bp.route('/api/<agent_id>', methods=['PUT'])
 def api_update(agent_id):
     data = request.json
-    MetaLoader.dump("agents",agent_id, data)
-    return jsonify({"success": True})
+    change_note = (data or {}).pop("change_note", "")
+    result = _save_agent_with_version(agent_id, data, change_note=change_note, source="update")
+    code = 200 if result.get("success") else 500
+    return jsonify(result), code
 
 
 @agent_bp.route('/api/save', methods=['POST'])
@@ -71,13 +94,72 @@ def api_save():
     agent_id = data.get("id")
     if not agent_id:
         return jsonify({"error": "Missing agent id"}), 400
-    MetaLoader.dump("agents", agent_id, data)
-    return jsonify({"success": True, "id": agent_id})
+    change_note = data.pop("change_note", "")
+    result = _save_agent_with_version(agent_id, data, change_note=change_note, source="save")
+    code = 200 if result.get("success") else 500
+    return jsonify(result), code
 
 
 @agent_bp.route('/api/<agent_id>', methods=['DELETE'])
 def api_delete(agent_id):
     if MetaLoader.delete("agents",agent_id):
+        try:
+            version_store.delete_all(agent_id)
+        except Exception:
+            pass
         return jsonify({"success": True})
     return jsonify({"error": "Not found"}), 404
+
+
+@agent_bp.route('/api/<agent_id>/versions', methods=['GET'])
+def api_versions(agent_id):
+    versions = version_store.list_versions(agent_id)
+    return jsonify({"agent_id": agent_id, "versions": versions})
+
+
+@agent_bp.route('/api/<agent_id>/versions/<version>', methods=['GET'])
+def api_get_version(agent_id, version):
+    payload = version_store.load_version(agent_id, version)
+    if not payload:
+        return jsonify({"error": "Version not found"}), 404
+    return jsonify(payload)
+
+
+@agent_bp.route('/api/<agent_id>/compare', methods=['POST'])
+def api_compare_versions(agent_id):
+    data = request.json or {}
+    left = data.get("left")
+    right = data.get("right")
+    if not left or not right:
+        return jsonify({"error": "left and right version are required"}), 400
+    result = version_store.compare(agent_id, left, right)
+    if not result:
+        return jsonify({"error": "Unable to compare versions"}), 404
+    return jsonify(result)
+
+
+@agent_bp.route('/api/<agent_id>/rollback', methods=['POST'])
+def api_rollback(agent_id):
+    data = request.json or {}
+    version = data.get("version")
+    if not version:
+        return jsonify({"error": "version is required"}), 400
+    rollback = version_store.rollback(
+        agent_id,
+        version,
+        change_note=data.get("change_note", ""),
+        created_by="ui",
+    )
+    if not rollback:
+        return jsonify({"error": "Version not found"}), 404
+    MetaLoader.dump("agents", agent_id, rollback["content"])
+    return jsonify(
+        {
+            "success": True,
+            "id": agent_id,
+            "rolled_back_to": version,
+            "new_version": rollback["snapshot"].get("version"),
+            "version_created": rollback["snapshot"].get("created", False),
+        }
+    )
 

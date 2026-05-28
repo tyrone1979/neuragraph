@@ -13,13 +13,17 @@ $(document).ready(function () {
     const $promptDesc = $('#promptDesc');
     const $promptSystem = $('#promptSystem');
     const $promptHuman = $('#promptHuman');
-    const program = $('#program');
+    const $program = $('#program');
     const $inputs = $('#inputs');
     const $outputs = $('#outputs');
 
     const $submitBtn = $('#submitBtn');
     const $toolCheckboxes = $('#toolCheckboxes');
     const $toolsConfig = $('#toolsConfig');
+    const $changeNote = $('#changeNote');
+    const $versionLeft = $('#versionLeft');
+    const $versionRight = $('#versionRight');
+    const $versionDiff = $('#versionDiff');
     // 测试面板元素
     const $datasetSelect = $('#datasetSelect');
     const $testInputs = $('#testInputs');
@@ -168,6 +172,167 @@ $('#llmConfigSelect').on('change', function() {
       };
     }
 
+    function applyMarkdownAction($textarea, action) {
+        const textarea = $textarea[0];
+        if (!textarea) return;
+        const value = $textarea.val();
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selected = value.slice(start, end);
+        let replacement = selected;
+        let cursorShift = 0;
+
+        if (action === 'bold') {
+            replacement = `**${selected || 'bold text'}**`;
+            cursorShift = selected ? 0 : -2;
+        } else if (action === 'italic') {
+            replacement = `*${selected || 'italic text'}*`;
+            cursorShift = selected ? 0 : -1;
+        } else if (action === 'inline_code') {
+            replacement = `\`${selected || 'code'}\``;
+            cursorShift = selected ? 0 : -1;
+        } else if (action === 'h3') {
+            replacement = selected
+                ? selected.split('\n').map(line => `### ${line}`).join('\n')
+                : '### Heading';
+        } else if (action === 'ul') {
+            replacement = selected
+                ? selected.split('\n').map(line => `- ${line}`).join('\n')
+                : '- item 1\n- item 2';
+        } else if (action === 'ol') {
+            replacement = selected
+                ? selected.split('\n').map((line, i) => `${i + 1}. ${line}`).join('\n')
+                : '1. item 1\n2. item 2';
+        } else if (action === 'quote') {
+            replacement = selected
+                ? selected.split('\n').map(line => `> ${line}`).join('\n')
+                : '> quote';
+        } else if (action === 'link') {
+            const linkText = selected || 'link text';
+            replacement = `[${linkText}](https://example.com)`;
+            cursorShift = selected ? 0 : -20;
+        }
+
+        $textarea.val(value.slice(0, start) + replacement + value.slice(end));
+        const nextPos = start + replacement.length + cursorShift;
+        textarea.focus();
+        textarea.selectionStart = Math.max(start, nextPos);
+        textarea.selectionEnd = Math.max(start, nextPos);
+        $textarea.trigger('input');
+    }
+
+    function renderPromptPreview(targetId) {
+        const $textarea = $(`#${targetId}`);
+        const $preview = $(`#${targetId}Preview`);
+        if (!$textarea.length || !$preview.length) return;
+
+        const raw = $textarea.val() || '';
+        if (window.marked && typeof window.marked.parse === 'function') {
+            $preview.html(window.marked.parse(raw));
+        } else {
+            $preview.text(raw);
+        }
+    }
+
+    function setupPromptRichEditors() {
+        $('.rich-action').on('click', function () {
+            const action = $(this).data('action');
+            const targetId = $(this).closest('.rich-toolbar').data('target');
+            const $target = $(`#${targetId}`);
+            applyMarkdownAction($target, action);
+        });
+
+        $('.rich-toggle-preview').on('click', function () {
+            const targetId = $(this).data('target');
+            const $preview = $(`#${targetId}Preview`);
+            const willShow = $preview.hasClass('d-none');
+            if (willShow) {
+                renderPromptPreview(targetId);
+                $preview.removeClass('d-none');
+                $(this).text('Hide Preview');
+            } else {
+                $preview.addClass('d-none');
+                $(this).text('Preview');
+            }
+        });
+
+        $promptSystem.on('input', () => renderPromptPreview('promptSystem'));
+        $promptHuman.on('input', () => renderPromptPreview('promptHuman'));
+    }
+
+    function updateProgramLineNumbers() {
+        if (!$program.length) return;
+        const lineCount = ($program.val().match(/\n/g) || []).length + 1;
+        const lines = [];
+        for (let i = 1; i <= lineCount; i += 1) {
+            lines.push(String(i));
+        }
+        $('#programLineNumbers').text(lines.join('\n'));
+    }
+
+    function applyCodeAction(action) {
+        const textarea = $program[0];
+        if (!textarea) return;
+        const text = $program.val();
+        const selStart = textarea.selectionStart;
+        const selEnd = textarea.selectionEnd;
+
+        const startLineIdx = text.lastIndexOf('\n', Math.max(0, selStart - 1)) + 1;
+        const endLineBreak = text.indexOf('\n', selEnd);
+        const endLineIdx = endLineBreak === -1 ? text.length : endLineBreak;
+        const selectedBlock = text.slice(startLineIdx, endLineIdx);
+        let newBlock = selectedBlock;
+
+        if (action === 'indent') {
+            newBlock = selectedBlock.split('\n').map(line => `    ${line}`).join('\n');
+        } else if (action === 'outdent') {
+            newBlock = selectedBlock
+                .split('\n')
+                .map(line => line.replace(/^ {1,4}/, ''))
+                .join('\n');
+        } else if (action === 'comment') {
+            const lines = selectedBlock.split('\n');
+            const shouldComment = lines.some(line => line.trim() && !line.trim().startsWith('#'));
+            newBlock = lines
+                .map(line => {
+                    if (!line.trim()) return line;
+                    if (shouldComment) return `# ${line}`;
+                    return line.replace(/^(\s*)#\s?/, '$1');
+                })
+                .join('\n');
+        }
+
+        $program.val(text.slice(0, startLineIdx) + newBlock + text.slice(endLineIdx));
+        textarea.focus();
+        textarea.selectionStart = startLineIdx;
+        textarea.selectionEnd = startLineIdx + newBlock.length;
+        updateProgramLineNumbers();
+    }
+
+    function setupProgramEditor() {
+        if (!$program.length) return;
+        updateProgramLineNumbers();
+        $program.on('input', updateProgramLineNumbers);
+        $program.on('scroll', function () {
+            $('#programLineNumbers').scrollTop($program.scrollTop());
+        });
+        $program.on('keydown', function (e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const el = $program[0];
+                const start = el.selectionStart;
+                const end = el.selectionEnd;
+                const value = $program.val();
+                $program.val(`${value.slice(0, start)}    ${value.slice(end)}`);
+                el.selectionStart = el.selectionEnd = start + 4;
+                updateProgramLineNumbers();
+            }
+        });
+        $('.code-action').on('click', function () {
+            applyCodeAction($(this).data('action'));
+        });
+    }
+
     // ==================== 表单数据收集 ====================
 
     // 收集表单数据
@@ -245,6 +410,9 @@ $('#llmConfigSelect').on('change', function() {
             const idx= $('#indexForLoop').val();
             if (idx) formData.idx=parseCommaList(idx);
         }
+        if ($changeNote.length) {
+            formData.change_note = ($changeNote.val() || '').trim();
+        }
         return formData;
     }
 
@@ -319,8 +487,9 @@ $('#llmConfigSelect').on('change', function() {
                 data: JSON.stringify(formData),
                 success: function (response) {
                     alert(isEdit ? 'Agent updated successfully!' : 'Agent created successfully!');
-                    $submitBtn.prop('disabled', false).html('Update');
-
+                    $submitBtn.prop('disabled', false).html(originalText);
+                    if ($changeNote.length) $changeNote.val('');
+                    refreshVersions();
                 },
                 error: function (xhr) {
                     $submitBtn.prop('disabled', false).html(originalText);
@@ -334,6 +503,91 @@ $('#llmConfigSelect').on('change', function() {
     });
 
     // ==================== 测试数据集功能 ====================
+
+    // ==================== 版本控制功能 ====================
+    async function refreshVersions() {
+        if (!isEdit || !$versionLeft.length || !$versionRight.length) return;
+        const agentId = $agentId.val();
+        if (!agentId) return;
+        try {
+            const res = await fetch(`/agents/api/${agentId}/versions`);
+            const data = await res.json();
+            const versions = data.versions || [];
+            $versionLeft.empty();
+            $versionRight.empty();
+            if (!versions.length) {
+                $versionLeft.append('<option value="">(no versions)</option>');
+                $versionRight.append('<option value="">(no versions)</option>');
+                $versionDiff.text('No version history yet. Save once to create v0001.');
+                return;
+            }
+            versions.forEach(v => {
+                const note = (v.change_note || '').trim();
+                const label = `${v.version} | ${v.created_at || ''}${note ? ' | ' + note : ''}`;
+                $versionLeft.append(`<option value="${v.version}">${label}</option>`);
+                $versionRight.append(`<option value="${v.version}">${label}</option>`);
+            });
+            $versionRight.val(versions[0].version);
+            $versionLeft.val(versions[Math.min(1, versions.length - 1)].version);
+            $versionDiff.text(`Loaded ${versions.length} versions.`);
+        } catch (e) {
+            $versionDiff.text(`Failed to load versions: ${e.message || e}`);
+        }
+    }
+
+    async function compareVersions() {
+        const agentId = $agentId.val();
+        const left = $versionLeft.val();
+        const right = $versionRight.val();
+        if (!left || !right) {
+            $versionDiff.text('Please select both versions first.');
+            return;
+        }
+        try {
+            const res = await fetch(`/agents/api/${agentId}/compare`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ left, right })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                $versionDiff.text(`Compare failed: ${data.error || 'unknown error'}`);
+                return;
+            }
+            $versionDiff.text(data.diff || '(no diff)');
+        } catch (e) {
+            $versionDiff.text(`Compare failed: ${e.message || e}`);
+        }
+    }
+
+    async function rollbackRightVersion() {
+        const agentId = $agentId.val();
+        const version = $versionRight.val();
+        if (!version) {
+            alert('Please select the right version to rollback.');
+            return;
+        }
+        if (!confirm(`Rollback current agent to ${version}?`)) return;
+        try {
+            const res = await fetch(`/agents/api/${agentId}/rollback`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    version,
+                    change_note: ($changeNote.val() || '').trim()
+                })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                alert(`Rollback failed: ${data.error || 'unknown error'}`);
+                return;
+            }
+            alert(`Rollback succeeded: ${version} -> current`);
+            location.reload();
+        } catch (e) {
+            alert(`Rollback failed: ${e.message || e}`);
+        }
+    }
 
     // 初始化测试数据集下拉框
     function initTestDatasets() {
@@ -819,10 +1073,18 @@ function updateToolsConfigFromCheckboxes() {
         initTestDatasets();
         // 清空测试输入区域
         clearTestInputs();
+        setupPromptRichEditors();
+        setupProgramEditor();
         if ($agentType.val() === 'LLM') {
                 loadAvailableTools();
                 loadAvailableLLMs();
             }
+        if (isEdit) {
+            refreshVersions();
+            $('#refreshVersionsBtn').on('click', refreshVersions);
+            $('#compareVersionsBtn').on('click', compareVersions);
+            $('#rollbackVersionBtn').on('click', rollbackRightVersion);
+        }
         // 如果有初始测试数据集且是编辑模式，加载第一个
         if (isEdit && testSets && testSets.length > 0) {
             // 在编辑模式下，等待一小段时间让下拉框加载完成
