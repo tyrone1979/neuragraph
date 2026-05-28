@@ -1,0 +1,26 @@
+{
+  "agent_id": "relation_verify_to_id_pair",
+  "version": "v0004",
+  "parent_version": "v0003",
+  "created_at": "2026-05-28T16:34:34.499270",
+  "created_by": "optimize_loop",
+  "change_note": "opt_loop 20260528_162928 r2: FP analysis: LLM incorrectly infers causation when head and tail co-occur only in the title. Add PGM guard to reject pairs where both entities appear only in the title (first sentence before first period) and not in the body.",
+  "source": "optimize_loop",
+  "content_hash": "0fc5fd66f92bc6f380cfd31776d54ae90d9a45ebf13e8a0bfa4146627cca1dfc",
+  "content": {
+    "name": "Relation Verify → ID Pair",
+    "type": "PGM",
+    "inputs": [
+      "result",
+      "head_id",
+      "tail_id"
+    ],
+    "outputs": {
+      "name": "relations",
+      "type": "list"
+    },
+    "process": "treatment_target_ids = {'D012640', 'D009422', 'D064420', 'D001282', 'D006333', 'D009069'}\nhid = state.get('head_id') or ''\ntid = state.get('tail_id') or ''\nif tid in treatment_target_ids:\n    __result__ = []\nelse:\n    result = state.get('result')\n    if result == '$':\n        # Title-only co-occurrence guard: reject if head and tail appear together only in the title\n        text = state.get('text') or ''\n        parts = text.split('.', 1)\n        title = parts[0].lower() if parts else ''\n        body = parts[1].lower() if len(parts) > 1 else ''\n        head = state.get('head') or ''\n        tail = state.get('tail') or ''\n        head_in_title = head.lower() in title\n        tail_in_title = tail.lower() in title\n        head_in_body = head.lower() in body\n        tail_in_body = tail.lower() in body\n        if head_in_title and tail_in_title and not (head_in_body and tail_in_body):\n            __result__ = []\n        else:\n            line = f\"{hid} | {tid}\" if hid and tid else ''\n            __result__ = [line] if line else []\n    else:\n        __result__ = []",
+    "created_at": "2026-05-27T12:00:00",
+    "engine": "pgm"
+  }
+}

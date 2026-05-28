@@ -1,0 +1,15 @@
+{
+  "agent_id": "cid_pair_generate",
+  "latest": "v0001",
+  "versions": [
+    {
+      "version": "v0001",
+      "parent_version": null,
+      "created_at": "2026-05-28T16:38:57.822437",
+      "created_by": "optimize_loop",
+      "change_note": "opt_loop 20260528_162928 r3: Samples 3 and 5 show duplicate entities (same ID, different casing) inflating pair count. Deduplicate by entity ID before pair generation to reduce redundancy.",
+      "source": "optimize_loop",
+      "content_hash": "db2db8a269fa7b8d4d6f5c1e3a5ec9f4ccf689d51ccb650c170d65d61e70d37f"
+    }
+  ]
+}

@@ -312,6 +312,19 @@ def prompt_patch_apply_safe(
     max_human_chars: int = 1800,
     allowed_placeholders: list | None = None,
 ) -> dict[str, Any]:
+    try:
+        max_system_chars = int(max_system_chars) if max_system_chars is not None else 1200
+    except Exception:
+        max_system_chars = 1200
+    try:
+        max_human_chars = int(max_human_chars) if max_human_chars is not None else 1800
+    except Exception:
+        max_human_chars = 1800
+    if max_system_chars <= 0:
+        max_system_chars = 1200
+    if max_human_chars <= 0:
+        max_human_chars = 1800
+
     src = _to_obj(original_prompt)
     if isinstance(src, str):
         src = {"system": "", "human": src}

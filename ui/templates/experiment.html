@@ -49,13 +49,12 @@ runner_selector %} {% block content %}
             <span class="badge text-bg-info" id="exp_id" data-id="{{ exp_id }}">{{ exp_id if exp_id else 'Not saved yet' }}</span>
              <div><span class="badge text-bg-danger" id="error_message"></span></div>
         </div>
-        <div class="progress mb-3" style="height: 30px">
+        <div class="progress mb-3 exp-progress-lg">
             <div
               id="overallProgress"
               class="progress-bar progress-bar-striped progress-bar-animated"
               role="progressbar"
-              title="Experiment progress"
-              style="width: {{ progress }}%">
+              title="Experiment progress">
                     {{ progress }}%
             </div>
       </div>
@@ -75,17 +74,20 @@ runner_selector %} {% block content %}
     <!-- 报告 Tab -->
     <div class="tab-pane fade" id="report">
         <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="form-check form-switch me-2">
+                <input class="form-check-input" type="checkbox" id="reportToolsMode">
+                <label class="form-check-label small" for="reportToolsMode">Tools mode</label>
+            </div>
             <button type="button" class="btn btn-sm btn-outline-primary" id="optimizeLoopBtn">
                 Optimize Loop
             </button>
             <span id="optimizeLoopStatus" class="small text-muted"></span>
         </div>
-        <div class="progress mb-3" style="height: 20px;">
-            <div id="optimizeLoopProgress" class="progress-bar" role="progressbar" title="Optimize loop progress" style="width: 0%">0%</div>
+        <div class="progress mb-3 exp-progress-sm">
+            <div id="optimizeLoopProgress" class="progress-bar" role="progressbar" title="Optimize loop progress">0%</div>
         </div>
         <div id="optimizeLoopResult" class="mb-3"></div>
-        <div id="reportMarkdown" class="markdown-body overflow-auto"
-            style="max-height:1000px; padding:1rem; border:1px solid #dee2e6;"></div>
+        <div id="reportMarkdown" class="markdown-body overflow-auto report-markdown-wrap"></div>
     </div>
   </div>
 </div>

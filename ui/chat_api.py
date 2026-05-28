@@ -13,12 +13,47 @@ from service.api.terminal import TerminalRunner
 from service.meta.loader import MetaLoader
 from service.entity.test import TestLoader
 from service.experiment_optimize import run_optimize_loop_by_exp
+from service.chat import commands as shared_cmd
 from chat import LLMCommandParser
 
 
 chat_bp = Blueprint("chat", __name__, url_prefix="/chat")
 META_DIR = Path(__file__).resolve().parent.parent / "meta"
 DEFAULT_LLM_ID = "deepseek"
+_CHAT_SESSIONS: Dict[str, Dict[str, Any]] = {}
+
+
+def _get_chat_session(payload: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
+    sid = str(payload.get("session_id") or "").strip() or uuid.uuid4().hex
+    session = _CHAT_SESSIONS.setdefault(sid, {"pins": {}, "last_preview": {}})
+    if "pins" not in session:
+        session["pins"] = {}
+    if "last_preview" not in session:
+        session["last_preview"] = {}
+    return sid, session
+
+
+def _md_card(title: str, items: List[Tuple[str, Any]], tips: List[str] | None = None) -> str:
+    lines = [f"### {title}"]
+    for k, v in items:
+        lines.append(f"- **{k}**: {v}")
+    if tips:
+        lines.append("")
+        lines.append("**Next**")
+        for t in tips:
+            lines.append(f"- {t}")
+    return "\n".join(lines)
+
+
+def _render_pins(session: Dict[str, Any]) -> str:
+    pins = (session or {}).get("pins") or {}
+    if not pins:
+        return _md_card("Pinned Context", [("status", "empty")], ["Use `/pin graph <id>` or `/pin exp <id>`"])
+    return _md_card(
+        "Pinned Context",
+        [(k, f"`{v}`") for k, v in pins.items()],
+        ["Use `/pin clear` to clear all pins."],
+    )
 
 
 def _load_llm_config(llm_id: str | None) -> Tuple[str, Dict[str, Any]]:
@@ -92,14 +127,43 @@ def _run_experiment(exp_id: str) -> str:
         "elapsed": round(float(result.get("elapsed", 0.0)), 2),
         "message": result.get("message"),
     }
-    return f"Experiment execution result:\n```json\n{json.dumps(summary, ensure_ascii=False, indent=2)}\n```"
+    exp_link = f"/exp/{summary.get('exp_id')}" if summary.get("exp_id") else "/exp"
+    return _md_card(
+        "Experiment Run Result",
+        [
+            ("exp_id", f"`{summary.get('exp_id', '')}`"),
+            ("status", summary.get("status", "")),
+            ("success", summary.get("success", 0)),
+            ("failed", summary.get("failed", 0)),
+            ("elapsed_s", summary.get("elapsed", 0.0)),
+        ],
+        [f"Open detail: [{summary.get('exp_id', 'experiment')}]({exp_link})"],
+    )
 
 
 def _generate_workflow(requirement: str, llm_id: str) -> str:
+    reused = shared_cmd.find_suitable_workflow(requirement)
+    if reused:
+        gid = str(reused.get("graph_id") or "")
+        return shared_cmd.md_card(
+            "Workflow Reused",
+            [
+                ("graph_id", f"`{gid}`"),
+                ("name", reused.get("name", "")),
+                ("score", reused.get("score", 0)),
+            ],
+            [f"Use directly: `/run workflow {gid} {{\"text\":\"...\"}}`", f"Open details: `/show workflow {gid}`"],
+        )
     chosen, llm_cfg = _load_llm_config(llm_id)
     engine = autogen.AutoGen(llm_cfg, verbose=False)
     engine.cm = autogen.ConfigManager(META_DIR)
-    plan = engine.analyze(requirement)
+    candidate_agents = shared_cmd.find_suitable_agents(requirement, limit=6)
+    req = requirement
+    if candidate_agents:
+        ids = [str(x.get("id") or "").strip() for x in candidate_agents if str(x.get("id") or "").strip()]
+        if ids:
+            req += "\n\nReuse existing agents when applicable: " + ", ".join(ids)
+    plan = engine.analyze(req)
     generated = engine.generate(plan)
     errors = engine.validate(plan)
     if errors:
@@ -225,7 +289,19 @@ def _create_experiment(runner_id: str, dataset: str, runner_type: str = "graph")
         "progress": 0,
     }
     MetaLoader.dump("exps", exp_id, data)
-    return f"Created experiment `{exp_id}` for runner `{runner_id}` with dataset `{dataset}`."
+    return _md_card(
+        "Experiment Created",
+        [
+            ("exp_id", f"`{exp_id}`"),
+            ("runner_id", f"`{runner_id}`"),
+            ("dataset", f"`{dataset}`"),
+            ("samples", sample_count),
+        ],
+        [
+            f"Open detail: [{exp_id}](/exp/{exp_id})",
+            f"Run now: `/run experiment {exp_id}`",
+        ],
+    )
 
 
 def _copy_workflow(source_id: str, target_id: str) -> str:
@@ -241,7 +317,11 @@ def _copy_workflow(source_id: str, target_id: str) -> str:
     copied = dict(source)
     copied["name"] = f"{source.get('name', source_id)} (copy)"
     MetaLoader.dump("graphs", target_id, copied)
-    return f"Copied workflow `{source_id}` -> `{target_id}`."
+    return _md_card(
+        "Workflow Copied",
+        [("source", f"`{source_id}`"), ("target", f"`{target_id}`")],
+        [f"View copied workflow: `/show workflow {target_id}`"],
+    )
 
 
 def _start_optimize_loop(exp_id: str, max_updates: int = 1) -> str:
@@ -269,118 +349,40 @@ def _to_int(val: Any, default: int) -> int:
         return default
 
 
-def _execute_slash(cmd: str, llm_id: str) -> str:
-    raw = cmd.strip()
+def _preview_slash(cmd: str, session: Dict[str, Any]) -> str:
+    raw = (cmd or "").strip()
     parts = raw.split()
     if not parts:
         return "Empty command."
+    pins = (session or {}).setdefault("pins", {})
     c0 = parts[0].lower()
-
-    if c0 in ("/help", "/h"):
-        return (
-            "Commands:\n"
-            "- `/list workflows|agents|tools|llms|experiments`\n"
-            "- `/show workflow|agent|tool|llm|experiment <id>`\n"
-            "- `/run workflow|agent <id> {json_inputs}`\n"
-            "- `/run experiment <exp_id>`\n"
-            "- `/create testset <runner_id> <filename> [source_file] [count]`\n"
-            "- `/create experiment <runner_id> <dataset> [runner_type]`\n"
-            "- `/copy workflow <source_id> <target_id>`\n"
-            "- `/optimize <exp_id> [max_updates]`\n"
-            "- `/delete workflow|agent|tool|llm|experiment <id>`"
-        )
-
-    if c0 == "/list":
-        sub = parts[1].lower() if len(parts) > 1 else "workflows"
-        if sub in ("workflow", "workflows", "graph", "graphs"):
-            return _list_meta("graphs", "Workflows")
-        if sub in ("agent", "agents"):
-            return _list_meta("agents", "Agents")
-        if sub in ("tool", "tools"):
-            return _list_meta("tools", "Tools")
-        if sub in ("llm", "llms"):
-            return _list_meta("llms", "LLMs")
-        if sub in ("experiment", "experiments", "exp", "exps"):
-            return _list_meta("exps", "Experiments")
-        return f"Unsupported list type: `{sub}`"
-
-    if c0 == "/show" and len(parts) >= 3:
-        sub = parts[1].lower()
-        cid = parts[2]
-        if sub in ("workflow", "graph"):
-            return _show_meta("graphs", cid, "Workflow")
-        if sub == "agent":
-            return _show_meta("agents", cid, "Agent")
-        if sub == "tool":
-            return _show_meta("tools", cid, "Tool")
-        if sub == "llm":
-            return _show_meta("llms", cid, "LLM")
-        if sub in ("experiment", "exp"):
-            return _show_meta("exps", cid, "Experiment")
-
-    if c0 == "/run" and len(parts) >= 3:
-        sub = parts[1].lower()
-        cid = parts[2]
-        inputs = _try_parse_json_tail(raw)
-        if sub in ("workflow", "graph"):
-            return _run_workflow_or_agent("workflow", cid, inputs)
-        if sub == "agent":
-            return _run_workflow_or_agent("agent", cid, inputs)
-        if sub in ("experiment", "exp"):
-            return _run_experiment(cid)
-
-    if c0 == "/delete" and len(parts) >= 3:
-        sub = parts[1].lower()
-        cid = parts[2]
-        if sub in ("workflow", "graph"):
-            return _delete_meta("graphs", cid)
-        if sub == "agent":
-            return _delete_meta("agents", cid)
-        if sub == "tool":
-            return _delete_meta("tools", cid)
-        if sub == "llm":
-            return _delete_meta("llms", cid)
-        if sub in ("experiment", "exp"):
-            return _delete_meta("exps", cid)
-
-    if c0 == "/create" and len(parts) >= 2:
-        sub = parts[1].lower()
-        if sub == "testset":
-            if len(parts) < 4:
-                return "Usage: /create testset <runner_id> <filename> [source_file] [count]"
-            runner_id = parts[2]
-            filename = parts[3]
-            source_file = parts[4] if len(parts) >= 5 else ""
-            try:
-                count = int(parts[5]) if len(parts) >= 6 else 5
-            except ValueError:
-                count = 5
-            return _create_testset(runner_id, filename, source_file, count)
-        if sub in ("experiment", "exp"):
-            if len(parts) < 4:
-                return "Usage: /create experiment <runner_id> <dataset> [runner_type]"
-            runner_id = parts[2]
-            dataset = parts[3]
-            runner_type = parts[4] if len(parts) >= 5 else "graph"
-            return _create_experiment(runner_id, dataset, runner_type)
-
-    if c0 == "/copy" and len(parts) >= 4:
-        sub = parts[1].lower()
-        if sub in ("workflow", "graph"):
-            return _copy_workflow(parts[2], parts[3])
-
-    if c0 == "/optimize" and len(parts) >= 2:
-        exp_id = parts[1]
-        try:
-            max_updates = int(parts[2]) if len(parts) >= 3 else 1
-        except ValueError:
-            max_updates = 1
-        return _start_optimize_loop(exp_id, max_updates=max_updates)
-
-    return "Unsupported command. Type `/help`."
+    action = "read"
+    if c0 in ("/run", "/create", "/copy", "/optimize", "/delete"):
+        action = "write"
+    resolved: List[Tuple[str, Any]] = [
+        ("command", f"`{raw}`"),
+        ("mode", "`dry-run preview`"),
+        ("risk", "`high`" if action == "write" else "`low`"),
+    ]
+    if c0 == "/create" and len(parts) >= 2 and parts[1].lower() in ("experiment", "exp"):
+        runner = parts[2] if len(parts) >= 3 else (pins.get("graph") or pins.get("runner_id") or "")
+        dataset = parts[3] if len(parts) >= 4 else (pins.get("dataset") or "")
+        resolved.append(("resolved_runner", f"`{runner or '(missing)'}`"))
+        resolved.append(("resolved_dataset", f"`{dataset or '(missing)'}`"))
+    if c0 in ("/run", "/show") and len(parts) >= 3 and parts[1].lower() in ("experiment", "exp"):
+        exp_id = parts[2] if len(parts) >= 3 else (pins.get("exp") or "")
+        resolved.append(("resolved_exp", f"`{exp_id or '(missing)'}`"))
+    if pins:
+        resolved.extend((f"pin.{k}", f"`{v}`") for k, v in pins.items())
+    return _md_card("Execution Preview", resolved, ["Run the command directly to execute."])
 
 
-def _dispatch_intent(intent: Dict[str, Any], llm_id: str) -> str:
+def _execute_slash(cmd: str, llm_id: str, session: Dict[str, Any] | None = None) -> str:
+    reply = shared_cmd.execute_slash_command(cmd, session=session, llm_id=llm_id)
+    return reply if isinstance(reply, str) else "Unsupported command. Type `/help`."
+
+
+def _dispatch_intent(intent: Dict[str, Any], llm_id: str, session: Dict[str, Any] | None = None) -> str:
     action = intent.get("action", "chat")
     params = intent.get("parameters", {}) or {}
     response = intent.get("response", "") or ""
@@ -390,37 +392,41 @@ def _dispatch_intent(intent: Dict[str, Any], llm_id: str) -> str:
     if action == "command":
         cmd = params.get("cmd", "")
         if cmd:
-            return _execute_slash(cmd, llm_id)
+            return _execute_slash(cmd, llm_id, session=session)
         return response or "Command is empty."
 
     if action == "list_agents":
-        return _list_meta("agents", "Agents")
+        return shared_cmd.list_meta("agents", "Agents")
     if action in ("list_workflows", "list_graphs"):
-        return _list_meta("graphs", "Workflows")
+        return shared_cmd.list_meta("graphs", "Workflows")
     if action == "list_tools":
-        return _list_meta("tools", "Tools")
+        return shared_cmd.list_meta("tools", "Tools")
+    if action == "list_datasets":
+        return shared_cmd.list_datasets()
     if action == "list_llms":
-        return _list_meta("llms", "LLMs")
+        return shared_cmd.list_meta("llms", "LLMs")
     if action == "list_experiments":
-        return _list_meta("exps", "Experiments")
+        return shared_cmd.list_meta("exps", "Experiments")
 
     if action == "show_agent":
-        return _show_meta("agents", params.get("id", ""), "Agent")
+        return shared_cmd.show_meta("agents", params.get("id", ""), "Agent")
     if action in ("show_workflow", "show_graph"):
-        return _show_meta("graphs", params.get("id", ""), "Workflow")
+        return shared_cmd.show_meta("graphs", params.get("id", ""), "Workflow")
     if action == "show_tool":
-        return _show_meta("tools", params.get("id", ""), "Tool")
+        return shared_cmd.show_meta("tools", params.get("id", ""), "Tool")
+    if action == "show_dataset":
+        return shared_cmd.show_dataset(params.get("id", ""))
     if action == "show_llm":
-        return _show_meta("llms", params.get("id", ""), "LLM")
+        return shared_cmd.show_meta("llms", params.get("id", ""), "LLM")
     if action == "show_experiment":
-        return _show_meta("exps", params.get("id", ""), "Experiment")
+        return shared_cmd.show_meta("exps", params.get("id", ""), "Experiment")
 
     if action == "run_agent":
-        return _run_workflow_or_agent("agent", params.get("id", ""), params.get("inputs") or {})
+        return shared_cmd.run_workflow_or_agent("agent", params.get("id", ""), params.get("inputs") or {})
     if action in ("run_workflow", "run_graph"):
-        return _run_workflow_or_agent("workflow", params.get("id", ""), params.get("inputs") or {})
+        return shared_cmd.run_workflow_or_agent("workflow", params.get("id", ""), params.get("inputs") or {})
     if action == "run_experiment":
-        return _run_experiment(params.get("id", ""))
+        return shared_cmd.run_experiment(params.get("id", ""))
 
     if action == "generate_agent":
         return _generate_agent(params.get("requirement", ""), llm_id)
@@ -437,35 +443,41 @@ def _dispatch_intent(intent: Dict[str, Any], llm_id: str) -> str:
         return _update_meta("llms", params.get("id", ""), params.get("changes", ""), llm_id)
 
     if action == "delete_agent":
-        return _delete_meta("agents", params.get("id", ""))
+        return shared_cmd.delete_meta("agents", params.get("id", ""))
     if action in ("delete_workflow", "delete_graph"):
-        return _delete_meta("graphs", params.get("id", ""))
+        return shared_cmd.delete_meta("graphs", params.get("id", ""))
     if action == "delete_tool":
-        return _delete_meta("tools", params.get("id", ""))
+        return shared_cmd.delete_meta("tools", params.get("id", ""))
     if action == "delete_llm":
-        return _delete_meta("llms", params.get("id", ""))
+        return shared_cmd.delete_meta("llms", params.get("id", ""))
     if action == "delete_experiment":
-        return _delete_meta("exps", params.get("id", ""))
+        return shared_cmd.delete_meta("exps", params.get("id", ""))
 
     if action == "create_testset":
-        return _create_testset(
+        return shared_cmd.create_testset(
             params.get("runner_id", ""),
             params.get("filename", ""),
             params.get("source_file", ""),
             _to_int(params.get("count", 5), 5),
         )
     if action == "create_experiment":
-        return _create_experiment(
+        return shared_cmd.create_experiment(
             params.get("runner_id", ""),
             params.get("dataset", ""),
             params.get("runner_type", "graph"),
         )
     if action in ("copy_workflow", "copy_graph"):
-        return _copy_workflow(params.get("source_id", ""), params.get("target_id", ""))
+        return shared_cmd.copy_workflow(params.get("source_id", ""), params.get("target_id", ""))
     if action in ("start_optimize_loop", "optimize_loop"):
-        return _start_optimize_loop(
+        return shared_cmd.start_optimize_loop(
             params.get("id", "") or params.get("exp_id", ""),
             _to_int(params.get("max_updates", 1), 1),
+        )
+    if action == "run_orchestration":
+        return shared_cmd.run_orchestration(
+            params.get("goal", ""),
+            llm_id=llm_id,
+            session=session or {"pins": {}},
         )
 
     return response or f"Unknown action: {action}"
@@ -474,6 +486,7 @@ def _dispatch_intent(intent: Dict[str, Any], llm_id: str) -> str:
 @chat_bp.route("/api/message", methods=["POST"])
 def chat_message():
     payload = request.get_json(silent=True) or {}
+    session_id, session = _get_chat_session(payload)
     message = (payload.get("message") or "").strip()
     history = payload.get("history") or []
     llm_id = payload.get("llm_id") or DEFAULT_LLM_ID
@@ -484,8 +497,17 @@ def chat_message():
     try:
         chosen_llm, llm_cfg = _load_llm_config(llm_id)
         if message.startswith("/"):
-            reply = _execute_slash(message, chosen_llm)
-            return jsonify({"ok": True, "reply": reply, "llm_id": chosen_llm, "action": "command"})
+            reply = _execute_slash(message, chosen_llm, session=session)
+            return jsonify(
+                {
+                    "ok": True,
+                    "reply": reply,
+                    "llm_id": chosen_llm,
+                    "action": "command",
+                    "session_id": session_id,
+                    "pins": session.get("pins", {}),
+                }
+            )
 
         parser = LLMCommandParser(llm_cfg, META_DIR)
         safe_history = [
@@ -494,7 +516,7 @@ def chat_message():
             if isinstance(item, dict)
         ]
         intent = parser.parse(message, safe_history)
-        reply = _dispatch_intent(intent, chosen_llm)
+        reply = _dispatch_intent(intent, chosen_llm, session=session)
         return jsonify(
             {
                 "ok": True,
@@ -502,7 +524,14 @@ def chat_message():
                 "llm_id": chosen_llm,
                 "action": intent.get("action", "chat"),
                 "intent": intent,
+                "session_id": session_id,
+                "pins": session.get("pins", {}),
             }
         )
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@chat_bp.route("/api/command-catalog", methods=["GET"])
+def chat_command_catalog():
+    return jsonify({"ok": True, "items": shared_cmd.command_catalog()})

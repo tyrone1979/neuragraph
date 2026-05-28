@@ -589,4 +589,126 @@ For loops, include `flowNodes` inside `graph_plan` and a matching entry in `subg
 
 ---
 
+## 19. Self-Healing Protocol (runtime auto-repair)
+
+Use this section when workflow/experiment execution fails and the assistant must
+repair configs automatically (without waiting for manual edits).
+
+### 19.1 Goal
+
+Given a failed run (`meta/exps/<exp_id>.json` history + current `meta/` configs):
+
+1. Diagnose the most likely config/schema root cause.
+2. Produce minimal, deterministic patch updates.
+3. Apply patches to `meta/graphs/*.json` and/or `meta/agents/*.json`.
+4. Re-run once and stop if still failing.
+
+### 19.2 Repair scope and safety
+
+- Allowed writes:
+  - `meta/graphs/<id>.json`
+  - `meta/agents/<id>.json`
+  - Missing subgraph files under `meta/graphs/sg_*.json` or `<loop_node>.json`
+- Not allowed:
+  - destructive deletes of unrelated files
+  - changing LLM provider secrets
+  - broad refactors unrelated to the observed error
+- Prefer **smallest viable patch** that unblocks execution.
+- Keep IDs stable; never rename existing graph/agent ids during auto-repair.
+
+### 19.3 Error taxonomy → fix strategy
+
+| Error pattern | Typical root cause | Preferred fix |
+|---|---|---|
+| `INVALID_PROMPT_INPUT` / `missing variables {...}` | LLM agent inputs not bound from state | Add graph `bindings` for missing inputs (`{{ field }}` / `{{ START.field }}`); if producer missing, create minimal upstream eval/transform agent only when clearly implied |
+| `No such file ... states.json` after `completed_with_errors` | All samples failed before persistence | Inspect per-sample `history[*].error`; fix real upstream cause first |
+| `INVALID_CONCURRENT_GRAPH_UPDATE` | Parallel branches writing same state key in one step | Ensure missing nodes are true no-op; avoid returning full state from fallback nodes; reduce conflicting writes |
+| Loop node exists in `nodes` but agent file missing | Intended flow node (`*_loop`) not materialized | Add `flowNodes.<node>.kind=loop`, `subgraphId`, `loopConfig`, and create subgraph file |
+| Subgraph missing / wrong `subgraphId` | Loop cannot execute body graph | Create/fix subgraph with START→...→END and correct bindings |
+| Metrics fields always empty/zero | Expected/predicted field mismatch | Align workflow `metrics` expected/predicted field names with dataset columns and final state keys |
+| Prompt uses `{{var}}` inside LLM prompt | Binding syntax used in prompt template | Replace with `{var}` in `prompt_template`; keep `{{ ... }}` only in graph bindings |
+
+### 19.4 Structured repair output (machine-readable)
+
+When proposing fixes, return JSON only:
+
+```json
+{
+  "notes": ["short diagnosis"],
+  "graph_updates": [
+    { "id": "wf_xxx", "config": { "name": "...", "nodes": [], "edges": [] } }
+  ],
+  "agent_updates": [
+    { "id": "agent_xxx", "config": { "name": "...", "type": "PGM", "inputs": [], "outputs": {} } }
+  ],
+  "post_checks": [
+    "json_valid",
+    "node_exists",
+    "binding_resolves"
+  ]
+}
+```
+
+Rules:
+
+- `config` is the **full file content** to write (not partial diff).
+- Omit update arrays when no safe patch is available.
+- `notes` must explain *why* this patch addresses the concrete error text.
+
+### 19.5 Repair execution order
+
+1. Parse latest failure messages from experiment history.
+2. Apply deterministic/local fixes first:
+   - undefined loop nodes
+   - obvious missing bindings
+   - missing subgraph skeleton
+3. If unresolved, use skill-guided LLM patch generation using this document.
+4. Apply patch.
+5. Run validation checklist (§19.6).
+6. Re-run experiment once.
+
+Stop conditions:
+
+- Re-run succeeds; OR
+- Re-run fails with same signature after one repair cycle; OR
+- Patch would require out-of-scope changes.
+
+### 19.6 Mandatory post-repair checks
+
+- JSON parse succeeds for all modified files.
+- Graph integrity:
+  - `START` and `END` exist
+  - every edge endpoint exists in `nodes`
+  - each non-flow node resolves to an existing agent or graph
+- Loop integrity (if loop touched):
+  - `flowNodes.<loop>.subgraphId` exists
+  - `array` resolves to a list-like field
+  - `itemBindings` covers subgraph varying inputs
+- Prompt/binding integrity:
+  - LLM prompt placeholders use `{field}`
+  - graph bindings use `{{ field }}` / `{{ START.field }}`
+- Optional quick smoke run on 1 sample before full rerun.
+
+### 19.7 Retry policy
+
+- Max auto-repair cycles per failed command: **1**
+- Max auto-rerun attempts after patch: **1**
+- If still failing, return:
+  - failing stage
+  - latest normalized error signature
+  - patches attempted
+  - recommended next manual action
+
+### 19.8 Logging for traceability
+
+Each auto-repair should record concise notes:
+
+- detected error signatures
+- modified files (`graph id`, `agent id`)
+- whether retry was executed and its outcome
+
+Keep logs human-readable and short; avoid dumping full configs unless requested.
+
+---
+
 *End of skill — keep this file aligned with `doc/EXPERIMENT_GUIDE.md` and `service/entity/graph.py` when the engine changes.*

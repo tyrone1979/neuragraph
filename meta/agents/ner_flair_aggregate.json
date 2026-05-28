@@ -1,0 +1,16 @@
+{
+  "name": "Flair NER Aggregator",
+  "type": "PGM",
+  "inputs": [
+    "sentences",
+    "predicted",
+    "ner_flair_sent"
+  ],
+  "outputs": {
+    "name": "flair_entities",
+    "type": "dict"
+  },
+  "process": "sentences = state.get('sentences') or []\nraw = state.get('predicted')\nif raw in (None, [], {}):\n    raw = state.get('ner_flair_sent')\n\nentities = {}\n\n# Normalize both list-style and merged dict-style loop outputs.\nif isinstance(raw, dict):\n    items = [raw]\nelif isinstance(raw, list):\n    items = raw\nelif raw is None:\n    items = []\nelse:\n    items = [raw]\n\n# Supported formats:\n# 1) {'Chemical': [...], 'Disease': [...]} (merged dict or per-sentence dict)\n# 2) {'label': 'Chemical', 'text': 'Aspirin'} (legacy flat record)\nfor item in items:\n    if isinstance(item, dict) and 'label' in item and 'text' in item:\n        label = str(item.get('label') or '').strip()\n        text = str(item.get('text') or '').strip()\n        if not label or not text:\n            continue\n        entities.setdefault(label, [])\n        if text not in entities[label]:\n            entities[label].append(text)\n        continue\n\n    if isinstance(item, dict):\n        for label, vals in item.items():\n            label = str(label).strip()\n            if not label:\n                continue\n            entities.setdefault(label, [])\n            if isinstance(vals, list):\n                for v in vals:\n                    text = str(v).strip()\n                    if text and text not in entities[label]:\n                        entities[label].append(text)\n            else:\n                text = str(vals).strip()\n                if text and text not in entities[label]:\n                    entities[label].append(text)\n\n__result__ = entities",
+  "engine": "pgm",
+  "created_at": "2026-01-01T00:00:00"
+}

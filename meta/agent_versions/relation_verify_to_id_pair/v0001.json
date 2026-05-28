@@ -1,0 +1,26 @@
+{
+  "agent_id": "relation_verify_to_id_pair",
+  "version": "v0001",
+  "parent_version": null,
+  "created_at": "2026-05-28T11:18:37.782635",
+  "created_by": "optimize_loop",
+  "change_note": "opt_loop 20260528_111424 r2: Backstop PGM guard: if LLM still outputs '$' for known treatment-indication tail IDs (e.g., seizures D012640), reject the pair. Catches remaining FP cases where prompt change alone may not suffice.",
+  "source": "optimize_loop",
+  "content_hash": "16fa3b0b6343603bbde23052d2714bbce8ea046d23f5abcaa3df508177abaf98",
+  "content": {
+    "name": "Relation Verify → ID Pair",
+    "type": "PGM",
+    "inputs": [
+      "result",
+      "head_id",
+      "tail_id"
+    ],
+    "outputs": {
+      "name": "relations",
+      "type": "list"
+    },
+    "process": "treatment_target_ids = {'D012640', 'D009422'}\nif state.get('result') == '$':\n    hid = state.get('head_id') or ''\n    tid = state.get('tail_id') or ''\n    if tid in treatment_target_ids:\n        __result__ = []\n    else:\n        line = f\"{hid} | {tid}\" if hid and tid else ''\n        __result__ = [line] if line else []\nelse:\n    __result__ = []",
+    "created_at": "2026-05-27T12:00:00",
+    "engine": "pgm"
+  }
+}

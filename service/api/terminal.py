@@ -1,7 +1,7 @@
 """
 service/api/terminal.py
-终端程序直接调用 service 层的统一入口。
-和 Flask 后端共用同一套 AgentEntity / GraphEntity / RunnerLoader。
+终端程庝直接调用 service 层的统一入坣。
+和 Flask 坎端共用坌一套 AgentEntity / GraphEntity / RunnerLoader。
 """
 
 import json
@@ -15,15 +15,15 @@ from service.meta.loader import MetaLoader
 
 
 class TerminalRunner:
-    """终端统一执行器——直接复用 service 层 RunnerLoader。"""
+    """终端统一执行器——直接夝用 service 层 RunnerLoader。"""
 
     def __init__(self, verbose: bool = False):
         self.verbose = verbose
 
     def run(self, target_id: str, inputs: Dict[str, Any]) -> Dict[str, Any]:
         """
-        智能分发：先尝试 agent，再尝试 graph。
-        和 Flask 后端调用方式完全一致。
+        智能分坑：先尝试 agent，冝尝试 graph。
+        和 Flask 坎端调用方弝完全一致。
         """
         meta_agent = MetaLoader.load("agents", target_id)
         if meta_agent and meta_agent.get("type") != "SUB":
@@ -65,12 +65,12 @@ class TerminalRunner:
             traceback.print_exc()
             return {"status": "error", "message": str(e)}
 
-    # ═══════════════════════════════════════════════════════════════
-    # Experiment Info Helpers (封装 MetaLoader，对外隐藏实现细节)
-    # ═══════════════════════════════════════════════════════════════
+    # ╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝
+    # Experiment Info Helpers (尝装 MetaLoader，对外隝藝实现细节)
+    # ╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝
 
     def get_experiment_info(self, exp_id: str) -> Optional[Dict[str, Any]]:
-        """获取实验基本信息，用于终端展示信息头。
+        """获坖实验基本信杯，用于终端展示信杯头。
 
         Returns:
             {
@@ -82,7 +82,7 @@ class TerminalRunner:
                 "samples": int,
                 "exists": bool,
             }
-            或 None（实验不存在）
+            或 None（实验丝存在）
         """
         exp_cfg = MetaLoader.load("exps", exp_id)
         if not exp_cfg:
@@ -99,10 +99,10 @@ class TerminalRunner:
         }
 
     def get_experiment_resume_count(self, exp_id: str) -> int:
-        """获取已完成的样本数量（用于断点续跑提示）。
+        """获坖已完戝的样本数針（用于断点续跑杝示）。
 
         Returns:
-            已完成的样本数，0 表示没有已有结果或实验不存在。
+            已完戝的样本数，0 表示没有已有结果或实验丝存在。
         """
         try:
             from service.result.loader import ResultLoader
@@ -111,9 +111,9 @@ class TerminalRunner:
         except Exception:
             return 0
 
-    # ═══════════════════════════════════════════════════════════════
+    # ╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝
     # Experiment Execution with Progress Bar
-    # ═══════════════════════════════════════════════════════════════
+    # ╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝
 
     def run_experiment(
         self,
@@ -126,11 +126,11 @@ class TerminalRunner:
         执行实验并返回完整结果。
 
         Args:
-            exp_id: 实验配置 ID
-            progress_callback: 可选的进度回调函数
+            exp_id: 实验酝置 ID
+            progress_callback: 坯选的进度回调函数
                 signature: callback(current, total, elapsed, success_count, fail_count)
-            unicode_mode: 是否使用 Unicode 字符绘制进度条
-            color_enabled: 是否启用 ANSI 颜色
+            unicode_mode: 是坦使用 Unicode 字符绘制进度条
+            color_enabled: 是坦坯用 ANSI 颜色
 
         Returns:
             {
@@ -144,7 +144,7 @@ class TerminalRunner:
                 "results": Dict,  # 最终加载的结果
             }
         """
-        # ── 1. 加载实验配置 ──
+        # ── 1. 加载实验酝置 ──
         exp_cfg = MetaLoader.load("exps", exp_id)
         if not exp_cfg:
             return {
@@ -163,7 +163,7 @@ class TerminalRunner:
                 "message": "Experiment config incomplete: missing runner_id or dataset",
             }
 
-        # ── 2. 加载测试数据 ──
+        # ── 2. 加载测试数杮 ──
         try:
             from service.entity.test import TestLoader
             fields, data = TestLoader.load_by_id_file(runner_id, dataset_file)
@@ -213,7 +213,7 @@ class TerminalRunner:
         fail_count = 0
         interrupted = False
 
-        # 更新状态为 running
+        # 更新状思为 running
         exp_cfg["status"] = "running"
         exp_cfg["progress"] = int(100 * success_count / total)
         exp_cfg["samples"] = total
@@ -224,7 +224,10 @@ class TerminalRunner:
                 if idx in completed_indices:
                     continue
 
-                input_dict = dict(zip(fields, row))
+                if isinstance(row, dict):
+                    input_dict = dict(row)
+                else:
+                    input_dict = dict(zip(fields, row))
 
                 try:
                     result = runner.invoke(input_dict)
@@ -256,12 +259,12 @@ class TerminalRunner:
                         "error": str(exec_err),
                     })
 
-                # 计算当前进度
+                # 计算当剝进度
                 current_progress = success_count + fail_count + len(completed_indices)
                 progress_pct = int(100 * current_progress / total)
                 exp_cfg["progress"] = progress_pct
 
-                # 每 10 个样本持久化一次
+                # 毝 10 个样本挝久化一次
                 if (current_progress % 10 == 0) or (current_progress >= total):
                     MetaLoader.dump("exps", exp_id, exp_cfg)
 
@@ -271,14 +274,14 @@ class TerminalRunner:
                     try:
                         progress_callback(current_progress, total, elapsed, success_count, fail_count)
                     except Exception:
-                        pass  # 回调异常不影响主流程
+                        pass  # 回调异常丝影哝主浝程
 
         except KeyboardInterrupt:
             interrupted = True
             exp_cfg["status"] = "interrupted"
             MetaLoader.dump("exps", exp_id, exp_cfg)
 
-        # ── 6. 最终状态更新 ──
+        # ── 6. 最终状思更新 ──
         total_time = time.time() - start_time
 
         if interrupted:
@@ -314,9 +317,9 @@ class TerminalRunner:
             "exp_cfg": exp_cfg,
         }
 
-    # ═══════════════════════════════════════════════════════════════
+    # ╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝
     # Progress Bar Formatting Helpers (static methods)
-    # ═══════════════════════════════════════════════════════════════
+    # ╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝╝
 
     @staticmethod
     def format_progress_bar(
@@ -327,10 +330,10 @@ class TerminalRunner:
         unicode_mode: bool = True,
         color_enabled: bool = True,
     ) -> str:
-        """生成格式化的进度条字符串。
+        """生戝格弝化的进度条字符串。
 
         Returns:
-            包含进度条、百分比、ETA 的完整状态行。
+            包坫进度条〝百分比〝ETA 的完整状思行。
         """
         if total == 0:
             return ""
@@ -380,7 +383,7 @@ class TerminalRunner:
         unicode_mode: bool = True,
         color_enabled: bool = True,
     ) -> str:
-        """根据 run_experiment 返回的 result 生成终端汇总字符串。"""
+        """根杮 run_experiment 返回的 result 生戝终端汇总字符串。"""
         def _c(code: str) -> str:
             return code if color_enabled else ""
 
@@ -441,7 +444,7 @@ class TerminalRunner:
         lines.append("")
         lines.append(f"   {DIM}Use '/show experiment {result.get('exp_id', '')}' to view full details{RESET}")
 
-        # 使用 chr(10) 代替 "\n" 避免转义问题
+        # 使用 chr(10) 代替 "\n" 靿兝转义问题
         return chr(10).join(lines)
 
 
@@ -456,7 +459,7 @@ def draw_workflow(graph_id: str) -> str:
 
     lines = [f"   Workflow: {meta.get('name', graph_id)}", "   " + "-" * 50]
 
-    # 获取 agent 类型和名称
+    # 获坖 agent 类型和坝称
     node_info = {}
     for n in nodes:
         if n in ("START", "END"):
@@ -466,7 +469,7 @@ def draw_workflow(graph_id: str) -> str:
         name = am.get("name", n) if am else n
         node_info[n] = f"[{t}] {name}"
 
-    # 按边顺序展示
+    # 按边顺庝展示
     edge_map = {e[0]: e[1] for e in edges if len(e) >= 2}
     lines.append("    START   -->")
     current = "START"

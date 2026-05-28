@@ -17,7 +17,7 @@
     <!-- 导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">
+            <a class="navbar-brand" href="/" title="Home">
                 <i class="fas fa-home me-2"></i>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,6 +83,7 @@
         </div>
         <div id="floatingChatBody" class="chat-body"></div>
         <div class="chat-footer">
+            <div class="chat-command-palette mb-2" id="floatingChatPalette"></div>
             <textarea id="floatingChatInput" class="form-control chat-input" rows="2" placeholder="Ask anything... (/help)"></textarea>
             <div class="d-flex justify-content-between align-items-center mt-2">
                 <div id="floatingChatStatus" class="chat-status"></div>

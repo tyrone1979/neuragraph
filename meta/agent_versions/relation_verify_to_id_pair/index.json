@@ -1,0 +1,42 @@
+{
+  "agent_id": "relation_verify_to_id_pair",
+  "latest": "v0004",
+  "versions": [
+    {
+      "version": "v0001",
+      "parent_version": null,
+      "created_at": "2026-05-28T11:18:37.782635",
+      "created_by": "optimize_loop",
+      "change_note": "opt_loop 20260528_111424 r2: Backstop PGM guard: if LLM still outputs '$' for known treatment-indication tail IDs (e.g., seizures D012640), reject the pair. Catches remaining FP cases where prompt change alone may not suffice.",
+      "source": "optimize_loop",
+      "content_hash": "16fa3b0b6343603bbde23052d2714bbce8ea046d23f5abcaa3df508177abaf98"
+    },
+    {
+      "version": "v0002",
+      "parent_version": "v0001",
+      "created_at": "2026-05-28T12:48:29.713098",
+      "created_by": "optimize_loop",
+      "change_note": "opt_loop 20260528_124433 r2: Blocklist for D012640 and D009422 is not filtering FP despite correct IDs. The PGM checks `tid in treatment_target_ids` but the blocklist is bypassed because the loop's shared state may cause incorrect execution. Replace with a simpler guard that checks both head_id and",
+      "source": "optimize_loop",
+      "content_hash": "46d6098d0a53c5fbf47f1b98601ff8a98a068b480e1a06b2e4b82d07cf5dc079"
+    },
+    {
+      "version": "v0003",
+      "parent_version": "v0002",
+      "created_at": "2026-05-28T15:36:07.288885",
+      "created_by": "optimize_loop",
+      "change_note": "opt_loop 20260528_153052 r2: Existing blocklist only covers D012640/D009422 as tails. Adding D064420 (toxicity), D001282 (atrial flutter), D006333 (congestive heart failure), D009069 (movement disorders) blocks observed FP patterns where tail is a pre-existing condition or co-occurrence, not a drug-",
+      "source": "optimize_loop",
+      "content_hash": "1190b1728787dc1edd24090ec0dc447fc5dbe91094b63ed5be55d3cd1a859c25"
+    },
+    {
+      "version": "v0004",
+      "parent_version": "v0003",
+      "created_at": "2026-05-28T16:34:34.499270",
+      "created_by": "optimize_loop",
+      "change_note": "opt_loop 20260528_162928 r2: FP analysis: LLM incorrectly infers causation when head and tail co-occur only in the title. Add PGM guard to reject pairs where both entities appear only in the title (first sentence before first period) and not in the body.",
+      "source": "optimize_loop",
+      "content_hash": "0fc5fd66f92bc6f380cfd31776d54ae90d9a45ebf13e8a0bfa4146627cca1dfc"
+    }
+  ]
+}

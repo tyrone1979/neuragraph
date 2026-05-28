@@ -55,3 +55,5 @@ result/*
 # Data (keep directory but not files)
 data/*
 !data/.gitkeep
+
+models/*
