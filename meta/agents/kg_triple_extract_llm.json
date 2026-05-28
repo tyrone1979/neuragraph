@@ -1,7 +1,6 @@
 {
   "name": "Triple Extraction (LLM)",
   "type": "LLM",
-  "model": "kimi-2.6",
   "inputs": [
     "text",
     "entities"
@@ -10,11 +9,12 @@
     "name": "triples",
     "type": "list"
   },
+  "model": "kimi-2.6",
   "prompt_template": {
     "description": "Biomedical knowledge-graph triple extraction",
     "system": "You are a biomedical knowledge-graph curator. Extract factual subject–predicate–object triples suitable for RDF/KG storage. Output only valid lines, no markdown.",
     "human": "Text:\n{text}\n\nEntities (JSON):\n{entities}\n\nExtract biomedical triples. One triple per line:\nsubject | predicate | object\n\nUse normalized predicates (e.g., treats, causes, inhibits, associated_with). Prefer entities from the list when possible."
   },
-  "created_at": "2026-05-26T12:00:00",
-  "engine": "llm"
+  "tools": [],
+  "created_at": "2026-05-28T08:40:47.230391"
 }

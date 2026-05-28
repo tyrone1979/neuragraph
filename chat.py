@@ -347,6 +347,14 @@ class LLMCommandParser:
           parameters: {{"requirement": "natural language description of the agent to create"}}
         - "generate_workflow" / "generate_graph"
           parameters: {{"requirement": "natural language description of the workflow to create"}}
+        - "create_testset"
+          parameters: {{"runner_id": "workflow_or_agent_id", "filename": "testset.csv", "source_file": "optional_existing.csv", "count": 5}}
+        - "create_experiment"
+          parameters: {{"runner_id": "graph_id", "dataset": "dataset.csv", "runner_type": "graph"}}
+        - "copy_workflow" / "copy_graph"
+          parameters: {{"source_id": "workflow_id", "target_id": "new_workflow_id"}}
+        - "start_optimize_loop" / "optimize_loop"
+          parameters: {{"exp_id": "experiment_id", "max_updates": 1}}
         - "update_agent" / "update_workflow" / "update_graph" / "update_tool" / "update_llm"
           parameters: {{"id": "entity_id", "changes": "natural language description of what to change"}}
         - "delete_agent" / "delete_workflow" / "delete_graph" / "delete_tool" / "delete_llm" / "delete_experiment"

@@ -1,0 +1,26 @@
+{
+  "name": "Metrics Delta Compare",
+  "description": "Compare baseline and candidate states, return precision/recall/f1 deltas and significantly degraded samples.",
+  "parameters": {
+    "properties": {
+      "baseline_states": {
+        "type": "object",
+        "description": "Baseline states.json object. Can also pass a JSON-decoded dict."
+      },
+      "candidate_states": {
+        "type": "object",
+        "description": "Candidate states.json object. Can also pass a JSON-decoded dict."
+      },
+      "sample_drop_threshold": {
+        "type": "number",
+        "description": "Significant sample degradation threshold on f1 delta (default -0.05)."
+      }
+    },
+    "required": [
+      "baseline_states",
+      "candidate_states"
+    ]
+  },
+  "code": "def func(baseline_states: dict, candidate_states: dict, sample_drop_threshold: float = -0.05):\n    from service.tools.analysis_tools import metrics_delta_compare\n    return metrics_delta_compare(baseline_states, candidate_states, sample_drop_threshold=sample_drop_threshold)"
+}
+

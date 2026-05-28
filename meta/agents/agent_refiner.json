@@ -1,0 +1,25 @@
+{
+  "name": "Agent Refiner (LLM)",
+  "type": "LLM",
+  "inputs": [
+    "text"
+  ],
+  "outputs": {
+    "name": "plan_json",
+    "type": "str"
+  },
+  "model": "deepseek",
+  "prompt_template": {
+    "description": "Generate actionable agent modifications from experiment diagnostics.",
+    "system": "You are a NeuraGraph optimization engineer. Given a baseline report and full experiment payload, propose a small, high-impact set of agent changes. Keep prompts concise and avoid redundancy. Prioritize low-complexity, in-repo changes only.",
+    "human": "Read the input JSON package below. Output ONLY valid JSON (no markdown, no extra text).\n\nRequired output schema:\n{{\n  \"modifications\": [\n    {{\n      \"target_agent_id\": \"string\",\n      \"rationale\": \"string\",\n      \"prompt_system_append\": \"string\",\n      \"prompt_human_append\": \"string\",\n      \"prompt_system_replace\": \"string\",\n      \"prompt_human_replace\": \"string\",\n      \"process_append\": \"string\",\n      \"process_replace\": \"string\",\n      \"set_model\": \"string\",\n      \"add_tools\": [\"tool_id\"],\n      \"remove_tools\": [\"tool_id\"]\n    }}\n  ]\n}}\n\nRules:\n- Focus on changes backed by FN/FP evidence from the report.\n- Return at most constraints.max_updates unique target agents.\n- Do not invent agent ids absent from payload.agents.\n- For PGM agents, prefer `process_append` or `process_replace` when report asks for post-processing/code safeguards.\n- Prompt budget target: system <= 1200 chars, human <= 1800 chars.\n- Avoid repeating existing rules; merge similar constraints into one concise rule.\n- If existing prompt is already long or repetitive, prefer `prompt_*_replace` over append.\n- Keep changes directly executable.\n- ONLY output modifications that can be implemented inside this repo by editing existing prompt/process/graph/tool configs.\n- DO NOT propose external dependencies or high-complexity architecture changes (e.g., UMLS/MeSH API integration, new vector DB, new service, major pipeline rewrite).\n- Prefer this order: prompt change > small PGM guard > graph binding/tool tweak.\n- If a suggestion in the report is hard to implement, convert it to the nearest simple in-repo alternative.\n- If no safe change is found, return {{\"modifications\": []}}.\n\nInput JSON:\n{text}"
+  },
+  "tools": [
+    "prompt_patch_apply_safe",
+    "metrics_delta_compare",
+    "fn_fp_bucket_analyzer",
+    "agent_version_guard",
+    "agent_change_impact_trace"
+  ],
+  "engine": "llm"
+}

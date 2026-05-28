@@ -1,0 +1,26 @@
+{
+  "name": "FN FP Bucket Analyzer",
+  "description": "Bucket FN/FP into boundary/type/relation/missed-recall style categories with examples.",
+  "parameters": {
+    "properties": {
+      "predicted": {
+        "type": "array",
+        "description": "Predicted relation list."
+      },
+      "gold": {
+        "type": "array",
+        "description": "Gold relation list."
+      },
+      "text": {
+        "type": "string",
+        "description": "Optional source text for context."
+      }
+    },
+    "required": [
+      "predicted",
+      "gold"
+    ]
+  },
+  "code": "def func(predicted: list, gold: list, text: str = ''):\n    from service.tools.analysis_tools import fn_fp_bucket_analyzer\n    return fn_fp_bucket_analyzer(predicted=predicted, gold=gold, text=text)"
+}
+

@@ -1,0 +1,23 @@
+{
+  "name": "Report Comparator (LLM)",
+  "type": "LLM",
+  "inputs": [
+    "text"
+  ],
+  "outputs": {
+    "name": "text",
+    "type": "str"
+  },
+  "model": "deepseek",
+  "prompt_template": {
+    "description": "Compare baseline vs candidate experiment outcomes and report quality.",
+    "system": "You are a strict experiment reviewer. Compare two runs and assess both metrics impact and report usefulness.",
+    "human": "Given the JSON input below, output markdown with:\n\n## 1) Metrics Delta\n- Explain precision/recall/f1 changes and whether they are meaningful.\n\n## 2) Report Quality Delta\n- Compare baseline_report_score vs candidate_report_score.\n- Judge if candidate report is more actionable and evidence-grounded.\n\n## 3) Final Recommendation\n- State whether the agent modifications should be kept as-is, further tuned, or baseline should be retained.\n- Do NOT use the word \"revert\" or \"REVERT\".\n- Mention key agent version changes from version_map.\n\nInput JSON:\n{text}"
+  },
+  "tools": [
+    "metrics_delta_compare",
+    "report_quality_scorer",
+    "agent_version_guard"
+  ],
+  "engine": "llm"
+}

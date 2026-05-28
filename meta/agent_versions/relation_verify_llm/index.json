@@ -1,0 +1,33 @@
+{
+  "agent_id": "relation_verify_llm",
+  "latest": "v0003",
+  "versions": [
+    {
+      "version": "v0001",
+      "parent_version": null,
+      "created_at": "2026-05-28T09:08:09.086767",
+      "created_by": "optimize_loop",
+      "change_note": "opt_loop 20260528_090754: The baseline report shows 6 false positives (FP) caused by the LLM returning '$' for non-causal associations. Strengthening the prompt with explicit negative examples and stricter causation language is expected to reduce FP by 50-70%.",
+      "source": "optimize_loop",
+      "content_hash": "e75acefd181aa24e1033b578a8c57c5a1221aa8964b26aaadcd69d4419f6b4ae"
+    },
+    {
+      "version": "v0002",
+      "parent_version": "v0001",
+      "created_at": "2026-05-28T10:26:52.388336",
+      "created_by": "optimize_loop",
+      "change_note": "opt_loop 20260528_102452: High FP count (16) due to permissive causation detection. Report shows LLM returns '$' for co-occurrence, speculative language, pre-existing conditions, and general conditions. Adding explicit negative examples and stricter rules will reduce FPs by ~60-70%.",
+      "source": "optimize_loop",
+      "content_hash": "1e4c51e67f10bf95106d469cee9b6333c5bc39616e8dd888480446d03ccdd5b1"
+    },
+    {
+      "version": "v0003",
+      "parent_version": "v0002",
+      "created_at": "2026-05-28T10:41:53.391629",
+      "created_by": "optimize_loop",
+      "change_note": "opt_loop 20260528_103939 r1: High FP rate (16) due to LLM returning '$' for co-occurrence, pre-existing conditions, and speculative language. Replace flat rules with step-by-step reasoning to enforce strict causation.",
+      "source": "optimize_loop",
+      "content_hash": "32ca3a815c98c18b45e21e06bb520ca354925620e834946e83f4005c1ee1d21d"
+    }
+  ]
+}

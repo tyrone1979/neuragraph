@@ -1,7 +1,7 @@
 numpy
-langchain
-langgraph
-langchain-ollama
+langchain==0.2.17
+langgraph==0.2.34
+langchain-ollama==0.1.3
 ollama
 #psycopg[binary,pool]
 tqdm~=4.67.1
@@ -9,5 +9,6 @@ Flask[async]~=3.1.2
 flask-cors
 flask-sse
 pydantic
-langchain[openai]
+langchain-core==0.2.43
+langchain-openai==0.1.25
 #flair

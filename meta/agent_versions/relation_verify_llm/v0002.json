@@ -1,0 +1,30 @@
+{
+  "agent_id": "relation_verify_llm",
+  "version": "v0002",
+  "parent_version": "v0001",
+  "created_at": "2026-05-28T10:26:52.388336",
+  "created_by": "optimize_loop",
+  "change_note": "opt_loop 20260528_102452: High FP count (16) due to permissive causation detection. Report shows LLM returns '$' for co-occurrence, speculative language, pre-existing conditions, and general conditions. Adding explicit negative examples and stricter rules will reduce FPs by ~60-70%.",
+  "source": "optimize_loop",
+  "content_hash": "1e4c51e67f10bf95106d469cee9b6333c5bc39616e8dd888480446d03ccdd5b1",
+  "content": {
+    "name": "Relation Verification (LLM)",
+    "type": "LLM",
+    "model": "deepseek",
+    "inputs": [
+      "text",
+      "head",
+      "tail"
+    ],
+    "outputs": {
+      "name": "result",
+      "type": "str"
+    },
+    "prompt_template": {
+      "description": "Strict biomedical relation verifier based on triple list",
+      "human": "Refer to below article, please give answer '$' or '~' only based on below conditions:\n**Assumptions**:\n1.1 if 'patient had/exhibited {tail} on the Xth day of {head} treatment', please do not use it and find other reason.\n1.2 if 'difference did not reach statistical significance compared to groups' appeared, please do not use it and find other reason.\n**Conditions**:\n1. if the article gave the conclusion that the interaction between {head} and another chemical induce {tail}, or {head} induce {tail}, answer '$'\n2. else if the article mentioned {tail} was reported in the percentage of patients because of {head}, answer '$'\n3. else the article mentioned '{head} is  mediating/attenuating {tail}, answer '~'\n4. else if {head} and {tail} have no relationship, answer '~'.\nDO NOT output any other message.\n**article**:\n{text}\n\n**Negative Examples (do NOT return '$'):**\n- Article mentions both entities but does not state causation (e.g., 'patient had {tail} while on {head}').\n- Article describes {tail} as a symptom of the underlying condition, not induced by {head}.\n- Article states 'association' or 'correlation' without causal language.\n\n**Final instruction:** If the article only mentions both entities without explicit causation, answer '~'.\n\n**Additional strict rules (override any previous):**\n- If the tail entity is a general condition (e.g., 'toxicity', 'impairment') rather than a specific disease, return '~'.\n- If the article uses speculative language ('may', 'might', 'could', 'possibly') without strong causal evidence, return '~'.\n- If the disease is a pre-existing condition or the reason for treatment (not a side effect), return '~'.\n- Co-occurrence in a patient (e.g., 'patient had {tail} while on {head}') without explicit causation must return '~'.",
+      "system": "You are a biomedical relation specialist.\n\nYou must strictly enforce causation. Only return '$' if the article explicitly states that the chemical induced, caused, or resulted in the disease. Mere co-occurrence or symptom description without causation must return '~'."
+    },
+    "created_at": "2026-05-27T13:48:50.624521"
+  }
+}

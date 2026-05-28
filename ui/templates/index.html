@@ -7,9 +7,11 @@
     <title>NeuraGraph</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_widget.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
 </head>
 
 <body>
@@ -218,6 +220,26 @@
             </div>
         </div>
     </footer>
+
+    <button id="floatingChatFab" class="btn btn-primary chat-fab" title="Open Assistant">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+
+    <div id="floatingChatPanel" class="chat-panel card">
+        <div class="chat-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-robot me-2"></i>NeuraGraph Assistant</span>
+            <button id="floatingChatClose" class="btn btn-sm btn-light">Close</button>
+        </div>
+        <div id="floatingChatBody" class="chat-body"></div>
+        <div class="chat-footer">
+            <textarea id="floatingChatInput" class="form-control chat-input" rows="2" placeholder="Ask anything... (/help)"></textarea>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <div id="floatingChatStatus" class="chat-status"></div>
+                <button id="floatingChatSend" class="btn btn-primary btn-sm">Send</button>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/chat_widget.js') }}"></script>
 </body>
 
 </html>

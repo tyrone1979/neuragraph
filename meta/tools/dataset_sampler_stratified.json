@@ -1,0 +1,26 @@
+{
+  "name": "Dataset Sampler Stratified",
+  "description": "Stratified sample by text length, entity density, and relation density for quick A/B validation.",
+  "parameters": {
+    "properties": {
+      "dataset": {
+        "type": "array",
+        "description": "Dataset rows as list of dict. (Can be loaded from csv beforehand.)"
+      },
+      "sample_size": {
+        "type": "integer",
+        "description": "Desired sample size."
+      },
+      "text_field": {
+        "type": "string",
+        "description": "Text field name, default 'text'."
+      }
+    },
+    "required": [
+      "dataset",
+      "sample_size"
+    ]
+  },
+  "code": "def func(dataset: list, sample_size: int = 20, text_field: str = 'text'):\n    from service.tools.analysis_tools import dataset_sampler_stratified\n    return dataset_sampler_stratified(dataset=dataset, sample_size=sample_size, text_field=text_field)"
+}
+

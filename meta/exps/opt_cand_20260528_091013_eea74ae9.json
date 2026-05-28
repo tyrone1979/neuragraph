@@ -1,0 +1,12 @@
+{
+  "exp_id": "opt_cand_20260528_091013_eea74ae9",
+  "name": "wf_cid_re_llm_linear_opt_20260528_091013_cid_dev_2samples.csv_opt_cand_20260528_091013_eea74ae9",
+  "runner_type": "graph",
+  "runner_id": "wf_cid_re_llm_linear_opt_20260528_091013",
+  "runner_display": "wf_cid_re_llm_linear_opt_20260528_091013",
+  "dataset": "cid_dev_2samples.csv",
+  "samples": 2,
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-05-28T09:10:28.167575"
+}
