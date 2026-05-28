@@ -5,8 +5,9 @@ import json
 import time
 import threading
 from datetime import datetime
+from pathlib import Path
 from ui.components.paginated_api import get_paginated_data
-from service.result.loader import ResultLoader
+from service.result.loader import ResultLoader, iter_sample_indices
 from dataclasses import is_dataclass,asdict
 from langchain_core.runnables import RunnableConfig
 
@@ -21,6 +22,132 @@ exp_bp = Blueprint('exp', __name__, url_prefix='/exp')
 
 _optimize_tasks: dict[str, dict] = {}
 _optimize_lock = threading.Lock()
+_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _safe_float(v, default=0.0):
+    try:
+        return float(v)
+    except Exception:
+        return default
+
+
+def _build_report_chart_payload(exp_id: str) -> dict:
+    states = ResultLoader.load(exp_id) or {}
+    sample_ids = iter_sample_indices(states)
+    per_sample = []
+    fp_by_sample = []
+    fn_by_sample = []
+    tp_by_sample = []
+    p_sum = 0.0
+    r_sum = 0.0
+    f1_sum = 0.0
+    rel_tp_sum = 0
+    rel_fp_sum = 0
+    rel_fn_sum = 0
+    count = 0
+    for sid in sample_ids:
+        item = states.get(sid) or {}
+        metrics = item.get("metrics") if isinstance(item, dict) else {}
+        p = _safe_float((metrics or {}).get("precision"), 0.0)
+        r = _safe_float((metrics or {}).get("recall"), 0.0)
+        f1 = _safe_float((metrics or {}).get("f1"), 0.0)
+        rel_tp = int(_safe_float((metrics or {}).get("rel_tp"), 0.0))
+        rel_fp = int(_safe_float((metrics or {}).get("rel_fp"), 0.0))
+        rel_fn = int(_safe_float((metrics or {}).get("rel_fn"), 0.0))
+        p_sum += p
+        r_sum += r
+        f1_sum += f1
+        rel_tp_sum += rel_tp
+        rel_fp_sum += rel_fp
+        rel_fn_sum += rel_fn
+        count += 1
+        per_sample.append(
+            {
+                "sample_id": int(sid),
+                "precision": p,
+                "recall": r,
+                "f1": f1,
+            }
+        )
+        fp_by_sample.append({"sample_id": int(sid), "value": rel_fp})
+        fn_by_sample.append({"sample_id": int(sid), "value": rel_fn})
+        tp_by_sample.append({"sample_id": int(sid), "value": rel_tp})
+
+    if count == 0:
+        overall = {"precision": 0.0, "recall": 0.0, "f1": 0.0}
+    else:
+        overall = {
+            "precision": p_sum / count,
+            "recall": r_sum / count,
+            "f1": f1_sum / count,
+        }
+
+    return {
+        "exp_id": exp_id,
+        "sample_count": count,
+        "overall": overall,
+        "per_sample": per_sample,
+        "error_buckets": {
+            "rel_tp": rel_tp_sum,
+            "rel_fp": rel_fp_sum,
+            "rel_fn": rel_fn_sum,
+        },
+        "error_by_sample": {
+            "rel_tp": tp_by_sample,
+            "rel_fp": fp_by_sample,
+            "rel_fn": fn_by_sample,
+        },
+        "agent_version_impact": _load_agent_version_impact(),
+    }
+
+
+def _load_agent_version_impact() -> list[dict]:
+    """
+    Build best-effort agent impact stats from optimize summaries.
+    Source: result/opt_compare_*.json
+    """
+    result_dir = _ROOT / "result"
+    if not result_dir.exists():
+        return []
+    items = sorted(result_dir.glob("opt_compare_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    agg: dict[str, dict] = {}
+    for path in items[:20]:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        rounds = data.get("rounds") or []
+        if not isinstance(rounds, list):
+            continue
+        for r in rounds:
+            if not isinstance(r, dict):
+                continue
+            agent_id = str(r.get("target_agent_id") or "").strip()
+            if not agent_id:
+                continue
+            metrics_delta = r.get("metrics_delta") or {}
+            f1_delta = _safe_float((metrics_delta or {}).get("f1"), 0.0)
+            accepted = bool(r.get("accepted"))
+            slot = agg.setdefault(
+                agent_id,
+                {
+                    "agent_id": agent_id,
+                    "attempts": 0,
+                    "accepted_rounds": 0,
+                    "best_f1_delta": -999.0,
+                    "latest_f1_delta": 0.0,
+                },
+            )
+            slot["attempts"] += 1
+            if accepted:
+                slot["accepted_rounds"] += 1
+            if f1_delta > slot["best_f1_delta"]:
+                slot["best_f1_delta"] = f1_delta
+            slot["latest_f1_delta"] = f1_delta
+    out = list(agg.values())
+    out.sort(key=lambda x: (x.get("best_f1_delta", -999.0), x.get("accepted_rounds", 0)), reverse=True)
+    return out[:10]
 
 def render_list(search='',page=1,per_page=20):
     all_history = MetaLoader.loads("exps")  # 你的函数，返回 list of dict
@@ -246,6 +373,19 @@ def api_experiment_detail(exp_id):
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 404
+
+
+@exp_bp.route('/api/<exp_id>/report-charts')
+def api_experiment_report_charts(exp_id):
+    """Return chart-friendly metrics payload for experiment report."""
+    exp_cfg = MetaLoader.load("exps", exp_id)
+    if not exp_cfg:
+        return jsonify({"error": f"experiment not found: {exp_id}"}), 404
+    try:
+        payload = _build_report_chart_payload(exp_id)
+        return jsonify(payload)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @exp_bp.route('/api/save', methods=['POST'])
 def experiment_save():

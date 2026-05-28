@@ -44,8 +44,9 @@ class ResultLoader:
             cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
             cfg["id"] = id
             return cfg
-        except FileNotFoundError as e:
-            logger.error(e)
+        except FileNotFoundError:
+            # states.json can be legitimately absent before first successful sample.
+            # Keep this silent to avoid noisy "[Errno 2]" masking the real failure.
             return None
 
     @staticmethod

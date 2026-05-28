@@ -9,7 +9,7 @@
     "name": "predicted",
     "type": "dict"
   },
-  "process": "from flair.data import Sentence\ntagger=get_plugin(\"tag\")\nsentence = Sentence(state['sentence'])\ntagger.predict(sentence)\n__result__={}\n\nlabels=[]\nif isinstance(state['labels'],str):\n    labels=state['labels'].split(',')\nelse:\n    labels=state['labels']\n\nfor label in labels:\n    __result__[label]=[]\n    for entity in sentence.get_spans('ner'):\n        if entity.tag==label:\n            __result__[label].append(entity.text)",
+  "process": "from flair.data import Sentence\ntagger = get_plugin(\"tag\")\n__result__ = {}\n\nraw_labels = state.get('labels', 'Chemical,Disease')\nif isinstance(raw_labels, str):\n    labels = [x.strip() for x in raw_labels.split(',') if x.strip()]\nelse:\n    labels = [str(x).strip() for x in (raw_labels or []) if str(x).strip()]\nif not labels:\n    labels = ['Chemical', 'Disease']\n\nfor label in labels:\n    __result__[label] = []\n\nif tagger is None:\n    # Sandbox/plugin unavailable: keep stable empty output shape.\n    state['error'] = \"Flair tagger unavailable\"\nelse:\n    sentence = Sentence(state.get('sentence', ''))\n    try:\n        tagger.predict(sentence)\n        for entity in sentence.get_spans('ner'):\n            if entity.tag in __result__:\n                __result__[entity.tag].append(entity.text)\n    except Exception as ex:\n        state['error'] = f\"Flair predict failed: {ex}\"",
   "sandbox": "flair",
   "created_at": "2026-01-30T13:57:52.708763",
   "engine": "flair"

@@ -226,14 +226,22 @@ def _score_report_quality(
     metrics_delta: dict[str, float] | None = None,
     is_candidate: bool = False,
 ) -> dict[str, Any]:
-    txt = (report_text or "").lower()
+    text = str(report_text or "")
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    headings = [ln for ln in lines if ln.startswith("#")]
+    tables = [ln for ln in lines if "|" in ln]
+    bullets = [ln for ln in lines if ln.startswith("- ") or ln.startswith("* ")]
+    numeric_lines = [ln for ln in lines if re.search(r"\b\d+(\.\d+)?\b", ln)]
     structure_score = 0
-    for key in ("metrics", "fn", "fp", "agent modification suggestions"):
-        if key in txt:
-            structure_score += 1
-    if "target agent" in txt or "agent id" in txt:
+    if headings:
+        structure_score += 2
+    if len(headings) >= 3:
         structure_score += 1
-    if "version" in txt:
+    if tables:
+        structure_score += 1
+    if bullets:
+        structure_score += 1
+    if numeric_lines:
         structure_score += 1
 
     # Effect alignment: candidate report quality must reflect actual metric outcome.
@@ -701,6 +709,9 @@ def run_optimize_loop_by_exp_with_progress(
         round_reason = "f1 improved" if accepted else "f1 did not improve"
         restored_agents: list[str] = []
         version_map: dict[str, str] = {}
+        display_exp_id = candidate_exp_id
+        display_graph_id = base_runner
+        display_metrics = dict(cand_metrics)
         if accepted:
             version_map = _snapshot_accepted_modifications(
                 applied,
@@ -709,9 +720,39 @@ def run_optimize_loop_by_exp_with_progress(
                 change_note_prefix=f"opt_loop {tag} r{idx}",
             )
             cumulative_version_map.update(version_map)
-            current_best_exp_id = candidate_exp_id
+            # Build a pinned workflow/experiment for visibility in UI and traceability.
+            if version_map:
+                try:
+                    round_graph_id = f"{base_runner}_opt_{tag}_r{idx}"
+                    display_graph_id = _create_candidate_graph(
+                        base_runner,
+                        cumulative_version_map,
+                        round_graph_id,
+                        dataset=str(baseline_cfg.get("dataset") or ""),
+                    )
+                    pinned_exp_id = f"opt_pinned_{tag}_r{idx}_{uuid.uuid4().hex[:8]}"
+                    pinned_cfg = _build_exp_cfg(
+                        exp_id=pinned_exp_id,
+                        runner_id=display_graph_id,
+                        dataset=str(baseline_cfg.get("dataset") or ""),
+                        runner_type=str(baseline_cfg.get("runner_type") or "graph"),
+                    )
+                    MetaLoader.dump("exps", pinned_exp_id, pinned_cfg)
+                    _run_experiment(pinned_cfg)
+                    pinned_payload = _build_report_payload(pinned_exp_id, pinned_cfg)
+                    pinned_report = _generate_report(pinned_payload)
+                    _write_text(ROOT / "result" / pinned_exp_id / "report.md", pinned_report)
+                    display_exp_id = pinned_exp_id
+                    display_metrics = _avg_metrics(pinned_exp_id) or dict(cand_metrics)
+                except Exception:
+                    # Keep the original candidate exp as fallback if pinned replay fails.
+                    display_exp_id = candidate_exp_id
+                    display_graph_id = base_runner
+                    display_metrics = dict(cand_metrics)
+
+            current_best_exp_id = display_exp_id
             current_best_report = candidate_report
-            current_best_metrics = cand_metrics
+            current_best_metrics = display_metrics
             current_best_report_score = _score_report_quality(
                 candidate_report, metrics_delta=delta, is_candidate=True
             )
@@ -747,8 +788,11 @@ def run_optimize_loop_by_exp_with_progress(
                 "round": idx,
                 "target_agent_id": target_agent,
                 "candidate_exp_id": candidate_exp_id,
+                "candidate_graph_id": base_runner,
+                "display_exp_id": display_exp_id,
+                "display_graph_id": display_graph_id,
                 "baseline_metrics": prev_best_metrics,
-                "candidate_metrics": cand_metrics,
+                "candidate_metrics": display_metrics,
                 "metrics_delta": delta,
                 "accepted": accepted,
                 "reason": round_reason,
@@ -770,6 +814,28 @@ def run_optimize_loop_by_exp_with_progress(
             cid,
             dataset=str(baseline_cfg.get("dataset") or ""),
         )
+        # Ensure "final best" points to a pinned-versions experiment for inspectability.
+        try:
+            final_exp_id = f"opt_best_{tag}_{uuid.uuid4().hex[:8]}"
+            final_cfg = _build_exp_cfg(
+                exp_id=final_exp_id,
+                runner_id=final_graph_id,
+                dataset=str(baseline_cfg.get("dataset") or ""),
+                runner_type=str(baseline_cfg.get("runner_type") or "graph"),
+            )
+            MetaLoader.dump("exps", final_exp_id, final_cfg)
+            _run_experiment(final_cfg)
+            final_payload = _build_report_payload(final_exp_id, final_cfg)
+            final_report = _generate_report(final_payload)
+            _write_text(ROOT / "result" / final_exp_id / "report.md", final_report)
+            current_best_exp_id = final_exp_id
+            current_best_metrics = _avg_metrics(final_exp_id) or dict(current_best_metrics)
+            current_best_report = final_report
+            current_best_report_score = _score_report_quality(
+                final_report, metrics_delta=None, is_candidate=True
+            )
+        except Exception:
+            pass
 
     summary = {
         "baseline_exp_id": exp_id,

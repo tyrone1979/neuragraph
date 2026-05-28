@@ -7,7 +7,8 @@ foreach ($prop in $manifest.sandboxes.PSObject.Properties) {
     $id = $prop.Name
     $cfg = $prop.Value
     if ($cfg.enabled -eq $false) { continue }
-    $venvPy = Join-Path $root ($cfg.venv -replace '/', '\') "Scripts\python.exe"
+    $venvRoot = Join-Path $root ($cfg.venv -replace '/', '\')
+    $venvPy = Join-Path $venvRoot "Scripts\python.exe"
     $entry = Join-Path $root ($cfg.entry -replace '/', '\')
     if (-not (Test-Path $venvPy)) { continue }
     $env:PLUGIN_SERVER_PORT = "$($cfg.port)"

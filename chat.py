@@ -16,8 +16,11 @@ import sys
 import subprocess
 import textwrap
 import argparse
+import threading
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from service.chat import commands as shared_cmd
 
 # ── Terminal Encoding: Force UTF-8 on Windows to prevent GBK errors ──
 def _force_utf8_stdout():
@@ -355,6 +358,8 @@ class LLMCommandParser:
           parameters: {{"source_id": "workflow_id", "target_id": "new_workflow_id"}}
         - "start_optimize_loop" / "optimize_loop"
           parameters: {{"exp_id": "experiment_id", "max_updates": 1}}
+        - "run_orchestration"
+          parameters: {{"goal": "end-to-end objective to generate workflow and execute experiment pipeline"}}
         - "update_agent" / "update_workflow" / "update_graph" / "update_tool" / "update_llm"
           parameters: {{"id": "entity_id", "changes": "natural language description of what to change"}}
         - "delete_agent" / "delete_workflow" / "delete_graph" / "delete_tool" / "delete_llm" / "delete_experiment"
@@ -375,6 +380,7 @@ class LLMCommandParser:
         6. If the user wants to remove/delete something, use "delete_*" actions.
         7. If you are unsure about the entity ID, use "chat" and ask the user to clarify.
         8. Maintain context from previous messages in the conversation.
+        9. If user requests end-to-end automatic execution (plan + step-by-step run), use "run_orchestration".
         """)
 
     def parse(self, message: str, history: List[Dict[str, str]]) -> Dict[str, Any]:
@@ -515,6 +521,7 @@ class ChatEngine:
         self.history: List[Dict[str, str]] = []
         self.last_graph = ""
         self.last_input = ""  # Last user message for /retry
+        self.pins: Dict[str, str] = {}
 
     def print_bot(self, text: str):
         print(f"\n{bot(text)}")
@@ -529,45 +536,52 @@ class ChatEngine:
             return False
 
         command = parts[0].lower()
+        raw = cmd.strip()
 
-        # -- /help --
-        if command in ("/help", "/h"):
-            print(f"""
-{C['bold']}Commands:{C['reset']}
+        def _shared_delegate() -> bool:
+            shared_session = {"pins": dict(self.pins), "last_preview": {}}
+            shared_reply = shared_cmd.execute_slash_command(raw, session=shared_session, llm_id=self.llm_id)
+            if isinstance(shared_reply, str):
+                self.pins = dict(shared_session.get("pins") or {})
+                self.print_bot(shared_reply)
+                return True
+            return False
 
-  {C['yellow']}/list workflows{C['reset']}      List all workflows (graphs)
-  {C['yellow']}/list agents{C['reset']}         List all agents
-  {C['yellow']}/list tools{C['reset']}          List all tools
-  {C['yellow']}/list datasets{C['reset']}       List all datasets
-  {C['yellow']}/list llms{C['reset']}           List all LLM configs
-  {C['yellow']}/list experiments{C['reset']}    List all experiments
+        # Shared command core: keep terminal and UI assistant behavior consistent.
+        # Delegate all non-interactive slash commands to one shared implementation.
+        if command in (
+            "/help",
+            "/h",
+            "/pin",
+            "/dryrun",
+            "/create",
+            "/copy",
+            "/optimize",
+            "/orchestrate",
+            "/list",
+            "/show",
+            "/delete",
+            "/clean",
+            "/backup",
+            "/check",
+        ):
+            # Keep backward-compat shortcuts but normalize into shared command forms.
+            if command == "/show":
+                if len(parts) == 1 and self.pins.get("graph"):
+                    cmd = f"/show workflow {self.pins.get('graph', '')}"
+                elif len(parts) == 2:
+                    cmd = f"/show workflow {parts[1]}"
+            raw = cmd.strip()
+            if _shared_delegate():
+                return True
 
-  {C['yellow']}/show workflow <id>{C['reset']}  Show workflow diagram
-  {C['yellow']}/show agent <id>{C['reset']}     Show agent config
-  {C['yellow']}/show tool <id>{C['reset']}      Show tool config
-  {C['yellow']}/show dataset <id>{C['reset']}   Show dataset info
-  {C['yellow']}/show llm <id>{C['reset']}       Show LLM config
-  {C['yellow']}/show experiment <id>{C['reset']} Show experiment status
-
-  {C['yellow']}/run workflow <id>{C['reset']}   Run a workflow
-  {C['yellow']}/run agent <id>{C['reset']}      Run a single agent
-  {C['yellow']}/run experiment <id>{C['reset']} Replay experiment info
-
-  {C['yellow']}/delete agent <id>{C['reset']}    Delete an agent
-  {C['yellow']}/delete workflow <id>{C['reset']} Delete a workflow
-  {C['yellow']}/delete tool <id>{C['reset']}     Delete a tool
-
-  {C['yellow']}/retry{C['reset']}               Retry last command/message
-
-  {C['yellow']}/exit{C['reset']}                Exit chat
-
-{C['bold']}Natural language:{C['reset']}
-  "List all agents"
-  "Run bio_ner_graph workflow"
-  "Show ner_demo details"
-  "View all tools"
-""")
-            return True
+        if command == "/run" and len(parts) >= 3:
+            # Use shared output format for /run experiment and /run ... {json}
+            sub = parts[1].lower()
+            has_json_tail = bool(re.search(r"(\{.*\})\s*$", raw))
+            if sub in ("experiment", "exp") or has_json_tail:
+                if _shared_delegate():
+                    return True
 
         # -- /exit --
         if command in ("/exit", "/quit"):
@@ -590,52 +604,6 @@ class ChatEngine:
                 self.chat(self.last_input)
             return True
 
-        # -- /delete <type> <id> --
-        if command == "/delete":
-            if len(parts) >= 3:
-                sub = parts[1].lower()
-                eid = parts[2]
-                type_map = {
-                    "agent": "agents",
-                    "workflow": "graphs",
-                    "graph": "graphs",
-                    "tool": "tools",
-                    "llm": "llms",
-                    "experiment": "exps",
-                    "exp": "exps",
-                }
-                if sub in type_map:
-                    self._delete_meta(type_map[sub], eid)
-                else:
-                    print(error(f"Unknown delete type: {sub}"))
-            else:
-                print(error("Usage: /delete <type> <id>"))
-            return True
-
-        # -- /list <type> --
-        if command == "/list":
-            sub = parts[1].lower() if len(parts) > 1 else "workflows"
-            if sub in ("workflows", "workflow", "graphs", "graph"):
-                self._list_meta("graphs", "Available Workflows",
-                    lambda stem, cfg: f"  {C['cyan']}{stem:<30}{C['reset']} {cfg.get('name', '')} [{', '.join(n for n in cfg.get('nodes', []) if n not in ('START', 'END'))}]")
-            elif sub in ("agents", "agent"):
-                self._list_meta("agents", "Available Agents",
-                    lambda stem, cfg: f"  {(C['blue'] if cfg.get('type') == 'LLM' else C['magenta'] if cfg.get('type') == 'PGM' else C['yellow'] if cfg.get('type') == 'SUB' else C['white'])}{cfg.get('type', '?'):4}{C['reset']} {stem:<30} {cfg.get('name', '')}")
-            elif sub in ("tools", "tool"):
-                self._list_meta("tools", "Available Tools",
-                    lambda stem, cfg: f"  {C['green']}{stem:<30}{C['reset']} {cfg.get('name', '')}")
-            elif sub in ("datasets", "dataset"):
-                self._list_datasets()
-            elif sub in ("llms", "llm"):
-                self._list_meta("llms", "LLM Configs",
-                    lambda stem, cfg: f"  {C['magenta']}{stem:<25}{C['reset']} [{cfg.get('type', '?')}] {cfg.get('model', '?')} @ {cfg.get('base_url', '?')}")
-            elif sub in ("experiments", "experiment", "exps", "exp"):
-                self._list_meta("exps", "Experiments",
-                    lambda stem, cfg: f"  {C['yellow']}{stem:<36}{C['reset']} {cfg.get('name', '')} {cfg.get('samples', '')} [{cfg.get('status', '?')}] {cfg.get('runner_id', '')}")
-            else:
-                print(error(f"Unknown list type: {sub}. Try: workflows, agents, tools, datasets, llms, experiments"))
-            return True
-
         # Backward compat aliases
         if command == "/graphs":
             self.handle_command("/list workflows")
@@ -647,33 +615,11 @@ class ChatEngine:
             self.handle_command("/list llms")
             return True
 
-        # -- /show <type> <id>  or  /show <id> --
-        if command == "/show":
-            if len(parts) == 2:
-                # Backward compat: /show <id> -> /show workflow <id>
-                print(f"\n{draw_workflow(parts[1])}")
-                return True
-            if len(parts) >= 3:
-                sub = parts[1].lower()
-                eid = parts[2]
-                if sub in ("workflow", "graph"):
-                    print(f"\n{draw_workflow(eid)}")
-                elif sub == "agent":
-                    self._show_json("agents", eid, "Agent")
-                elif sub == "tool":
-                    self._show_json("tools", eid, "Tool")
-                elif sub == "dataset":
-                    self._show_dataset(eid)
-                elif sub in ("llm",):
-                    self._show_json("llms", eid, "LLM")
-                elif sub in ("experiment", "exp"):
-                    self._show_json("exps", eid, "Experiment")
-                else:
-                    print(error(f"Unknown show type: {sub}"))
-                return True
-
         # -- /run <type> <id>  or  /run <id> --
         if command == "/run":
+            if len(parts) == 1 and self.pins.get("graph"):
+                self._run_interactive(self.pins.get("graph", ""))
+                return True
             if len(parts) == 2:
                 # Backward compat: /run <id> -> /run workflow <id>
                 self._run_interactive(parts[1])
@@ -692,40 +638,6 @@ class ChatEngine:
                 return True
 
         return False
-
-    def _list_datasets(self):
-        """List all datasets found in tests/ directory."""
-        print(f"\n{C['bold']}Datasets:{C['reset']}")
-        tests_dir = Path(__file__).parent / "tests"
-        found = False
-        if tests_dir.exists():
-            for runner_dir in sorted(tests_dir.iterdir()):
-                if runner_dir.is_dir():
-                    for f in sorted(runner_dir.glob("*.csv")):
-                        print(f"  {C['cyan']}{f.stem:<30}{C['reset']} (runner: {runner_dir.name})")
-                        found = True
-                    for f in sorted(runner_dir.glob("*.txt")):
-                        print(f"  {C['cyan']}{f.stem:<30}{C['reset']} (runner: {runner_dir.name})")
-                        found = True
-        if not found:
-            print(warn("No datasets found in tests/"))
-
-    def _list_meta(self, subdir: str, title: str, formatter):
-        """List all entities in a meta subdirectory."""
-        print(f"\n{C['bold']}{title}:{C['reset']}")
-        meta_path = META_DIR / subdir
-        found = False
-        if meta_path.exists():
-            for f in sorted(meta_path.glob("*.json")):
-                try:
-                    cfg = json.loads(f.read_text(encoding='utf-8'))
-                    print(formatter(f.stem, cfg))
-                    found = True
-                except Exception:
-                    print(f"  {C['dim']}{f.stem} (unreadable){C['reset']}")
-                    found = True
-        if not found:
-            print(warn(f"No {subdir} found"))
 
     def _run_interactive(self, graph_id: str):
         """Run workflow with interactive input."""
@@ -788,8 +700,61 @@ class ChatEngine:
         """Execute and display results."""
         title = f"{C['bold']}{graph_id}{C['reset']}"
         print(f"\n{step(1, f'Executing workflow: {title}')}")
+        spinner = ["|", "/", "-", "\\"] if not _TERMINAL_UNICODE else ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+        bar_fill = "█" if _TERMINAL_UNICODE else "#"
+        bar_empty = "░" if _TERMINAL_UNICODE else "-"
+        bar_width = 24
 
-        result = execute_workflow(graph_id, inputs)
+        progress = {"done": False, "result": None}
+
+        def _worker():
+            try:
+                progress["result"] = execute_workflow(graph_id, inputs)
+            except Exception as ex:
+                progress["result"] = {"status": "error", "message": str(ex)}
+            finally:
+                progress["done"] = True
+
+        t = threading.Thread(target=_worker, daemon=True)
+        t.start()
+        started_at = time.time()
+        spin_idx = 0
+        while not progress["done"]:
+            elapsed = time.time() - started_at
+            if elapsed < 0.8:
+                pct = 12
+                stage_txt = "initializing runner"
+            elif elapsed < 2.5:
+                pct = 38
+                stage_txt = "executing workflow graph"
+            elif elapsed < 5.0:
+                pct = 68
+                stage_txt = "processing node outputs"
+            else:
+                pct = min(94, int(68 + (elapsed - 5.0) * 4))
+                stage_txt = "finalizing result"
+
+            filled = int(bar_width * pct / 100)
+            bar = f"{bar_fill * filled}{bar_empty * (bar_width - filled)}"
+            symbol = spinner[spin_idx % len(spinner)]
+            spin_idx += 1
+            line = (
+                f"\r   {C['cyan']}{symbol}{C['reset']} "
+                f"[{bar}] {C['bold']}{pct:>3}%{C['reset']} "
+                f"{C['dim']}{stage_txt}{C['reset']}"
+            )
+            sys.stdout.write(line)
+            sys.stdout.flush()
+            time.sleep(0.12)
+
+        t.join(timeout=0.2)
+        done_bar = f"{bar_fill * bar_width}"
+        sys.stdout.write(
+            f"\r   {C['green']}{_E['check']}{C['reset']} "
+            f"[{done_bar}] {C['bold']}100%{C['reset']} {C['dim']}completed{C['reset']}\n"
+        )
+        sys.stdout.flush()
+        result = progress["result"] or {"status": "error", "message": "No workflow result returned"}
 
         if result["status"] == "success":
             final_state = result["result"]
@@ -850,7 +815,7 @@ class ChatEngine:
         elif action == "list_tools":
             self.handle_command("/list tools")
         elif action == "list_datasets":
-            self._list_datasets()
+            self.handle_command("/list datasets")
         elif action == "list_llms":
             self.handle_command("/list llms")
         elif action == "list_experiments":
@@ -874,7 +839,7 @@ class ChatEngine:
         elif action == "show_dataset":
             did = params.get("id", "")
             if did:
-                self._show_dataset(did)
+                self.handle_command(f"/show dataset {did}")
         elif action == "show_llm":
             lid = params.get("id", "")
             if lid:
@@ -911,6 +876,9 @@ class ChatEngine:
                 self._handle_build(req)
             else:
                 self.print_bot("Please describe the workflow you want to create")
+        elif action == "run_orchestration":
+            goal = params.get("goal", "") or self.last_input
+            self.handle_command(f"/orchestrate {goal}")
         elif action == "update_agent":
             self._update_meta("agents", params.get("id", ""), params.get("changes", ""))
         elif action in ("update_workflow", "update_graph"):
@@ -1139,6 +1107,16 @@ class ChatEngine:
         hline = '-' * 60 if not _TERMINAL_UNICODE else '─' * 60
         print(f"\n{C['bold']}{C['yellow']}{hline}{C['reset']}")
 
+        reused = shared_cmd.find_suitable_workflow(requirement)
+        if reused:
+            self.print_bot(
+                f"Reused existing workflow `{reused.get('graph_id', '')}` "
+                f"(score={reused.get('score', 0)})."
+            )
+            print(shared_cmd.show_meta("graphs", reused.get("graph_id", ""), "Workflow"))
+            print(f"{C['bold']}{C['yellow']}{hline}{C['reset']}")
+            return
+
         # Ask for LLM
         llm_id = self._select_llm_interactive()
         if not llm_id:
@@ -1156,9 +1134,15 @@ class ChatEngine:
         engine.cm = cm
 
         # Run full pipeline
+        req = requirement
+        candidate_agents = shared_cmd.find_suitable_agents(requirement, limit=6)
+        if candidate_agents:
+            ids = [str(x.get("id") or "").strip() for x in candidate_agents if str(x.get("id") or "").strip()]
+            if ids:
+                req += "\n\nReuse existing agents when applicable: " + ", ".join(ids)
         try:
             inputs = {}
-            result = engine.run(requirement, inputs=inputs, dry_run=True)
+            result = engine.run(req, inputs=inputs, dry_run=True)
         except Exception as e:
             print(error(f"Generation failed: {e}"))
             return
@@ -1317,40 +1301,6 @@ class ChatEngine:
             color_enabled=_TERMINAL_COLOR,
         )
         print(summary)
-
-    def _show_json(self, subdir: str, entity_id: str, label: str):
-        """Show a JSON config file."""
-        fpath = META_DIR / subdir / f"{entity_id}.json"
-        if not fpath.exists():
-            print(error(f"{label} '{entity_id}' not found"))
-            return
-        try:
-            cfg = json.loads(fpath.read_text(encoding='utf-8'))
-            print(f"\n{C['bold']}{label}: {entity_id}{C['reset']}")
-            print(code_block(json.dumps(cfg, indent=2, ensure_ascii=False)))
-        except Exception as e:
-            print(error(f"Cannot read {label}: {e}"))
-
-    def _show_dataset(self, dataset_id: str):
-        """Show dataset info."""
-        tests_dir = Path(__file__).parent / "tests"
-        found = False
-        if tests_dir.exists():
-            for runner_dir in sorted(tests_dir.iterdir()):
-                if not runner_dir.is_dir():
-                    continue
-                for f in sorted(runner_dir.glob("*")):
-                    if f.stem == dataset_id:
-                        size = f.stat().st_size
-                        print(f"\n{C['bold']}Dataset: {dataset_id}{C['reset']}")
-                        print(f"  Path: {f}")
-                        print(f"  Size: {size} bytes")
-                        found = True
-                        break
-                if found:
-                    break
-        if not found:
-            print(error(f"Dataset '{dataset_id}' not found"))
 
     def _parse_natural_language(self, message: str) -> str:
         """Parse common natural language patterns into slash commands."""

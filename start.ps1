@@ -26,7 +26,8 @@ foreach ($prop in $manifest.sandboxes.PSObject.Properties) {
     $id = $prop.Name
     $cfg = $prop.Value
     if ($cfg.enabled -eq $false) { continue }
-    $venvPy = Join-Path $scriptDir ($cfg.venv -replace '/', '\') "Scripts\python.exe"
+    $venvRoot = Join-Path $scriptDir ($cfg.venv -replace '/', '\')
+    $venvPy = Join-Path $venvRoot "Scripts\python.exe"
     $entry = Join-Path $scriptDir ($cfg.entry -replace '/', '\')
     if (-not (Test-Path $venvPy)) {
         Write-Host "  [skip] $id — venv missing. Run: .\sandbox\setup_venv.ps1 -Name $id" -ForegroundColor Yellow

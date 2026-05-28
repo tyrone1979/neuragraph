@@ -68,3 +68,105 @@
   margin: 0;
   white-space: pre;   /* 保留换行与空格 */
 }
+
+.report-inline-chart-card {
+  border: 1px solid #dee2e6;
+  border-radius: .5rem;
+  padding: .5rem .75rem;
+  background: #fff;
+  overflow: hidden;
+  margin: .75rem 0 1rem 0;
+}
+
+.report-inline-chart-canvas {
+  width: 100%;
+  max-width: 100%;
+  height: 260px;
+  overflow: hidden;
+}
+
+.exp-progress-lg {
+  height: 30px;
+}
+
+.exp-progress-sm {
+  height: 20px;
+}
+
+.report-markdown-wrap {
+  max-height: 1000px;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+}
+
+.report-table-wrap {
+  margin: .75rem 0 1rem 0;
+  border: 1px solid #e5e7eb;
+  border-radius: .7rem;
+  overflow: auto;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  background: #fff;
+}
+
+.report-table-wrap .report-table {
+  min-width: 680px;
+}
+
+.report-table-wrap .report-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.report-table-wrap .report-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.suggest-plus {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.suggest-minus {
+  color: #ca8a04;
+  font-weight: 700;
+}
+
+.optimize-summary-card {
+  border-color: #dbeafe;
+  box-shadow: 0 8px 22px rgba(30, 64, 175, 0.08);
+}
+
+.opt-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.opt-kpi-item {
+  border: 1px solid #e5e7eb;
+  border-radius: .7rem;
+  background: #f8fafc;
+  padding: .55rem .7rem;
+}
+
+.opt-kpi-label {
+  font-size: .74rem;
+  color: #64748b;
+  margin-bottom: .2rem;
+}
+
+.opt-kpi-value {
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-all;
+}
+
+@media (max-width: 1100px) {
+  .opt-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -229,7 +229,12 @@ def stream_report(exp_id):
         )
         return Response(msg, mimetype='text/event-stream')
 
-    agent = AgentLoader.load('report_experiment')
+    use_tools = str(request.args.get("use_tools", "0")).lower() in ("1", "true", "yes", "on")
+    report_agent_id = "report_experiment_tool" if use_tools else "report_experiment"
+    agent = AgentLoader.load(report_agent_id)
+    if agent is None:
+        msg = f"Report agent not found: {report_agent_id}"
+        return Response(msg, mimetype='text/event-stream')
     text_payload = json.dumps(full_payload, ensure_ascii=False, indent=2)
 
     def generate():

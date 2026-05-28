@@ -8,11 +8,12 @@
     "name": "sentences",
     "type": "list"
   },
-  "model": "kimi-2.6",
+  "model": "deepseek",
   "prompt_template": {
     "description": "English sentence splitting for biomedical abstract",
     "system": "You are an English-text sentence splitter.",
     "human": "Task: split the following biomedical abstract into complete sentences according to English grammar and punctuation.\nRules:\n- Keep all content, including braces, do not remove or alter them.\n- Output **only** a JSON array of strings, one sentence per element.\n- Do **not** add any explanations or extra text.\n- **Do not add any introductory sentences like \"Here is the output...\"\n\nBiomedical abstract:\n{text}"
   },
-  "engine": "llm"
+  "engine": "llm",
+  "id": "text_sentence_split"
 }

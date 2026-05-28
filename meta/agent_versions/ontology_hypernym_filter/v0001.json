@@ -1,0 +1,33 @@
+{
+  "agent_id": "ontology_hypernym_filter",
+  "version": "v0001",
+  "parent_version": null,
+  "created_at": "2026-05-28T16:14:22.128180",
+  "created_by": "optimize_loop",
+  "change_note": "opt_loop 20260528_160935 r2: Hypernym filter over-aggressively drops distinct entities sharing MeSH prefixes (e.g., D001145 cardiac arrhythmia dropped due to D006331 cardiac disease in sample 3, causing 1 FN). Replace Step 2 rules to only remove entities that are direct hypernyms, not siblings or un",
+  "source": "optimize_loop",
+  "content_hash": "694f80e12b3c36eeb40017da4e80b98ef4036d578e15717516b45119eebd4d4f",
+  "content": {
+    "name": "Hypernym Filter (LLM)",
+    "type": "LLM",
+    "model": "deepseek",
+    "inputs": [
+      "entities"
+    ],
+    "outputs": {
+      "name": "filtered_entities",
+      "type": "list",
+      "parse_as": "entity_list"
+    },
+    "prompt_template": {
+      "description": "Identify same-type hypernyms by MeSH id; drop hypernym rows from entity list",
+      "human": "Input entities (JSON array of {{text, id, label}}):\n{entities}\n\nStep 1 — Build lists and call tool `merge_heads_tails_to_entities` once:\n- heads: label Chemical → {{\"text\", \"type\": \"Chemical\", \"mesh\": id}}\n- tails: label Disease → {{\"text\", \"type\": \"Disease\", \"mesh\": id}}\n\nStep 2 — After the tool returns, apply rules on the merged list only:\n- Hypernyms must share the same label (Chemical vs Disease).\n- Find immediate hypernyms within the same label: an entity A is a hypernym of entity B if A's MeSH ID is a known broader term of B's MeSH ID (e.g., D006331 is broader than D014262).\n- Remove hypernym rows; keep more specific entities.\n- Do NOT remove entities that are distinct concepts even if they share a prefix (e.g., D001145 and D006331 are different diseases).\n- Do not invent cross-label links.\n\nStep 3 — FINAL MESSAGE (required): output ONLY a JSON array, same schema as input:\n[{{\"text\": \"...\", \"id\": \"...\", \"label\": \"Chemical\"|\"Disease\"}}]\nNo markdown fences, no bullet points, no reasoning, no extra keys.",
+      "system": "You are a biomedical ontology analyst. You may call tools once to merge heads/tails. After the tool result, your last assistant message must be ONLY the final JSON array of filtered entities — nothing else."
+    },
+    "tools": [
+      "merge_heads_tails_to_entities"
+    ],
+    "output_parse": "entity_list",
+    "created_at": "2026-05-27T13:48:37.685456"
+  }
+}

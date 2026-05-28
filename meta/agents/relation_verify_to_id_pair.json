@@ -10,7 +10,7 @@
     "name": "relations",
     "type": "list"
   },
-  "process": "if state.get('result') == '$':\n    hid = state.get('head_id') or ''\n    tid = state.get('tail_id') or ''\n    line = f\"{hid} | {tid}\" if hid and tid else ''\n    __result__ = [line] if line else []\nelse:\n    __result__ = []\n",
+  "process": "treatment_target_ids = {'D012640', 'D009422', 'D064420', 'D001282', 'D006333', 'D009069'}\nhid = state.get('head_id') or ''\ntid = state.get('tail_id') or ''\nif tid in treatment_target_ids:\n    __result__ = []\nelse:\n    result = state.get('result')\n    if result == '$':\n        # Title-only co-occurrence guard: reject if head and tail appear together only in the title\n        text = state.get('text') or ''\n        parts = text.split('.', 1)\n        title = parts[0].lower() if parts else ''\n        body = parts[1].lower() if len(parts) > 1 else ''\n        head = state.get('head') or ''\n        tail = state.get('tail') or ''\n        head_in_title = head.lower() in title\n        tail_in_title = tail.lower() in title\n        head_in_body = head.lower() in body\n        tail_in_body = tail.lower() in body\n        if head_in_title and tail_in_title and not (head_in_body and tail_in_body):\n            __result__ = []\n        else:\n            line = f\"{hid} | {tid}\" if hid and tid else ''\n            __result__ = [line] if line else []\n    else:\n        __result__ = []",
   "created_at": "2026-05-27T12:00:00",
   "engine": "pgm"
 }

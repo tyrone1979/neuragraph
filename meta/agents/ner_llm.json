@@ -1,7 +1,7 @@
 {
   "name": "NER (LLM, configurable types)",
   "type": "LLM",
-  "model": "kimi-2.6",
+  "model": "deepseek",
   "inputs": [
     "text",
     "labels"
@@ -16,5 +16,6 @@
     "human": "Text: {text}\n\nEntity types to extract: {labels}\n\nExtract all entities and return as JSON in this exact format:\n{{'Disease': ['entity1', 'entity2'], 'Chemical': ['entity3']}}\n\nIf no entities of a type are found, use an empty list [].\n\nJSON output:"
   },
   "engine": "llm",
-  "default_labels": "Chemical, Disease"
+  "default_labels": "Chemical, Disease",
+  "created_at": "2026-05-28T15:48:13.964958"
 }

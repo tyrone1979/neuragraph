@@ -117,8 +117,10 @@ def _call_agent(name: str, graph_meta: dict | None = None):
         array_expr = loop_cfg.get("array") or "{{ text }}"
 
         if subgraph is None:
-            def passthrough(s):
-                return s
+            def passthrough(_s):
+                # Missing subgraph should be a no-op update.
+                # Returning full state causes concurrent key writes in LangGraph.
+                return {}
             return passthrough
 
         item_bindings = loop_cfg.get("itemBindings") or {}
@@ -226,8 +228,10 @@ def _call_agent(name: str, graph_meta: dict | None = None):
         )
         agent = AgentLoader.load(name)
     if agent is None:
-        def passthrough(s):
-            return s
+        def passthrough(_s):
+            # Missing agent node should not emit state updates.
+            # Returning full state can trigger INVALID_CONCURRENT_GRAPH_UPDATE.
+            return {}
         return passthrough
 
     if agent.type != "SUB":

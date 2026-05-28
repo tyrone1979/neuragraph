@@ -1,0 +1,30 @@
+{
+  "agent_id": "relation_verify_llm",
+  "version": "v0004",
+  "parent_version": "v0003",
+  "created_at": "2026-05-28T15:33:22.212515",
+  "created_by": "optimize_loop",
+  "change_note": "opt_loop 20260528_153052 r1: LLM is too permissive, returning '$' for co-occurrence pairs (toxicity, neurologically-impaired, seizures). Adding a mandatory Step 0 co-occurrence check before existing steps forces explicit rejection of non-causal mentions, directly addressing 7/7 FPs.",
+  "source": "optimize_loop",
+  "content_hash": "f29c1a5ddfb018f21f07956ad0b2d9f1200433c14702c7a27b19772bf42ff018",
+  "content": {
+    "name": "Relation Verification (LLM)",
+    "type": "LLM",
+    "model": "deepseek",
+    "inputs": [
+      "text",
+      "head",
+      "tail"
+    ],
+    "outputs": {
+      "name": "result",
+      "type": "str"
+    },
+    "prompt_template": {
+      "description": "Strict biomedical relation verifier based on triple list",
+      "human": "Refer to below article, please give answer '$' or '~' only based on the following step-by-step reasoning:\n\nStep 0 (Co-occurrence Check): Does the article mention both {head} and {tail} in the same context? If Yes, does the article state that {head} caused, induced, or resulted in {tail}, or is it merely describing co-occurrence (e.g., 'patient had {tail} while on {head}', 'patient presented with {tail} and {head}')? If the relationship is co-occurrence, answer '~' immediately and skip remaining steps.\n\nStep 1: Does the article explicitly state that {head} caused, induced, or resulted in {tail}? (Yes/No)\nStep 2: If Yes, is the language definitive (not speculative like 'may', 'might', 'could')? (Yes/No)\nStep 3: Is {tail} a pre-existing condition or the reason for treatment (not a side effect)? (Yes/No)\nStep 4: Is the relationship merely co-occurrence (patient had {tail} while on {head})? (Yes/No)\n\nDecision rules:\n- If Step 0=co-occurrence OR Step 1=No OR Step 2=No OR Step 3=Yes OR Step 4=Yes → answer '~'\n- Only if Step 0=causation AND Step 1=Yes AND Step 2=Yes AND Step 3=No AND Step 4=No → answer '$'\n\nDO NOT output any other message.\n\n**article**:\n{text}\n\n**Negative Examples (do NOT return '$'):**\n- Article mentions both entities but does not state causation (e.g., 'patient had {tail} while on {head}').\n- Article describes {tail} as a symptom of the underlying condition, not induced by {head}.\n- Article states 'association' or 'correlation' without causal language.\n\n**Final instruction:** If the article only mentions both entities without explicit causation, answer '~'.",
+      "system": "You are a biomedical relation specialist. You must strictly enforce causation. Only return '$' if the article explicitly states that the chemical induced, caused, or resulted in the disease. Mere co-occurrence or symptom description without causation must return '~'."
+    },
+    "created_at": "2026-05-27T13:48:50.624521"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Experiment Report (LLM + Tools)",
+  "type": "LLM",
+  "inputs": [
+    "text"
+  ],
+  "outputs": {
+    "name": "text",
+    "type": "str"
+  },
+  "model": "deepseek",
+  "prompt_template": {
+    "description": "Generate a structured experiment diagnosis report from full workflow artifacts.",
+    "system": "You are a senior NeuraGraph experiment analyst. You receive the full experiment package: experiment config, graph meta, all related agent meta, explicit agent version mapping, and full states.json content. You must output a concise and actionable markdown report.",
+    "human": "Based on the full experiment package below, output exactly three sections in markdown:\n\n## 1) Metrics\n- Summarize key metrics in readable tables.\n- Include overall metrics and important per-sample metrics when available.\n- Include a compact table: graph_id, agent_id, version_used (from agent_versions.resolved).\n\n## 2) FN and FP Analysis\n- Analyze false negatives and false positives.\n- Explain likely causes by linking observations to graph flow and agent behavior.\n\n## 3) Agent Modification Suggestions\n- Provide concrete improvement suggestions for specific agents.\n- For each suggestion, include: target agent id, what to change (prompt/process/inputs/outputs/tools), expected impact, and why it is easy to implement.\n\nRules:\n- Do not invent fields that are absent from the input.\n- Use only evidence present in the provided package.\n- Keep the report practical and implementation-oriented.\n- ONLY propose suggestions that are immediately implementable in this repo by editing existing agent/graph meta or PGM code.\n- DO NOT suggest external systems or heavy integrations (e.g., UMLS, MeSH APIs, new databases, new services, large new components, long data pipelines).\n- Prefer low-complexity changes in this priority order: prompt tweak > small PGM guard > existing graph binding change > existing tool selection.\n- Do not hardcode special handling for specific sample IDs, entity names, terms, keywords, or string patterns.\n- Do not apply fixed keyword-triggered heuristics; derive conclusions from provided data distributions and evidence.\n- If a potentially good idea requires external dependencies, rewrite it as the closest in-repo fallback.\n- Output the final markdown report directly. Do NOT output planning/process sentences such as \"I'll analyze...\".\n\n**full experiment package**:\n{text}"
+  },
+  "tools": [
+    "metrics_delta_compare",
+    "fn_fp_bucket_analyzer",
+    "agent_change_impact_trace",
+    "report_quality_scorer",
+    "error_case_exporter"
+  ],
+  "created_at": "2026-01-31T15:49:43.940031",
+  "engine": "llm"
+}
+
