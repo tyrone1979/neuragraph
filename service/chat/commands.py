@@ -5,12 +5,23 @@ import re
 import shutil
 import sys
 import uuid
+import random
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from service.entity.test import TestLoader
 from service.meta.loader import MetaLoader
+from service.dataset_cid import (
+    CID_REGISTRY,
+    DEFAULT_RE_RUNNER,
+    build_structured_full,
+    build_tuning_dataset,
+    extract_test_dataset,
+    get_registry_status,
+    load_source_articles,
+    resolve_source_path,
+)
 
 
 META_DIR = Path(__file__).resolve().parents[2] / "meta"
@@ -154,6 +165,217 @@ def show_meta(subdir: str, cid: str, label: str) -> str:
     return f"{label} `{cid}`:\n```json\n{json.dumps(cfg, ensure_ascii=False, indent=2)}\n```"
 
 
+def _parse_kv_tokens(tokens: list[str]) -> dict[str, str]:
+    return {k.strip().lower(): v.strip() for k, v in [p.split("=", 1) for p in tokens if "=" in p]}
+
+
+def _resolve_runner_id(raw: str, pins: dict) -> str:
+    return (raw or pins.get("graph") or pins.get("runner_id") or DEFAULT_RE_RUNNER).strip()
+
+
+def dataset_registry_view(session: dict | None = None) -> str:
+    pins = (session or {}).get("pins") or {}
+    runner_id = _resolve_runner_id("", pins)
+    try:
+        status = get_registry_status(runner_id)
+    except Exception as ex:
+        return f"Failed to load dataset registry: {ex}"
+    src = status["source_raw"]
+    st = status["structured"]
+    return md_card(
+        "CID Dataset Registry",
+        [
+            ("registry", f"`{status['registry_id']}`"),
+            ("runner", f"`{runner_id}`"),
+            ("source_raw", f"`{src['path']}` ({src['count']} docs)"),
+            (
+                "structured_full",
+                f"`{st['full']['file'] or '(not built)'}`"
+                + (f" ({st['full']['count']} rows)" if st["full"]["count"] is not None else ""),
+            ),
+            (
+                "tuning",
+                f"`{st['tuning']['file'] or pins.get('tuning_dataset') or '(not built)'}`"
+                + (f" ({st['tuning']['count']} rows)" if st["tuning"]["count"] is not None else ""),
+            ),
+            (
+                "test",
+                f"`{st['test']['file'] or pins.get('test_dataset') or pins.get('dataset') or '(not built)'}`"
+                + (f" ({st['test']['count']} rows)" if st["test"]["count"] is not None else ""),
+            ),
+        ],
+        [
+            "`/dataset build full [runner]` — structured CSV from raw dev.txt",
+            "`/dataset build tuning [runner] size=20` — stratified tuning + test remain",
+            "`/run agent dataset_cid_tuning_build {\"size\":20}` — same via PGM agent",
+            "`/dataset extract test <runner> <out.csv> mode=remain|random|stratified|pmids`",
+            "`/dataset pin raw|tuning|test|full <path>`",
+            "UI: `/testset` (structured) and `/dataset` (raw PubTator)",
+        ],
+    )
+
+
+def dataset_build_full_cmd(runner_id: str, kv: dict[str, str]) -> str:
+    runner_id = _resolve_runner_id(runner_id, {})
+    source = kv.get("source") or CID_REGISTRY["source_raw"]
+    output = kv.get("out") or kv.get("output") or ""
+    try:
+        result = build_structured_full(
+            runner_id,
+            source=source,
+            output_name=output or None,
+        )
+    except Exception as ex:
+        return f"Failed to build structured full dataset: {ex}"
+    lines = [
+        f"Built structured full dataset for `{runner_id}`.",
+        f"- output: `{result['output']}` ({result['count']} rows)",
+    ]
+    if result.get("ner_runner"):
+        lines.append(f"- mirrored to `{result['ner_runner']}`")
+    return "\n".join(lines)
+
+
+def dataset_build_tuning_cmd(runner_id: str, kv: dict[str, str]) -> str:
+    runner_id = _resolve_runner_id(runner_id, {})
+    source = kv.get("source") or CID_REGISTRY["source_raw"]
+    try:
+        size = int(kv.get("size") or 20)
+    except ValueError:
+        size = 20
+    write_remain = kv.get("write_test_remain", "true").lower() not in ("0", "false", "no")
+    try:
+        result = build_tuning_dataset(
+            runner_id,
+            source=source,
+            size=size,
+            tuning_out=kv.get("tuning_out") or kv.get("out") or None,
+            test_out=kv.get("test_out") or None,
+            write_test_remain=write_remain,
+        )
+    except Exception as ex:
+        return f"Failed to build tuning dataset: {ex}"
+    lines = [
+        f"Built tuning dataset for `{runner_id}`.",
+        f"- tuning: `{result['tuning_output']}` ({result['tuning_count']} rows)",
+    ]
+    if result.get("test_output"):
+        lines.append(f"- test remain: `{result['test_output']}` ({result['test_count']} rows)")
+    summary = result.get("summary") or {}
+    if summary.get("relation_buckets"):
+        lines.append(f"- relation buckets: `{json.dumps(summary['relation_buckets'], ensure_ascii=False)}`")
+    return "\n".join(lines)
+
+
+def dataset_extract_test_cmd(runner_id: str, output_name: str, kv: dict[str, str]) -> str:
+    if not runner_id or not output_name:
+        return "Usage: /dataset extract test <runner_id> <output.csv> [mode=remain|random|stratified|pmids|full] [size=N] [source=dev.txt] [exclude_tuning=<file>] [pmids=a,b] [seed=42]"
+    mode = kv.get("mode") or "remain"
+    pmids = [p.strip() for p in (kv.get("pmids") or "").split(",") if p.strip()]
+    try:
+        size = int(kv["size"]) if kv.get("size") else None
+    except ValueError:
+        size = None
+    try:
+        seed = int(kv.get("seed") or 42)
+    except ValueError:
+        seed = 42
+    try:
+        result = extract_test_dataset(
+            runner_id,
+            _normalize_dataset_name(output_name),
+            source=kv.get("source") or CID_REGISTRY["source_raw"],
+            mode=mode,
+            size=size,
+            pmids=pmids or None,
+            exclude_tuning_file=kv.get("exclude_tuning") or kv.get("exclude") or None,
+            exclude_tuning_runner=kv.get("exclude_runner") or runner_id,
+            seed=seed,
+        )
+    except Exception as ex:
+        return f"Failed to extract test dataset: {ex}"
+    lines = [
+        f"Extracted test dataset `{result['output']}` for `{runner_id}`.",
+        f"- mode: `{result['mode']}`",
+        f"- rows: {result['count']}",
+    ]
+    if result.get("exclude_tuning_file"):
+        lines.append(f"- excluded tuning: `{result['exclude_tuning_file']}`")
+    if result.get("ner_runner"):
+        lines.append(f"- mirrored to `{result['ner_runner']}`")
+    return "\n".join(lines)
+
+
+def handle_dataset_command(parts: list[str], session: dict) -> str:
+    pins = session.setdefault("pins", {})
+    if len(parts) == 1:
+        return dataset_registry_view(session)
+
+    sub = parts[1].lower()
+    if sub in ("status", "show", "registry"):
+        return dataset_registry_view(session)
+
+    if sub == "pin" and len(parts) >= 4:
+        key = parts[2].lower()
+        val = parts[3]
+        pin_map = {
+            "raw": "source_dataset",
+            "source": "source_dataset",
+            "full": "structured_full",
+            "tuning": "tuning_dataset",
+            "test": "test_dataset",
+        }
+        pin_key = pin_map.get(key)
+        if not pin_key:
+            return "Usage: /dataset pin raw|tuning|test|full <path>"
+        pins[pin_key] = val
+        if key == "test":
+            pins["dataset"] = val
+        return render_pins(session)
+
+    if sub == "build" and len(parts) >= 3:
+        target = parts[2].lower()
+        runner_id = parts[3] if len(parts) >= 4 and "=" not in parts[3] else ""
+        kv = _parse_kv_tokens(parts[3 if runner_id else 4 :])
+        if not runner_id:
+            runner_id = _resolve_runner_id("", pins)
+        if target == "full":
+            return dataset_build_full_cmd(runner_id, kv)
+        if target == "tuning":
+            return dataset_build_tuning_cmd(runner_id, kv)
+        return "Usage: /dataset build full|tuning [runner_id] [size=20] [source=dev.txt] [out=...] [test_out=...]"
+
+    if sub == "extract" and len(parts) >= 4 and parts[2].lower() == "test":
+        runner_id = parts[3]
+        output_name = parts[4] if len(parts) >= 5 else ""
+        kv = _parse_kv_tokens(parts[5:])
+        return dataset_extract_test_cmd(runner_id, output_name, kv)
+
+    if sub == "list":
+        runner_id = parts[2] if len(parts) >= 3 else _resolve_runner_id("", pins)
+        tests = TestLoader.get_by_agent(runner_id)
+        lines = [f"Datasets for runner `{runner_id}`"]
+        for t in tests:
+            lines.append(f"- `{t['name']}` ({t.get('count', 0)} rows)")
+        try:
+            src = resolve_source_path(pins.get("source_dataset") or CID_REGISTRY["source_raw"])
+            arts = load_source_articles(src)
+            lines.insert(1, f"- `[raw]` `{src.name}` ({len(arts)} docs)")
+        except Exception:
+            pass
+        return "\n".join(lines) if len(lines) > 1 else lines[0] + "\n- (empty)"
+
+    return (
+        "Usage:\n"
+        "- `/dataset` — registry status (raw / tuning / test)\n"
+        "- `/dataset list [runner_id]`\n"
+        "- `/dataset build full [runner] [source=dev.txt] [out=cid_dev_full.csv]`\n"
+        "- `/dataset build tuning [runner] size=20 [write_test_remain=true]`\n"
+        "- `/dataset extract test <runner> <out.csv> mode=remain|random|stratified|pmids|full`\n"
+        "- `/dataset pin raw|tuning|test|full <path>`"
+    )
+
+
 def list_datasets() -> str:
     tests_dir = Path(__file__).resolve().parents[2] / "tests"
     if not tests_dir.exists():
@@ -192,6 +414,55 @@ def show_dataset(dataset_id: str) -> str:
                     ],
                 )
     return f"Dataset `{did}` not found."
+
+
+def _normalize_dataset_name(name: str) -> str:
+    raw = (name or "").strip()
+    if not raw:
+        return ""
+    if raw.lower().endswith(".csv") or raw.lower().endswith(".txt"):
+        return raw
+    return f"{raw}.csv"
+
+
+def _auto_split_dataset_for_runner(
+    runner_id: str,
+    source_dataset: str,
+    *,
+    split_ratio: float = 0.8,
+    seed: int = 42,
+) -> dict[str, Any]:
+    source = _normalize_dataset_name(source_dataset)
+    if not source.lower().endswith(".csv"):
+        raise ValueError("auto split currently supports CSV source datasets only")
+    fields, rows = TestLoader.load_by_id_file(runner_id, source)
+    row_list = [dict(r) for r in (rows or [])]
+    if not row_list:
+        raise ValueError(f"source dataset `{source}` has no rows")
+    ratio = min(0.95, max(0.05, float(split_ratio)))
+    rng = random.Random(int(seed))
+    rng.shuffle(row_list)
+    split_idx = max(1, min(len(row_list) - 1, int(round(len(row_list) * ratio))))
+    tuning_rows = row_list[:split_idx]
+    test_rows = row_list[split_idx:]
+    stem = Path(source).stem
+    suffix = datetime.now().strftime("%Y%m%d%H%M%S")
+    tuning_name = f"{stem}__tune_r{int(ratio * 100)}_s{int(seed)}_{suffix}.csv"
+    test_name = f"{stem}__test_r{int((1 - ratio) * 100)}_s{int(seed)}_{suffix}.csv"
+    TestLoader.save_csv_rows(runner_id, tuning_name, fields, tuning_rows)
+    TestLoader.save_csv_rows(runner_id, test_name, fields, test_rows)
+    return {
+        "tuning_dataset": tuning_name,
+        "test_dataset": test_name,
+        "dataset_split": {
+            "mode": "auto",
+            "source_dataset": source,
+            "split_ratio": ratio,
+            "seed": int(seed),
+            "tuning_count": len(tuning_rows),
+            "test_count": len(test_rows),
+        },
+    }
 
 
 def _try_parse_json_tail(text: str) -> Dict[str, Any]:
@@ -961,69 +1232,127 @@ def create_testset(runner_id: str, filename: str, source_file: str = "", count: 
     return f"Created template testset `{filename}` for runner `{runner_id}` with {len(rows)} rows."
 
 
-def create_experiment(runner_id: str, dataset: str, runner_type: str = "graph") -> str:
+def create_experiment(
+    runner_id: str,
+    dataset: str,
+    runner_type: str = "graph",
+    *,
+    tuning_dataset: str = "",
+    test_dataset: str = "",
+    split_ratio: float | None = None,
+    split_seed: int = 42,
+) -> str:
     runner_id = (runner_id or "").strip()
-    dataset = (dataset or "").strip()
+    dataset = _normalize_dataset_name(dataset)
     runner_type = (runner_type or "graph").strip()
     if not runner_id or not dataset:
         return "Missing runner_id or dataset."
-    if not dataset.lower().endswith(".csv") and not dataset.lower().endswith(".txt"):
-        dataset = f"{dataset}.csv"
+    split_info = None
+    if split_ratio is not None:
+        try:
+            split_info = _auto_split_dataset_for_runner(
+                runner_id,
+                dataset,
+                split_ratio=float(split_ratio),
+                seed=int(split_seed),
+            )
+        except Exception as ex:
+            return f"Failed to auto split dataset: {ex}"
+        tuning_dataset = split_info["tuning_dataset"]
+        test_dataset = split_info["test_dataset"]
+    tuning_dataset = _normalize_dataset_name(tuning_dataset or "")
+    test_dataset = _normalize_dataset_name(test_dataset or dataset)
+    if not tuning_dataset:
+        tuning_dataset = test_dataset
+    if not test_dataset:
+        test_dataset = tuning_dataset
     try:
-        _fields, rows = TestLoader.load_by_id_file(runner_id, dataset)
+        _fields, rows = TestLoader.load_by_id_file(runner_id, test_dataset)
         sample_count = len(rows or [])
     except Exception:
         sample_count = 0
     exp_id = str(uuid.uuid4())
     data = {
-        "dataset": dataset,
+        "dataset": test_dataset,
+        "tuning_dataset": tuning_dataset,
+        "test_dataset": test_dataset,
         "runner_type": runner_type,
         "runner_id": runner_id,
         "runner_display": runner_id,
         "samples": sample_count,
         "exp_id": exp_id,
-        "name": f"{runner_id}_{dataset}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "name": f"{runner_id}_{test_dataset}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
         "status": "pending",
         "progress": 0,
     }
+    if split_info:
+        data["dataset_split"] = split_info["dataset_split"]
     MetaLoader.dump("exps", exp_id, data)
     return md_card(
         "Experiment Created",
         [
             ("exp_id", f"`{exp_id}`"),
             ("runner_id", f"`{runner_id}`"),
-            ("dataset", f"`{dataset}`"),
+            ("test_dataset", f"`{test_dataset}`"),
+            ("tuning_dataset", f"`{tuning_dataset}`"),
             ("samples", sample_count),
         ],
         [f"Open detail: [{exp_id}](/exp/{exp_id})", f"Run now: `/run experiment {exp_id}`"],
     )
 
 
-def create_experiment_record(runner_id: str, dataset: str, runner_type: str = "graph") -> dict[str, Any]:
+def create_experiment_record(
+    runner_id: str,
+    dataset: str,
+    runner_type: str = "graph",
+    *,
+    tuning_dataset: str = "",
+    test_dataset: str = "",
+    split_ratio: float | None = None,
+    split_seed: int = 42,
+) -> dict[str, Any]:
     runner_id = (runner_id or "").strip()
-    dataset = (dataset or "").strip()
+    dataset = _normalize_dataset_name(dataset)
     runner_type = (runner_type or "graph").strip()
     if not runner_id or not dataset:
         raise ValueError("Missing runner_id or dataset.")
-    if not dataset.lower().endswith(".csv") and not dataset.lower().endswith(".txt"):
-        dataset = f"{dataset}.csv"
+    split_info = None
+    if split_ratio is not None:
+        split_info = _auto_split_dataset_for_runner(
+            runner_id,
+            dataset,
+            split_ratio=float(split_ratio),
+            seed=int(split_seed),
+        )
+        tuning_dataset = split_info["tuning_dataset"]
+        test_dataset = split_info["test_dataset"]
+    tuning_dataset = _normalize_dataset_name(tuning_dataset or "")
+    test_dataset = _normalize_dataset_name(test_dataset or dataset)
+    if not tuning_dataset:
+        tuning_dataset = test_dataset
+    if not test_dataset:
+        test_dataset = tuning_dataset
     try:
-        _fields, rows = TestLoader.load_by_id_file(runner_id, dataset)
+        _fields, rows = TestLoader.load_by_id_file(runner_id, test_dataset)
         sample_count = len(rows or [])
     except Exception:
         sample_count = 0
     exp_id = str(uuid.uuid4())
     data = {
-        "dataset": dataset,
+        "dataset": test_dataset,
+        "tuning_dataset": tuning_dataset,
+        "test_dataset": test_dataset,
         "runner_type": runner_type,
         "runner_id": runner_id,
         "runner_display": runner_id,
         "samples": sample_count,
         "exp_id": exp_id,
-        "name": f"{runner_id}_{dataset}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "name": f"{runner_id}_{test_dataset}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
         "status": "pending",
         "progress": 0,
     }
+    if split_info:
+        data["dataset_split"] = split_info["dataset_split"]
     MetaLoader.dump("exps", exp_id, data)
     return data
 
@@ -1393,14 +1722,25 @@ def copy_workflow(source_id: str, target_id: str) -> str:
     return md_card("Workflow Copied", [("source", f"`{source_id}`"), ("target", f"`{target_id}`")], [f"View copied workflow: `/show workflow {target_id}`"])
 
 
-def start_optimize_loop(exp_id: str, max_updates: int = 1) -> str:
+def start_optimize_loop(
+    exp_id: str,
+    max_updates: int = 1,
+    *,
+    tuning_dataset: str = "",
+    test_dataset: str = "",
+) -> str:
     from service.experiment_optimize import run_optimize_loop_by_exp
 
     exp_id = (exp_id or "").strip()
     if not exp_id:
         return "Missing exp_id."
     try:
-        summary = run_optimize_loop_by_exp(exp_id, max_agent_updates=max_updates)
+        summary = run_optimize_loop_by_exp(
+            exp_id,
+            max_agent_updates=max_updates,
+            tuning_dataset=_normalize_dataset_name(tuning_dataset),
+            test_dataset=_normalize_dataset_name(test_dataset),
+        )
     except Exception as e:
         return f"Optimize loop failed: {e}"
     brief = {
@@ -1428,6 +1768,17 @@ def preview_slash(cmd: str, session: Dict[str, Any]) -> str:
         dataset = parts[3] if len(parts) >= 4 else (pins.get("dataset") or "")
         resolved.append(("resolved_runner", f"`{runner or '(missing)'}`"))
         resolved.append(("resolved_dataset", f"`{dataset or '(missing)'}`"))
+        extra_tokens = parts[4:] if len(parts) >= 5 else []
+        if extra_tokens and "=" not in extra_tokens[0]:
+            resolved.append(("resolved_runner_type", f"`{extra_tokens[0]}`"))
+            extra_tokens = extra_tokens[1:]
+        kv = {k: v for k, v in [p.split("=", 1) for p in extra_tokens if "=" in p]}
+        if kv.get("tuning"):
+            resolved.append(("resolved_tuning_dataset", f"`{kv.get('tuning')}`"))
+        if kv.get("test"):
+            resolved.append(("resolved_test_dataset", f"`{kv.get('test')}`"))
+        if kv.get("split"):
+            resolved.append(("resolved_split_ratio", f"`{kv.get('split')}`"))
     if c0 in ("/run", "/show") and len(parts) >= 3 and parts[1].lower() in ("experiment", "exp"):
         exp_id = parts[2] if len(parts) >= 3 else (pins.get("exp") or "")
         resolved.append(("resolved_exp", f"`{exp_id or '(missing)'}`"))
@@ -1455,9 +1806,10 @@ def execute_slash_command(cmd: str, session: Dict[str, Any] | None = None, llm_i
             "- `/run workflow|agent <id> {json_inputs}`\n"
             "- `/run experiment <exp_id>`\n"
             "- `/create testset <runner_id> <filename> [source_file] [count]`\n"
-            "- `/create experiment [runner_id] [dataset] [runner_type]` (supports pins)\n"
+            "- `/create experiment [runner_id] [dataset] [runner_type] [tuning=<file>] [test=<file>] [split=<0.8>] [seed=<42>]` (supports pins)\n"
+            "- `/dataset` — CID raw/tuning/test registry; build & extract structured sets\n"
             "- `/copy workflow <source_id> <target_id>`\n"
-            "- `/optimize <exp_id> [max_updates]`\n"
+            "- `/optimize <exp_id> [max_updates] [tuning=<file>] [test=<file>]`\n"
             "- `/orchestrate <goal>`\n"
             "- `/delete workflow|agent|tool|llm|experiment <id>`\n"
             "- `/clean exp <exp_id>|all`\n"
@@ -1497,8 +1849,22 @@ def execute_slash_command(cmd: str, session: Dict[str, Any] | None = None, llm_i
             return render_pins(session)
         if sub == "dataset":
             pins["dataset"] = val
+            pins["test_dataset"] = val
+            return render_pins(session)
+        if sub in ("source", "raw"):
+            pins["source_dataset"] = val
+            return render_pins(session)
+        if sub == "tuning":
+            pins["tuning_dataset"] = val
+            return render_pins(session)
+        if sub == "test":
+            pins["test_dataset"] = val
+            pins["dataset"] = val
             return render_pins(session)
         return f"Unsupported pin target: `{sub}`"
+
+    if c0 == "/dataset":
+        return handle_dataset_command(parts, session)
 
     if c0 == "/list":
         sub = parts[1].lower() if len(parts) > 1 else "workflows"
@@ -1591,10 +1957,37 @@ def execute_slash_command(cmd: str, session: Dict[str, Any] | None = None, llm_i
         if sub in ("experiment", "exp"):
             runner_id = parts[2] if len(parts) >= 3 else (pins.get("graph") or pins.get("runner_id") or "")
             dataset = parts[3] if len(parts) >= 4 else (pins.get("dataset") or "")
-            runner_type = parts[4] if len(parts) >= 5 else "graph"
+            runner_type = "graph"
+            extra_tokens = parts[4:] if len(parts) >= 5 else []
+            if extra_tokens and "=" not in extra_tokens[0]:
+                runner_type = extra_tokens[0]
+                extra_tokens = extra_tokens[1:]
+            kv = {k.strip().lower(): v.strip() for k, v in [p.split("=", 1) for p in extra_tokens if "=" in p]}
+            tuning_dataset = kv.get("tuning", "")
+            test_dataset = kv.get("test", "")
+            split_ratio = None
+            if kv.get("split"):
+                try:
+                    split_ratio = float(kv["split"])
+                except Exception:
+                    split_ratio = None
+            split_seed = 42
+            if kv.get("seed"):
+                try:
+                    split_seed = int(kv["seed"])
+                except Exception:
+                    split_seed = 42
             if not runner_id or not dataset:
-                return "Usage: /create experiment [runner_id] [dataset] [runner_type]\nTip: pin defaults via `/pin graph <id>` and `/pin dataset <file>`."
-            return create_experiment(runner_id, dataset, runner_type)
+                return "Usage: /create experiment [runner_id] [dataset] [runner_type] [tuning=<file>] [test=<file>] [split=<0.8>] [seed=<42>]\nTip: pin defaults via `/pin graph <id>` and `/pin dataset <file>`."
+            return create_experiment(
+                runner_id,
+                dataset,
+                runner_type,
+                tuning_dataset=tuning_dataset,
+                test_dataset=test_dataset,
+                split_ratio=split_ratio,
+                split_seed=split_seed,
+            )
 
     if c0 == "/copy" and len(parts) >= 4:
         sub = parts[1].lower()
@@ -1603,11 +1996,21 @@ def execute_slash_command(cmd: str, session: Dict[str, Any] | None = None, llm_i
 
     if c0 == "/optimize" and len(parts) >= 2:
         exp_id = parts[1]
-        try:
-            max_updates = int(parts[2]) if len(parts) >= 3 else 1
-        except ValueError:
-            max_updates = 1
-        return start_optimize_loop(exp_id, max_updates=max_updates)
+        max_updates = 1
+        extra_tokens = parts[2:] if len(parts) >= 3 else []
+        if extra_tokens and "=" not in extra_tokens[0]:
+            try:
+                max_updates = int(extra_tokens[0])
+            except ValueError:
+                max_updates = 1
+            extra_tokens = extra_tokens[1:]
+        kv = {k.strip().lower(): v.strip() for k, v in [p.split("=", 1) for p in extra_tokens if "=" in p]}
+        return start_optimize_loop(
+            exp_id,
+            max_updates=max_updates,
+            tuning_dataset=kv.get("tuning", ""),
+            test_dataset=kv.get("test", ""),
+        )
 
     if c0 == "/orchestrate":
         goal = raw[len("/orchestrate") :].strip()
@@ -1626,6 +2029,7 @@ def command_catalog() -> List[Dict[str, str]]:
         {"cmd": "/pin dataset cid_dev_2samples.csv", "desc": "Pin default dataset"},
         {"cmd": "/dryrun /create experiment", "desc": "Preview command execution"},
         {"cmd": "/create experiment", "desc": "Create experiment using pinned defaults"},
+        {"cmd": "/create experiment wf_demo source.csv graph split=0.8 seed=42", "desc": "Create exp with auto train/test split"},
         {"cmd": "/clean exp <exp_id>", "desc": "Delete exp meta + result folder"},
         {"cmd": "/clean exp all", "desc": "Delete all experiments and results"},
         {"cmd": "/backup exp <exp_id>", "desc": "Move exp out of active UI list"},

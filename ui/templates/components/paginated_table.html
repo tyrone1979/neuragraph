@@ -6,7 +6,8 @@
     per_page=20,
     total=None,
     base_url='',
-    extra_params={}
+    extra_params={},
+    safe_columns=[]
 ) %}
 {% set total_items = total or items|length %}
 {% set total_pages = (total_items / per_page)|round(0, 'ceil')|int %}
@@ -36,14 +37,10 @@
                 {% if col in item %}
                     {% set value = item[col] %}
 
-                    {% if value is string %}
-                        {% if '<' in value and '>' in value %}
-                            <!-- 包含HTML标签，不截断 -->
-                            {{ value|safe }}
-                        {% else %}
-                            <!-- 普通文本，可以截断 -->
-                            {{ value|truncate(100) }}
-                        {% endif %}
+                    {% if col in safe_columns %}
+                        {{ value|safe }}
+                    {% elif value is string %}
+                        {{ value|truncate(100, True) }}
                     {% elif value is mapping %}
                         <!-- 字典类型 -->
                         <span class="text-muted">Dict ({{ value|length }} keys)</span>

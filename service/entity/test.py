@@ -216,6 +216,20 @@ class TestLoader(EntityLoader):
         return csv_file
 
     @staticmethod
+    def sample_csv_rows(
+        agent_id: str,
+        source_file: str,
+        output_file: str,
+        *,
+        size: int,
+        seed: int = 42,
+    ) -> dict[str, Any]:
+        from service.dataset_cid import sample_agent_csv_dataset
+        return sample_agent_csv_dataset(
+            agent_id, source_file, output_file, size=size, seed=seed
+        )
+
+    @staticmethod
     def save(agent_id: str, test_id: str, data: dict):
         """保存测试数据集到CSV文件"""
         # 确保agent目录存在

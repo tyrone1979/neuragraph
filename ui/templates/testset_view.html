@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<nav class="navbar navbar-dark bg-primary mb-3">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand" href="{{ url_for('testset.list_tests') }}">← Back to Dataset Manager</a>
+  </div>
+</nav>
+
+<div class="container-fluid px-3">
+  <h3>Structured Dataset: {{ filename }}</h3>
+  <p class="text-muted">Runner: <code>{{ runner_id }}</code> · {{ total }} rows</p>
+
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered bg-white">
+      <thead class="table-secondary">
+        <tr>
+          <th>#</th>
+          {% for f in fields %}
+          <th>{{ f }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in items %}
+        <tr>
+          <td>{{ loop.index + (page - 1) * per_page }}</td>
+          {% for f in fields %}
+          <td style="max-width:420px; word-break:break-word;">
+            {% set val = row.get(f, '') %}
+            {% if val|string|length > 240 %}
+              <details>
+                <summary>{{ val|string|truncate(120, True) }}</summary>
+                <pre class="small mb-0 mt-2">{{ val }}</pre>
+              </details>
+            {% else %}
+              {{ val }}
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% set total_pages = ((total + per_page - 1) // per_page) if per_page else 1 %}
+  {% if total_pages > 1 %}
+  <nav>
+    <ul class="pagination justify-content-center">
+      {% for p in range(1, total_pages + 1) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link" href="{{ url_for('testset.view_structured', runner_id=runner_id, filename=filename, page=p, per_page=per_page) }}">{{ p }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

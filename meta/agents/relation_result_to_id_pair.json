@@ -1,0 +1,16 @@
+{
+  "name": "Relation Result -> ID Pair",
+  "type": "PGM",
+  "inputs": [
+    "result",
+    "head_id",
+    "tail_id"
+  ],
+  "outputs": {
+    "name": "relations",
+    "type": "list"
+  },
+  "process": "result = state.get('result')\nhid = state.get('head_id') or ''\ntid = state.get('tail_id') or ''\ntext = state.get('text') or ''\nhead = state.get('head') or ''\ntail = state.get('tail') or ''\n\nif result == '$' and hid and tid:\n    text_lower = text.lower()\n    head_lower = head.lower()\n    tail_lower = tail.lower()\n    \n    # Negation guard: if text explicitly negates causation near head or tail, override\n    negation_phrases = [\n        'did not cause', 'did not induce', 'did not result', 'did not lead',\n        'no effect', 'not associated', 'not cause', 'not induce',\n        'not result in', 'not lead to', 'failed to', 'unable to',\n        'no evidence', 'not significant', 'does not cause', 'does not induce'\n    ]\n    override = False\n    for phrase in negation_phrases:\n        idx = text_lower.find(phrase)\n        if idx == -1:\n            continue\n        for term in [head_lower, tail_lower]:\n            if not term:\n                continue\n            tidx = text_lower.find(term)\n            if tidx == -1:\n                continue\n            if abs(idx - tidx) <= 50:\n                override = True\n                break\n        if override:\n            break\n    \n    if not override:\n        # Relaxed associative guard: only override if phrase within 30 chars\n        associative_phrases = [\n            'associated with', 'linked to', 'correlated with', 'related to',\n            'risk factor', 'risk of', 'presumably', 'suggest', 'may', 'could',\n            'possible', 'might', 'co-occurrence'\n        ]\n        for phrase in associative_phrases:\n            idx = text_lower.find(phrase)\n            if idx == -1:\n                continue\n            for term in [head_lower, tail_lower]:\n                if not term:\n                    continue\n                tidx = text_lower.find(term)\n                if tidx == -1:\n                    continue\n                if abs(idx - tidx) <= 30:\n                    override = True\n                    break\n            if override:\n                break\n    \n    if override:\n        __result__ = []\n    else:\n        __result__ = [f\"{hid} | {tid}\"]\nelse:\n    __result__ = []",
+  "created_at": "2026-05-29T08:00:00",
+  "engine": "pgm"
+}

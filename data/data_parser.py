@@ -169,7 +169,7 @@ class CIDParser(DataParser):
         return {
             'doc_id': doc_id,
             'title': art.title,
-            'abstract': art.abstr,
+            'abstract': art.abstract,
             'entities': entities,
             'relations': relations
         }

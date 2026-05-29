@@ -38,9 +38,9 @@ def ensure_cid_dataset(tests_data_dir: Path) -> None:
     if ner_csv.is_file() and re_csv.is_file():
         return
 
-    dev_path = tests_data_dir.parent / "dev.txt"
+    dev_path = tests_data_dir.parent / "data" / "raw" / "dev.txt"
     if not dev_path.is_file():
-        dev_path = Path(__file__).resolve().parent.parent / "dev.txt"
+        dev_path = Path(__file__).resolve().parent.parent / "data" / "raw" / "dev.txt"
     text = dev_path.read_text(encoding="utf-8")
     articles = CIDParser(text).get_articles()[:2]
     if len(articles) < 2:

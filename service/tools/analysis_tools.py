@@ -529,6 +529,65 @@ def dataset_sampler_stratified(
     }
 
 
+def dataset_cid_tuning_build(
+    runner_id: str = "wf_cid_re_llm_linear",
+    *,
+    source: str = "data/raw/dev.txt",
+    size: int = 20,
+    tuning_out: str = "",
+    test_out: str = "",
+    write_test_remain: bool = True,
+    mirror_ner: bool = True,
+) -> dict[str, Any]:
+    """Build stratified CID tuning CSV (+ optional test remain) from PubTator gold source."""
+    from service.dataset_cid import build_tuning_dataset
+
+    return build_tuning_dataset(
+        runner_id,
+        source=source or None,
+        size=int(size or 20),
+        tuning_out=tuning_out or None,
+        test_out=test_out or None,
+        write_test_remain=bool(write_test_remain),
+        mirror_ner=bool(mirror_ner),
+    )
+
+
+def dataset_cid_test_extract(
+    runner_id: str = "wf_cid_re_llm_linear",
+    output: str = "",
+    *,
+    source: str = "data/raw/dev.txt",
+    mode: str = "remain",
+    size: int | None = None,
+    pmids: list[str] | str | None = None,
+    exclude_tuning: str = "",
+    exclude_runner: str = "",
+    seed: int = 42,
+    mirror_ner: bool = True,
+) -> dict[str, Any]:
+    """Extract a CID test CSV from PubTator gold source."""
+    from service.dataset_cid import extract_test_dataset
+
+    if not output:
+        raise ValueError("output filename is required")
+    pmid_list = pmids
+    if isinstance(pmid_list, str):
+        pmid_list = [p.strip() for p in pmid_list.split(",") if p.strip()]
+    return extract_test_dataset(
+        runner_id,
+        output if output.lower().endswith(".csv") else f"{output}.csv",
+        source=source or None,
+        mode=mode or "remain",
+        size=size,
+        pmids=pmid_list or None,
+        exclude_tuning_file=exclude_tuning or None,
+        exclude_tuning_runner=exclude_runner or runner_id,
+        seed=int(seed or 42),
+        mirror_ner=bool(mirror_ner),
+    )
+
+
 def error_case_exporter(states: dict | str, worst_k: int = 10) -> dict[str, Any]:
     obj = _to_obj(states) or {}
     rows = []

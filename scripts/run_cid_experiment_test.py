@@ -21,7 +21,7 @@ from service.meta.loader import MetaLoader  # noqa: E402
 from langchain_core.runnables import RunnableConfig  # noqa: E402
 from utils.conversion import jsonify_state  # noqa: E402
 
-DEV_TXT = ROOT / "dev.txt"
+DEV_TXT = ROOT / "data" / "raw" / "dev.txt"
 DATASET_NAME = "cid_dev_2samples.csv"
 NER_RUNNER = "wf_cid_ner_llm_eval"
 RE_RUNNER = "wf_cid_re_llm_linear"

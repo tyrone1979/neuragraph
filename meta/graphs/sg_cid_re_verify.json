@@ -4,7 +4,7 @@
   "nodes": [
     "START",
     "relation_verify_llm",
-    "relation_verify_to_id_pair",
+    "relation_result_to_id_pair",
     "END"
   ],
   "edges": [
@@ -14,10 +14,10 @@
     ],
     [
       "relation_verify_llm",
-      "relation_verify_to_id_pair"
+      "relation_result_to_id_pair"
     ],
     [
-      "relation_verify_to_id_pair",
+      "relation_result_to_id_pair",
       "END"
     ]
   ],
@@ -27,7 +27,7 @@
       "head": "{{ head }}",
       "tail": "{{ tail }}"
     },
-    "relation_verify_to_id_pair": {
+    "relation_result_to_id_pair": {
       "result": "{{ result }}",
       "head_id": "{{ head_id }}",
       "tail_id": "{{ tail_id }}"

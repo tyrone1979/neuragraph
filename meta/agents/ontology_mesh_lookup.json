@@ -1,0 +1,16 @@
+{
+  "name": "MeSH Synonym/Hypernym Lookup (PGM)",
+  "type": "PGM",
+  "inputs": [
+    "query",
+    "limit",
+    "match"
+  ],
+  "outputs": {
+    "name": "mesh_ontology",
+    "type": "dict"
+  },
+  "process": "mesh = get_plugin('MeSHLookup')\nquery = (state.get('query') or state.get('text') or '').strip()\nlimit = state.get('limit') or 3\nmatch = (state.get('match') or 'contains').strip()\nif not query:\n    __result__ = {'query': query, 'matches': [], 'error': \"Missing 'query'\"}\nelif not mesh:\n    __result__ = {'query': query, 'matches': [], 'error': 'MeSHLookup plugin unavailable'}\nelse:\n    try:\n        descriptors = mesh.lookup_descriptors(query, limit=limit, match=match)\n        rows = []\n        for d in descriptors:\n            mesh_id = d.get('mesh_id') or ''\n            synonyms = mesh.get_synonyms(mesh_id) if mesh_id else []\n            hypernyms = mesh.get_hypernyms(mesh_id) if mesh_id else []\n            rows.append({\n                'mesh_id': mesh_id,\n                'label': d.get('label') or '',\n                'resource': d.get('resource') or '',\n                'synonyms': synonyms,\n                'hypernyms': hypernyms\n            })\n        __result__ = {'query': query, 'matches': rows}\n    except Exception as e:\n        __result__ = {'query': query, 'matches': [], 'error': str(e)}",
+  "created_at": "2026-05-29T07:55:00",
+  "engine": "pgm"
+}
