@@ -258,5 +258,96 @@ def create_graph(agent,checkpointer=None):
     return sg.compile(checkpointer=checkpointer)
 
 
+def effective_agent_versions(
+    graphs_cfg: Dict[str, Any] | None,
+    root_graph_id: str,
+) -> Dict[str, str]:
+    """Merged pin map: root workflow agentVersions apply to subgraph agents too."""
+    graphs_cfg = graphs_cfg or {}
+    root = graphs_cfg.get(root_graph_id) or {}
+    pins: Dict[str, str] = dict(root.get("agentVersions") or {})
+    for gid, g in graphs_cfg.items():
+        if gid == root_graph_id:
+            continue
+        for agent_id, version in (g.get("agentVersions") or {}).items():
+            pins.setdefault(str(agent_id), str(version))
+    return pins
 
+
+def resolve_report_agent_versions(
+    graphs_cfg: Dict[str, Any] | None,
+    agents_cfg: Dict[str, Any] | None,
+    *,
+    root_graph_id: str = "",
+) -> Dict[str, Any]:
+    """Version map for reports/UI; subgraph agents inherit root workflow pins."""
+    graphs_cfg = graphs_cfg or {}
+    agents_cfg = agents_cfg or {}
+    if not root_graph_id:
+        root_graph_id = next(iter(graphs_cfg), "")
+    effective = effective_agent_versions(graphs_cfg, root_graph_id)
+    by_graph: Dict[str, Any] = {}
+    for gid, g in graphs_cfg.items():
+        resolved: Dict[str, str] = {}
+        for node_id in (g or {}).get("nodes", []):
+            if node_id in ("START", "END"):
+                continue
+            if MetaLoader.load("graphs", node_id):
+                continue
+            if node_id not in agents_cfg:
+                continue
+            resolved[node_id] = effective.get(node_id) or "current"
+        by_graph[gid] = {
+            "pinned": dict((g or {}).get("agentVersions") or {}),
+            "resolved": resolved,
+            "is_subgraph": gid != root_graph_id,
+            "parent_graph_id": root_graph_id if gid != root_graph_id else "",
+        }
+    return {
+        "root_graph_id": root_graph_id,
+        "effective": effective,
+        "by_graph": by_graph,
+    }
+
+
+def build_workflow_agent_roster(
+    runner_id: str,
+    graphs_cfg: Dict[str, Any] | None = None,
+) -> list[dict[str, str]]:
+    """Flat agent roster with effective pinned versions (incl. subgraph agents)."""
+    rid = str(runner_id or "").strip()
+    if not rid:
+        return []
+    graphs_cfg = graphs_cfg if graphs_cfg is not None else (GraphMetaLoader.load(rid) or {})
+    if not graphs_cfg:
+        agent_meta = MetaLoader.load("agents", rid)
+        if agent_meta:
+            return [
+                {
+                    "agent_id": rid,
+                    "name": str(agent_meta.get("name") or rid),
+                    "version": "current",
+                    "graph_id": "",
+                }
+            ]
+        return []
+    effective = effective_agent_versions(graphs_cfg, rid)
+    roster: dict[str, dict[str, str]] = {}
+    for gid, g in graphs_cfg.items():
+        is_sub = gid != rid
+        for node in (g or {}).get("nodes", []):
+            if node in ("START", "END"):
+                continue
+            if MetaLoader.load("graphs", node):
+                continue
+            am = MetaLoader.load("agents", node)
+            if not am:
+                continue
+            roster[node] = {
+                "agent_id": node,
+                "name": str(am.get("name") or node),
+                "version": str(effective.get(node) or "current"),
+                "graph_id": gid if is_sub else "",
+            }
+    return sorted(roster.values(), key=lambda x: x["agent_id"])
 

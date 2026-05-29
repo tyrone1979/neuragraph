@@ -25,7 +25,9 @@ from service.experiment_optimize import (
     _now_tag,
     _resolve_dual_datasets,
     _restore_agents_after_negative_delta,
+    _load_rows,
     _run_experiment,
+    _run_experiment_with_progress,
     _run_refiner,
     _score_report_quality,
     _set_flow_step,
@@ -182,6 +184,11 @@ def optimization_flow_state(exp_id: str) -> dict[str, Any]:
     flow_steps = _flow_from_context(exp_id, exp_cfg, tuning, test)
     ready = _baseline_test_ready(exp_cfg, test)
     report_ready = _baseline_report_ready(exp_id)
+    ctx = load_opt_context(exp_id)
+    optimization_summary = None
+    if ctx.get("optimize_rounds_done"):
+        optimization_summary = _build_summary(exp_id, exp_cfg, tuning, test, ctx, flow_steps)
+    tune_id = str(ctx.get("baseline_tune_exp_id") or "")
     return {
         "exp_id": exp_id,
         "baseline_test_ready": ready,
@@ -191,8 +198,11 @@ def optimization_flow_state(exp_id: str) -> dict[str, Any]:
         "tuning_dataset": tuning,
         "test_dataset": test,
         "baseline_test_metrics": _avg_metrics(exp_id) if ready else {},
+        "baseline_tuning_exp_id": tune_id,
+        "baseline_tuning_metrics": _avg_metrics(tune_id) if tune_id else {},
         "flow_steps": flow_steps,
-        "context": load_opt_context(exp_id),
+        "context": ctx,
+        "optimization_summary": optimization_summary,
     }
 
 
@@ -226,9 +236,10 @@ def run_optimization_step(
         flow_step: str = "",
         flow_status: str = "",
         flow_detail: str = "",
+        **extra: Any,
     ) -> None:
         if flow_step and flow_status:
-            _set_flow_step(flow_steps, flow_step, flow_status, flow_detail)
+            _set_flow_step(flow_steps, flow_step, flow_status, flow_detail or message)
         if progress_cb:
             progress_cb(
                 {
@@ -237,7 +248,9 @@ def run_optimization_step(
                     "message": message,
                     "flow_step": flow_step,
                     "flow_status": flow_status,
+                    "flow_detail": flow_detail or message,
                     "flow_steps": [dict(s) for s in flow_steps],
+                    **extra,
                 }
             )
 
@@ -280,14 +293,25 @@ def run_optimization_step(
             runner_type=str(baseline_cfg.get("runner_type") or "graph"),
         )
         MetaLoader.dump("exps", tune_id, tune_cfg)
-        emit(20, "baseline_tuning", "Running tuning baseline", flow_step="baseline_tuning", flow_status="running")
-        _run_experiment(tune_cfg)
         ctx["baseline_tune_exp_id"] = tune_id
         ctx["tag"] = ctx.get("tag") or _now_tag()
         save_opt_context(exp_id, ctx)
-        _set_flow_step(flow_steps, "baseline_tuning", "done", f"Completed {tune_id}")
-        emit(100, "baseline_tuning_done", "Tuning baseline done", flow_step="baseline_tuning", flow_status="done")
-        return {"step_id": step_id, "flow_steps": flow_steps, "baseline_tune_exp_id": tune_id}
+        _set_flow_step(flow_steps, "baseline_tuning", "running", f"Streaming {tune_id}")
+        emit(
+            0,
+            "baseline_tuning",
+            "Ready to stream tuning baseline",
+            flow_step="baseline_tuning",
+            flow_status="running",
+            flow_detail=f"Streaming {tune_id}",
+        )
+        return {
+            "step_id": step_id,
+            "needs_stream": True,
+            "stream_exp_id": tune_id,
+            "flow_steps": flow_steps,
+            "baseline_tune_exp_id": tune_id,
+        }
 
     if step_id == "baseline_tuning_report":
         tune_id = str(ctx.get("baseline_tune_exp_id") or "")
@@ -355,6 +379,60 @@ def run_optimization_step(
             cumulative_version_map = {}
             start_idx = 1
 
+        samples_per_run = max(1, len(_load_rows(base_runner, active_tuning)))
+        completed_units = 0.0
+        total_units = float(max(1, total_rounds) * samples_per_run)
+
+        def _optimize_progress_emit(
+            units_done: float,
+            message: str,
+            *,
+            flow_detail: str = "",
+            sample_index: int | None = None,
+            sample_total: int | None = None,
+            round_index: int | None = None,
+        ) -> None:
+            pct = 5 + int(min(1.0, units_done / max(1.0, total_units)) * 90)
+            emit(
+                pct,
+                "optimize_rounds",
+                message,
+                flow_step="optimize_rounds",
+                flow_status="running",
+                flow_detail=flow_detail or message,
+                sample_index=sample_index,
+                sample_total=sample_total,
+                round_index=round_index,
+                round_total=total_rounds,
+            )
+
+        def _run_round_experiment(exp_cfg: dict[str, Any], round_idx: int, phase: str) -> None:
+            nonlocal completed_units, total_units
+
+            def sample_cb(evt: dict[str, Any]) -> None:
+                sample_done = float(evt.get("completed_samples") or 0)
+                units = completed_units + sample_done
+                _optimize_progress_emit(
+                    units,
+                    evt.get("message") or f"Round {round_idx}/{total_rounds}: {phase}",
+                    flow_detail=f"Round {round_idx}/{total_rounds} · {phase}",
+                    sample_index=evt.get("sample_index"),
+                    sample_total=evt.get("sample_total"),
+                    round_index=round_idx,
+                )
+
+            _run_experiment_with_progress(
+                exp_cfg,
+                progress_cb=sample_cb,
+                meta={
+                    "round_index": round_idx,
+                    "round_total": total_rounds,
+                    "phase": phase,
+                    "stage": "optimize_rounds",
+                },
+            )
+            completed_units += float(samples_per_run)
+
         for idx, mod in enumerate(modifications, start=1):
             if idx < start_idx:
                 continue
@@ -363,13 +441,11 @@ def run_optimization_step(
             prev_best_report = current_best_report
             prev_best_metrics = dict(current_best_metrics)
             prev_best_report_score = dict(current_best_report_score)
-            emit(
-                5 + int((idx - 1) * 90 / max(1, total_rounds)),
-                "round_apply",
+            _optimize_progress_emit(
+                completed_units,
                 f"Round {idx}/{total_rounds}: {target_agent}",
-                flow_step="optimize_rounds",
-                flow_status="running",
                 flow_detail=f"Round {idx}/{total_rounds}",
+                round_index=idx,
             )
             _vmap, originals, applied = _apply_modifications(
                 [mod], max_updates=1, change_note_prefix=f"opt_loop {tag} r{idx}"
@@ -395,7 +471,7 @@ def run_optimization_step(
             )
             MetaLoader.dump("exps", candidate_exp_id, candidate_cfg)
             try:
-                _run_experiment(candidate_cfg)
+                _run_round_experiment(candidate_cfg, idx, "candidate")
                 candidate_payload = _build_report_payload(candidate_exp_id, candidate_cfg)
                 candidate_report = _generate_report(candidate_payload)
                 _write_text(ROOT / "result" / candidate_exp_id / "report.md", candidate_report)
@@ -436,7 +512,8 @@ def run_optimization_step(
                                 runner_type=str(baseline_cfg.get("runner_type") or "graph"),
                             )
                             MetaLoader.dump("exps", pinned_exp_id, pinned_cfg)
-                            _run_experiment(pinned_cfg)
+                            total_units += float(samples_per_run)
+                            _run_round_experiment(pinned_cfg, idx, "pinned verify")
                             pinned_payload = _build_report_payload(pinned_exp_id, pinned_cfg)
                             pinned_report = _generate_report(pinned_payload)
                             _write_text(ROOT / "result" / pinned_exp_id / "report.md", pinned_report)
@@ -522,8 +599,23 @@ def run_optimization_step(
         accepted_total = sum(1 for r in rounds if r.get("accepted"))
         detail = f"{accepted_total} accepted of {total_rounds}"
         _set_flow_step(flow_steps, "optimize_rounds", "done", detail)
-        emit(100, "optimize_rounds_done", detail, flow_step="optimize_rounds", flow_status="done", flow_detail=detail)
-        return {"step_id": step_id, "flow_steps": flow_steps, "rounds": rounds, "accepted_total": accepted_total}
+        summary = _build_summary(exp_id, baseline_cfg, active_tuning, active_test, ctx, flow_steps)
+        emit(
+            100,
+            "optimize_rounds_done",
+            detail,
+            flow_step="optimize_rounds",
+            flow_status="done",
+            flow_detail=detail,
+            summary=summary,
+        )
+        return {
+            "step_id": step_id,
+            "flow_steps": flow_steps,
+            "rounds": rounds,
+            "accepted_total": accepted_total,
+            "summary": summary,
+        }
 
     if step_id == "final_test":
         cumulative_version_map = dict(ctx.get("cumulative_version_map") or {})
@@ -551,8 +643,27 @@ def run_optimization_step(
             runner_type=str(baseline_cfg.get("runner_type") or "graph"),
         )
         MetaLoader.dump("exps", final_exp_id, final_cfg)
-        emit(50, "final_test", "Running optimized workflow on test dataset", flow_step="final_test", flow_status="running")
-        _run_experiment(final_cfg)
+        emit(5, "final_test", "Running optimized workflow on test dataset", flow_step="final_test", flow_status="running")
+
+        def _final_test_progress(evt: dict[str, Any]) -> None:
+            emit(
+                min(95, int(evt.get("progress") or 5)),
+                "final_test",
+                evt.get("message") or "Running optimized test",
+                flow_step="final_test",
+                flow_status="running",
+                flow_detail=evt.get("message") or "Running optimized test",
+                sample_index=evt.get("sample_index"),
+                sample_total=evt.get("sample_total"),
+            )
+
+        _run_experiment_with_progress(
+            final_cfg,
+            progress_cb=_final_test_progress,
+            progress_base=5,
+            progress_span=90,
+            meta={"stage": "final_test", "phase": "Optimized test"},
+        )
         ctx["final_graph_id"] = final_graph_id
         ctx["optimized_test_exp_id"] = final_exp_id
         save_opt_context(exp_id, ctx)
@@ -606,6 +717,7 @@ def _build_summary(
         "tuning_dataset": active_tuning,
         "test_dataset": active_test,
         "baseline_test_metrics": _avg_metrics(exp_id),
+        "baseline_tuning_metrics": _avg_metrics(tune_id) if tune_id else {},
         "baseline_test_report_path": str(_baseline_test_report_path(exp_id)),
         "baseline_tuning_report_path": str(ctx.get("baseline_tuning_report_path") or ""),
         "optimized_test_exp_id": optimized_test_exp_id,

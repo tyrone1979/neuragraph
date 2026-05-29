@@ -124,8 +124,12 @@ runner_selector %} {% block content %}
           <button type="button" class="btn btn-primary btn-sm" id="runTuningTabBtn">Run Tuning Pipeline</button>
         </div>
         <div id="optimizationFlowTuning" class="optimization-flow mb-3"></div>
-        <div class="wizard-result-panel">
-          <h6 class="small text-muted mb-2">Optimization Summary</h6>
+        <div class="wizard-result-panel mb-3 d-none" id="tuningBaselineReportPanel">
+          <h6 class="small text-muted mb-2">Tuning Baseline Report</h6>
+          <div id="tuningBaselineReportMarkdown" class="markdown-body overflow-auto report-markdown-wrap p-3 border rounded"></div>
+        </div>
+        <div class="wizard-result-panel d-none" id="optimizationSummaryPanel">
+          <h6 class="small text-muted mb-2">Optimize Loop Result</h6>
           <div id="optimizationResult"></div>
         </div>
       </div>

@@ -19,6 +19,7 @@ from service.entity.test import TestLoader
 from service.meta.agent_version import AgentVersionStore
 from service.meta.loader import GraphMetaLoader, MetaLoader
 from service.result.loader import ResultLoader, compact_states_for_report, iter_sample_indices
+from utils.graphutils import resolve_report_agent_versions
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -294,6 +295,17 @@ def _ensure_dataset_for_candidate(
 
 
 def _run_experiment(exp_cfg: dict[str, Any]) -> None:
+    _run_experiment_with_progress(exp_cfg, progress_cb=None)
+
+
+def _run_experiment_with_progress(
+    exp_cfg: dict[str, Any],
+    progress_cb: Callable[[dict[str, Any]], None] | None = None,
+    *,
+    progress_base: int = 0,
+    progress_span: int = 100,
+    meta: dict[str, Any] | None = None,
+) -> None:
     runner_id = exp_cfg["runner_id"]
     exp_id = exp_cfg["exp_id"]
     dataset = exp_cfg["dataset"]
@@ -302,7 +314,42 @@ def _run_experiment(exp_cfg: dict[str, Any]) -> None:
     if runner is None:
         raise RuntimeError(f"Runner not found: {runner_id}")
 
+    total = len(rows)
+    meta = dict(meta or {})
+
+    def _emit_sample(completed: int, *, running_idx: int | None = None) -> None:
+        if not progress_cb:
+            return
+        done = min(max(completed, 0), total)
+        pct = progress_base + (
+            int(done / max(1, total) * progress_span) if total else progress_span
+        )
+        msg_parts: list[str] = []
+        if meta.get("round_index") and meta.get("round_total"):
+            msg_parts.append(f"Round {meta['round_index']}/{meta['round_total']}")
+        if meta.get("phase"):
+            msg_parts.append(str(meta["phase"]))
+        if running_idx is not None:
+            msg_parts.append(f"Sample {running_idx}/{total}")
+        elif done < total:
+            msg_parts.append(f"Sample {done + 1}/{total}")
+        else:
+            msg_parts.append(f"Sample {done}/{total}")
+        progress_cb(
+            {
+                "progress": min(progress_base + progress_span, pct),
+                "stage": meta.get("stage", "run_experiment"),
+                "message": ": ".join(msg_parts),
+                "sample_index": running_idx or done,
+                "sample_total": total,
+                "completed_samples": done,
+                "round_index": meta.get("round_index"),
+                "round_total": meta.get("round_total"),
+            }
+        )
+
     for idx, row in enumerate(rows, start=1):
+        _emit_sample(idx - 1, running_idx=idx)
         config: RunnableConfig = {"configurable": {"thread_id": f"{exp_id}_{idx}"}}
         payload = dict(row)
         if hasattr(runner, "compiled_graph"):
@@ -312,9 +359,10 @@ def _run_experiment(exp_cfg: dict[str, Any]) -> None:
 
     exp_cfg["status"] = "completed"
     exp_cfg["progress"] = 100
-    exp_cfg["samples"] = len(rows)
+    exp_cfg["samples"] = total
     MetaLoader.dump("exps", exp_id, exp_cfg)
     RunnerLoader.persistence(exp_cfg)
+    _emit_sample(total)
 
 
 def _load_report_agents(graphs_cfg: dict[str, dict]) -> dict[str, dict]:
@@ -324,30 +372,15 @@ def _load_report_agents(graphs_cfg: dict[str, dict]) -> dict[str, dict]:
     return agents
 
 
-def _resolve_report_agent_versions(
-    graphs_cfg: dict[str, dict], agents_cfg: dict[str, dict]
-) -> dict[str, dict]:
-    out: dict[str, dict] = {}
-    for gid, g in (graphs_cfg or {}).items():
-        pinned = (g or {}).get("agentVersions") or {}
-        resolved: dict[str, str] = {}
-        for node_id in (g or {}).get("nodes", []):
-            if node_id in ("START", "END"):
-                continue
-            if node_id not in agents_cfg:
-                continue
-            resolved[node_id] = pinned.get(node_id) or "current"
-        out[gid] = {"pinned": pinned, "resolved": resolved}
-    return out
-
-
 def _build_report_payload(exp_id: str, exp_cfg: dict[str, Any]) -> dict[str, Any]:
     runner_id = exp_cfg.get("runner_id")
     graphs_cfg: dict[str, dict] = {}
     if runner_id:
         graphs_cfg = GraphMetaLoader.load(runner_id) or {}
     agents_cfg = _load_report_agents(graphs_cfg)
-    agent_versions = _resolve_report_agent_versions(graphs_cfg, agents_cfg)
+    agent_versions = resolve_report_agent_versions(
+        graphs_cfg, agents_cfg, root_graph_id=str(runner_id or "")
+    )
     raw_states = ResultLoader.load(exp_id) or {}
     states = compact_states_for_report(raw_states)
     return {

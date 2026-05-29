@@ -10,7 +10,7 @@ function renderRunnerAgentRoster(agents) {
       <tr>
         <td>
           <code class="small">${escHtml(a.agent_id || '')}</code>
-          <div class="text-muted" style="font-size:.75rem">${escHtml(a.name || '')}</div>
+          <div class="text-muted" style="font-size:.75rem">${escHtml(a.name || '')}${a.graph_id ? ` · <span class="text-monospace">${escHtml(a.graph_id)}</span>` : ''}</div>
         </td>
         <td><code class="small">${escHtml(a.version || 'current')}</code></td>
       </tr>
@@ -176,6 +176,9 @@ function refreshWizardTabContent(tabId) {
     if (!id || id === 'Not saved yet') return;
     if (tabId === 'baseline') {
         loadSavedReportMarkdown(id, '#baselineReportMarkdown', 'report_baseline_test.md');
+    }
+    if (tabId === 'tuning') {
+        updateTuningTabPanels(window._lastFlowSteps, window._lastOptimizationSummary || window._lastPreflightResp);
     }
     if (tabId === 'final') {
         const ctx = window._lastOptimizationSummary;
@@ -529,7 +532,8 @@ function start_task(exp_id){
     });
 }
 
-function complete_task(exp_id, progress, status) {
+function complete_task(exp_id, progress, status, options = {}) {
+    const progressSelector = options.progressSelector || '#overallProgress';
     if (status !== 'failed') {
         status = 'completed';
     }
@@ -543,8 +547,16 @@ function complete_task(exp_id, progress, status) {
                 alert('Save Failed: ' + (resp.error || 'unknown error'));
                 return;
             }
-            updateProgress(progress);
+            updateProgress(progress, progressSelector);
             if (status === 'completed') {
+                if (window._baselineTuningStreamResolve) {
+                    const resolve = window._baselineTuningStreamResolve;
+                    window._baselineTuningStreamResolve = null;
+                    window._baselineTuningStreamReject = null;
+                    onBaselineTuningFinished(exp_id);
+                    resolve();
+                    return;
+                }
                 if (window._baselineStreamResolve) {
                     const resolve = window._baselineStreamResolve;
                     window._baselineStreamResolve = null;
@@ -553,8 +565,19 @@ function complete_task(exp_id, progress, status) {
                     resolve();
                     return;
                 }
-                onBaselineTestFinished(exp_id);
+                if (progressSelector === '#baselineTuningProgress') {
+                    onBaselineTuningFinished(exp_id);
+                } else {
+                    onBaselineTestFinished(exp_id);
+                }
             } else {
+                if (window._baselineTuningStreamReject) {
+                    const reject = window._baselineTuningStreamReject;
+                    window._baselineTuningStreamResolve = null;
+                    window._baselineTuningStreamReject = null;
+                    reject(new Error('Tuning baseline failed'));
+                    return;
+                }
                 if (window._baselineStreamReject) {
                     const reject = window._baselineStreamReject;
                     window._baselineStreamResolve = null;
@@ -628,12 +651,81 @@ function updateTableRow(index, data) {
     }
 }
 // 辅助函数：更新整体进度条
-function updateProgress(percent) {
-    const width = percent ;
-    $('#overallProgress')
+function updateProgress(percent, selector) {
+    const width = percent;
+    const $bar = $(selector || '#overallProgress');
+    $bar
         .css('width', width + '%')
         .text(width + '%')
-        .toggleClass('progress-bar-animated', width < 100);
+        .toggleClass('progress-bar-animated progress-bar-striped', width < 100);
+}
+
+function updateFlowStepProgress(msg, stepId) {
+    const p = Math.max(0, Math.min(100, Number(msg.progress || 0)));
+    let label = `${p}%`;
+    if (msg.sample_index && msg.sample_total) {
+        label = `${p}% · ${msg.sample_index}/${msg.sample_total}`;
+    } else if (msg.round_index && msg.round_total) {
+        label = `${p}% · R${msg.round_index}/${msg.round_total}`;
+    }
+    const selectorByStep = {
+        optimize_rounds: '#optimizationProgress',
+        final_test: '#finalTestProgress',
+    };
+    const $bar = $(selectorByStep[stepId] || '#optimizationProgress');
+    $bar.css('width', `${p}%`).text(label);
+    const activeStep = msg.flow_step || stepId;
+    if (msg.message && activeStep) {
+        _setLocalFlowStep(activeStep, 'running', msg.message);
+    }
+}
+
+function updateOptimizationProgress(msg) {
+    updateFlowStepProgress(msg, 'optimize_rounds');
+}
+
+function getTuningBaselineExpId(preflightOrSummary) {
+    const src = preflightOrSummary || {};
+    return (
+        src.baseline_tuning_exp_id
+        || (src.context && src.context.baseline_tune_exp_id)
+        || ''
+    );
+}
+
+function updateTuningTabPanels(flowSteps, preflightOrSummary) {
+    const steps = flowSteps || window._lastFlowSteps || DEFAULT_OPT_FLOW;
+    const byId = Object.fromEntries(steps.map((s) => [s.id, s]));
+    const tuneReportReady = byId.baseline_tuning_report && byId.baseline_tuning_report.status === 'done';
+    const optimizeDone = byId.optimize_rounds && (
+        byId.optimize_rounds.status === 'done' || byId.optimize_rounds.status === 'skipped'
+    );
+    const tuneExpId = getTuningBaselineExpId(preflightOrSummary);
+
+    $('#tuningBaselineReportPanel').toggleClass('d-none', !tuneReportReady);
+    if (tuneReportReady && tuneExpId) {
+        loadSavedReportMarkdown(tuneExpId, '#tuningBaselineReportMarkdown', 'report_tuning_baseline.md');
+    } else if (!tuneReportReady) {
+        $('#tuningBaselineReportMarkdown').html('<p class="text-muted p-3">Run tuning baseline report (step 4) to generate.</p>');
+    }
+
+    const hasSummary = optimizeDone && !!window._lastOptimizationSummary;
+    $('#optimizationSummaryPanel').toggleClass('d-none', !hasSummary);
+    if (hasSummary) {
+        renderStoredOptimizationSummary(window._lastOptimizationSummary);
+    } else if (!optimizeDone) {
+        $('#optimizationResult').html('');
+    }
+}
+
+function renderStoredOptimizationSummary(summary) {
+    const payload = summary || window._lastOptimizationSummary;
+    if (!payload) {
+        return;
+    }
+    window._lastOptimizationSummary = payload;
+    $('#optimizationResult').html(renderOptimizeSummary(payload));
+    renderOptimizeSummaryCharts(payload);
 }
 
 function freezeInputAndLink() {
@@ -652,46 +744,51 @@ function unfreezeInputs() {
 
 
 
-function stream(exp_id){
-    let current_process=0;
-    let current_status='pending';
+function stream(exp_id, options = {}) {
+    const progressSelector = options.progressSelector || '#overallProgress';
+    let current_process = 0;
+    let current_status = 'pending';
     let reconnectCount = 0;
     const maxReconnect = 2;
-        /* 4. 关闭旧连接 */
-    updateProgress(current_process);
-    freezeInputAndLink();
-    _setLocalFlowStep('baseline_test', 'running', 'Running baseline test...');
+    updateProgress(current_process, progressSelector);
+    if (progressSelector === '#overallProgress') {
+        freezeInputAndLink();
+        _setLocalFlowStep('baseline_test', 'running', 'Running baseline test...');
+    } else if (progressSelector === '#baselineTuningProgress') {
+        _setLocalFlowStep('baseline_tuning', 'running', 'Running tuning baseline...');
+    }
     window.agentEventSource?.close();
 
     function openStream() {
         window.agentEventSource?.close();
         window.agentEventSource = new EventSource(`/stream/run/${exp_id}`);
-        window.agentEventSource.onmessage = e => {
+        window.agentEventSource.onmessage = (e) => {
             if (e.data === '[DONE]') {
                 window.agentEventSource.close();
-                complete_task(exp_id,current_process,current_status)
+                complete_task(exp_id, current_process, current_status, { progressSelector });
                 return;
             }
             try {
-                const msg = JSON.parse(e.data);  // 后端推 JSON 更灵活
-                if(msg.status==='failed'){
-                   $('#error_message').text(msg.error);
-                   current_status='failed';
-                   updateTableRow(msg.current_index, {"status": "failed"});
-                }else{
+                const msg = JSON.parse(e.data);
+                if (msg.status === 'failed') {
+                    $('#error_message').text(msg.error);
+                    current_status = 'failed';
+                    updateTableRow(msg.current_index, { status: 'failed' });
+                } else {
                     current_status = msg.batch_status || msg.status;
-                    current_process=msg.percent;
-                    updateProgress(current_process);
-                    updateTableRow(msg.current_index, {"status": msg.status});
+                    current_process = msg.percent;
+                    updateProgress(current_process, progressSelector);
+                    if (progressSelector === '#overallProgress') {
+                        updateTableRow(msg.current_index, { status: msg.status });
+                    }
                 }
             } catch (err) {
-               console.error('SSE parse error:', err);
+                console.error('SSE parse error:', err);
             }
         };
-        window.agentEventSource.onerror = err => {
+        window.agentEventSource.onerror = (err) => {
             console.error('SSE error:', err);
             window.agentEventSource.close();
-            // Flask debug auto-reload can temporarily reset SSE; try reconnect.
             if (reconnectCount < maxReconnect) {
                 reconnectCount += 1;
                 $('#error_message').text(`SSE reconnected (${reconnectCount}/${maxReconnect})...`);
@@ -702,7 +799,6 @@ function stream(exp_id){
         };
     }
 
-    /* 6. 新开 SSE */
     openStream();
 }
 
@@ -1011,6 +1107,92 @@ function onBaselineTestFinished(expIdVal) {
     generateBaselineTestReport(expIdVal).catch(() => {});
 }
 
+function onBaselineTuningFinished(tuneExpId) {
+    _setLocalFlowStep('baseline_tuning', 'done', `Completed ${tuneExpId}`);
+}
+
+function runBaselineTuningStream(tuneExpId) {
+    return new Promise((resolve, reject) => {
+        if (!tuneExpId) {
+            reject(new Error('Missing tuning baseline experiment id'));
+            return;
+        }
+        $('#baselineTuningProgress')
+            .css('width', '0%')
+            .text('0%')
+            .addClass('progress-bar-animated progress-bar-striped');
+        window._baselineTuningStreamResolve = resolve;
+        window._baselineTuningStreamReject = reject;
+        $.ajax({
+            url: '/exp/api/update',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ exp_id: tuneExpId, status: 'running', progress: 0 }),
+            success(resp) {
+                if (!resp.success) {
+                    window._baselineTuningStreamResolve = null;
+                    window._baselineTuningStreamReject = null;
+                    reject(new Error(resp.error || 'Failed to start tuning baseline stream'));
+                    return;
+                }
+                stream(tuneExpId, { progressSelector: '#baselineTuningProgress' });
+            },
+            error(xhr) {
+                window._baselineTuningStreamResolve = null;
+                window._baselineTuningStreamReject = null;
+                reject(new Error((xhr.responseJSON && xhr.responseJSON.error) || 'Failed to start tuning baseline stream'));
+            },
+        });
+    });
+}
+
+function runBaselineTuningStep(expIdVal, datasets, force) {
+    return $.ajax({
+        url: `/exp/api/${encodeURIComponent(expIdVal)}/optimization-step/baseline_tuning`,
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            force: !!force,
+            tuning_dataset: datasets.tuning_dataset,
+            test_dataset: datasets.test_dataset,
+        }),
+    }).then((resp) => {
+        if (!resp.success) {
+            throw new Error(_flowDetailText(resp.error) || 'Tuning baseline prepare failed');
+        }
+        if (resp.flow_steps) {
+            renderOptimizationFlow(resp.flow_steps);
+        }
+        if (resp.needs_stream && resp.stream_exp_id) {
+            _setLocalFlowStep('baseline_tuning', 'running', `Streaming ${resp.stream_exp_id}`);
+            return runBaselineTuningStream(resp.stream_exp_id).then(() => $.ajax({
+                url: `/exp/api/${encodeURIComponent(expIdVal)}/optimization-step/baseline_tuning`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    force: false,
+                    tuning_dataset: datasets.tuning_dataset,
+                    test_dataset: datasets.test_dataset,
+                }),
+            })).then((finalizeResp) => {
+                if (!finalizeResp.success) {
+                    throw new Error(_flowDetailText(finalizeResp.error) || 'Tuning baseline finalize failed');
+                }
+                if (finalizeResp.flow_steps) {
+                    renderOptimizationFlow(finalizeResp.flow_steps);
+                } else {
+                    onBaselineTuningFinished(resp.stream_exp_id);
+                }
+                return finalizeResp;
+            });
+        }
+        if (resp.baseline_tune_exp_id) {
+            onBaselineTuningFinished(resp.baseline_tune_exp_id);
+        }
+        return resp;
+    });
+}
+
 function _setLocalFlowStep(stepId, status, detail) {
     const steps = (window._lastFlowSteps || DEFAULT_OPT_FLOW).map((s) => ({ ...s }));
     const target = steps.find((s) => s.id === stepId);
@@ -1065,7 +1247,6 @@ const STEP_RUN_LABELS = {
 };
 
 const ASYNC_PIPELINE_STEPS = new Set([
-    'baseline_tuning',
     'baseline_tuning_report',
     'optimize_rounds',
     'final_test',
@@ -1079,10 +1260,22 @@ function _flowProgressHtml(stepId) {
           <div id="overallProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Baseline test progress">0%</div>
         </div>`;
     }
+    if (stepId === 'baseline_tuning') {
+        return `
+        <div class="progress exp-progress-step w-100">
+          <div id="baselineTuningProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Tuning baseline progress">0%</div>
+        </div>`;
+    }
     if (stepId === 'optimize_rounds') {
         return `
         <div class="progress exp-progress-step w-100">
-          <div id="optimizationProgress" class="progress-bar" role="progressbar" title="Optimization progress">0%</div>
+          <div id="optimizationProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Optimization progress">0%</div>
+        </div>`;
+    }
+    if (stepId === 'final_test') {
+        return `
+        <div class="progress exp-progress-step w-100">
+          <div id="finalTestProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Optimized test progress">0%</div>
         </div>`;
     }
     return '';
@@ -1224,6 +1417,12 @@ function runBaselineTestViaSaveAndStream() {
     });
 }
 
+function applyOptimizationSummary(summary) {
+    if (!summary) return;
+    window._lastOptimizationSummary = summary;
+    updateTuningTabPanels(window._lastFlowSteps, summary);
+}
+
 function runAsyncOptimizationStep(expIdVal, stepId, datasets, force) {
     return new Promise((resolve, reject) => {
         if (window.optimizationSource) {
@@ -1231,8 +1430,16 @@ function runAsyncOptimizationStep(expIdVal, stepId, datasets, force) {
             window.optimizationSource = null;
         }
         _setLocalFlowStep(stepId, 'running', 'Running...');
-        if (stepId === 'optimize_rounds') {
-            $('#optimizationProgress').css('width', '0%').text('0%').addClass('progress-bar-animated progress-bar-striped');
+        const progressBarByStep = {
+            optimize_rounds: '#optimizationProgress',
+            final_test: '#finalTestProgress',
+        };
+        const progressSel = progressBarByStep[stepId];
+        if (progressSel) {
+            $(progressSel)
+                .css('width', '0%')
+                .text('0%')
+                .addClass('progress-bar-animated progress-bar-striped');
         }
         $.ajax({
             url: `/exp/api/${encodeURIComponent(expIdVal)}/optimization-step/${encodeURIComponent(stepId)}/start`,
@@ -1256,6 +1463,9 @@ function runAsyncOptimizationStep(expIdVal, stepId, datasets, force) {
                     if (e.data === '[DONE]') {
                         es.close();
                         window.optimizationSource = null;
+                        if (progressSel) {
+                            $(progressSel).removeClass('progress-bar-animated progress-bar-striped');
+                        }
                         resolve();
                         return;
                     }
@@ -1265,9 +1475,8 @@ function runAsyncOptimizationStep(expIdVal, stepId, datasets, force) {
                     } catch (_err) {
                         return;
                     }
-                    if (stepId === 'optimize_rounds') {
-                        const p = Math.max(0, Math.min(100, Number(msg.progress || 0)));
-                        $('#optimizationProgress').css('width', `${p}%`).text(`${p}%`);
+                    if (stepId === 'optimize_rounds' || stepId === 'final_test') {
+                        updateFlowStepProgress(msg, stepId);
                     }
                     if (msg.flow_steps) {
                         renderOptimizationFlow(msg.flow_steps);
@@ -1279,18 +1488,17 @@ function runAsyncOptimizationStep(expIdVal, stepId, datasets, force) {
                         window.optimizationSource = null;
                         reject(new Error(errMsg));
                     }
+                    const summary = (msg.result && msg.result.summary) || msg.summary;
+                    if (summary && (stepId === 'optimize_rounds' || stepId === 'final_test_report')) {
+                        applyOptimizationSummary(summary);
+                    }
                     if (msg.status === 'completed' && msg.result) {
                         if (msg.result.flow_steps) {
                             renderOptimizationFlow(msg.result.flow_steps);
                         }
-                        if (msg.result.summary) {
-                            window._lastOptimizationSummary = msg.result.summary;
-                            $('#optimizationResult').html(renderOptimizeSummary(msg.result.summary));
-                            renderOptimizeSummaryCharts(msg.result.summary);
-                            if (stepId === 'final_test_report') {
-                                renderOptimizationCompare(msg.result.summary);
-                                loadOptimizedReportMarkdown(msg.result.summary.optimized_test_exp_id);
-                            }
+                        if (stepId === 'final_test_report' && summary) {
+                            renderOptimizationCompare(summary);
+                            loadOptimizedReportMarkdown(summary.optimized_test_exp_id);
                         }
                     }
                 };
@@ -1358,6 +1566,21 @@ function runPipelineStep(stepId, options = {}) {
             });
     }
 
+    if (stepId === 'baseline_tuning') {
+        if (!expIdVal || expIdVal === 'Not saved yet') {
+            if (manageBusy) setPipelineRunning(false);
+            alert('Save experiment first.');
+            return Promise.resolve();
+        }
+        return runBaselineTuningStep(expIdVal, datasets, force)
+            .then(done)
+            .catch((err) => {
+                _setLocalFlowStep('baseline_tuning', 'failed', err.message || 'Failed');
+                if (manageBusy) setPipelineRunning(false);
+                alert(err.message || 'Tuning baseline failed');
+            });
+    }
+
     if (ASYNC_PIPELINE_STEPS.has(stepId)) {
         if (!expIdVal || expIdVal === 'Not saved yet') {
             if (manageBusy) setPipelineRunning(false);
@@ -1419,9 +1642,14 @@ function refreshOptimizationPreflight() {
                 $('#datasetSelect').val(resp.test_dataset);
                 window._savedTestFilename = resp.test_dataset;
             }
+            window._lastPreflightResp = resp;
             renderOptimizationFlow(resp.flow_steps || DEFAULT_OPT_FLOW);
             const tabId = WIZARD_TABS[window._wizardTabIndex || 0];
-            refreshWizardTabContent(tabId);
+            if (tabId === 'tuning') {
+                updateTuningTabPanels(resp.flow_steps, resp);
+            } else {
+                refreshWizardTabContent(tabId);
+            }
             if (resp.baseline_test_ready && !resp.baseline_report_ready && tabId === 'baseline' && !window._suppressAutoReport && !window._pipelineRunning) {
                 generateBaselineTestReport(id).then(() => refreshOptimizationPreflight()).catch(() => {});
                 return;
@@ -1429,6 +1657,9 @@ function refreshOptimizationPreflight() {
             if (resp.awaiting_optimization_confirm) {
                 loadSavedReportMarkdown(id, '#baselineReportMarkdown', 'report_baseline_test.md');
                 showBaselineMetricsSummary(resp.baseline_test_metrics || {});
+            }
+            if (resp.optimization_summary) {
+                applyOptimizationSummary(resp.optimization_summary);
             }
             if (stayTab != null) {
                 showWizardTab(stayTab);
@@ -1558,17 +1789,20 @@ function _fmtDelta(v) {
 
 function renderOptimizeSummary(summary) {
     if (!summary) return '';
-    const base = summary.baseline_exp_id || '';
+    const tuneBaselineExp = summary.baseline_tuning_exp_id || '';
     const finalBest = summary.final_best_exp_id || '';
     const finalGraph = summary.final_graph_id || '';
+    const tuningBaselineMetrics = summary.baseline_tuning_metrics || {};
     const finalMetrics = summary.final_best_metrics || {};
-    const baselineTestMetrics = summary.baseline_test_metrics || {};
-    const finalTestMetrics = summary.final_test_metrics || finalMetrics || {};
     const tuningDataset = summary.tuning_dataset || '';
-    const testDataset = summary.test_dataset || '';
     const rounds = Array.isArray(summary.rounds) ? summary.rounds : [];
     const verMap = summary.accepted_version_map || {};
     const acceptedCount = rounds.filter((r) => r && r.accepted).length;
+    const metricDelta = (key) => {
+        const base = Number(tuningBaselineMetrics[key] || 0);
+        const fin = Number(finalMetrics[key] || 0);
+        return fin - base;
+    };
     const versions = Object.keys(verMap).length
         ? Object.entries(verMap).map(([k, v]) => `
             <tr>
@@ -1605,12 +1839,12 @@ function renderOptimizeSummary(summary) {
         <div class="card-body">
           <div class="opt-kpi-grid mb-3">
             <div class="opt-kpi-item">
-              <div class="opt-kpi-label">Baseline</div>
-              <div class="opt-kpi-value"><a href="/exp/${encodeURIComponent(base)}" target="_blank" rel="noopener"><code>${escHtml(base || '-')}</code></a></div>
+              <div class="opt-kpi-label">Tuning Baseline</div>
+              <div class="opt-kpi-value">${tuneBaselineExp ? `<a href="/exp/${encodeURIComponent(tuneBaselineExp)}" target="_blank" rel="noopener"><code>${escHtml(tuneBaselineExp)}</code></a>` : '<span class="text-muted">-</span>'}</div>
             </div>
             <div class="opt-kpi-item">
-              <div class="opt-kpi-label">Final Best</div>
-              <div class="opt-kpi-value"><a href="/exp/${encodeURIComponent(finalBest)}" target="_blank" rel="noopener"><code>${escHtml(finalBest || '-')}</code></a></div>
+              <div class="opt-kpi-label">Optimized Best</div>
+              <div class="opt-kpi-value">${finalBest ? `<a href="/exp/${encodeURIComponent(finalBest)}" target="_blank" rel="noopener"><code>${escHtml(finalBest)}</code></a>` : '<span class="text-muted">-</span>'}</div>
             </div>
             <div class="opt-kpi-item">
               <div class="opt-kpi-label">Final Graph</div>
@@ -1628,35 +1862,31 @@ function renderOptimizeSummary(summary) {
               <div class="opt-kpi-label">Tuning Dataset</div>
               <div class="opt-kpi-value"><code>${escHtml(tuningDataset || '-')}</code></div>
             </div>
-            <div class="opt-kpi-item">
-              <div class="opt-kpi-label">Test Dataset</div>
-              <div class="opt-kpi-value"><code>${escHtml(testDataset || '-')}</code></div>
-            </div>
           </div>
 
           <div class="report-table-wrap mb-3">
             <table class="report-table table table-striped table-hover table-sm align-middle mb-0">
               <thead>
-                <tr><th>Metric Context</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
+                <tr><th>Metric Context (Tuning)</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Baseline (Test)</td>
-                  <td>${Number(baselineTestMetrics.precision || 0).toFixed(4)}</td>
-                  <td>${Number(baselineTestMetrics.recall || 0).toFixed(4)}</td>
-                  <td>${Number(baselineTestMetrics.f1 || 0).toFixed(4)}</td>
+                  <td>Tuning Baseline</td>
+                  <td>${Number(tuningBaselineMetrics.precision || 0).toFixed(4)}</td>
+                  <td>${Number(tuningBaselineMetrics.recall || 0).toFixed(4)}</td>
+                  <td>${Number(tuningBaselineMetrics.f1 || 0).toFixed(4)}</td>
                 </tr>
                 <tr>
-                  <td>Final Best (Test)</td>
-                  <td>${Number(finalTestMetrics.precision || 0).toFixed(4)}</td>
-                  <td>${Number(finalTestMetrics.recall || 0).toFixed(4)}</td>
-                  <td>${Number(finalTestMetrics.f1 || 0).toFixed(4)}</td>
-                </tr>
-                <tr>
-                  <td>Final Best (Tuning-Track)</td>
+                  <td>Optimized Best</td>
                   <td>${Number(finalMetrics.precision || 0).toFixed(4)}</td>
                   <td>${Number(finalMetrics.recall || 0).toFixed(4)}</td>
                   <td>${Number(finalMetrics.f1 || 0).toFixed(4)}</td>
+                </tr>
+                <tr class="table-light">
+                  <td>Δ (Optimized − Tuning Baseline)</td>
+                  <td>${_fmtDelta(metricDelta('precision'))}</td>
+                  <td>${_fmtDelta(metricDelta('recall'))}</td>
+                  <td>${_fmtDelta(metricDelta('f1'))}</td>
                 </tr>
               </tbody>
             </table>
@@ -1697,6 +1927,7 @@ function renderOptimizeSummary(summary) {
               </thead>
               <tbody>${roundRows}</tbody>
             </table>
+            <p class="small text-muted mb-0 mt-2">Round deltas are measured on the tuning dataset vs the previous round best.</p>
           </div>
         </div>
       </div>
@@ -1804,7 +2035,7 @@ function startOptimizationLoop() {
                     return;
                 }
                 const p = Math.max(0, Math.min(100, Number(msg.progress || 0)));
-                $('#optimizationProgress').css('width', `${p}%`).text(`${p}%`);
+                updateOptimizationProgress(msg);
                 $('#optimizationStatus').text(`${msg.stage || 'running'}: ${msg.message || ''}`);
                 if (msg.flow_steps) {
                     renderOptimizationFlow(msg.flow_steps);
@@ -1816,16 +2047,14 @@ function startOptimizationLoop() {
                     setOptimizationControlsEnabled(true);
                 }
                 if (msg.status === 'completed' && msg.summary) {
-                    $('#optimizationResult').html(renderOptimizeSummary(msg.summary));
-                    renderOptimizeSummaryCharts(msg.summary);
+                    applyOptimizationSummary(msg.summary);
                     renderOptimizationCompare(msg.summary);
                     showResultAccordion('#wrapOptimizationResult', true);
                     if (msg.summary.flow_steps) {
                         renderOptimizationFlow(msg.summary.flow_steps);
                     }
                 } else if (msg.summary) {
-                    $('#optimizationResult').html(renderOptimizeSummary(msg.summary));
-                    renderOptimizeSummaryCharts(msg.summary);
+                    applyOptimizationSummary(msg.summary);
                     showResultAccordion('#wrapOptimizationResult', false);
                 }
             };
