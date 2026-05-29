@@ -66,8 +66,7 @@
     }
   },
   "agentVersions": {
-    "relation_verify_llm": "v0004",
-    "relation_verify_to_id_pair": "v0003"
+    "relation_verify_llm": "v0004"
   },
   "created_at": "2026-05-28T15:36:21.609549"
 }

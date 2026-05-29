@@ -65,8 +65,6 @@
       "filtered_entities": "{{ filtered_entities }}"
     }
   },
-  "agentVersions": {
-    "relation_verify_to_id_pair": "v0004"
-  },
+  "agentVersions": {},
   "created_at": "2026-05-28T16:34:34.519217"
 }

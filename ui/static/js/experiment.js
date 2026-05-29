@@ -1,17 +1,342 @@
+function renderRunnerAgentRoster(agents) {
+    const $root = $('#runnerAgentRoster');
+    if (!$root.length) return;
+    const items = Array.isArray(agents) ? agents : [];
+    if (!items.length) {
+        $root.html('<p class="small text-muted mb-0">Select a workflow to see agent versions.</p>');
+        return;
+    }
+    const rows = items.map((a) => `
+      <tr>
+        <td>
+          <code class="small">${escHtml(a.agent_id || '')}</code>
+          <div class="text-muted" style="font-size:.75rem">${escHtml(a.name || '')}</div>
+        </td>
+        <td><code class="small">${escHtml(a.version || 'current')}</code></td>
+      </tr>
+    `).join('');
+    $root.html(`
+      <div class="small text-muted mb-1">Workflow agents</div>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered mb-0 runner-agent-roster-table">
+          <thead><tr><th>Agent</th><th>Version</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `);
+}
+
+function refreshRunnerAgentRoster(runnerIdVal) {
+    const id = String(runnerIdVal || '').trim();
+    if (!id) {
+        renderRunnerAgentRoster([]);
+        return;
+    }
+    $.getJSON(`/exp/api/runner-agents/${encodeURIComponent(id)}`)
+        .done((resp) => renderRunnerAgentRoster((resp && resp.agents) || []))
+        .fail(() => renderRunnerAgentRoster([]));
+}
+
 function renderTestset(data){
     const $datasetSelect = $('#datasetSelect');
+    const $tuningSelect = $('#tuningDatasetSelect');
+    const $splitSourceSelect = $('#splitSourceSelect');
+    const prevTest = $datasetSelect.val() || window._savedTestFilename || defaultFilename;
+    const prevTuning = $tuningSelect.val() || window._savedTuningFilename || defaultTuningFilename;
     $datasetSelect.empty();
+    $tuningSelect.empty();
+    $splitSourceSelect.empty();
     if (data) {
         data.forEach(f => {
-            const selected = f.name === defaultFilename ? 'selected' : '';
+            const selected = f.name === prevTest ? 'selected' : '';
+            const tuningSelected = f.name === prevTuning ? 'selected' : '';
             $datasetSelect.append(
                 `<option value="${f.name}" ${selected} data-samples="${f.count}">${f.name} (${f.count} samples)</option>`
             );
+            $tuningSelect.append(
+                `<option value="${f.name}" ${tuningSelected}>${f.name} (${f.count} samples)</option>`
+            );
+            $splitSourceSelect.append(
+                `<option value="${f.name}">${f.name} (${f.count} samples)</option>`
+            );
         });
 
-        if (defaultFilename && $datasetSelect.find(`option[value="${defaultFilename}"]`).length) {
-            $('#runExpBtn').removeClass('d-none').show();
+        if (prevTest && $datasetSelect.find(`option[value="${CSS.escape(prevTest)}"]`).length) {
+            $datasetSelect.val(prevTest);
         }
+        if (prevTuning && $tuningSelect.find(`option[value="${CSS.escape(prevTuning)}"]`).length) {
+            $tuningSelect.val(prevTuning);
+        } else if (!prevTuning && prevTest && $tuningSelect.find(`option[value="${CSS.escape(prevTest)}"]`).length) {
+            $tuningSelect.val(prevTest);
+        }
+
+        if ($datasetSelect.val()) {
+            /* dataset selected */
+        }
+    }
+}
+
+function collectExpFormData() {
+    const autoSplitEnabled = $('#autoSplitMode').is(':checked');
+    const formData = {
+        dataset: $('#datasetSelect').val(),
+        test_dataset: $('#datasetSelect').val(),
+        tuning_dataset: $('#tuningDatasetSelect').val(),
+        runner_type: $('#runnerType').val(),
+        runner_id: $('#runnerId').val(),
+        runner_display: $('#runnerDisplay').val(),
+        samples: $('#datasetSelect').find(':selected').data('samples') || 0,
+        exp_id: $('#exp_id').attr('data-id') || $('#exp_id').data('id') || expId,
+    };
+    if (autoSplitEnabled) {
+        formData.split_mode = 'auto';
+        formData.split_source_dataset = $('#splitSourceSelect').val();
+        formData.split_ratio = Number($('#splitRatioInput').val() || 0.8);
+        formData.split_seed = Number($('#splitSeedInput').val() || 42);
+    }
+    return formData;
+}
+
+let _saveConfigTimer = null;
+function queueSaveExpConfig() {
+    clearTimeout(_saveConfigTimer);
+    _saveConfigTimer = setTimeout(saveExpConfigOnly, 500);
+}
+
+function saveExpConfigOnly() {
+    const formData = collectExpFormData();
+    const id = formData.exp_id;
+    if (!id || id === 'Not saved yet') return;
+    if (!formData.runner_id || !formData.test_dataset) return;
+    if (!$('#autoSplitMode').is(':checked') && !formData.tuning_dataset) return;
+    $.ajax({
+        url: '/exp/api/save',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(formData),
+        success(resp) {
+            if (!resp.success) return;
+            window._savedTuningFilename = resp.tuning_dataset || formData.tuning_dataset;
+            window._savedTestFilename = resp.test_dataset || formData.test_dataset;
+            if (resp.tuning_dataset) $('#tuningDatasetSelect').val(resp.tuning_dataset);
+            if (resp.test_dataset) $('#datasetSelect').val(resp.test_dataset);
+        },
+    });
+}
+
+function hydrateExpFormFromServer() {
+    const id = expId;
+    if (!id) return $.Deferred().resolve().promise();
+    return $.getJSON(`/exp/api/${encodeURIComponent(id)}`)
+        .done((cfg) => {
+            if (!cfg || cfg.error) return;
+            window._savedTuningFilename = cfg.tuning_dataset || defaultTuningFilename;
+            window._savedTestFilename = cfg.test_dataset || defaultFilename;
+            if (cfg.test_dataset) $('#datasetSelect').val(cfg.test_dataset);
+            if (cfg.tuning_dataset) $('#tuningDatasetSelect').val(cfg.tuning_dataset);
+            const split = cfg.dataset_split || datasetSplit || {};
+            if (split && split.mode === 'auto') {
+                $('#autoSplitMode').prop('checked', true);
+                $('#autoSplitPanel').show();
+                $('#tuningDatasetSelect').prop('disabled', true);
+                if (split.source_dataset) $('#splitSourceSelect').val(split.source_dataset);
+                if (split.ratio != null) $('#splitRatioInput').val(split.ratio);
+                if (split.seed != null) $('#splitSeedInput').val(split.seed);
+            }
+        });
+}
+
+function getExpId() {
+    return $('#exp_id').attr('data-id') || $('#exp_id').data('id') || expId;
+}
+
+const WIZARD_TABS = ['config', 'baseline', 'tuning', 'final'];
+const FLOW_TAB_GROUPS = {
+    baseline: { container: '#optimizationFlowBaseline', stepIds: ['baseline_test', 'baseline_test_report'] },
+    tuning: { container: '#optimizationFlowTuning', stepIds: ['baseline_tuning', 'baseline_tuning_report', 'optimize_rounds'] },
+    final: { container: '#optimizationFlowFinal', stepIds: ['final_test', 'final_test_report'] },
+};
+
+function showWizardTab(index) {
+    const idx = Math.max(0, Math.min(index, WIZARD_TABS.length - 1));
+    window._wizardTabIndex = idx;
+    window._wizardUserNavigated = true;
+    const tabId = WIZARD_TABS[idx];
+    $('#expWizardTabs .nav-link').removeClass('active');
+    $(`#wizard-tab-btn-${tabId}`).addClass('active');
+    $('.wizard-tab-pane').addClass('d-none');
+    $(`#wizard-tab-${tabId}`).removeClass('d-none');
+    $('#wizardPrevBtn').prop('disabled', idx === 0);
+    $('#wizardNextBtn').toggle(idx < WIZARD_TABS.length - 1);
+    refreshWizardTabContent(tabId);
+}
+
+function refreshWizardTabContent(tabId) {
+    const id = getExpId();
+    if (!id || id === 'Not saved yet') return;
+    if (tabId === 'baseline') {
+        loadSavedReportMarkdown(id, '#baselineReportMarkdown', 'report_baseline_test.md');
+    }
+    if (tabId === 'final') {
+        const ctx = window._lastOptimizationSummary;
+        if (ctx) {
+            renderOptimizationCompare(ctx);
+            loadOptimizedReportMarkdown(ctx.optimized_test_exp_id || ctx.final_best_exp_id);
+        } else {
+            loadSavedReportMarkdown(id, '#optimizedReportMarkdown', 'report_optimized_test.md');
+        }
+    }
+}
+
+function updateWizardTabAccess(flowSteps) {
+    const steps = flowSteps || window._lastFlowSteps || DEFAULT_OPT_FLOW;
+    const byId = Object.fromEntries(steps.map((s) => [s.id, s]));
+    const hasExp = !!(getExpId() && getExpId() !== 'Not saved yet');
+    $('#wizard-tab-btn-baseline').prop('disabled', !hasExp);
+    const baselineReady = byId.baseline_test_report && byId.baseline_test_report.status === 'done';
+    $('#wizard-tab-btn-tuning').prop('disabled', !baselineReady);
+    const tuningReady = byId.optimize_rounds && (byId.optimize_rounds.status === 'done' || byId.optimize_rounds.status === 'skipped');
+    $('#wizard-tab-btn-final').prop('disabled', !tuningReady);
+}
+
+function inferWizardTabFromFlow(steps) {
+    const byId = Object.fromEntries((steps || []).map((s) => [s.id, s]));
+    if (byId.final_test_report && byId.final_test_report.status === 'done') return 3;
+    if (byId.optimize_rounds && (byId.optimize_rounds.status === 'done' || byId.optimize_rounds.status === 'skipped')) return 3;
+    if (byId.baseline_test_report && byId.baseline_test_report.status === 'done') return 1;
+    if (getExpId() && getExpId() !== 'Not saved yet') return 1;
+    return 0;
+}
+
+function initWizardTabFromFlow() {
+    if (window._wizardInitialNavDone) return;
+    window._wizardInitialNavDone = true;
+    if (window._wizardUserNavigated || (window._wizardTabIndex || 0) > 0) return;
+    const tabIdx = inferWizardTabFromFlow(window._lastFlowSteps || DEFAULT_OPT_FLOW);
+    if (tabIdx > 0) {
+        showWizardTab(tabIdx);
+    }
+}
+
+function _flowDetailText(detail) {
+    if (detail == null || detail === '') return '';
+    if (typeof detail === 'string') return detail;
+    if (typeof detail === 'object') {
+        if (detail.message) return String(detail.message);
+        if (detail.error) return _flowDetailText(detail.error);
+        try {
+            return JSON.stringify(detail);
+        } catch (_e) {
+            return String(detail);
+        }
+    }
+    return String(detail);
+}
+
+function _asErrorMessage(err) {
+    if (!err) return 'Unknown error';
+    if (typeof err === 'string') return err;
+    if (err.responseJSON && err.responseJSON.error != null) {
+        return _flowDetailText(err.responseJSON.error);
+    }
+    if (err.message) return String(err.message);
+    return _flowDetailText(err);
+}
+
+function saveConfigForWizard() {
+    return new Promise((resolve, reject) => {
+        const formData = collectExpFormData();
+        const autoSplitEnabled = $('#autoSplitMode').is(':checked');
+        if (!formData.runner_id || !formData.test_dataset) {
+            reject(new Error('Please select Runner and Test Dataset'));
+            return;
+        }
+        if (!autoSplitEnabled && !formData.tuning_dataset) {
+            reject(new Error('Please select Tuning Dataset'));
+            return;
+        }
+        if (autoSplitEnabled && !formData.split_source_dataset) {
+            reject(new Error('Please select Auto Split source dataset'));
+            return;
+        }
+        $.ajax({
+            url: '/exp/api/save',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success(resp) {
+                if (!resp.success) {
+                    reject(new Error(resp.error || 'Save failed'));
+                    return;
+                }
+                if (resp.test_dataset) {
+                    $('#datasetSelect').val(resp.test_dataset);
+                    window._savedTestFilename = resp.test_dataset;
+                }
+                if (resp.tuning_dataset) {
+                    $('#tuningDatasetSelect').val(resp.tuning_dataset);
+                    window._savedTuningFilename = resp.tuning_dataset;
+                }
+                $('#exp_id').text(resp.exp_id);
+                $('#exp_id').data('id', resp.exp_id);
+                resolve(resp);
+            },
+            error(xhr) {
+                reject(new Error((xhr.responseJSON && xhr.responseJSON.error) || 'Save request failed'));
+            },
+        });
+    });
+}
+
+async function runBaselineTabPipeline() {
+    const stayTab = window._wizardTabIndex;
+    window._suppressAutoReport = true;
+    window._wizardLockTab = true;
+    setPipelineRunning(true);
+    const steps = window._lastFlowSteps || DEFAULT_OPT_FLOW;
+    const isRerun = steps.some(
+        (s) => (s.id === 'baseline_test' || s.id === 'baseline_test_report') && s.status === 'done'
+    );
+    if (isRerun) {
+        clearDownstreamFlowSteps(0);
+        _setLocalFlowStep('baseline_test', 'pending', 'Re-running baseline test...');
+        _setLocalFlowStep('baseline_test_report', 'pending', '');
+    }
+    try {
+        await runPipelineStep('baseline_test', { force: isRerun, manageBusy: false });
+        await runPipelineStep('baseline_test_report', { force: isRerun, manageBusy: false });
+    } finally {
+        window._suppressAutoReport = false;
+        window._wizardLockTab = false;
+        setPipelineRunning(false);
+        await refreshOptimizationPreflight();
+        if (typeof stayTab === 'number') {
+            showWizardTab(stayTab);
+        }
+    }
+}
+
+async function runTuningTabPipeline() {
+    setPipelineRunning(true);
+    try {
+        for (const stepId of ['baseline_tuning', 'baseline_tuning_report', 'optimize_rounds']) {
+            await runPipelineStep(stepId, { manageBusy: false });
+        }
+    } finally {
+        setPipelineRunning(false);
+        refreshOptimizationPreflight();
+    }
+}
+
+async function runFinalTabPipeline() {
+    setPipelineRunning(true);
+    try {
+        for (const stepId of ['final_test', 'final_test_report']) {
+            await runPipelineStep(stepId, { manageBusy: false });
+        }
+    } finally {
+        setPipelineRunning(false);
+        refreshOptimizationPreflight();
     }
 }
 
@@ -19,8 +344,14 @@ $(document).ready(function () {
     const runnerId = $('#runnerId');
     const runnerType = $('#runnerType');
     const datasetSelect = $('#datasetSelect');
+    const tuningDatasetSelect = $('#tuningDatasetSelect');
+    window._savedTuningFilename = defaultTuningFilename;
+    window._savedTestFilename = defaultFilename;
     renderTestset(data);
-    updateProgress(progress || 0);
+    hydrateExpFormFromServer().always(() => {
+        renderTestset(data);
+        updateProgress(progress || 0);
+    });
 
     const observer = new MutationObserver(function () {
         const id = runnerId.val();
@@ -29,8 +360,8 @@ $(document).ready(function () {
         }
 
         $.getJSON(`/testset/api/by_agent/${id}`)
-            .done(function(data) {
-                const lite = (data || []).map((t) => ({
+            .done(function(resp) {
+                const lite = (resp || []).map((t) => ({
                     name: t.name,
                     count: t.count,
                 }));
@@ -38,11 +369,76 @@ $(document).ready(function () {
             })
             .fail(function() {
                 datasetSelect.html('<option value="">-- Error loading test sets --</option>');
+                tuningDatasetSelect.html('<option value="">-- Error loading test sets --</option>');
             });
+        refreshRunnerAgentRoster(id);
     });
 
     observer.observe(runnerType[0], {attributes: true, childList: true, subtree: true});
     observer.observe(runnerId[0], {attributes: true, childList: true, subtree: true});
+
+    $('#autoSplitMode').on('change', function () {
+        const enabled = $(this).is(':checked');
+        $('#autoSplitPanel').toggle(enabled);
+        $('#tuningDatasetSelect').prop('disabled', enabled);
+        queueSaveExpConfig();
+    });
+    $('#tuningDatasetSelect').on('change', queueSaveExpConfig);
+    $('#splitSourceSelect, #splitRatioInput, #splitSeedInput').on('change input', queueSaveExpConfig);
+
+    $(document).on('click', '.opt-flow-run-btn', function () {
+        const stepId = $(this).data('step-run');
+        if (!stepId || $(this).prop('disabled')) return;
+        const steps = window._lastFlowSteps || DEFAULT_OPT_FLOW;
+        const idx = steps.findIndex((s) => s.id === stepId);
+        const isRerun = idx >= 0 && steps[idx].status === 'done';
+        if (isRerun) {
+            clearDownstreamFlowSteps(idx);
+        }
+        runPipelineStep(stepId, { force: isRerun });
+    });
+
+    $('#runBaselineTabBtn').on('click', function () {
+        if (window._pipelineRunning) return;
+        runBaselineTabPipeline().catch((err) => alert(err.message || 'Baseline pipeline failed'));
+    });
+    $('#runTuningTabBtn').on('click', function () {
+        if (window._pipelineRunning) return;
+        runTuningTabPipeline().catch((err) => alert(err.message || 'Tuning pipeline failed'));
+    });
+    $('#runFinalTabBtn').on('click', function () {
+        if (window._pipelineRunning) return;
+        runFinalTabPipeline().catch((err) => alert(err.message || 'Final test pipeline failed'));
+    });
+
+    $('#wizardPrevBtn').on('click', function () {
+        if (window._wizardTabIndex > 0) {
+            showWizardTab(window._wizardTabIndex - 1);
+        }
+    });
+    $('#wizardNextBtn').on('click', function () {
+        const idx = window._wizardTabIndex || 0;
+        if (WIZARD_TABS[idx] === 'config') {
+            saveConfigForWizard()
+                .then(() => {
+                    updateWizardTabAccess(window._lastFlowSteps);
+                    showWizardTab(1);
+                })
+                .catch((err) => alert(err.message || 'Save failed'));
+            return;
+        }
+        if (idx < WIZARD_TABS.length - 1) {
+            showWizardTab(idx + 1);
+        }
+    });
+    $('#expWizardTabs .nav-link').on('click', function () {
+        if ($(this).prop('disabled')) return;
+        const tabId = $(this).data('wizard-tab');
+        const tabIndex = WIZARD_TABS.indexOf(tabId);
+        if (tabIndex >= 0) {
+            showWizardTab(tabIndex);
+        }
+    });
 
     /* ========= 事件绑定（jQuery 写法） ========= */
      $(document).on('click', '.btn-replay', function () {
@@ -58,85 +454,56 @@ $(document).ready(function () {
      /* ====== 关闭 run-runner 弹窗 ====== */
     $(document).on('click', '.replay-popup .close-btn', () => {
         $('#replayPopup').addClass('hidden');
-        $('#idx').val('');          // 清空
+        $('#idx').val('');
         $('#resultOutput').empty();
     });
 
-    $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function (e) {
-        const paneId = $(e.target).attr('href');
-        const id = $('#exp_id').attr('data-id') || $('#exp_id').data('id') || expId;
-        const prog = parseInt($('#overallProgress').text(), 10) || progress;
-        if (paneId === '#report' && id && id !== 'Not saved yet' && (prog >= 100 || $('#overallProgress').width() > 0)) {
-            renderReport(id);
-        }
+    window._wizardTabIndex = 0;
+    window._wizardUserNavigated = false;
+    window._wizardInitialNavDone = false;
+    buildAllFlowShells();
+    refreshOptimizationPreflight().then(() => {
+        initWizardTabFromFlow();
     });
+    const initialRunner = $('#runnerId').val() || '';
+    if (initialRunner) {
+        refreshRunnerAgentRoster(initialRunner);
+    } else if (typeof runnerAgentRoster !== 'undefined' && runnerAgentRoster.length) {
+        renderRunnerAgentRoster(runnerAgentRoster);
+    }
 });
 
 function renderTable(file){
     const runnerId = $('#runnerId').val();
     const runnerType = $('#runnerType').val();
     const runnerDisplay = $('#runnerDisplay').val();
+    const tuning = $('#tuningDatasetSelect').val();
     if (file && runnerId) {
-        // 直接跳转，带参数刷新页面
         const params = new URLSearchParams({
             runner_id: runnerId,
             runner_type: runnerType,
             runner_display: runnerDisplay,
-            filename: file
+            filename: file,
         });
+        if (tuning) params.set('tuning_filename', tuning);
+        const id = getExpId();
+        if (id && id !== 'Not saved yet') {
+            window.location.href = `/exp/${encodeURIComponent(id)}?${params.toString()}`;
+            return;
+        }
         window.location.href = `/exp/new?${params.toString()}`;
     }else{
-        $('#runExpBtn').addClass('d-none').hide();  // 隐藏
+        /* no dataset selected */
     }
-
 }
 
 // 当选择 testset 文件时 → 加载分页数据预览表
 $('#datasetSelect').change(function () {
     renderTable($(this).val());
 });
-/* ====== 提交运行 ====== */
+/* ====== prevent implicit form submit on Enter ====== */
 $('#expForm').submit(function (e) {
     e.preventDefault();
-    /* 1. 收集可编辑字段 */
-    const formData = {
-        dataset: $('#datasetSelect').val(),
-        runner_type: $('#runnerType').val(),
-        runner_id: $('#runnerId').val(),
-        runner_display: $('#runnerDisplay').val(),
-        samples: $('#datasetSelect').find(':selected').data('samples') || 0,
-        exp_id: $('#exp_id').data('id')
-    };
-
-    // 简单校验
-    if (!formData.runner_id || !formData.dataset) {
-        alert('Please select Runner and Dataset');
-        return;
-    }
-    $('#runExpBtn').addClass('d-none').hide();  // 隐藏
-    // 2. POST 到后端保存接口
-    $.ajax({
-        url: '/exp/api/save',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(formData),
-        success: function (resp) {
-            if (resp.success) {
-                $('#exp_id').text(resp.exp_id);
-                $('#exp_id').data('id', resp.exp_id);
-                //start stream
-                start_task(resp.exp_id);
-            } else {
-                alert('Save Failed: ' + (resp.error || 'unknown error'));
-            }
-        },
-        error: function (xhr) {
-            console.error(xhr);
-            alert('Request failed: ' + xhr.status + ' ' + xhr.statusText);
-        }
-    });
-
-
 });
 
 
@@ -162,20 +529,40 @@ function start_task(exp_id){
     });
 }
 
-function complete_task(exp_id,progress,status){
-    if(status!=='failed'){
-        status='completed';
+function complete_task(exp_id, progress, status) {
+    if (status !== 'failed') {
+        status = 'completed';
     }
     $.ajax({
         url: `/exp/api/update`,
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ "exp_id": exp_id, "status":status,"progress":progress }),
+        data: JSON.stringify({ exp_id, status, progress }),
         success: function (resp) {
-            if (resp.success) {
-                window.location.href = `/exp/${exp_id}`;
-            } else {
+            if (!resp.success) {
                 alert('Save Failed: ' + (resp.error || 'unknown error'));
+                return;
+            }
+            updateProgress(progress);
+            if (status === 'completed') {
+                if (window._baselineStreamResolve) {
+                    const resolve = window._baselineStreamResolve;
+                    window._baselineStreamResolve = null;
+                    window._baselineStreamReject = null;
+                    onBaselineTestFinished(exp_id);
+                    resolve();
+                    return;
+                }
+                onBaselineTestFinished(exp_id);
+            } else {
+                if (window._baselineStreamReject) {
+                    const reject = window._baselineStreamReject;
+                    window._baselineStreamResolve = null;
+                    window._baselineStreamReject = null;
+                    reject(new Error('Baseline test failed'));
+                }
+                $('#error_message').text('Baseline test failed.');
+                unfreezeInputs();
             }
         },
         error: function (xhr) {
@@ -249,11 +636,18 @@ function updateProgress(percent) {
         .toggleClass('progress-bar-animated', width < 100);
 }
 
-function freezeInputAndLink(){
+function freezeInputAndLink() {
     $('#datasetSelect').prop('disabled', true);
+    $('#tuningDatasetSelect').prop('disabled', true);
     $('#runnerSearch').prop('disabled', true);
-    $('#expTab').css({'pointer-events':'none', 'opacity':'0.6'});
-    $('#pageNav').css({'pointer-events':'none', 'opacity':'0.6'});
+    $('#pageNav').css({ 'pointer-events': 'none', opacity: '0.6' });
+}
+
+function unfreezeInputs() {
+    $('#datasetSelect').prop('disabled', false);
+    $('#tuningDatasetSelect').prop('disabled', false);
+    $('#runnerSearch').prop('disabled', false);
+    $('#pageNav').css({ 'pointer-events': '', opacity: '' });
 }
 
 
@@ -266,6 +660,7 @@ function stream(exp_id){
         /* 4. 关闭旧连接 */
     updateProgress(current_process);
     freezeInputAndLink();
+    _setLocalFlowStep('baseline_test', 'running', 'Running baseline test...');
     window.agentEventSource?.close();
 
     function openStream() {
@@ -304,7 +699,6 @@ function stream(exp_id){
                 return;
             }
             $('#error_message').text('SSE disconnected. Please retry run.');
-            $('#runExpBtn').removeClass('d-none').show();  // 显示
         };
     }
 
@@ -524,50 +918,618 @@ function loadAndRenderReportCharts(expIdVal) {
 }
 
 function renderReport(exp_id) {
-    setOptimizeLoopControlsEnabled(false);
-    disposeReportCharts();
-    $('#reportMarkdown').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Make report...');
-    window.agentEventSource?.close();
-    let buffer = '';
-    const useTools = $('#reportToolsMode').is(':checked');
-    const params = new URLSearchParams({ use_tools: useTools ? '1' : '0' });
-    window.agentEventSource = new EventSource(`/stream/report/${encodeURIComponent(exp_id)}?${params.toString()}`);
-    window.agentEventSource.onmessage = e => {
-        if (e.data === '[DONE]') {
-            $('#reportMarkdown').html(marked.parse(buffer));
-            enhanceReportMarkup();
-            loadAndRenderReportCharts(exp_id);
-            window.agentEventSource.close();
-            setOptimizeLoopControlsEnabled(true);
-            return;
-        }
-        buffer += e.data.replace(/\\n/g, '\n');
-        if (buffer.trim()) {
-            $('#reportMarkdown').html(marked.parse(buffer));
-            enhanceReportMarkup();
-        }
-    };
-    window.agentEventSource.onerror = err => {
-        console.error('SSE error:', err);
-        window.agentEventSource.close();
-        setOptimizeLoopControlsEnabled(true);
-        disposeReportCharts();
-        $('#reportMarkdown').find('.report-inline-chart-card').remove();
-        if (!buffer.trim()) {
-            $('#reportMarkdown').html(
-                '<p class="text-danger">Report failed. Ensure <code>result/' +
-                escHtml(exp_id) + '/states.json</code> exists and the experiment status is completed.</p>'
-            );
-        }
-    };
+    /* Legacy: reports are generated inside Optimization flow */
+    loadSavedReportMarkdown(exp_id, '#baselineReportMarkdown');
 }
 
 function escHtml(s) {
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function setOptimizeLoopControlsEnabled(enabled) {
-    $('#optimizeLoopBtn').prop('disabled', !enabled);
+function setOptimizationControlsEnabled(_enabled) {
+    updateStepRunButtons(window._lastFlowSteps);
+}
+
+function _formatBaselineMetrics(metrics) {
+    const m = metrics || {};
+    if (m.f1 == null && m.precision == null && m.recall == null) {
+        return '';
+    }
+    return (
+        `Baseline test F1=${Number(m.f1 || 0).toFixed(4)}, ` +
+        `P=${Number(m.precision || 0).toFixed(4)}, ` +
+        `R=${Number(m.recall || 0).toFixed(4)}. ` +
+        'Review the baseline report below, then start optimization (steps 3–7).'
+    );
+}
+
+function showBaselineMetricsSummary(metrics) {
+    const text = _formatBaselineMetrics(metrics);
+    if (!text) return;
+    const steps = (window._lastFlowSteps || DEFAULT_OPT_FLOW).map((s) => ({ ...s }));
+    const target = steps.find((s) => s.id === 'baseline_test_report');
+    if (target) {
+        target.detail = text;
+    }
+    window._lastFlowSteps = steps;
+    renderOptimizationFlow(steps);
+}
+
+function showResultAccordion(_wrapId, _expand) {
+    /* Results are shown inline in wizard tabs. */
+}
+
+function runBaselineTestReportStep(expIdVal, datasets, force) {
+    const maxAttempts = 3;
+    _setLocalFlowStep('baseline_test_report', 'running', 'Generating baseline test report...');
+
+    function attempt(n) {
+        return $.ajax({
+            url: `/exp/api/${encodeURIComponent(expIdVal)}/optimization-step/baseline_test_report`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                force: !!force,
+                tuning_dataset: datasets.tuning_dataset,
+                test_dataset: datasets.test_dataset,
+            }),
+        }).then((resp) => {
+            if (!resp.success) {
+                throw new Error(_flowDetailText(resp.error) || 'Baseline report failed');
+            }
+            if (resp.flow_steps) {
+                renderOptimizationFlow(resp.flow_steps);
+            } else {
+                _setLocalFlowStep('baseline_test_report', 'done', 'Baseline test report ready');
+            }
+            showBaselineMetricsSummary(resp.baseline_test_metrics || {});
+            loadSavedReportMarkdown(expIdVal, '#baselineReportMarkdown', 'report_baseline_test.md');
+            return resp;
+        }).catch((err) => {
+            const msg = _asErrorMessage(err);
+            if (n < maxAttempts && /connection|timeout|disconnected/i.test(msg)) {
+                _setLocalFlowStep('baseline_test_report', 'running', `Retrying report (${n + 1}/${maxAttempts})...`);
+                return new Promise((r) => setTimeout(r, 1500 * n)).then(() => attempt(n + 1));
+            }
+            _setLocalFlowStep('baseline_test_report', 'failed', msg);
+            throw new Error(msg);
+        });
+    }
+    return attempt(1);
+}
+
+function generateBaselineTestReport(expIdVal, options = {}) {
+    if (!expIdVal) return Promise.reject(new Error('Missing experiment id'));
+    return runBaselineTestReportStep(expIdVal, collectExpFormData(), !!options.force);
+}
+
+function onBaselineTestFinished(expIdVal) {
+    _setLocalFlowStep('baseline_test', 'done', 'Baseline test completed');
+    if (window._suppressAutoReport) {
+        return;
+    }
+    generateBaselineTestReport(expIdVal).catch(() => {});
+}
+
+function _setLocalFlowStep(stepId, status, detail) {
+    const steps = (window._lastFlowSteps || DEFAULT_OPT_FLOW).map((s) => ({ ...s }));
+    const target = steps.find((s) => s.id === stepId);
+    if (target) {
+        target.status = status;
+        if (detail !== undefined && detail !== null && detail !== '') {
+            target.detail = _flowDetailText(detail);
+        } else if (status === 'pending') {
+            target.detail = '';
+        }
+    }
+    window._lastFlowSteps = steps;
+    renderOptimizationFlow(steps);
+}
+
+const DEFAULT_OPT_FLOW = [
+    { id: 'baseline_test', label: '1. Baseline Test Run', status: 'pending', detail: 'Run on test dataset' },
+    { id: 'baseline_test_report', label: '2. Baseline Test Report', status: 'pending', detail: 'Auto-generated after step 1' },
+    { id: 'baseline_tuning', label: '3. Tuning Baseline Run', status: 'pending' },
+    { id: 'baseline_tuning_report', label: '4. Tuning Report & Refine', status: 'pending' },
+    { id: 'optimize_rounds', label: '5. Optimize Rounds (tuning)', status: 'pending' },
+    { id: 'final_test', label: '6. Optimized Test Run', status: 'pending' },
+    { id: 'final_test_report', label: '7. Compare Test Reports', status: 'pending' },
+];
+
+function _flowIcon(status) {
+    if (status === 'done') return '✓';
+    if (status === 'running') return '…';
+    if (status === 'skipped') return '–';
+    if (status === 'failed') return '!';
+    return '○';
+}
+
+const FLOW_STEP_ORDER = [
+    'baseline_test',
+    'baseline_test_report',
+    'baseline_tuning',
+    'baseline_tuning_report',
+    'optimize_rounds',
+    'final_test',
+    'final_test_report',
+];
+
+const STEP_RUN_LABELS = {
+    baseline_test: 'Run',
+    baseline_test_report: 'Generate',
+    baseline_tuning: 'Run',
+    baseline_tuning_report: 'Run',
+    optimize_rounds: 'Run',
+    final_test: 'Run',
+    final_test_report: 'Generate',
+};
+
+const ASYNC_PIPELINE_STEPS = new Set([
+    'baseline_tuning',
+    'baseline_tuning_report',
+    'optimize_rounds',
+    'final_test',
+    'final_test_report',
+]);
+
+function _flowProgressHtml(stepId) {
+    if (stepId === 'baseline_test') {
+        return `
+        <div class="progress exp-progress-step w-100">
+          <div id="overallProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Baseline test progress">0%</div>
+        </div>`;
+    }
+    if (stepId === 'optimize_rounds') {
+        return `
+        <div class="progress exp-progress-step w-100">
+          <div id="optimizationProgress" class="progress-bar" role="progressbar" title="Optimization progress">0%</div>
+        </div>`;
+    }
+    return '';
+}
+
+function buildFlowShellForContainer(containerSel, stepIds) {
+    const $root = $(containerSel);
+    if (!$root.length || $root.find('.opt-flow-step').length) {
+        return;
+    }
+    const html = DEFAULT_OPT_FLOW.filter((s) => stepIds.includes(s.id)).map((s) => {
+        const row3 = _flowProgressHtml(s.id);
+        return `
+      <div class="opt-flow-step status-pending" data-step="${escHtml(s.id)}">
+        <div class="opt-flow-row opt-flow-row-main">
+          <div class="opt-flow-icon">○</div>
+          <div class="opt-flow-label">${escHtml(s.label || s.id)}</div>
+          <button type="button" class="btn btn-sm btn-outline-primary opt-flow-run-btn ms-auto" data-step-run="${escHtml(s.id)}" disabled>${escHtml(STEP_RUN_LABELS[s.id] || 'Run')}</button>
+        </div>
+        <div class="opt-flow-row opt-flow-row-status">
+          <div class="opt-flow-detail"></div>
+        </div>
+        <div class="opt-flow-row opt-flow-row-progress${row3 ? '' : ' is-empty'}">
+          ${row3}
+        </div>
+      </div>
+    `;
+    }).join('');
+    $root.html(html);
+}
+
+function buildAllFlowShells() {
+    Object.values(FLOW_TAB_GROUPS).forEach(({ container, stepIds }) => {
+        buildFlowShellForContainer(container, stepIds);
+    });
+    if (typeof progress === 'number') {
+        updateProgress(progress);
+    }
+}
+
+function buildOptimizationFlowShell() {
+    buildAllFlowShells();
+}
+
+function clearDownstreamFlowSteps(fromIndex) {
+    const steps = (window._lastFlowSteps || DEFAULT_OPT_FLOW).map((s, i) => {
+        if (i > fromIndex) {
+            const defaults = DEFAULT_OPT_FLOW.find((d) => d.id === s.id) || s;
+            return { ...defaults, status: 'pending', detail: defaults.detail || '' };
+        }
+        return { ...s };
+    });
+    window._lastFlowSteps = steps;
+    renderOptimizationFlow(steps);
+}
+
+function updateStepRunButtons(flowSteps) {
+    const steps = flowSteps || window._lastFlowSteps || DEFAULT_OPT_FLOW;
+    const busy = !!window._pipelineRunning;
+    const globalIndex = Object.fromEntries(steps.map((s, i) => [s.id, i]));
+    steps.forEach((s, i) => {
+        const prevDone = i === 0 || steps[i - 1].status === 'done' || steps[i - 1].status === 'skipped';
+        const $btn = $(`.opt-flow-run-btn[data-step-run="${s.id}"]`);
+        const canRun = prevDone && !busy && s.status !== 'running';
+        $btn.prop('disabled', !canRun);
+        if (s.status === 'done' || s.status === 'skipped') {
+            $btn.text('Re-run');
+        } else {
+            $btn.text(STEP_RUN_LABELS[s.id] || 'Run');
+        }
+    });
+    $('#runBaselineTabBtn, #runTuningTabBtn, #runFinalTabBtn').prop('disabled', busy);
+    updateWizardTabAccess(steps);
+}
+
+function renderOptimizationFlow(flowSteps) {
+    const steps = flowSteps && flowSteps.length ? flowSteps : DEFAULT_OPT_FLOW;
+    window._lastFlowSteps = steps;
+    buildAllFlowShells();
+    steps.forEach((s) => {
+        $(`.opt-flow-step[data-step="${s.id}"]`).each(function () {
+            const $step = $(this);
+            $step.attr('class', `opt-flow-step status-${escHtml(s.status || 'pending')}`);
+            $step.find('.opt-flow-icon').first().text(_flowIcon(s.status));
+            $step.find('.opt-flow-label').first().text(s.label || s.id);
+        const $detail = $step.find('.opt-flow-detail').first();
+        const detailText = _flowDetailText(s.detail);
+        if (detailText) {
+            $detail.text(detailText).show();
+        } else {
+            $detail.text('').hide();
+        }
+        });
+    });
+    updateStepRunButtons(steps);
+}
+
+function setPipelineRunning(running) {
+    window._pipelineRunning = !!running;
+    updateStepRunButtons(window._lastFlowSteps);
+}
+
+function runBaselineTestViaSaveAndStream() {
+    return new Promise((resolve, reject) => {
+        const formData = collectExpFormData();
+        const autoSplitEnabled = $('#autoSplitMode').is(':checked');
+        if (!formData.runner_id || !formData.test_dataset) {
+            reject(new Error('Please select Runner and Test Dataset'));
+            return;
+        }
+        if (!autoSplitEnabled && !formData.tuning_dataset) {
+            reject(new Error('Please select Tuning Dataset'));
+            return;
+        }
+        $.ajax({
+            url: '/exp/api/save',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success(resp) {
+                if (!resp.success) {
+                    reject(new Error(resp.error || 'Save failed'));
+                    return;
+                }
+                $('#exp_id').text(resp.exp_id);
+                $('#exp_id').data('id', resp.exp_id);
+                if (resp.tuning_dataset) {
+                    $('#tuningDatasetSelect').val(resp.tuning_dataset);
+                    window._savedTuningFilename = resp.tuning_dataset;
+                }
+                window._baselineStreamResolve = resolve;
+                window._baselineStreamReject = reject;
+                start_task(resp.exp_id);
+            },
+            error(xhr) {
+                reject(new Error((xhr.responseJSON && xhr.responseJSON.error) || 'Save request failed'));
+            },
+        });
+    });
+}
+
+function runAsyncOptimizationStep(expIdVal, stepId, datasets, force) {
+    return new Promise((resolve, reject) => {
+        if (window.optimizationSource) {
+            window.optimizationSource.close();
+            window.optimizationSource = null;
+        }
+        _setLocalFlowStep(stepId, 'running', 'Running...');
+        if (stepId === 'optimize_rounds') {
+            $('#optimizationProgress').css('width', '0%').text('0%').addClass('progress-bar-animated progress-bar-striped');
+        }
+        $.ajax({
+            url: `/exp/api/${encodeURIComponent(expIdVal)}/optimization-step/${encodeURIComponent(stepId)}/start`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                tuning_dataset: datasets.tuning_dataset,
+                test_dataset: datasets.test_dataset,
+                force,
+            }),
+            success(resp) {
+                if (!resp.success || !resp.task_id) {
+                    const errMsg = _flowDetailText(resp.error) || 'Failed to start';
+                    _setLocalFlowStep(stepId, 'failed', errMsg);
+                    reject(new Error(errMsg));
+                    return;
+                }
+                const es = new EventSource(`/exp/stream/optimize-loop/${encodeURIComponent(resp.task_id)}`);
+                window.optimizationSource = es;
+                es.onmessage = function (e) {
+                    if (e.data === '[DONE]') {
+                        es.close();
+                        window.optimizationSource = null;
+                        resolve();
+                        return;
+                    }
+                    let msg = {};
+                    try {
+                        msg = JSON.parse(e.data);
+                    } catch (_err) {
+                        return;
+                    }
+                    if (stepId === 'optimize_rounds') {
+                        const p = Math.max(0, Math.min(100, Number(msg.progress || 0)));
+                        $('#optimizationProgress').css('width', `${p}%`).text(`${p}%`);
+                    }
+                    if (msg.flow_steps) {
+                        renderOptimizationFlow(msg.flow_steps);
+                    }
+                    if (msg.status === 'failed') {
+                        const errMsg = _flowDetailText(msg.error) || 'Step failed';
+                        _setLocalFlowStep(stepId, 'failed', errMsg);
+                        es.close();
+                        window.optimizationSource = null;
+                        reject(new Error(errMsg));
+                    }
+                    if (msg.status === 'completed' && msg.result) {
+                        if (msg.result.flow_steps) {
+                            renderOptimizationFlow(msg.result.flow_steps);
+                        }
+                        if (msg.result.summary) {
+                            window._lastOptimizationSummary = msg.result.summary;
+                            $('#optimizationResult').html(renderOptimizeSummary(msg.result.summary));
+                            renderOptimizeSummaryCharts(msg.result.summary);
+                            if (stepId === 'final_test_report') {
+                                renderOptimizationCompare(msg.result.summary);
+                                loadOptimizedReportMarkdown(msg.result.summary.optimized_test_exp_id);
+                            }
+                        }
+                    }
+                };
+                es.onerror = function () {
+                    es.close();
+                    window.optimizationSource = null;
+                    reject(new Error('Stream disconnected'));
+                };
+            },
+            error(xhr) {
+                const msg = _asErrorMessage(xhr);
+                _setLocalFlowStep(stepId, 'failed', msg);
+                reject(new Error(msg));
+            },
+        });
+    });
+}
+
+function runPipelineStep(stepId, options = {}) {
+    const force = !!options.force;
+    const manageBusy = options.manageBusy !== false;
+    const expIdVal = getExpId();
+    const datasets = collectExpFormData();
+    if (manageBusy) setPipelineRunning(true);
+    const done = () => {
+        if (manageBusy) {
+            setPipelineRunning(false);
+            refreshOptimizationPreflight();
+        }
+    };
+
+    if (stepId === 'baseline_test') {
+        const chain = force && expIdVal && expIdVal !== 'Not saved yet'
+            ? $.ajax({
+                url: `/exp/api/${encodeURIComponent(expIdVal)}/optimization-step/baseline_test`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ force: true, ...datasets }),
+            })
+            : $.Deferred().resolve();
+        return chain
+            .then(() => {
+                _setLocalFlowStep('baseline_test', 'running', 'Running baseline test...');
+                return runBaselineTestViaSaveAndStream();
+            })
+            .then(done)
+            .catch((err) => {
+                _setLocalFlowStep('baseline_test', 'failed', err.message || 'Failed');
+                if (manageBusy) setPipelineRunning(false);
+                alert(err.message || 'Baseline test failed');
+            });
+    }
+
+    if (stepId === 'baseline_test_report') {
+        if (!expIdVal || expIdVal === 'Not saved yet') {
+            if (manageBusy) setPipelineRunning(false);
+            alert('Save experiment first.');
+            return Promise.resolve();
+        }
+        return runBaselineTestReportStep(expIdVal, datasets, force)
+            .then(done)
+            .catch((err) => {
+                if (manageBusy) setPipelineRunning(false);
+                alert(err.message || 'Report generation failed');
+            });
+    }
+
+    if (ASYNC_PIPELINE_STEPS.has(stepId)) {
+        if (!expIdVal || expIdVal === 'Not saved yet') {
+            if (manageBusy) setPipelineRunning(false);
+            alert('Save experiment first.');
+            return Promise.resolve();
+        }
+        return runAsyncOptimizationStep(expIdVal, stepId, datasets, force)
+            .then(done)
+            .catch((err) => {
+                if (manageBusy) setPipelineRunning(false);
+                alert(err.message || `Step ${stepId} failed`);
+            });
+    }
+
+    if (manageBusy) setPipelineRunning(false);
+    return Promise.resolve();
+}
+
+async function runAllPipeline() {
+    if (window._pipelineRunning) return;
+    window._suppressAutoReport = true;
+    setPipelineRunning(true);
+    try {
+        for (let i = 0; i < FLOW_STEP_ORDER.length; i += 1) {
+            const stepId = FLOW_STEP_ORDER[i];
+            const steps = window._lastFlowSteps || DEFAULT_OPT_FLOW;
+            const isRerun = steps[i] && steps[i].status === 'done';
+            if (isRerun) {
+                clearDownstreamFlowSteps(i);
+            }
+            await runPipelineStep(stepId, { force: isRerun, manageBusy: false });
+        }
+    } finally {
+        window._suppressAutoReport = false;
+        setPipelineRunning(false);
+        refreshOptimizationPreflight();
+    }
+}
+
+function refreshOptimizationPreflight() {
+    const id = getExpId();
+    if (!id || id === 'Not saved yet') {
+        renderOptimizationFlow(DEFAULT_OPT_FLOW);
+        updateWizardTabAccess(DEFAULT_OPT_FLOW);
+        return $.Deferred().resolve().promise();
+    }
+    const stayTab = window._wizardLockTab ? window._wizardTabIndex : null;
+    return $.getJSON(`/exp/api/${encodeURIComponent(id)}/optimization-preflight`)
+        .done((resp) => {
+            if (!resp.success) {
+                renderOptimizationFlow(DEFAULT_OPT_FLOW);
+                return;
+            }
+            if (resp.tuning_dataset) {
+                $('#tuningDatasetSelect').val(resp.tuning_dataset);
+                window._savedTuningFilename = resp.tuning_dataset;
+            }
+            if (resp.test_dataset) {
+                $('#datasetSelect').val(resp.test_dataset);
+                window._savedTestFilename = resp.test_dataset;
+            }
+            renderOptimizationFlow(resp.flow_steps || DEFAULT_OPT_FLOW);
+            const tabId = WIZARD_TABS[window._wizardTabIndex || 0];
+            refreshWizardTabContent(tabId);
+            if (resp.baseline_test_ready && !resp.baseline_report_ready && tabId === 'baseline' && !window._suppressAutoReport && !window._pipelineRunning) {
+                generateBaselineTestReport(id).then(() => refreshOptimizationPreflight()).catch(() => {});
+                return;
+            }
+            if (resp.awaiting_optimization_confirm) {
+                loadSavedReportMarkdown(id, '#baselineReportMarkdown', 'report_baseline_test.md');
+                showBaselineMetricsSummary(resp.baseline_test_metrics || {});
+            }
+            if (stayTab != null) {
+                showWizardTab(stayTab);
+            }
+        })
+        .fail(() => {
+            renderOptimizationFlow(DEFAULT_OPT_FLOW);
+        });
+}
+
+function loadSavedReportMarkdown(expIdVal, containerSel, reportName) {
+    const $el = $(containerSel);
+    const filename = reportName || 'report_baseline_test.md';
+    if (!expIdVal) {
+        $el.html('<p class="text-muted p-3">No report yet.</p>');
+        return;
+    }
+    fetch(`/exp/api/${encodeURIComponent(expIdVal)}/report-file/${encodeURIComponent(filename)}`)
+        .then((r) => {
+            if (!r.ok && filename !== 'report.md') {
+                return fetch(`/exp/api/${encodeURIComponent(expIdVal)}/report-file/report.md`);
+            }
+            return r;
+        })
+        .then((r) => {
+            if (!r.ok) {
+                $el.html('<p class="text-muted p-3">Report not generated yet.</p>');
+                return null;
+            }
+            return r.text();
+        })
+        .then((text) => {
+            if (text === null) return;
+            if (!text.trim()) {
+                $el.html('<p class="text-muted p-3">Report not generated yet.</p>');
+                return;
+            }
+            $el.html(marked.parse(text));
+            enhanceReportMarkupIn($el);
+        })
+        .catch(() => $el.html('<p class="text-muted p-3">Report not available.</p>'));
+}
+
+function showResultAccordion(_wrapId, _expand) {
+    /* Results are shown inline in wizard tabs. */
+}
+
+function loadOptimizedReportMarkdown(expIdVal) {
+    if (!expIdVal) {
+        $('#optimizedReportMarkdown').html('<p class="text-muted p-3">No optimized test report yet.</p>');
+        return;
+    }
+    loadSavedReportMarkdown(expIdVal, '#optimizedReportMarkdown', 'report_optimized_test.md');
+}
+
+function enhanceReportMarkupIn($root) {
+    if (!$root || !$root.length) return;
+    styleReportTables($root);
+    colorSuggestionPlusMinus($root);
+}
+
+function renderOptimizationCompare(summary) {
+    if (!summary) {
+        $('#optimizationCompare').html('<p class="text-muted p-3">Comparison not available yet.</p>');
+        return;
+    }
+    window._lastOptimizationSummary = summary;
+    const b = summary.baseline_test_metrics || {};
+    const f = summary.final_test_metrics || summary.final_best_metrics || {};
+    const bExp = summary.baseline_exp_id || '';
+    const oExp = summary.optimized_test_exp_id || summary.final_best_exp_id || '';
+    $('#optimizationCompare').html(`
+      <div class="card">
+        <div class="card-header"><strong>Test Set Comparison (Baseline vs Optimized)</strong></div>
+        <div class="card-body">
+          <div class="report-table-wrap">
+            <table class="report-table table table-sm mb-0">
+              <thead><tr><th>Phase</th><th>Precision</th><th>Recall</th><th>F1</th><th>Experiment</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Baseline Test</td>
+                  <td>${Number(b.precision || 0).toFixed(4)}</td>
+                  <td>${Number(b.recall || 0).toFixed(4)}</td>
+                  <td>${Number(b.f1 || 0).toFixed(4)}</td>
+                  <td>${bExp ? `<a href="/exp/${encodeURIComponent(bExp)}"><code>${escHtml(bExp)}</code></a>` : '-'}</td>
+                </tr>
+                <tr>
+                  <td>Optimized Test</td>
+                  <td>${Number(f.precision || 0).toFixed(4)}</td>
+                  <td>${Number(f.recall || 0).toFixed(4)}</td>
+                  <td>${Number(f.f1 || 0).toFixed(4)}</td>
+                  <td>${oExp ? `<a href="/exp/${encodeURIComponent(oExp)}"><code>${escHtml(oExp)}</code></a>` : '<span class="text-muted">—</span>'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `);
+    loadSavedReportMarkdown(bExp, '#baselineReportMarkdown', 'report_baseline_test.md');
+    loadOptimizedReportMarkdown(oExp);
 }
 
 function disposeOptimizeSummaryCharts() {
@@ -600,6 +1562,10 @@ function renderOptimizeSummary(summary) {
     const finalBest = summary.final_best_exp_id || '';
     const finalGraph = summary.final_graph_id || '';
     const finalMetrics = summary.final_best_metrics || {};
+    const baselineTestMetrics = summary.baseline_test_metrics || {};
+    const finalTestMetrics = summary.final_test_metrics || finalMetrics || {};
+    const tuningDataset = summary.tuning_dataset || '';
+    const testDataset = summary.test_dataset || '';
     const rounds = Array.isArray(summary.rounds) ? summary.rounds : [];
     const verMap = summary.accepted_version_map || {};
     const acceptedCount = rounds.filter((r) => r && r.accepted).length;
@@ -658,17 +1624,40 @@ function renderOptimizeSummary(summary) {
               <div class="opt-kpi-label">Accepted Rounds</div>
               <div class="opt-kpi-value text-success">${acceptedCount}</div>
             </div>
+            <div class="opt-kpi-item">
+              <div class="opt-kpi-label">Tuning Dataset</div>
+              <div class="opt-kpi-value"><code>${escHtml(tuningDataset || '-')}</code></div>
+            </div>
+            <div class="opt-kpi-item">
+              <div class="opt-kpi-label">Test Dataset</div>
+              <div class="opt-kpi-value"><code>${escHtml(testDataset || '-')}</code></div>
+            </div>
           </div>
 
           <div class="report-table-wrap mb-3">
             <table class="report-table table table-striped table-hover table-sm align-middle mb-0">
               <thead>
-                <tr><th>Final Metric</th><th>Value</th></tr>
+                <tr><th>Metric Context</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
               </thead>
               <tbody>
-                <tr><td>Precision</td><td>${Number(finalMetrics.precision || 0).toFixed(4)}</td></tr>
-                <tr><td>Recall</td><td>${Number(finalMetrics.recall || 0).toFixed(4)}</td></tr>
-                <tr><td>F1</td><td>${Number(finalMetrics.f1 || 0).toFixed(4)}</td></tr>
+                <tr>
+                  <td>Baseline (Test)</td>
+                  <td>${Number(baselineTestMetrics.precision || 0).toFixed(4)}</td>
+                  <td>${Number(baselineTestMetrics.recall || 0).toFixed(4)}</td>
+                  <td>${Number(baselineTestMetrics.f1 || 0).toFixed(4)}</td>
+                </tr>
+                <tr>
+                  <td>Final Best (Test)</td>
+                  <td>${Number(finalTestMetrics.precision || 0).toFixed(4)}</td>
+                  <td>${Number(finalTestMetrics.recall || 0).toFixed(4)}</td>
+                  <td>${Number(finalTestMetrics.f1 || 0).toFixed(4)}</td>
+                </tr>
+                <tr>
+                  <td>Final Best (Tuning-Track)</td>
+                  <td>${Number(finalMetrics.precision || 0).toFixed(4)}</td>
+                  <td>${Number(finalMetrics.recall || 0).toFixed(4)}</td>
+                  <td>${Number(finalMetrics.f1 || 0).toFixed(4)}</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -762,42 +1751,50 @@ function renderOptimizeSummaryCharts(summary) {
     }, 60);
 }
 
-$('#optimizeLoopBtn').on('click', function () {
+function startOptimizationLoop() {
     const expIdVal = $('#exp_id').attr('data-id') || $('#exp_id').data('id') || expId;
     if (!expIdVal || expIdVal === 'Not saved yet') {
-        alert('Please run and save an experiment first.');
+        alert('Save experiment and complete baseline test first.');
         return;
     }
-    const $btn = $(this);
-    if (window.optimizeLoopSource) {
-        window.optimizeLoopSource.close();
-        window.optimizeLoopSource = null;
+    if (window.optimizationSource) {
+        window.optimizationSource.close();
+        window.optimizationSource = null;
     }
-    $btn.prop('disabled', true);
-    $('#optimizeLoopStatus').text('Starting optimize loop...');
-    $('#optimizeLoopProgress').css('width', '0%').text('0%').addClass('progress-bar-animated progress-bar-striped');
-    $('#optimizeLoopResult').html('');
+    setOptimizationControlsEnabled(false);
+    $('#optimizationStatus').text('Starting optimization...');
+    $('#optimizationProgress').css('width', '0%').text('0%').addClass('progress-bar-animated progress-bar-striped');
+    $('#optimizationResult').html('');
+    $('#optimizationCompare').html('');
+    $('#wrapOptimizationResult').addClass('d-none');
+    $('#wrapOptimizationCompare').addClass('d-none');
     disposeOptimizeSummaryCharts();
+
     $.ajax({
         url: '/exp/api/optimize-loop/start',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ exp_id: expIdVal }),
+        data: JSON.stringify({
+            exp_id: expIdVal,
+            tuning_dataset: $('#tuningDatasetSelect').val(),
+            test_dataset: $('#datasetSelect').val(),
+        }),
         success: function (resp) {
-            if (!resp.success) {
-                $('#optimizeLoopStatus').text('Failed');
-                alert(resp.error || 'Optimize loop failed');
-                $btn.prop('disabled', false);
+            if (!resp.success || !resp.task_id) {
+                $('#optimizationStatus').text('Failed to start');
+                alert(resp.error || 'Optimization failed to start');
+                setOptimizationControlsEnabled(true);
                 return;
             }
             const taskId = resp.task_id;
             const es = new EventSource(`/exp/stream/optimize-loop/${encodeURIComponent(taskId)}`);
-            window.optimizeLoopSource = es;
+            window.optimizationSource = es;
             es.onmessage = function (e) {
                 if (e.data === '[DONE]') {
                     es.close();
-                    $btn.prop('disabled', false);
-                    $('#optimizeLoopProgress').removeClass('progress-bar-animated progress-bar-striped');
+                    setOptimizationControlsEnabled(true);
+                    $('#optimizationProgress').removeClass('progress-bar-animated progress-bar-striped');
+                    refreshOptimizationPreflight();
                     return;
                 }
                 let msg = {};
@@ -807,30 +1804,42 @@ $('#optimizeLoopBtn').on('click', function () {
                     return;
                 }
                 const p = Math.max(0, Math.min(100, Number(msg.progress || 0)));
-                $('#optimizeLoopProgress').css('width', `${p}%`).text(`${p}%`);
-                $('#optimizeLoopStatus').text(`${msg.stage || 'running'}: ${msg.message || ''}`);
-                if (msg.status === 'failed') {
-                    $('#optimizeLoopStatus').text(`Failed: ${msg.error || 'unknown error'}`);
-                    $('#optimizeLoopProgress').removeClass('progress-bar-animated progress-bar-striped');
-                    es.close();
-                    $btn.prop('disabled', false);
+                $('#optimizationProgress').css('width', `${p}%`).text(`${p}%`);
+                $('#optimizationStatus').text(`${msg.stage || 'running'}: ${msg.message || ''}`);
+                if (msg.flow_steps) {
+                    renderOptimizationFlow(msg.flow_steps);
                 }
-                if (msg.summary) {
-                    $('#optimizeLoopResult').html(renderOptimizeSummary(msg.summary));
+                if (msg.status === 'failed') {
+                    $('#optimizationStatus').text(`Failed: ${msg.error || 'unknown error'}`);
+                    $('#optimizationProgress').removeClass('progress-bar-animated progress-bar-striped');
+                    es.close();
+                    setOptimizationControlsEnabled(true);
+                }
+                if (msg.status === 'completed' && msg.summary) {
+                    $('#optimizationResult').html(renderOptimizeSummary(msg.summary));
                     renderOptimizeSummaryCharts(msg.summary);
+                    renderOptimizationCompare(msg.summary);
+                    showResultAccordion('#wrapOptimizationResult', true);
+                    if (msg.summary.flow_steps) {
+                        renderOptimizationFlow(msg.summary.flow_steps);
+                    }
+                } else if (msg.summary) {
+                    $('#optimizationResult').html(renderOptimizeSummary(msg.summary));
+                    renderOptimizeSummaryCharts(msg.summary);
+                    showResultAccordion('#wrapOptimizationResult', false);
                 }
             };
             es.onerror = function () {
-                $('#optimizeLoopStatus').text('Stream disconnected');
-                $('#optimizeLoopProgress').removeClass('progress-bar-animated progress-bar-striped');
+                $('#optimizationStatus').text('Stream disconnected');
+                $('#optimizationProgress').removeClass('progress-bar-animated progress-bar-striped');
                 es.close();
-                $btn.prop('disabled', false);
+                setOptimizationControlsEnabled(true);
             };
         },
         error: function (xhr) {
-            $('#optimizeLoopStatus').text('Failed');
-            alert((xhr.responseJSON && xhr.responseJSON.error) || 'Optimize loop request failed');
-            $btn.prop('disabled', false);
-        }
+            $('#optimizationStatus').text('Failed to start optimization');
+            alert((xhr.responseJSON && xhr.responseJSON.error) || 'Optimization request failed');
+            setOptimizationControlsEnabled(true);
+        },
     });
-});
+}

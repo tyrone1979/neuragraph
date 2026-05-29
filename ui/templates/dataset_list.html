@@ -16,7 +16,7 @@
          role="button"
          aria-expanded="false"
          aria-controls="collapse-{{ dataset_name|e }}">
-        <span>{{ dataset_name }}</span>
+        <span>{% if dataset_name == 'raw' %}Raw (data/raw){% else %}{{ dataset_name }}{% endif %}</span>
         <span class="badge bg-secondary rounded-pill">{{ txt_files|length }}</span>
       </a>
 
@@ -43,7 +43,8 @@
       <div class="p-3">
         <!-- 顶部栏：搜索组与表格同宽 -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">{{ curr_file }}</h5>
+          <h5 class="mb-0">{{ dataset_label|default(curr_file) }}</h5>
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('testset.list_tests') }}">Structured Datasets</a>
           <small class="text-muted">Page {{ page }} / {{ max_page }}</small>
         </div>
         <!-- 搜索栏宽度 = 表格宽度 -->
@@ -71,7 +72,7 @@
               <td><a href="{{ url_for('dataset.dataset_get_doc', pmid=a.pmid, dataset=curr_dataset , file=curr_file) }}" target="_blank">{{ a.pmid }}</a></td>
               <td>{{ a.title }}</td>
               <td class="text-center">{{ a.entities|length }}</td>
-              <td class="text-center">{{ a.res|length }}</td>
+              <td class="text-center">{{ a.res|length if a.res is defined else 0 }}</td>
             </tr>
             {% endfor %}
           </tbody>

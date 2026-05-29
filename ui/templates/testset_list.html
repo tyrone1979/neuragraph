@@ -3,22 +3,159 @@
 {% from "components/runner_selector.html" import runner_selector %}
 {% block content %}
 
-<h1>Experiment Dataset Manager</h1>
+<h1>Dataset Manager</h1>
 
-<form action="/testset/upload" method="post" enctype="multipart/form-data">
+<div class="card mb-4">
+  <div class="card-body">
+    <h4 class="card-title">1. Raw PubTator Dataset</h4>
+    <p class="text-muted mb-3">Upload gold PubTator <code>.txt</code> (not tied to any agent). Browse raw docs, then split into tuning / test CSV.</p>
 
-    <h4>Create a new experiment dataset</h4>
-    <p>Step 1. Select an agent/graph.{{ runner_selector() }}</p>
-    <div class="mb-3">
-        <label>File</label>
-        <input type="file" name="file" required>
+    <form action="{{ url_for('dataset.upload_raw') }}" method="post" enctype="multipart/form-data" class="row g-2 align-items-end mb-3">
+      <div class="col-md-8">
+        <label class="form-label">Upload raw file</label>
+        <input type="file" name="file" class="form-control" accept=".txt" required>
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-primary w-100">Upload Raw</button>
+      </div>
+    </form>
+
+    <table class="table table-sm table-bordered bg-white">
+      <thead class="table-light">
+        <tr><th>File</th><th>Location</th><th>Docs</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for r in raw_sources %}
+        <tr>
+          <td><code>{{ r.name }}</code></td>
+          <td>{{ r.location }}</td>
+          <td>{{ r.count if r.count is not none else '—' }}</td>
+          <td>
+            <a class="btn btn-sm btn-outline-secondary"
+               href="{{ url_for('dataset.dataset_list_view', dataset=r.dataset_key, file=r.name) }}">Browse</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-muted">No raw datasets yet. Upload a PubTator .txt file.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <hr>
+    <h5>Split raw → tuning / test CSV</h5>
+    <div class="row g-2">
+      <div class="col-md-3">
+        <label class="form-label">Raw source</label>
+        <select class="form-select" id="splitSource">
+          {% for r in raw_sources %}
+          <option value="{{ r.source }}">{{ r.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Tuning size</label>
+        <input type="number" class="form-control" id="splitSize" value="20" min="1">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Target agent / workflow</label>
+        <input class="form-control" id="splitRunner" value="{{ default_runner }}" list="runnerIdList">
+        <datalist id="runnerIdList">
+          <option value="wf_cid_re_llm_linear">
+          <option value="wf_cid_ner_llm_eval">
+        </datalist>
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="splitWriteRemain" checked>
+          <label class="form-check-label" for="splitWriteRemain">Write test set</label>
+        </div>
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button type="button" class="btn btn-success w-100" id="btnSplitRaw">Split Dataset</button>
+      </div>
     </div>
-    <p>Step 2. Upload a dataset for this agent/graph</p>
-    <button type="submit" class="btn btn-primary">Upload</button>
-</form>
-<br>
-<h4>Available Dataset List</h4>
-<!-- 分页表格组件 -->
+    <pre id="splitResult" class="small mt-3 bg-light p-2" style="min-height:3rem;"></pre>
+
+    {% if split_outputs %}
+    <p class="small text-muted mt-2 mb-1">Recent splits for <code>{{ default_runner }}</code>:</p>
+    <ul class="small mb-0">
+      {% for s in split_outputs %}
+      <li>
+        <span class="badge text-bg-secondary">{{ s.kind }}</span>
+        <a href="{{ url_for('testset.view_structured', runner_id=s.runner_id, filename=s.name) }}">{{ s.name }}</a>
+        {% if s.count is not none %}({{ s.count }} rows){% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h4 class="card-title">2. Agent / Workflow Dataset (CSV)</h4>
+    <p class="text-muted mb-3">Select an agent or workflow, upload a structured CSV, or use datasets produced by the split step above.</p>
+
+    <form action="{{ url_for('testset.upload_testset') }}" method="post" enctype="multipart/form-data" class="mb-4">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label">Agent / workflow</label>
+          {{ runner_selector(id_prefix='upload', label='', required=true) }}
+        </div>
+        <div class="col-md-5">
+          <label class="form-label">CSV / TXT file</label>
+          <input type="file" name="file" class="form-control" accept=".csv,.txt,.json" required>
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-primary w-100">Upload</button>
+        </div>
+      </div>
+    </form>
+
+    <form method="get" action="{{ url_for('testset.list_tests') }}" class="row g-2 align-items-end mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Filter by agent / workflow</label>
+        <input class="form-control" name="runner_id" value="{{ default_runner }}" list="runnerIdList">
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100">Apply Filter</button>
+      </div>
+    </form>
+
+    <hr>
+    <h5>Random sample from test dataset</h5>
+    <p class="text-muted small">Pick an existing CSV under the selected agent/workflow and randomly draw N unique rows into a new file.</p>
+    <div class="row g-2">
+      <div class="col-md-3">
+        <label class="form-label">Source test CSV</label>
+        <select class="form-select" id="sampleSource" {% if not agent_datasets %}disabled{% endif %}>
+          {% for d in agent_datasets %}
+          <option value="{{ d.name }}">{{ d.name }} ({{ d.count }} rows)</option>
+          {% else %}
+          <option value="">— no CSV datasets for this runner —</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Sample size (N)</label>
+        <input type="number" class="form-control" id="sampleSize" value="5" min="1">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Output CSV filename</label>
+        <input type="text" class="form-control" id="sampleOutput" placeholder="auto-generated if empty">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Seed</label>
+        <input type="number" class="form-control" id="sampleSeed" value="42">
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button type="button" class="btn btn-success w-100" id="btnSampleCsv" {% if not agent_datasets %}disabled{% endif %}>Sample N Rows</button>
+      </div>
+    </div>
+    <input type="hidden" id="sampleRunner" value="{{ default_runner }}">
+    <pre id="sampleResult" class="small mt-3 bg-light p-2" style="min-height:3rem;"></pre>
+
+    <hr>
     {{ paginated_table(
         items=tests,
         columns=['agent_id','name','fields_display','count', 'actions_html'],
@@ -26,8 +163,11 @@
         per_page=per_page,
         total=total,
         base_url='testset.list_tests',
-        extra_params={'search': search}
+        extra_params={'search': search, 'runner_id': default_runner},
+        safe_columns=['actions_html']
     ) }}
+  </div>
+</div>
 
-
+<script src="{{ url_for('static', filename='js/dataset_manager.js') }}"></script>
 {% endblock %}

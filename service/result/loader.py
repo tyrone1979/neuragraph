@@ -22,7 +22,7 @@ def compact_sample_for_report(state: Any) -> Any:
     if not isinstance(state, dict):
         return state
     compact: Dict[str, Any] = {}
-    for key in ("metrics", "relations", "pairs", "text", "entities", "route"):
+    for key in ("metrics", "relations", "pairs", "text", "entities", "route", "result", "head", "tail", "head_id", "tail_id", "filtered_entities", "error"):
         if key not in state or state[key] is None:
             continue
         val = state[key]
@@ -30,9 +30,50 @@ def compact_sample_for_report(state: Any) -> Any:
             compact[key] = val[:2000] + "…"
         elif key == "filtered_entities" and isinstance(val, list) and len(val) > 8:
             compact[key] = val[:8] + ["…"]
+        elif key == "text":
+            if isinstance(val, str):
+                compact[key] = val[:1500] + ("…" if len(val) > 1500 else "")
+            elif isinstance(val, list) and val:
+                t = str(val[0])
+                compact[key] = t[:1500] + ("…" if len(t) > 1500 else "")
+            else:
+                compact[key] = val
+        elif key == "relations":
+            if isinstance(val, list):
+                compact[key] = val[:40] if len(val) > 40 else val
+            elif isinstance(val, dict):
+                nested = val.get("relations")
+                if isinstance(nested, list):
+                    compact[key] = nested[:40]
+                elif isinstance(nested, dict):
+                    compact[key] = {
+                        "_note": "nested relations truncated for report",
+                        "preview": list(nested.keys())[:12],
+                    }
+                else:
+                    slim = {
+                        k: v
+                        for k, v in val.items()
+                        if k in ("result", "error", "head", "tail", "head_id", "tail_id")
+                    }
+                    compact[key] = slim or {"_note": "relations dict truncated"}
+            else:
+                compact[key] = val
+        elif key == "pairs" and isinstance(val, list) and len(val) > 20:
+            compact[key] = val[:20] + [{"_note": f"+{len(val) - 20} more pairs"}]
         else:
             compact[key] = val
     return compact if compact else state
+
+
+def compact_states_for_report(states: Dict[str, Any]) -> Dict[str, Any]:
+    """Compact all sample states for report LLM payload."""
+    if not states:
+        return {}
+    out: Dict[str, Any] = {}
+    for idx in iter_sample_indices(states):
+        out[idx] = compact_sample_for_report(states[idx])
+    return out
 
 
 class ResultLoader:

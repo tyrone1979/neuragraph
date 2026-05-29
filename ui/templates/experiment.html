@@ -2,119 +2,182 @@
 paginated_table %} {% from "components/runner_selector.html" import
 runner_selector %} {% block content %}
 <title>Run Experiment</title>
-    <link
-            rel="stylesheet"
-            href="{{ url_for('static', filename='css/exp.css') }}"
-    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/exp.css') }}" />
     <link href="{{ url_for('static', filename='css/prism.css') }}" rel="stylesheet" />
-<div class="container-fluid p-4">
-  <h1 class="mb-4">Run Experiment</h1>
+<div class="container-fluid p-4 experiment-unified">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="mb-0">Run Experiment</h1>
+    <div class="d-flex align-items-center flex-wrap gap-2 small">
+      <span class="text-muted">Experiment</span>
+      <span class="badge text-bg-info" id="exp_id" data-id="{{ exp_id }}">{{ exp_id if exp_id else 'Not saved yet' }}</span>
+      <span class="badge text-bg-danger" id="error_message"></span>
+    </div>
+  </div>
 
-  <ul class="nav nav-tabs mb-4" id="expTab">
-    <li class="nav-item">
-      <a class="nav-link active" data-bs-toggle="tab" href="#config"
-        >Configure</a
-      >
+  <ul class="nav nav-tabs exp-wizard-tabs" id="expWizardTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" type="button" data-wizard-tab="config" id="wizard-tab-btn-config">1. Configure</button>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="tab" href="#report">Report</a>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" type="button" data-wizard-tab="baseline" id="wizard-tab-btn-baseline" disabled>2. Baseline Test &amp; Report</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" type="button" data-wizard-tab="tuning" id="wizard-tab-btn-tuning" disabled>3. Tuning &amp; Optimize</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" type="button" data-wizard-tab="final" id="wizard-tab-btn-final" disabled>4. Optimized Test</button>
     </li>
   </ul>
 
-  <div class="tab-content">
-    <!-- 配置 Tab -->
-    <div class="tab-pane fade show active" id="config">
-      <form id="expForm">
-        <div class="row g-3">
-          <div class="col-md-4">
-            <!-- Step 1: Runner Selector -->
-            {{ runner_selector(id_prefix='runner', label='Runner (Workflow /
-            Agent)', required=true, runner_obj={ "id": runner_id, "type":
-            runner_type, "display": runner_display }) }}
-          </div>
-          <div class="col-md-4">
-              <label for="datasetSelect">Dataset (Test Set)</label><select class="form-select" id="datasetSelect" required>
-              <option value="">-- Select a runner first --</option>
-            </select>
-          </div>
-        </div>
-
-
-        <button type="submit" class="btn btn-primary mt-4 d-none" id="runExpBtn">
-          Start Experiment
-        </button>
-      </form>
-        <div class="d-flex align-items-center mb-4">
-            <h4 class="mb-0 me-3">Current Experiment:</h4>
-            <span class="badge text-bg-info" id="exp_id" data-id="{{ exp_id }}">{{ exp_id if exp_id else 'Not saved yet' }}</span>
-             <div><span class="badge text-bg-danger" id="error_message"></span></div>
-        </div>
-        <div class="progress mb-3 exp-progress-lg">
-            <div
-              id="overallProgress"
-              class="progress-bar progress-bar-striped progress-bar-animated"
-              role="progressbar"
-              title="Experiment progress">
-                    {{ progress }}%
+  <div class="card exp-wizard-card border-top-0 rounded-top-0">
+    <div class="card-body">
+      <div id="wizard-tab-config" class="wizard-tab-pane">
+        <form id="expForm">
+          <div class="row g-2">
+            <div class="col-12">
+              {{ runner_selector(id_prefix='runner', label='Runner', required=true, runner_obj={ "id": runner_id, "type": runner_type, "display": runner_display }) }}
+              <div id="runnerAgentRoster" class="runner-agent-roster mt-2">
+                {% if runner_agent_roster %}
+                <div class="small text-muted mb-1">Workflow agents</div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered mb-0 runner-agent-roster-table">
+                    <thead><tr><th>Agent</th><th>Version</th></tr></thead>
+                    <tbody>
+                      {% for a in runner_agent_roster %}
+                      <tr>
+                        <td><code class="small">{{ a.agent_id }}</code><div class="text-muted" style="font-size:.75rem">{{ a.name }}</div></td>
+                        <td><code class="small">{{ a.version }}</code></td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                {% else %}
+                <p class="small text-muted mb-0">Select a workflow to see agent versions.</p>
+                {% endif %}
+              </div>
             </div>
+            <div class="col-md-6">
+              <label for="datasetSelect" class="form-label small mb-1">Test Dataset</label>
+              <select class="form-select form-select-sm" id="datasetSelect" required>
+                <option value="">-- Select a runner first --</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="tuningDatasetSelect" class="form-label small mb-1">Tuning Dataset</label>
+              <select class="form-select form-select-sm" id="tuningDatasetSelect" required>
+                <option value="">-- Select a runner first --</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <div class="form-check form-switch mt-1">
+                <input class="form-check-input" type="checkbox" id="autoSplitMode">
+                <label class="form-check-label small" for="autoSplitMode">Auto split (CSV)</label>
+              </div>
+              <div class="row g-2 mt-1" id="autoSplitPanel" style="display:none;">
+                <div class="col-12">
+                  <label for="splitSourceSelect" class="form-label small">Source</label>
+                  <select class="form-select form-select-sm" id="splitSourceSelect">
+                    <option value="">-- Select source --</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label for="splitRatioInput" class="form-label small">Tuning Ratio</label>
+                  <input type="number" class="form-control form-control-sm" id="splitRatioInput" min="0.05" max="0.95" step="0.05" value="0.8">
+                </div>
+                <div class="col-6">
+                  <label for="splitSeedInput" class="form-label small">Seed</label>
+                  <input type="number" class="form-control form-control-sm" id="splitSeedInput" value="42">
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        {% if preview_tests is not none %}
+        <hr class="my-3">
+        <h6 class="small text-muted mb-2">Test Set Preview ({{ preview_total }} samples)</h6>
+        <div class="experiment-preview-table">
+          {{ paginated_table( items=preview_tests, columns=preview_fields,
+          page=preview_page, per_page=preview_per_page, total=preview_total,
+          base_url='exp.experiment_detail' if exp_id else 'exp.experiment_new',
+          extra_params=dict({'exp_id': exp_id}, **extra_params), safe_columns=['status', 'actions'] ) }}
+        </div>
+        {% endif %}
       </div>
-      <!-- 预览表：服务端渲染 -->
-      {% if preview_tests is not none %}
-      <div class="mt-5">
-        <h4>
-          Test Set Preview: {{ selected_file }} ({{ preview_total }} samples)
-        </h4>
-        {{ paginated_table( items=preview_tests, columns=preview_fields,
-        page=preview_page, per_page=preview_per_page, total=preview_total,
-        base_url='exp.experiment_detail'  if exp_id else 'exp.experiment_new', extra_params=dict({'exp_id': exp_id}, **extra_params) ) }}
+
+      <div id="wizard-tab-baseline" class="wizard-tab-pane d-none">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <p class="small text-muted mb-0">Run baseline test on the test dataset, then generate the baseline report.</p>
+          <button type="button" class="btn btn-primary btn-sm" id="runBaselineTabBtn">Run Baseline Test &amp; Report</button>
+        </div>
+        <div id="optimizationFlowBaseline" class="optimization-flow mb-3"></div>
+        <div class="wizard-result-panel">
+          <h6 class="small text-muted mb-2">Baseline Test Report</h6>
+          <div id="baselineReportMarkdown" class="markdown-body overflow-auto report-markdown-wrap p-3 border rounded"></div>
+        </div>
       </div>
-      {% endif %}
+
+      <div id="wizard-tab-tuning" class="wizard-tab-pane d-none">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <p class="small text-muted mb-0">Tuning baseline run → tuning report &amp; refine → optimize rounds.</p>
+          <button type="button" class="btn btn-primary btn-sm" id="runTuningTabBtn">Run Tuning Pipeline</button>
+        </div>
+        <div id="optimizationFlowTuning" class="optimization-flow mb-3"></div>
+        <div class="wizard-result-panel">
+          <h6 class="small text-muted mb-2">Optimization Summary</h6>
+          <div id="optimizationResult"></div>
+        </div>
+      </div>
+
+      <div id="wizard-tab-final" class="wizard-tab-pane d-none">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <p class="small text-muted mb-0">Run optimized workflow on test set and compare baseline vs optimized reports.</p>
+          <button type="button" class="btn btn-primary btn-sm" id="runFinalTabBtn">Run Optimized Test &amp; Compare</button>
+        </div>
+        <div id="optimizationFlowFinal" class="optimization-flow mb-3"></div>
+        <div class="wizard-result-panel mb-3">
+          <h6 class="small text-muted mb-2">Test Comparison</h6>
+          <div id="optimizationCompare"></div>
+        </div>
+        <div class="wizard-result-panel">
+          <h6 class="small text-muted mb-2">Optimized Test Report</h6>
+          <div id="optimizedReportMarkdown" class="markdown-body overflow-auto report-markdown-wrap p-3 border rounded"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- 报告 Tab -->
-    <div class="tab-pane fade" id="report">
-        <div class="d-flex align-items-center gap-2 mb-3">
-            <div class="form-check form-switch me-2">
-                <input class="form-check-input" type="checkbox" id="reportToolsMode">
-                <label class="form-check-label small" for="reportToolsMode">Tools mode</label>
-            </div>
-            <button type="button" class="btn btn-sm btn-outline-primary" id="optimizeLoopBtn">
-                Optimize Loop
-            </button>
-            <span id="optimizeLoopStatus" class="small text-muted"></span>
-        </div>
-        <div class="progress mb-3 exp-progress-sm">
-            <div id="optimizeLoopProgress" class="progress-bar" role="progressbar" title="Optimize loop progress">0%</div>
-        </div>
-        <div id="optimizeLoopResult" class="mb-3"></div>
-        <div id="reportMarkdown" class="markdown-body overflow-auto report-markdown-wrap"></div>
+    <div class="card-footer d-flex justify-content-between align-items-center exp-wizard-footer">
+      <button type="button" class="btn btn-outline-secondary" id="wizardPrevBtn" disabled>Previous</button>
+      <button type="button" class="btn btn-primary" id="wizardNextBtn">Next</button>
     </div>
   </div>
 </div>
 <div id="replayPopup" class="replay-popup hidden">
-            <div class="popup-header">
-                <span class="badge text-bg-warning" id="idx"></span>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="popup-body">
-                <div class="row">
-                  <div class="scroll-box">
-                    <pre><code id="resultOutput" class="language-json"></code></pre>
-                  </div>
-                </div>
-            </div>
+  <div class="popup-header">
+    <span class="badge text-bg-warning" id="idx"></span>
+    <button class="close-btn">&times;</button>
+  </div>
+  <div class="popup-body">
+    <div class="row">
+      <div class="scroll-box">
+        <pre><code id="resultOutput" class="language-json"></code></pre>
+      </div>
+    </div>
+  </div>
 </div>
 <script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/prism.js') }}"></script>
 <script src="{{ url_for('static', filename='js/mark.min.js') }}"></script>
 <script>
-
 const defaultFilename = {{ filename | tojson | safe }};
+const defaultTuningFilename = {{ tuning_filename | tojson | safe }};
+const datasetSplit = {{ dataset_split | tojson | safe }};
 const data = {{ datasets | tojson | safe }};
 const snapShots= {{ snapshots | tojson | safe }};
 const expId= {{  exp_id | tojson | safe }};
 const progress={{ progress | tojson | safe }};
-
+const runnerAgentRoster={{ runner_agent_roster | tojson | safe }};
 </script>
 <script src="{{ url_for('static', filename='js/experiment.js') }}"></script>
 {% endblock %}

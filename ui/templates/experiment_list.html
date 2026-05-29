@@ -24,6 +24,7 @@
         per_page=per_page,
         total=total,
         base_url='exp.experiment_list',
-        extra_params={'search': search}
+        extra_params={'search': search},
+        safe_columns=['name', 'runner', 'type', 'dataset_file', 'samples', 'created_at', 'status', 'actions']
     ) }}
 {% endblock %}

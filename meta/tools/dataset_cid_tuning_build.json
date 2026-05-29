@@ -1,0 +1,38 @@
+{
+  "name": "CID Tuning Dataset Builder",
+  "description": "Build a stratified CID tuning CSV (and optional test-remain set) from PubTator gold dev.txt.",
+  "parameters": {
+    "properties": {
+      "runner_id": {
+        "type": "string",
+        "description": "Target runner folder under tests/, default wf_cid_re_llm_linear."
+      },
+      "source": {
+        "type": "string",
+        "description": "PubTator gold source file, default dev.txt."
+      },
+      "size": {
+        "type": "integer",
+        "description": "Tuning sample size (stratified), default 20."
+      },
+      "tuning_out": {
+        "type": "string",
+        "description": "Output tuning CSV filename."
+      },
+      "test_out": {
+        "type": "string",
+        "description": "Output test-remain CSV filename."
+      },
+      "write_test_remain": {
+        "type": "boolean",
+        "description": "Also write remaining docs as test CSV, default true."
+      },
+      "mirror_ner": {
+        "type": "boolean",
+        "description": "Mirror outputs to wf_cid_ner_llm_eval, default true."
+      }
+    },
+    "required": []
+  },
+  "code": "def func(runner_id: str = 'wf_cid_re_llm_linear', source: str = 'data/raw/dev.txt', size: int = 20, tuning_out: str = '', test_out: str = '', write_test_remain: bool = True, mirror_ner: bool = True):\n    from service.tools.analysis_tools import dataset_cid_tuning_build\n    return dataset_cid_tuning_build(runner_id=runner_id, source=source, size=size, tuning_out=tuning_out, test_out=test_out, write_test_remain=write_test_remain, mirror_ner=mirror_ner)"
+}

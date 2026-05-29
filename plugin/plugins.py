@@ -1,6 +1,8 @@
 from typing import List, Dict, Any
 import os
 import numpy as np
+import json
+from urllib import parse, request
 
 class Plugin:
 
@@ -151,6 +153,140 @@ class MemoryCheckpointer(Plugin):
         from langgraph.checkpoint.memory import InMemorySaver
         memory = InMemorySaver()
         return {"InMemorySaver": memory}
+
+
+class MeshOntology(Plugin):
+    """Fetch MeSH synonym/hypernym facts from NLM public endpoints."""
+
+    def load(self):
+        class MeSHLookup:
+            BASE = "https://id.nlm.nih.gov/mesh"
+
+            @staticmethod
+            def _http_get_json(url: str, params: dict | None = None) -> Any:
+                query = parse.urlencode(params or {})
+                full_url = f"{url}?{query}" if query else url
+                req = request.Request(
+                    full_url,
+                    headers={
+                        "Accept": "application/json",
+                        "User-Agent": "agentic-llmre/mesh-lookup",
+                    },
+                )
+                with request.urlopen(req, timeout=12) as resp:
+                    raw = resp.read().decode("utf-8")
+                return json.loads(raw)
+
+            @staticmethod
+            def _to_mesh_id(resource: str) -> str:
+                return resource.rstrip("/").split("/")[-1]
+
+            @staticmethod
+            def lookup_descriptors(label: str, *, limit: int = 3, match: str = "contains") -> list[dict]:
+                """Lookup descriptor candidates by label via MeSH lookup API."""
+                rows = MeSHLookup._http_get_json(
+                    f"{MeSHLookup.BASE}/lookup/descriptor",
+                    {"label": label, "match": match, "limit": max(1, int(limit))},
+                )
+                out = []
+                for row in rows or []:
+                    resource = row.get("resource") or ""
+                    out.append(
+                        {
+                            "mesh_id": MeSHLookup._to_mesh_id(resource) if resource else "",
+                            "label": row.get("label") or "",
+                            "resource": resource,
+                        }
+                    )
+                return [r for r in out if r.get("mesh_id")]
+
+            @staticmethod
+            def _sparql(query: str) -> list[dict]:
+                payload = MeSHLookup._http_get_json(
+                    f"{MeSHLookup.BASE}/sparql",
+                    {
+                        "query": query,
+                        "format": "JSON",
+                    },
+                )
+                return (((payload or {}).get("results") or {}).get("bindings") or [])
+
+            @staticmethod
+            def get_synonyms(mesh_id: str) -> list[str]:
+                q = f"""
+PREFIX meshv: <http://id.nlm.nih.gov/mesh/vocab#>
+SELECT DISTINCT ?syn
+WHERE {{
+  <http://id.nlm.nih.gov/mesh/{mesh_id}> meshv:preferredConcept ?c .
+  ?c meshv:term ?t .
+  {{
+    ?t meshv:prefLabel ?syn .
+  }} UNION {{
+    ?t meshv:altLabel ?syn .
+  }}
+}}
+"""
+                rows = MeSHLookup._sparql(q)
+                vals = [((r.get("syn") or {}).get("value") or "").strip() for r in rows]
+                return sorted({v for v in vals if v})
+
+            @staticmethod
+            def get_hypernyms(mesh_id: str) -> list[dict]:
+                q = f"""
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX meshv: <http://id.nlm.nih.gov/mesh/vocab#>
+SELECT DISTINCT ?broader ?broaderLabel
+WHERE {{
+  <http://id.nlm.nih.gov/mesh/{mesh_id}> meshv:broaderDescriptor ?broader .
+  ?broader rdfs:label ?broaderLabel .
+}}
+"""
+                rows = MeSHLookup._sparql(q)
+                out = []
+                for row in rows:
+                    resource = ((row.get("broader") or {}).get("value") or "").strip()
+                    label = ((row.get("broaderLabel") or {}).get("value") or "").strip()
+                    if not resource:
+                        continue
+                    out.append(
+                        {
+                            "mesh_id": MeSHLookup._to_mesh_id(resource),
+                            "label": label,
+                            "resource": resource,
+                        }
+                    )
+                uniq = {(x["mesh_id"], x["label"], x["resource"]): x for x in out}
+                return sorted(uniq.values(), key=lambda x: (x["label"], x["mesh_id"]))
+
+        return {"MeSHLookup": MeSHLookup}
+
+
+class CidDatasetPlugin(Plugin):
+    """Build/extract CID tuning and test CSV datasets from PubTator gold sources."""
+
+    def load(self):
+        class CidDatasetBuilder:
+            @staticmethod
+            def build_full(*args, **kwargs):
+                from service.dataset_cid import build_structured_full
+                return build_structured_full(*args, **kwargs)
+
+            @staticmethod
+            def build_tuning(*args, **kwargs):
+                from service.dataset_cid import build_tuning_dataset
+                return build_tuning_dataset(*args, **kwargs)
+
+            @staticmethod
+            def extract_test(*args, **kwargs):
+                from service.dataset_cid import extract_test_dataset
+                return extract_test_dataset(*args, **kwargs)
+
+            @staticmethod
+            def registry(*args, **kwargs):
+                from service.dataset_cid import get_registry_status
+                return get_registry_status(*args, **kwargs)
+
+        return {"CidDatasetBuilder": CidDatasetBuilder}
 
 
 class Metrics(Plugin):

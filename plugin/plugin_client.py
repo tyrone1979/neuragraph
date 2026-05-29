@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import logging
+import urllib.error
 import urllib.request
 from typing import Any
 
@@ -40,8 +41,12 @@ def _post(sandbox_id: str, path: str, payload: dict[str, Any], timeout: int = 30
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.URLError as ex:
+        reason = getattr(ex, "reason", ex)
+        raise RuntimeError(f"Sandbox connection failed at {base}{path}: {reason}") from ex
 
 
 def run_pgm(code: str, state: dict[str, Any], sandbox_id: str) -> Any:
