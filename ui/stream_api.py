@@ -154,25 +154,16 @@ def _load_report_agents(graphs_cfg: dict[str, dict]) -> dict[str, dict]:
 
 
 def _resolve_report_agent_versions(
-    graphs_cfg: dict[str, dict], agents_cfg: dict[str, dict]
-) -> dict[str, dict]:
-    """
-    Build explicit agent version mapping per graph for report visibility:
-    - pinned: raw graph.agentVersions
-    - resolved: each runtime agent node -> pinned version or "current"
-    """
-    out: dict[str, dict] = {}
-    for gid, g in (graphs_cfg or {}).items():
-        pinned = (g or {}).get("agentVersions") or {}
-        resolved: dict[str, str] = {}
-        for node_id in (g or {}).get("nodes", []):
-            if node_id in ("START", "END"):
-                continue
-            if node_id not in agents_cfg:
-                continue
-            resolved[node_id] = pinned.get(node_id) or "current"
-        out[gid] = {"pinned": pinned, "resolved": resolved}
-    return out
+    graphs_cfg: dict[str, dict],
+    agents_cfg: dict[str, dict],
+    *,
+    root_graph_id: str = "",
+) -> dict:
+    from utils.graphutils import resolve_report_agent_versions
+
+    return resolve_report_agent_versions(
+        graphs_cfg, agents_cfg, root_graph_id=root_graph_id
+    )
 
 
 def _build_report_payload(exp_id: str, exp_cfg: dict) -> dict:
@@ -189,7 +180,9 @@ def _build_report_payload(exp_id: str, exp_cfg: dict) -> dict:
         graphs_cfg = GraphMetaLoader.load(runner_id) or {}
 
     agents_cfg = _load_report_agents(graphs_cfg)
-    agent_versions = _resolve_report_agent_versions(graphs_cfg, agents_cfg)
+    agent_versions = _resolve_report_agent_versions(
+        graphs_cfg, agents_cfg, root_graph_id=str(runner_id or "")
+    )
 
     states = ResultLoader.load(exp_id)
     if not states:

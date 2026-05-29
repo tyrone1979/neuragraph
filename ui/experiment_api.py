@@ -28,48 +28,65 @@ from service.optimization_pipeline import (
     run_optimization_pipeline,
     run_optimization_step,
 )
+from utils.graphutils import build_workflow_agent_roster
 exp_bp = Blueprint('exp', __name__, url_prefix='/exp')
 
 _optimize_tasks: dict[str, dict] = {}
 _optimize_lock = threading.Lock()
+
+_OPT_PROGRESS_FIELDS = (
+    "flow_step",
+    "flow_status",
+    "flow_detail",
+    "sample_index",
+    "sample_total",
+    "round_index",
+    "round_total",
+)
+
+
+def _apply_optimize_progress_event(task: dict, evt: dict) -> None:
+    task["progress"] = int(evt.get("progress") or task.get("progress") or 0)
+    task["stage"] = evt.get("stage") or task.get("stage") or ""
+    task["message"] = evt.get("message") or task.get("message") or ""
+    if evt.get("flow_steps"):
+        task["flow_steps"] = evt["flow_steps"]
+    for key in _OPT_PROGRESS_FIELDS:
+        if evt.get(key) is not None:
+            task[key] = evt[key]
+    if evt.get("summary") is not None:
+        task["summary"] = evt["summary"]
+    task["updated_at"] = time.time()
+
+
+def _optimize_stream_payload(task: dict, task_id: str) -> dict:
+    payload = {
+        "task_id": task_id,
+        "status": task.get("status"),
+        "progress": task.get("progress", 0),
+        "stage": task.get("stage", ""),
+        "message": task.get("message", ""),
+        "error": task.get("error", ""),
+        "flow_step": task.get("flow_step", ""),
+        "flow_steps": task.get("flow_steps"),
+    }
+    for key in _OPT_PROGRESS_FIELDS:
+        if task.get(key) is not None:
+            payload[key] = task[key]
+    if task.get("summary") is not None:
+        payload["summary"] = task["summary"]
+    if task.get("result") is not None:
+        payload["result"] = task["result"]
+        result_summary = (task.get("result") or {}).get("summary")
+        if result_summary is not None and payload.get("summary") is None:
+            payload["summary"] = result_summary
+    return payload
 _ROOT = Path(__file__).resolve().parent.parent
 
 
 def _resolve_runner_agent_roster(runner_id: str) -> list[dict]:
-    """List agents in a workflow (including subgraphs) with pinned versions."""
-    rid = str(runner_id or "").strip()
-    if not rid:
-        return []
-    agent_meta = MetaLoader.load("agents", rid)
-    graph_meta = MetaLoader.load("graphs", rid)
-    if agent_meta and not graph_meta:
-        return [
-            {
-                "agent_id": rid,
-                "name": str(agent_meta.get("name") or rid),
-                "version": "current",
-                "graph_id": "",
-            }
-        ]
-    graphs_cfg = GraphMetaLoader.load(rid) or {}
-    roster: dict[str, dict] = {}
-    for gid, g in graphs_cfg.items():
-        pinned = (g or {}).get("agentVersions") or {}
-        for node in (g or {}).get("nodes", []):
-            if node in ("START", "END"):
-                continue
-            if MetaLoader.load("graphs", node):
-                continue
-            am = MetaLoader.load("agents", node)
-            if not am:
-                continue
-            roster[node] = {
-                "agent_id": node,
-                "name": str(am.get("name") or node),
-                "version": str(pinned.get(node) or "current"),
-                "graph_id": gid if gid != rid else "",
-            }
-    return sorted(roster.values(), key=lambda x: x["agent_id"])
+    """List agents in a workflow (including subgraphs) with effective pinned versions."""
+    return build_workflow_agent_roster(runner_id)
 
 
 def _safe_float(v, default=0.0):
@@ -721,14 +738,7 @@ def optimize_loop_start():
                 t = _optimize_tasks.get(task_id)
                 if not t:
                     return
-                t["progress"] = int(evt.get("progress") or t["progress"])
-                t["stage"] = evt.get("stage") or t["stage"]
-                t["message"] = evt.get("message") or t["message"]
-                if evt.get("flow_steps"):
-                    t["flow_steps"] = evt["flow_steps"]
-                if evt.get("flow_step"):
-                    t["flow_step"] = evt["flow_step"]
-                t["updated_at"] = time.time()
+                _apply_optimize_progress_event(t, evt)
 
         try:
             summary = run_optimize_loop_by_exp_with_progress(
@@ -772,20 +782,7 @@ def optimize_loop_stream(task_id):
                 yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
                 yield "data: [DONE]\n\n"
                 return
-            payload = {
-                "task_id": task_id,
-                "status": task.get("status"),
-                "progress": task.get("progress", 0),
-                "stage": task.get("stage", ""),
-                "message": task.get("message", ""),
-                "error": task.get("error", ""),
-                "flow_step": task.get("flow_step", ""),
-                "flow_steps": task.get("flow_steps"),
-            }
-            if task.get("summary") is not None:
-                payload["summary"] = task["summary"]
-            if task.get("result") is not None:
-                payload["result"] = task["result"]
+            payload = _optimize_stream_payload(task, task_id)
 
             if payload != last_payload:
                 yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
@@ -883,12 +880,7 @@ def optimization_step_start_api(exp_id, step_id):
                 t = _optimize_tasks.get(task_id)
                 if not t:
                     return
-                t["progress"] = int(evt.get("progress") or t["progress"])
-                t["stage"] = evt.get("stage") or t["stage"]
-                t["message"] = evt.get("message") or t["message"]
-                if evt.get("flow_steps"):
-                    t["flow_steps"] = evt["flow_steps"]
-                t["updated_at"] = time.time()
+                _apply_optimize_progress_event(t, evt)
 
         try:
             result = run_optimization_step(
@@ -909,6 +901,8 @@ def optimization_step_start_api(exp_id, step_id):
                     t["result"] = result
                     if result.get("flow_steps"):
                         t["flow_steps"] = result["flow_steps"]
+                    if result.get("summary") is not None:
+                        t["summary"] = result["summary"]
                     t["updated_at"] = time.time()
         except Exception as ex:
             with _optimize_lock:
@@ -952,12 +946,7 @@ def optimization_run_api(exp_id):
                 t = _optimize_tasks.get(task_id)
                 if not t:
                     return
-                t["progress"] = int(evt.get("progress") or t["progress"])
-                t["stage"] = evt.get("stage") or t["stage"]
-                t["message"] = evt.get("message") or t["message"]
-                if evt.get("flow_steps"):
-                    t["flow_steps"] = evt["flow_steps"]
-                t["updated_at"] = time.time()
+                _apply_optimize_progress_event(t, evt)
 
         try:
             result = run_optimization_pipeline(
