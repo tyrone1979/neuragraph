@@ -1,0 +1,25 @@
+{
+  "agent_id": "relation_extract_pubtator",
+  "version": "v0003",
+  "parent_version": "v0002",
+  "created_at": "2026-06-01T12:51:09.373723",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "787c866f4b86656bd72f00a4a0514164bf3dca1cfb224f5f5303e12988740b7c",
+  "content": {
+    "name": "Relation Extraction (PubTator)",
+    "type": "PGM",
+    "inputs": [
+      "text",
+      "entities",
+      "pmid"
+    ],
+    "outputs": {
+      "name": "relations",
+      "type": "list"
+    },
+    "process": "pt = get_plugin('PubTatorRelationExtractor')\ntext = (state.get('text') or '').strip()\npmid = str(state.get('pmid') or '').strip()\nentities = state.get('entities') or {}\nif not pt:\n    state['error'] = 'PubTatorRelationExtractor plugin unavailable'\n    __result__ = []\nelif not text and not pmid:\n    state['error'] = \"Missing 'text' or 'pmid'\"\n    __result__ = []\nelse:\n    try:\n        payload = pt.extract_relations(text=text, pmid=pmid, entities=entities)\n        __result__ = payload.get('relations') or []\n        if payload.get('raw_relations') is not None:\n            state['pubtator_raw_relations'] = payload.get('raw_relations')\n        if payload.get('source'):\n            state['pubtator_source'] = payload.get('source')\n        if payload.get('error'):\n            state['error'] = payload.get('error')\n    except Exception as ex:\n        state['error'] = f'PubTator relation extraction failed: {ex}'\n        __result__ = []",
+    "created_at": "2026-06-01T12:51:09.363749"
+  }
+}

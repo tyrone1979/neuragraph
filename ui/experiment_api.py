@@ -2,6 +2,7 @@
 from flask import Blueprint,  render_template, request, jsonify, Response
 import uuid
 import json
+import re
 import time
 import threading
 import random
@@ -28,7 +29,7 @@ from service.optimization_pipeline import (
     run_optimization_pipeline,
     run_optimization_step,
 )
-from utils.graphutils import build_workflow_agent_roster
+from utils.graphutils import build_workflow_agent_roster, parse_workflow_family, _clean_workflow_display_name
 exp_bp = Blueprint('exp', __name__, url_prefix='/exp')
 
 _optimize_tasks: dict[str, dict] = {}
@@ -118,6 +119,222 @@ def _resolve_exp_datasets(exp_cfg: dict) -> tuple[str, str]:
     if not test and tuning:
         test = tuning
     return tuning, test
+
+
+def _runner_display_name(exp: dict) -> str:
+    display = str(exp.get("runner_display") or "").strip()
+    if display:
+        display = re.sub(r"\s*-\s*(Workflow|Agent)\s*$", "", display, flags=re.I)
+        if " (" in display:
+            return display.split(" (", 1)[0].strip() or display
+        return display
+
+    runner_id = str(exp.get("runner_id") or "").strip()
+    runner_type = str(exp.get("runner_type") or "").strip().lower()
+    if runner_type == "graph" and runner_id:
+        fam = parse_workflow_family(runner_id)
+        base = MetaLoader.load("graphs", fam["family_id"])
+        if base and base.get("name"):
+            return _clean_workflow_display_name(str(base["name"]), fallback=fam["family_id"])
+        graph = MetaLoader.load("graphs", runner_id)
+        if graph and graph.get("name"):
+            return _clean_workflow_display_name(str(graph["name"]), fallback=runner_id)
+    if runner_id:
+        agent = MetaLoader.load("agents", runner_id)
+        if agent and agent.get("name"):
+            return str(agent["name"])
+    return runner_id or "N/A"
+
+
+def _runner_cell_html(exp: dict) -> str:
+    runner_id = str(exp.get("runner_id") or "N/A")
+    runner_type = str(exp.get("runner_type") or "unknown").upper()
+    name = _runner_display_name(exp)
+    return (
+        f'<div class="exp-runner-cell">'
+        f'<div class="exp-runner-title">'
+        f'<span class="exp-runner-name">{name}</span>'
+        f'<span class="badge text-bg-secondary exp-runner-type">{runner_type}</span>'
+        f'</div>'
+        f'<code class="exp-runner-id">{runner_id}</code>'
+        f'</div>'
+    )
+
+
+def _runner_version_html(runner_id: str, runner_type: str) -> str:
+    if str(runner_type or "").lower() != "graph":
+        return '<span class="text-muted small">—</span>'
+    fam = parse_workflow_family(str(runner_id or ""))
+    label = str(fam.get("variant_label") or "baseline")
+    kind = str(fam.get("variant_kind") or "")
+    badge_cls = {
+        "baseline": "text-bg-light border",
+        "opt_round": "text-bg-info",
+        "opt": "text-bg-info",
+        "copy": "text-bg-secondary",
+        "subgraph": "text-bg-secondary",
+    }.get(kind, "text-bg-light border")
+    family_id = str(fam.get("family_id") or runner_id)
+    family_html = ""
+    if family_id and family_id != runner_id:
+        family_html = f'<div class="exp-version-family"><code>{family_id}</code></div>'
+    return f'<div class="exp-version-cell"><span class="badge {badge_cls}">{label}</span>{family_html}</div>'
+
+
+def _dataset_cell_html(tuning: str, test: str) -> str:
+    tuning = tuning or "—"
+    test = test or "—"
+    tuning_line = ""
+    if tuning != test:
+        tuning_line = (
+            f'<div class="exp-dataset-line small text-muted">'
+            f'<span class="exp-dataset-label">tuning</span> '
+            f'<span class="font-monospace">{tuning}</span></div>'
+        )
+    return (
+        f'<div class="exp-dataset-cell">'
+        f'<div class="exp-dataset-line">'
+        f'<span class="exp-dataset-label">test</span> '
+        f'<span class="font-monospace">{test}</span></div>'
+        f'{tuning_line}'
+        f'</div>'
+    )
+
+
+def _format_created_at(value: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return "—"
+    return text[:19].replace("T", " ")
+
+
+def _status_badge_html(status: str) -> str:
+    return {
+        'completed': '<span class="badge text-bg-success">Completed</span>',
+        'running': '<span class="badge text-bg-primary">Running</span>',
+        'pending': '<span class="badge text-bg-warning">Pending</span>',
+        'failed': '<span class="badge text-bg-danger">Failed</span>',
+    }.get(str(status or 'unknown').lower(), '<span class="badge text-bg-secondary">Unknown</span>')
+
+
+def _family_id_for_exp(exp: dict) -> str:
+    runner_id = str(exp.get("runner_id") or "").strip()
+    runner_type = str(exp.get("runner_type") or "").strip().lower()
+    if runner_type == "graph" and runner_id:
+        fam = parse_workflow_family(runner_id)
+        return str(fam.get("family_id") or runner_id)
+    return runner_id
+
+
+def _family_display_name(family_id: str, runner_type: str) -> str:
+    if str(runner_type or "").lower() == "graph":
+        graph = MetaLoader.load("graphs", family_id)
+        if graph and graph.get("name"):
+            return _clean_workflow_display_name(str(graph["name"]), fallback=family_id)
+    agent = MetaLoader.load("agents", family_id)
+    if agent and agent.get("name"):
+        return str(agent["name"])
+    return family_id
+
+
+def _version_meta(runner_id: str, runner_type: str) -> dict:
+    if str(runner_type or "").lower() != "graph":
+        return {
+            "runner_id": runner_id,
+            "version_label": "—",
+            "sort_key": (0, "", 0),
+            "variant_kind": "agent",
+        }
+    fam = parse_workflow_family(runner_id)
+    return {
+        "runner_id": runner_id,
+        "version_label": str(fam.get("variant_label") or "baseline"),
+        "sort_key": fam.get("sort_key") or (9, "", 0),
+        "variant_kind": str(fam.get("variant_kind") or ""),
+    }
+
+
+def group_experiments_tree(experiments: list) -> list:
+    family_map: dict[str, dict] = {}
+
+    for exp in experiments:
+        runner_id = str(exp.get("runner_id") or "").strip()
+        runner_type = str(exp.get("runner_type") or "").strip().lower()
+        family_id = _family_id_for_exp(exp)
+
+        family = family_map.setdefault(
+            family_id,
+            {
+                "family_id": family_id,
+                "family_name": _family_display_name(family_id, runner_type),
+                "runner_type": runner_type,
+                "versions": {},
+                "exp_count": 0,
+                "version_count": 0,
+            },
+        )
+        family["exp_count"] += 1
+
+        version = _version_meta(runner_id, runner_type)
+        version_slot = family["versions"].setdefault(
+            runner_id,
+            {
+                **version,
+                "datasets": {},
+                "exp_count": 0,
+            },
+        )
+        version_slot["exp_count"] += 1
+
+        tuning, test = _resolve_exp_datasets(exp)
+        ds_key = f"{test}||{tuning}"
+        dataset_slot = version_slot["datasets"].setdefault(
+            ds_key,
+            {
+                "test_dataset": test or "—",
+                "tuning_dataset": tuning or "—",
+                "samples": 0,
+                "experiments": [],
+                "exp_count": 0,
+            },
+        )
+        dataset_slot["exp_count"] += 1
+        samples = int(exp.get("samples") or 0)
+        if samples > dataset_slot["samples"]:
+            dataset_slot["samples"] = samples
+
+        dataset_slot["experiments"].append(
+            {
+                "exp_id": str(exp.get("exp_id") or ""),
+                "created_at": str(exp.get("created_at") or ""),
+                "created_at_display": _format_created_at(exp.get("created_at")),
+                "status": str(exp.get("status") or "unknown"),
+                "status_html": _status_badge_html(exp.get("status")),
+                "samples": samples,
+            }
+        )
+
+    families = []
+    for family in family_map.values():
+        versions = []
+        for version in family["versions"].values():
+            datasets = []
+            for dataset in version["datasets"].values():
+                dataset["experiments"].sort(
+                    key=lambda item: item.get("created_at") or "",
+                    reverse=True,
+                )
+                datasets.append(dataset)
+            datasets.sort(key=lambda item: (item.get("test_dataset") or "").lower())
+            version["datasets"] = datasets
+            versions.append(version)
+        versions.sort(key=lambda item: item.get("sort_key") or (9, "", 0))
+        family["versions"] = versions
+        family["version_count"] = len(versions)
+        families.append(family)
+
+    families.sort(key=lambda item: (item.get("runner_type") != "graph", str(item.get("family_name") or "").lower()))
+    return families
 
 
 def _auto_split_dataset(
@@ -278,56 +495,41 @@ def _load_agent_version_impact() -> list[dict]:
     return out[:10]
 
 def render_list(search='',page=1,per_page=20):
-    all_history = MetaLoader.loads("exps")  # 你的函数，返回 list of dict
+    all_history = MetaLoader.loads("exps") or []
     all_history.sort(key=lambda d: d.get("created_at") or "1970-01-01T00:00:00", reverse=True)
-    # 搜索：runner 或 dataset
     if search:
         search_lower = search.lower()
-        all_history = [e for e in all_history
-                       if search_lower in e.get('config', {}).get('runner', '').lower()
-                       or search_lower in e.get('config', {}).get('dataset', '').lower()
-                       or search_lower in e.get('config', {}).get('tuning_dataset', '').lower()
-                       or search_lower in e.get('config', {}).get('test_dataset', '').lower()]
+        filtered = []
+        for e in all_history:
+            runner_id = str(e.get("runner_id") or "")
+            runner_type = str(e.get("runner_type") or "")
+            tuning, test = _resolve_exp_datasets(e)
+            version = _version_meta(runner_id, runner_type)
+            family_id = _family_id_for_exp(e)
+            haystack = " ".join([
+                family_id,
+                _family_display_name(family_id, runner_type),
+                runner_id,
+                version.get("version_label", ""),
+                test,
+                tuning,
+                str(e.get("name") or ""),
+                str(e.get("exp_id") or ""),
+                str(e.get("runner_display") or ""),
+            ]).lower()
+            if search_lower in haystack:
+                filtered.append(e)
+        all_history = filtered
 
-    total = len(all_history)
+    families_tree = group_experiments_tree(all_history)
+    total = len(families_tree)
     start = (page - 1) * per_page
     end = start + per_page
-    page_history = all_history[start:end]
-
-    # 预处理显示字段
-    processed = []
-    for e in page_history:
-        tuning, test = _resolve_exp_datasets(e)
-        item = {
-            'name': f'<a href="/exp/{e["exp_id"]}" class="text-decoration-none fw-bold">{e["name"] or "Untitled"}</a>',
-            'runner': f'<code class="small text-muted">{e.get("runner_id", "N/A")}</code>',
-            'type': f'<span class="badge text-bg-secondary">{e["runner_type"].upper()}</span>',
-            'dataset_file': (
-                f'<div class="small"><span class="text-muted">test:</span> '
-                f'<span class="text-monospace">{test}</span></div>'
-                f'<div class="small"><span class="text-muted">tuning:</span> '
-                f'<span class="text-monospace">{tuning}</span></div>'
-            ),
-            'samples': f'<strong>{e["samples"]:,}</strong>',  # 千分位分隔，数字好看
-            'created_at': f'<span class="text-muted small">{e["created_at"][:19].replace("T", " ")}</span>',
-            'status': {
-                'completed': '<span class="badge text-bg-success">Completed</span>',
-                'running': '<span class="badge text-bg-primary">Running</span>',
-                'pending': '<span class="badge text-bg-warning">Pending</span>',
-                'failed': '<span class="badge text-bg-danger">Failed</span>',
-            }.get(e.get('status', 'unknown').lower(), '<span class="badge text-bg-secondary">Unknown</span>'),
-            'actions': f'''
-                <a href="/exp/delete/{e["exp_id"]}" class="btn btn-outline-danger" title="Delete" 
-                       onclick="return confirm('Please confirm to delete.')">
-                        <i class="fas fa-trash"></i>
-                </a>
-            '''
-        }
-        processed.append(item)
+    page_families = families_tree[start:end]
 
     return render_template(
         'experiment_list.html',
-        history=processed,
+        families=page_families,
         page=page,
         per_page=per_page,
         total=total,

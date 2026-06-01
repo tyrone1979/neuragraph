@@ -16,9 +16,11 @@ RAW_DIR = ROOT / "data" / "raw"
 DEFAULT_SOURCE = RAW_DIR / "dev.txt"
 DEFAULT_RE_RUNNER = "wf_cid_re_llm_linear"
 DEFAULT_NER_RUNNER = "wf_cid_ner_llm_eval"
+DEFAULT_PUBTATOR_RUNNER = "wf_re_pubtator_dev10"
 
 RE_FIELDS = ["text", "entities", "gold_relations"]
 NER_FIELDS = ["text", "labels", "gold_entities", "gold_relations"]
+PUBTATOR_FIELDS = ["text", "entities", "pmid", "gold_relations"]
 
 CID_REGISTRY: dict[str, Any] = {
     "id": "cid_dev",
@@ -36,6 +38,10 @@ CID_REGISTRY: dict[str, Any] = {
             "structured_full": "cid_dev_full.csv",
             "tuning": "cid_dev_tuning_stratified.csv",
             "test": "cid_dev_test_remain.csv",
+        },
+        DEFAULT_PUBTATOR_RUNNER: {
+            "format": "pubtator",
+            "test": "cid_dev_10articles.csv",
         },
     },
 }
@@ -136,17 +142,44 @@ def ner_row(art) -> dict[str, str]:
     }
 
 
+def pubtator_row(art) -> dict[str, str]:
+    """Row for PubTator RE eval: gold entities + PMID + head | CID | tail gold relations."""
+    entities = [{"text": e.text, "id": e.mesh, "label": e.etype} for e in art.entities]
+    mesh_to_text = {e.mesh: e.text for e in art.entities}
+    rel_lines = []
+    for head_mesh, tail_mesh in art.expected_relations:
+        h = mesh_to_text.get(head_mesh, head_mesh)
+        t = mesh_to_text.get(tail_mesh, tail_mesh)
+        rel_lines.append(f"{h} | CID | {t}")
+    return {
+        "text": art.text,
+        "entities": json.dumps(entities, ensure_ascii=False),
+        "pmid": str(art.pmid),
+        "gold_relations": "\n".join(rel_lines),
+    }
+
+
 def _runner_format(runner_id: str) -> str:
     cfg = CID_REGISTRY["runners"].get(runner_id) or {}
     return str(cfg.get("format") or "re")
 
 
 def _row_fn(runner_id: str):
-    return ner_row if _runner_format(runner_id) == "ner" else re_row
+    fmt = _runner_format(runner_id)
+    if fmt == "ner":
+        return ner_row
+    if fmt == "pubtator":
+        return pubtator_row
+    return re_row
 
 
 def _fields_for(runner_id: str) -> list[str]:
-    return NER_FIELDS if _runner_format(runner_id) == "ner" else RE_FIELDS
+    fmt = _runner_format(runner_id)
+    if fmt == "ner":
+        return NER_FIELDS
+    if fmt == "pubtator":
+        return PUBTATOR_FIELDS
+    return RE_FIELDS
 
 
 def save_structured(runner_id: str, filename: str, articles: list) -> Path:
@@ -531,6 +564,37 @@ def extract_test_dataset(
         result["ner_runner"] = DEFAULT_NER_RUNNER
         result["ner_path"] = str(ner_path)
     return result
+
+
+def build_pubtator_test_dataset(
+    runner_id: str = DEFAULT_PUBTATOR_RUNNER,
+    output_name: str | None = None,
+    *,
+    source: str | Path | None = None,
+    size: int = 10,
+    seed: int = 42,
+) -> dict[str, Any]:
+    """Build a PubTator RE eval CSV from BC5CDR dev.txt (no tuning split)."""
+    runner_cfg = CID_REGISTRY["runners"].get(runner_id)
+    if not runner_cfg or _runner_format(runner_id) != "pubtator":
+        raise ValueError(f"runner {runner_id} is not registered for pubtator format")
+    articles = [a for a in load_source_articles(source) if a.expected_relations]
+    if not articles:
+        raise ValueError("no articles with gold CID relations in source")
+    n = max(1, min(int(size), len(articles)))
+    picked, picked_idx = stratified_pick(articles, n)
+    out = output_name or runner_cfg.get("test") or f"cid_dev_{n}articles.csv"
+    path = save_structured(runner_id, out, picked)
+    return {
+        "runner_id": runner_id,
+        "output": out,
+        "path": str(path),
+        "count": len(picked),
+        "pmids": [a.pmid for a in picked],
+        "picked_indices": picked_idx,
+        "source": str(resolve_source_path(source)),
+        "seed": int(seed),
+    }
 
 
 def sample_agent_csv_dataset(

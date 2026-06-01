@@ -2,7 +2,12 @@ import os
 from pathlib import Path
 
 from service.meta.loader import MetaLoader, GraphMetaLoader
-from utils.graphutils import compute_states, compute_graph_global_inputs
+from utils.graphutils import (
+    compute_states,
+    compute_graph_global_inputs,
+    group_workflow_families,
+    compare_workflow_graphs,
+)
 from service.entity.test import TestLoader
 from flask import render_template, Blueprint, request, jsonify
 
@@ -75,7 +80,30 @@ def load_graph_by_id(graph_id: str):
 @graph_bp.route('/')
 def list_graph():
     graphs = MetaLoader.loads("graphs")
-    return render_template("graph_list.html", graphs=graphs, active_page='graph')
+    families = group_workflow_families(graphs)
+    return render_template(
+        "graph_list.html",
+        graphs=graphs,
+        families=families,
+        active_page='graph',
+    )
+
+@graph_bp.route('/api/grouped')
+def api_grouped_graphs():
+    graphs = MetaLoader.loads("graphs")
+    return jsonify(group_workflow_families(graphs))
+
+@graph_bp.route('/api/compare', methods=['POST'])
+def api_compare_graphs():
+    data = request.get_json(silent=True) or {}
+    left_id = str(data.get("left") or "").strip()
+    right_id = str(data.get("right") or "").strip()
+    if not left_id or not right_id:
+        return jsonify({"error": "left and right graph ids are required"}), 400
+    result = compare_workflow_graphs(left_id, right_id)
+    if not result:
+        return jsonify({"error": "Unable to compare workflows"}), 404
+    return jsonify(result)
 
 @graph_bp.route('/api/list')
 def api_list_graphs():

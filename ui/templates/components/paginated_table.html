@@ -7,7 +7,9 @@
     total=None,
     base_url='',
     extra_params={},
-    safe_columns=[]
+    safe_columns=[],
+    column_labels={},
+    table_class='table table-hover table-bordered align-middle'
 ) %}
 {% set total_items = total or items|length %}
 {% set total_pages = (total_items / per_page)|round(0, 'ceil')|int %}
@@ -15,12 +17,12 @@
 {% set end_idx = start_idx + per_page %}
 {% set page_items = items %}
 
-<table id="paged_table" class="table table-hover table-bordered align-middle">
+<table id="paged_table" class="{{ table_class }}">
     <thead class="table-primary">
         <tr>
             {% for col in columns %}
-                <th scope="col" class="{{col }}">
-                    {{ col }}
+                <th scope="col" class="exp-col-{{ col }}">
+                    {{ column_labels.get(col, col|replace('_', ' ')|title) }}
                     {% if col.sortable|default(false) %}
                     {# 后续加排序链接 #}
                     {% endif %}
@@ -33,7 +35,7 @@
         {% for item in page_items %}
         <tr>
             {% for col in columns %}
-            <td>
+            <td class="exp-col-{{ col }}">
                 {% if col in item %}
                     {% set value = item[col] %}
 

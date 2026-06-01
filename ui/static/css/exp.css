@@ -428,3 +428,147 @@
   color: #64748b;
   margin-top: .15rem;
 }
+
+/* Experiment list table */
+.exp-list-table-wrap {
+  overflow-x: auto;
+}
+
+.exp-tree-table {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  background: #fff;
+  min-width: 920px;
+}
+
+.exp-tree-header,
+.exp-tree-row {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) 160px 110px 96px;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exp-tree-header {
+  background: #cfe2ff;
+  border-bottom: 1px solid #dee2e6;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #084298;
+}
+
+.exp-tree-row {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #f1f3f5;
+  background: transparent;
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+}
+
+button.exp-tree-row {
+  cursor: pointer;
+}
+
+button.exp-tree-row:hover {
+  background: #f8f9fa;
+}
+
+.exp-tree-row-family {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.exp-tree-row-version {
+  padding-left: 1.75rem;
+}
+
+.exp-tree-row-dataset {
+  padding-left: 3.25rem;
+}
+
+.exp-tree-row-exp {
+  padding-left: 4.75rem;
+  background: #fcfdff;
+}
+
+.exp-tree-col-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.exp-tree-chevron {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-right: 2px solid #64748b;
+  border-bottom: 2px solid #64748b;
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+button.exp-tree-row.is-open .exp-tree-chevron {
+  transform: rotate(45deg);
+}
+
+.exp-tree-family-name {
+  color: #0f172a;
+}
+
+.exp-tree-family-id,
+.exp-tree-version-id,
+.exp-tree-exp-id {
+  font-size: 0.76rem;
+  color: #64748b;
+  word-break: break-all;
+}
+
+.exp-tree-dataset-name {
+  font-size: 0.84rem;
+}
+
+.exp-tree-dataset-tuning {
+  word-break: break-all;
+}
+
+.exp-tree-exp-marker {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #94a3b8;
+  flex-shrink: 0;
+}
+
+.exp-version-badge-baseline,
+.exp-version-badge-default {
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+.exp-version-badge-opt,
+.exp-version-badge-opt_round {
+  background: #cff4fc;
+  color: #055160;
+}
+
+.exp-version-badge-copy,
+.exp-version-badge-subgraph,
+.exp-version-badge-agent {
+  background: #e2e3e5;
+  color: #41464b;
+}
+
+.exp-tree-empty {
+  padding: 2rem;
+}
+
+.exp-actions {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}

@@ -1,0 +1,111 @@
+{# components/exp_tree_table.html #}
+{% macro exp_tree_table(families) %}
+<div class="exp-tree-table">
+    <div class="exp-tree-header">
+        <div class="exp-tree-col exp-tree-col-label">Runner / Version / Dataset</div>
+        <div class="exp-tree-col exp-tree-col-created">Created</div>
+        <div class="exp-tree-col exp-tree-col-status">Status</div>
+        <div class="exp-tree-col exp-tree-col-actions">Actions</div>
+    </div>
+
+    {% if families %}
+        {% for family in families %}
+        {% set family_uid = 'family-' ~ loop.index0 %}
+        <div class="exp-tree-node exp-tree-node-family">
+            <button type="button"
+                    class="exp-tree-row exp-tree-row-family"
+                    data-tree-toggle="{{ family_uid }}"
+                    aria-expanded="false">
+                <div class="exp-tree-col exp-tree-col-label">
+                    <span class="exp-tree-chevron" aria-hidden="true"></span>
+                    <span class="exp-tree-family-name">{{ family.family_name }}</span>
+                    <code class="exp-tree-family-id">{{ family.family_id }}</code>
+                    <span class="badge text-bg-secondary ms-1">{{ family.version_count }} ver</span>
+                    <span class="badge text-bg-light border ms-1">{{ family.exp_count }} exp</span>
+                </div>
+                <div class="exp-tree-col exp-tree-col-created"></div>
+                <div class="exp-tree-col exp-tree-col-status"></div>
+                <div class="exp-tree-col exp-tree-col-actions"></div>
+            </button>
+
+            <div id="{{ family_uid }}" class="exp-tree-children d-none">
+                {% for version in family.versions %}
+                {% set version_uid = family_uid ~ '-ver-' ~ loop.index0 %}
+                <div class="exp-tree-node exp-tree-node-version">
+                    <button type="button"
+                            class="exp-tree-row exp-tree-row-version"
+                            data-tree-toggle="{{ version_uid }}"
+                            aria-expanded="false">
+                        <div class="exp-tree-col exp-tree-col-label">
+                            <span class="exp-tree-chevron" aria-hidden="true"></span>
+                            <span class="badge exp-version-badge exp-version-badge-{{ version.variant_kind or 'default' }}">{{ version.version_label }}</span>
+                            <code class="exp-tree-version-id">{{ version.runner_id }}</code>
+                            <span class="badge text-bg-light border ms-1">{{ version.exp_count }} exp</span>
+                        </div>
+                        <div class="exp-tree-col exp-tree-col-created"></div>
+                        <div class="exp-tree-col exp-tree-col-status"></div>
+                        <div class="exp-tree-col exp-tree-col-actions"></div>
+                    </button>
+
+                    <div id="{{ version_uid }}" class="exp-tree-children d-none">
+                        {% for dataset in version.datasets %}
+                        {% set dataset_uid = version_uid ~ '-ds-' ~ loop.index0 %}
+                        <div class="exp-tree-node exp-tree-node-dataset">
+                            <button type="button"
+                                    class="exp-tree-row exp-tree-row-dataset"
+                                    data-tree-toggle="{{ dataset_uid }}"
+                                    aria-expanded="false">
+                                <div class="exp-tree-col exp-tree-col-label">
+                                    <span class="exp-tree-chevron" aria-hidden="true"></span>
+                                    <span class="exp-tree-dataset-name font-monospace">{{ dataset.test_dataset }}</span>
+                                    <span class="badge text-bg-light border ms-1">{{ dataset.samples }} samples</span>
+                                    {% if dataset.tuning_dataset and dataset.tuning_dataset != dataset.test_dataset %}
+                                    <span class="exp-tree-dataset-tuning small text-muted ms-1">tuning: {{ dataset.tuning_dataset }}</span>
+                                    {% endif %}
+                                    <span class="badge text-bg-light border ms-1">{{ dataset.exp_count }} exp</span>
+                                </div>
+                                <div class="exp-tree-col exp-tree-col-created"></div>
+                                <div class="exp-tree-col exp-tree-col-status"></div>
+                                <div class="exp-tree-col exp-tree-col-actions"></div>
+                            </button>
+
+                            <div id="{{ dataset_uid }}" class="exp-tree-children d-none">
+                                {% for exp in dataset.experiments %}
+                                <div class="exp-tree-row exp-tree-row-exp">
+                                    <div class="exp-tree-col exp-tree-col-label">
+                                        <span class="exp-tree-exp-marker"></span>
+                                        <code class="exp-tree-exp-id small text-muted">{{ exp.exp_id }}</code>
+                                    </div>
+                                    <div class="exp-tree-col exp-tree-col-created">
+                                        <span class="text-muted small">{{ exp.created_at_display }}</span>
+                                    </div>
+                                    <div class="exp-tree-col exp-tree-col-status">
+                                        {{ exp.status_html|safe }}
+                                    </div>
+                                    <div class="exp-tree-col exp-tree-col-actions">
+                                        <div class="exp-actions">
+                                            <a href="/exp/{{ exp.exp_id }}" class="btn btn-sm btn-outline-primary" title="Open">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/exp/delete/{{ exp.exp_id }}" class="btn btn-sm btn-outline-danger" title="Delete"
+                                               onclick="return confirm('Please confirm to delete.')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="exp-tree-empty text-center text-muted py-5">No experiments found</div>
+    {% endif %}
+</div>
+{% endmacro %}

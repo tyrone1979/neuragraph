@@ -67,17 +67,68 @@ class TestLoader(EntityLoader):
         return TestLoader.parse_jsonish_row(row)
 
     @staticmethod
+    def resolve_test_file_path(runner_id: str, filename: str) -> Path | None:
+        """Resolve tests/<runner>/<file>, falling back to workflow family / variant dirs."""
+        runner_id = str(runner_id or "").strip()
+        filename = Path(str(filename or "").strip()).name
+        if not runner_id or not filename:
+            return None
+
+        ordered: list[Path] = []
+        seen: set[Path] = set()
+
+        def add(path: Path) -> None:
+            if path not in seen:
+                seen.add(path)
+                ordered.append(path)
+
+        add(TEST_DIR / runner_id / filename)
+
+        family_id = runner_id
+        try:
+            from utils.graphutils import parse_workflow_family
+
+            family_id = str(parse_workflow_family(runner_id).get("family_id") or runner_id)
+        except Exception:
+            pass
+
+        if family_id != runner_id:
+            add(TEST_DIR / family_id / filename)
+
+        if TEST_DIR.is_dir():
+            for child in sorted(TEST_DIR.iterdir()):
+                if not child.is_dir():
+                    continue
+                name = child.name
+                if name == runner_id or name == family_id or name.startswith(f"{family_id}_"):
+                    add(child / filename)
+
+        for path in ordered:
+            if path.is_file():
+                return path
+
+        matches = sorted(p for p in TEST_DIR.glob(f"*/{filename}") if p.is_file())
+        if len(matches) == 1:
+            return matches[0]
+        for path in matches:
+            if family_id and family_id in path.parent.name:
+                return path
+        return matches[0] if matches else None
+
+    @staticmethod
     def load_by_id_file(id:str,file:str) -> None | tuple[list[Any], list[Any]] | tuple[list[Any], list]:
-        test_path = TEST_DIR / id
-        test_path.mkdir(parents=True, exist_ok=True)
-        test_file = test_path / file
+        test_file = TestLoader.resolve_test_file_path(id, file)
+        if not test_file or not test_file.is_file():
+            logger.warning("Test file not found for runner=%s file=%s", id, file)
+            return [], []
         if '.csv' in file:
             with open(test_file, 'r', newline='', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 rows = list(reader)
+                if not rows:
+                    return [], []
                 return list(rows[0].keys()), rows
         elif '.txt' in file:
-
             parser=CIDParser(test_file.read_text(encoding='utf-8'))
             articles = parser.get_articles()
             field_names = list(articles[0].__dataclass_fields__.keys()) if articles else []

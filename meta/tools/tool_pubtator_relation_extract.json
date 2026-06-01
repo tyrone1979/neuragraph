@@ -1,0 +1,24 @@
+{
+  "name": "PubTator Relation Extract",
+  "description": "Call NCBI PubTator3 API (https://www.ncbi.nlm.nih.gov/research/pubtator3-api) to extract chemical–disease relations from a PubMed PMID or text. Returns relations as head | CID | tail lines.",
+  "parameters": {
+    "properties": {
+      "text": {
+        "type": "string",
+        "description": "Biomedical text/abstract to annotate. Ignored when pmid is provided."
+      },
+      "pmid": {
+        "type": "string",
+        "description": "Optional PubMed ID. When set, uses precomputed PubTator3 annotations."
+      },
+      "entities": {
+        "type": "object",
+        "description": "Optional NER context for filtering, e.g. {\"Chemical\": [\"aspirin\"], \"Disease\": [\"hypertension\"]}."
+      }
+    },
+    "required": []
+  },
+  "code": "def func(text: str = '', pmid: str = '', entities=None):\n    pt = get_plugin('PubTatorRelationExtractor')\n    if not pt:\n        return {'relations': [], 'raw_relations': [], 'error': 'PubTatorRelationExtractor plugin unavailable'}\n    try:\n        return pt.extract_relations(text=text or '', pmid=pmid or '', entities=entities)\n    except Exception as ex:\n        return {'relations': [], 'raw_relations': [], 'error': str(ex)}",
+  "engine": "pubtator",
+  "created_at": "2026-05-29T18:00:00"
+}
