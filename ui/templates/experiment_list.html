@@ -1,30 +1,48 @@
 {% extends "base.html" %}
-{% from "components/paginated_table.html" import paginated_table %}
+{% from "components/exp_tree_table.html" import exp_tree_table %}
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/exp.css') }}">
+
 <h1>Experiments</h1>
 <a href="/exp/new" class="btn btn-primary mb-3">New Experiment</a>
 
-<!-- 搜索框 -->
-    <form method="get" class="mb-4">
-        <div class="input-group" style="max-width: 500px;">
-            <input type="search" name="search" class="form-control"
-                   placeholder="Search by Runner or Dataset..." value="{{ search }}">
-            <button type="submit" class="btn btn-primary">Search</button>
-            {% if search %}
-            <a href="{{ url_for('exp.experiment_list') }}" class="btn btn-outline-secondary">Clear</a>
-            {% endif %}
-        </div>
-    </form>
+<form method="get" class="mb-4">
+    <div class="input-group" style="max-width: 560px;">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+        <input type="search" name="search" class="form-control"
+               placeholder="Search by family, version, dataset, or exp id..." value="{{ search }}">
+        <button type="submit" class="btn btn-primary">Search</button>
+        {% if search %}
+        <a href="{{ url_for('exp.experiment_list') }}" class="btn btn-outline-secondary">Clear</a>
+        {% endif %}
+    </div>
+</form>
 
-    <!-- 分页表格 -->
-    {{ paginated_table(
-        items=history,
-        columns=history[0].keys(),
-        page=page,
-        per_page=per_page,
-        total=total,
-        base_url='exp.experiment_list',
-        extra_params={'search': search},
-        safe_columns=['name', 'runner', 'type', 'dataset_file', 'samples', 'created_at', 'status', 'actions']
-    ) }}
+<div class="exp-list-table-wrap">
+    {{ exp_tree_table(families) }}
+</div>
+
+{% set total_pages = (total / per_page)|round(0, 'ceil')|int %}
+{% if total_pages > 1 %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {{ 'disabled' if page <= 1 }}">
+            <a class="page-link" href="{{ url_for('exp.experiment_list', page=page-1, search=search) if page > 1 else '#' }}">&laquo;</a>
+        </li>
+        {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {{ 'active' if p == page }}">
+            <a class="page-link" href="{{ url_for('exp.experiment_list', page=p, search=search) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+        <li class="page-item {{ 'disabled' if page >= total_pages }}">
+            <a class="page-link" href="{{ url_for('exp.experiment_list', page=page+1, search=search) if page < total_pages else '#' }}">&raquo;</a>
+        </li>
+    </ul>
+</nav>
+<div class="text-center text-muted small">
+    Showing family groups {{ ((page - 1) * per_page) + 1 }} to {{ [page * per_page, total]|min }} of {{ total }}
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/exp_list.js') }}"></script>
 {% endblock %}

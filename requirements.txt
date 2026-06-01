@@ -1,4 +1,6 @@
 numpy
+certifi
+requests
 langchain==0.2.17
 langgraph==0.2.34
 langchain-ollama==0.1.3

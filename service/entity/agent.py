@@ -309,6 +309,8 @@ class AgentEntity(Entity):
         if self.type == "PGM":
             result = self.execute_process(self.process, state)
             out = self._build_output_dict(result, state)
+            if isinstance(state, dict) and state.get("error") and "error" not in out:
+                out["error"] = state["error"]
             #self._persistence("", state["doc_id"], out)
             return out
 

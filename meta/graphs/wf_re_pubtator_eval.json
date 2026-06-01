@@ -1,0 +1,48 @@
+{
+  "name": "PubTator RE Eval",
+  "description": "Gold entities → PubTator relation extraction → relation pair metrics.",
+  "nodes": [
+    "START",
+    "relation_extract_pubtator",
+    "eval_metrics_relation",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "relation_extract_pubtator"
+    ],
+    [
+      "relation_extract_pubtator",
+      "eval_metrics_relation"
+    ],
+    [
+      "eval_metrics_relation",
+      "END"
+    ]
+  ],
+  "metrics": [
+    {
+      "type": "relation_pairs",
+      "expected": {
+        "from": "input",
+        "field": "gold_relations"
+      },
+      "predicted": {
+        "from": "state",
+        "field": "relations"
+      }
+    }
+  ],
+  "bindings": {
+    "relation_extract_pubtator": {
+      "text": "{{ START.text }}",
+      "entities": "{{ START.entities }}",
+      "pmid": "{{ START.pmid }}"
+    },
+    "eval_metrics_relation": {
+      "relations": "{{ relation_extract_pubtator.relations }}",
+      "ground_truth": "{{ START.gold_relations }}"
+    }
+  }
+}

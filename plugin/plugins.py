@@ -40,6 +40,7 @@ class PGMExecutorLite(Plugin):
             "round": round,
             "sorted": sorted,
             "isinstance": isinstance,
+            "Exception": Exception,
         }
 
         def safe_import(name, globals=None, locals=None, fromlist=(), level=0):
@@ -80,6 +81,7 @@ class PGMExecutorInProcess(Plugin):
             "round": round,
             "sorted": sorted,
             "isinstance": isinstance,
+            "Exception": Exception,
         }
 
         def safe_import(name, globals=None, locals=None, fromlist=(), level=0):
@@ -282,11 +284,52 @@ class CidDatasetPlugin(Plugin):
                 return extract_test_dataset(*args, **kwargs)
 
             @staticmethod
+            def build_pubtator_test(*args, **kwargs):
+                from service.dataset_cid import build_pubtator_test_dataset
+                return build_pubtator_test_dataset(*args, **kwargs)
+
+            @staticmethod
             def registry(*args, **kwargs):
                 from service.dataset_cid import get_registry_status
                 return get_registry_status(*args, **kwargs)
 
         return {"CidDatasetBuilder": CidDatasetBuilder}
+
+
+class PubTatorRelationExtractor(Plugin):
+    """Extract chemical–disease relations via NCBI PubTator3 API."""
+
+    def load(self):
+        class Extractor:
+            @staticmethod
+            def extract_relations(
+                text: str = "",
+                pmid: str = "",
+                entities=None,
+                bioconcept: str = "chemical,disease",
+            ):
+                from service.pubtator_client import extract_relations
+
+                return extract_relations(
+                    text=text,
+                    pmid=pmid,
+                    entities=entities,
+                    bioconcept=bioconcept,
+                )
+
+            @staticmethod
+            def annotate_text(text: str, bioconcept: str = "chemical,disease") -> str:
+                from service.pubtator_client import annotate_text
+
+                return annotate_text(text, bioconcept=bioconcept)
+
+            @staticmethod
+            def export_pmid(pmid: str):
+                from service.pubtator_client import export_pmid_biocjson
+
+                return export_pmid_biocjson(pmid)
+
+        return {"PubTatorRelationExtractor": Extractor}
 
 
 class Metrics(Plugin):

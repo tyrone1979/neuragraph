@@ -1,0 +1,147 @@
+.wf-family-card {
+    min-height: 220px;
+}
+
+.wf-family-card .card-body {
+    min-height: 160px;
+}
+
+.wf-family-card .card-title {
+    margin-bottom: 0.35rem;
+}
+
+.wf-family-meta {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.wf-family-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 3.6em;
+}
+
+.wf-selected-version {
+    font-size: 0.85rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.wf-versions-badge {
+    border: 0;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.wf-versions-badge:hover {
+    filter: brightness(0.92);
+}
+
+.wf-version-list {
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    background: #fff;
+}
+
+.wf-version-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    border-bottom: 1px solid #f1f3f5;
+    background: transparent;
+    padding: 0.55rem 0.75rem;
+    cursor: pointer;
+}
+
+.wf-version-item:last-child {
+    border-bottom: 0;
+}
+
+.wf-version-item:hover {
+    background: #f8f9fa;
+}
+
+.wf-version-item.active {
+    background: #e7f1ff;
+    box-shadow: inset 3px 0 0 #0d6efd;
+}
+
+.wf-version-item.static {
+    cursor: default;
+}
+
+.wf-version-item.static:hover {
+    background: transparent;
+}
+
+.wf-version-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.wf-version-id {
+    font-size: 0.75rem;
+    color: #6c757d;
+    word-break: break-all;
+}
+
+.wf-version-meta {
+    font-size: 0.72rem;
+    color: #868e96;
+}
+
+.wf-diff-panel {
+    margin-top: 0.75rem;
+}
+
+.wf-diff-pre {
+    min-height: 160px;
+    max-height: 360px;
+    overflow: auto;
+    white-space: pre-wrap;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 0.75rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 0.65rem;
+}
+
+.wf-diff-pre .diff-add {
+    color: #198754;
+}
+
+.wf-diff-pre .diff-del {
+    color: #dc3545;
+}
+
+.wf-diff-pre .diff-hunk {
+    color: #0d6efd;
+}
+
+.wf-agent-change-table {
+    font-size: 0.78rem;
+}
+
+.wf-section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.35rem;
+}
+
+.entity-group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.entity-group-header .badge {
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+}

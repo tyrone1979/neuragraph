@@ -50,11 +50,28 @@ def edit_agent(agent_id):
 # API
 @agent_bp.route('/api/list')
 def api_list():
-    agents = MetaLoader.loads("agents")
+    agents = MetaLoader.loads("agents") or []
     query = request.args.get('q', '').lower()
-    if query:
-        agents = [a for a in agents if query in a.get("name", "").lower() or query in a["id"]]
-    return jsonify(agents)
+    result = []
+    for agent in agents:
+        agent_id = agent.get("id", "")
+        versions = version_store.list_versions(agent_id)
+        item = {
+            **agent,
+            "version_count": len(versions),
+            "latest_version": versions[0]["version"] if versions else None,
+        }
+        if query:
+            haystack = " ".join([
+                item.get("name", ""),
+                agent_id,
+                item.get("type", ""),
+                item.get("model", ""),
+            ]).lower()
+            if query not in haystack:
+                continue
+        result.append(item)
+    return jsonify(result)
 
 
 @agent_bp.route('/api/<agent_id>', methods=['GET'])
@@ -109,6 +126,32 @@ def api_delete(agent_id):
             pass
         return jsonify({"success": True})
     return jsonify({"error": "Not found"}), 404
+
+
+@agent_bp.route('/api/<agent_id>/copy', methods=['POST'])
+def api_copy_agent(agent_id):
+    source = MetaLoader.load("agents", agent_id)
+    if not source:
+        return jsonify({"error": f"Agent '{agent_id}' not found"}), 404
+    data = request.get_json(silent=True) or {}
+    new_id = (data.get("id") or "").strip()
+    if not new_id:
+        return jsonify({"error": "Missing target id"}), 400
+    if MetaLoader.exists("agents", new_id):
+        return jsonify({"error": f"Agent '{new_id}' already exists"}), 409
+
+    copied = dict(source)
+    copied["name"] = data.get("name") or f"{source.get('name', agent_id)} (copy)"
+    copied.pop("id", None)
+    MetaLoader.dump("agents", new_id, copied)
+    version_store.save_snapshot(
+        new_id,
+        copied,
+        change_note=f"copied from {agent_id}",
+        source="copy",
+        created_by="ui",
+    )
+    return jsonify({"success": True, "id": new_id})
 
 
 @agent_bp.route('/api/<agent_id>/versions', methods=['GET'])

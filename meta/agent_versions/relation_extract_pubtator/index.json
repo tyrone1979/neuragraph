@@ -1,0 +1,51 @@
+{
+  "agent_id": "relation_extract_pubtator",
+  "latest": "v0005",
+  "versions": [
+    {
+      "version": "v0001",
+      "parent_version": null,
+      "created_at": "2026-06-01T11:02:24.171377",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "54a63635483a125f4f1867db492ee0452aacd77884b23267f2c4bff74803ce82"
+    },
+    {
+      "version": "v0002",
+      "parent_version": "v0001",
+      "created_at": "2026-06-01T12:48:15.221010",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "0f62a8c7932a9ea81e52c16fa141643e1813275981401e87c1dab141d6eab6a6"
+    },
+    {
+      "version": "v0003",
+      "parent_version": "v0002",
+      "created_at": "2026-06-01T12:51:09.373723",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "787c866f4b86656bd72f00a4a0514164bf3dca1cfb224f5f5303e12988740b7c"
+    },
+    {
+      "version": "v0004",
+      "parent_version": "v0003",
+      "created_at": "2026-06-01T12:51:35.763368",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "5897342f5a5e3217c5fecf61dd39eb024c1e9cd231f7f428ea9bef2fc1322827"
+    },
+    {
+      "version": "v0005",
+      "parent_version": "v0004",
+      "created_at": "2026-06-01T13:04:51.731393",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "4de1110d5ab3578dbc00b64be75d8358f36268465e1e334b664316df31cedb8b"
+    }
+  ]
+}
