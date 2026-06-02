@@ -71,9 +71,31 @@ function renderTestset(data){
         }
 
         if ($datasetSelect.val()) {
-            /* dataset selected */
+            refreshPreviewIfReady();
         }
     }
+}
+
+function previewQueryMatches(runnerId, file, tuning) {
+    const current = new URLSearchParams(window.location.search);
+    return (
+        current.get('runner_id') === runnerId
+        && current.get('filename') === file
+        && (current.get('tuning_filename') || '') === (tuning || '')
+    );
+}
+
+function refreshPreviewIfReady(options = {}) {
+    const runnerId = $('#runnerId').val();
+    const file = $('#datasetSelect').val();
+    const tuning = $('#tuningDatasetSelect').val();
+    if (!file || !runnerId) {
+        return;
+    }
+    if (!options.force && previewQueryMatches(runnerId, file, tuning)) {
+        return;
+    }
+    renderTable(file, { force: !!options.force });
 }
 
 function collectExpFormData() {
@@ -350,9 +372,13 @@ $(document).ready(function () {
     const tuningDatasetSelect = $('#tuningDatasetSelect');
     window._savedTuningFilename = defaultTuningFilename;
     window._savedTestFilename = defaultFilename;
+    window.onRunnerSelected = function () {
+        setTimeout(() => refreshPreviewIfReady(), 500);
+    };
     renderTestset(data);
     hydrateExpFormFromServer().always(() => {
         renderTestset(data);
+        refreshPreviewIfReady();
         updateProgress(progress || 0);
     });
 
@@ -369,6 +395,7 @@ $(document).ready(function () {
                     count: t.count,
                 }));
                 renderTestset(lite);
+                refreshPreviewIfReady();
             })
             .fail(function() {
                 datasetSelect.html('<option value="">-- Error loading test sets --</option>');
@@ -476,28 +503,30 @@ $(document).ready(function () {
     }
 });
 
-function renderTable(file){
+function renderTable(file, options = {}) {
     const runnerId = $('#runnerId').val();
     const runnerType = $('#runnerType').val();
     const runnerDisplay = $('#runnerDisplay').val();
     const tuning = $('#tuningDatasetSelect').val();
-    if (file && runnerId) {
-        const params = new URLSearchParams({
-            runner_id: runnerId,
-            runner_type: runnerType,
-            runner_display: runnerDisplay,
-            filename: file,
-        });
-        if (tuning) params.set('tuning_filename', tuning);
-        const id = getExpId();
-        if (id && id !== 'Not saved yet') {
-            window.location.href = `/exp/${encodeURIComponent(id)}?${params.toString()}`;
-            return;
-        }
-        window.location.href = `/exp/new?${params.toString()}`;
-    }else{
-        /* no dataset selected */
+    if (!file || !runnerId) {
+        return;
     }
+    if (!options.force && previewQueryMatches(runnerId, file, tuning)) {
+        return;
+    }
+    const params = new URLSearchParams({
+        runner_id: runnerId,
+        runner_type: runnerType,
+        runner_display: runnerDisplay,
+        filename: file,
+    });
+    if (tuning) params.set('tuning_filename', tuning);
+    const id = getExpId();
+    if (id && id !== 'Not saved yet') {
+        window.location.href = `/exp/${encodeURIComponent(id)}?${params.toString()}`;
+        return;
+    }
+    window.location.href = `/exp/new?${params.toString()}`;
 }
 
 // 当选择 testset 文件时 → 加载分页数据预览表
@@ -536,6 +565,7 @@ function complete_task(exp_id, progress, status, options = {}) {
     const progressSelector = options.progressSelector || '#overallProgress';
     if (status !== 'failed') {
         status = 'completed';
+        progress = 100;
     }
     $.ajax({
         url: `/exp/api/update`,
@@ -1307,13 +1337,33 @@ function buildFlowShellForContainer(containerSel, stepIds) {
     $root.html(html);
 }
 
+function syncFlowProgressBars(steps) {
+    const map = {
+        baseline_test: '#overallProgress',
+        baseline_tuning: '#baselineTuningProgress',
+        optimize_rounds: '#optimizationProgress',
+        final_test: '#finalTestProgress',
+    };
+    (steps || []).forEach((s) => {
+        const sel = map[s.id];
+        if (!sel) return;
+        const $bar = $(sel);
+        if (!$bar.length) return;
+        if (s.status === 'done' || s.status === 'skipped') {
+            updateProgress(100, sel);
+        } else if (s.status === 'pending') {
+            const label = ($bar.text() || '').trim();
+            if (!label || label === '0%') {
+                updateProgress(0, sel);
+            }
+        }
+    });
+}
+
 function buildAllFlowShells() {
     Object.values(FLOW_TAB_GROUPS).forEach(({ container, stepIds }) => {
         buildFlowShellForContainer(container, stepIds);
     });
-    if (typeof progress === 'number') {
-        updateProgress(progress);
-    }
 }
 
 function buildOptimizationFlowShell() {
@@ -1370,6 +1420,7 @@ function renderOptimizationFlow(flowSteps) {
         }
         });
     });
+    syncFlowProgressBars(steps);
     updateStepRunButtons(steps);
 }
 

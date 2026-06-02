@@ -79,6 +79,7 @@ def test_normalize_entity_filter_from_list():
     assert out == {
         "Chemical": ["Dexmedetomidine"],
         "Disease": ["Hypotension"],
+        "_ids": {"Chemical": ["C001"], "Disease": ["D001"]},
     }
 
 
@@ -120,4 +121,4 @@ def test_to_cid_lines_filters_by_entities():
         rows,
         {"Chemical": ["Dexmedetomidine"], "Disease": ["Hypotension"]},
     )
-    assert lines == ["Dexmedetomidine | CID | Hypotension"]
+    assert lines == ["dexmedetomidine | CID | hypotension"]

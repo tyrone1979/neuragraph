@@ -14,6 +14,8 @@ class ReportRegressionSuite(unittest.TestCase):
             human = str((data.get("prompt_template") or {}).get("human") or "")
             self.assertIn("Do not hardcode special handling", human)
             self.assertIn("Do not apply fixed keyword-triggered heuristics", human)
+            self.assertIn("NEVER suggest full-text keyword", human)
+            self.assertIn("normalize_cid_lines", human)
             self.assertIn("filtered_entities", human)
             self.assertIn("character position", human)
 
@@ -24,6 +26,8 @@ class ReportRegressionSuite(unittest.TestCase):
         human = str((data.get("prompt_template") or {}).get("human") or "")
         self.assertIn("filtered_entities", human)
         self.assertIn("head_pos", human)
+        self.assertIn("causal_keywords", human)
+        self.assertIn("normalize_cid_lines", human)
 
     def test_filter_disallowed_modifications(self):
         from service.optimize_suggestion_filter import (
@@ -45,16 +49,24 @@ class ReportRegressionSuite(unittest.TestCase):
                 "if head_pos > tail_pos: __result__ = []"
             ),
         }
+        kw_mod = {
+            "target_agent_id": "relation_extract_pubtator",
+            "process_append": (
+                "causal_keywords = ['induced', 'caused']; "
+                "if not any(kw in text_lower for kw in causal_keywords): __result__ = []"
+            ),
+        }
         ok_mod = {
             "target_agent_id": "relation_llm",
             "prompt_human_append": "Only output $ when the sentence states direct drug-induced disease causation.",
         }
         self.assertIn("filtered_entities", disallowed_modification_reason(gold_mod))
         self.assertIn("position-only", disallowed_modification_reason(pos_mod))
+        self.assertIn("keyword filter", disallowed_modification_reason(kw_mod))
         self.assertEqual("", disallowed_modification_reason(ok_mod))
-        kept, rejected = filter_disallowed_modifications([gold_mod, pos_mod, ok_mod])
+        kept, rejected = filter_disallowed_modifications([gold_mod, pos_mod, kw_mod, ok_mod])
         self.assertEqual(1, len(kept))
-        self.assertEqual(2, len(rejected))
+        self.assertEqual(3, len(rejected))
 
     def test_report_view_uses_inline_chart_layout(self):
         html = (ROOT / "ui" / "templates" / "experiment.html").read_text(encoding="utf-8")

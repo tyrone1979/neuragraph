@@ -31,6 +31,9 @@ $(function() {
         const q = $(this).val().trim();
         suggestions.empty().hide();
         selected = null;
+        $('#{{ id_prefix }}Display').val('');
+        $('#{{ id_prefix }}Type').val('');
+        $('#{{ id_prefix }}Id').val('');
         if (q.length < 2) return;
 
         $.getJSON('/common/api/search_runners', {q: q}, function(data) {
@@ -47,6 +50,9 @@ $(function() {
                     $('#{{ id_prefix }}Id').val(r.id);
                     selected = r;
                     suggestions.hide();
+                    if (typeof window.onRunnerSelected === 'function') {
+                        window.onRunnerSelected(r);
+                    }
                 });
                 suggestions.append(item);
             });

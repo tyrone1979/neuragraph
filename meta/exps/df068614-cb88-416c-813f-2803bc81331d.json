@@ -1,0 +1,15 @@
+{
+  "dataset": "cid_dev_test_custom_sample_5_s42.csv",
+  "test_dataset": "cid_dev_test_custom_sample_5_s42.csv",
+  "tuning_dataset": "cid_dev_tuning_stratified.csv",
+  "runner_type": "graph",
+  "runner_id": "wf_cid_re_llm_linear",
+  "runner_display": "CID RE Pipeline (linear) (wf_cid_re_llm_linear) - Workflow",
+  "samples": 5,
+  "exp_id": "df068614-cb88-416c-813f-2803bc81331d",
+  "name": "wf_cid_re_llm_linear_cid_dev_test_custom_sample_5_s42.csv_20260529094402",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-05-29T09:44:02.626691",
+  "updated_at": "2026-05-29T14:21:59.049513"
+}

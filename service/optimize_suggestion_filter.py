@@ -30,7 +30,11 @@ def disallowed_modification_reason(mod: dict[str, Any]) -> str:
         "entity type guard",
         "e.get('label')",
         'e.get("label")',
+        "ent.get('label')",
+        'ent.get("label")',
+        "disease_is_chemical",
         "for e in entities",
+        "for ent in (state.get('entities')",
         "chemical' or tail_type",
         'chemical" or tail_type',
         "type gate",
@@ -39,6 +43,18 @@ def disallowed_modification_reason(mod: dict[str, Any]) -> str:
     )
     if any(marker in blob for marker in gold_markers):
         return "gold entity label / filtered_entities guard not allowed"
+    keyword_markers = (
+        "causal_keywords",
+        "causal keyword",
+        "keyword filter",
+        "keyword-based filter",
+        "full-text keyword",
+        "full text keyword",
+        "if any(kw in text",
+        "if any(keyword in text",
+    )
+    if any(marker in blob for marker in keyword_markers):
+        return "full-text keyword filter not allowed (hurts recall)"
     position_markers = (
         "head_pos",
         "tail_pos",

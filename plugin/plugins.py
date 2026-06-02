@@ -338,6 +338,12 @@ class Metrics(Plugin):
         class MetricsCalculation:
 
             @staticmethod
+            def normalize_cid_lines(relations, entities):
+                from service.relation_normalize import normalize_cid_relation_lines
+
+                return normalize_cid_relation_lines(relations, entities)
+
+            @staticmethod
             def parse_relation_pairs(raw):
                 """Parse CID/RE pipe lines 'head | rel | tail' into [(head, tail), ...]."""
                 if raw is None or raw == "":
