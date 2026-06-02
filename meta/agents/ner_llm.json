@@ -1,7 +1,6 @@
 {
   "name": "NER (LLM, configurable types)",
   "type": "LLM",
-  "model": "deepseek",
   "inputs": [
     "text",
     "labels"
@@ -10,12 +9,12 @@
     "name": "entities",
     "type": "dict"
   },
+  "model": "deepseek",
   "prompt_template": {
     "description": "Extract biomedical named entities from text",
     "system": "You are a biomedical Named Entity Recognition (NER) expert. \nExtract all entities of the specified types from the given text.\nReturn ONLY a valid JSON object with entity types as keys and lists of extracted entities as values.\nDo not include any explanation or markdown formatting.",
     "human": "Text: {text}\n\nEntity types to extract: {labels}\n\nExtract all entities and return as JSON in this exact format:\n{{'Disease': ['entity1', 'entity2'], 'Chemical': ['entity3']}}\n\nIf no entities of a type are found, use an empty list [].\n\nJSON output:"
   },
-  "engine": "llm",
-  "default_labels": "Chemical, Disease",
-  "created_at": "2026-05-28T15:48:13.964958"
+  "tools": [],
+  "created_at": "2026-06-02T10:45:40.504868"
 }

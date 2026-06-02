@@ -9,12 +9,12 @@
     "name": "triples",
     "type": "list"
   },
-  "model": "kimi-2.6",
+  "model": "gpt-oss_120b",
   "prompt_template": {
     "description": "Biomedical knowledge-graph triple extraction",
     "system": "You are a biomedical knowledge-graph curator. Extract factual subject–predicate–object triples suitable for RDF/KG storage. Output only valid lines, no markdown.",
     "human": "Text:\n{text}\n\nEntities (JSON):\n{entities}\n\nExtract biomedical triples. One triple per line:\nsubject | predicate | object\n\nUse normalized predicates (e.g., treats, causes, inhibits, associated_with). Prefer entities from the list when possible."
   },
   "tools": [],
-  "created_at": "2026-05-28T08:40:47.230391"
+  "created_at": "2026-06-02T10:37:44.416119"
 }

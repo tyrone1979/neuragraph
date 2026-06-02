@@ -1,2 +1,2 @@
 heads,tails
-"[{""text"": ""Aspirin"", ""id"": ""D001241""}]","[{""text"": ""heart disease"", ""id"": ""D006331""}]"
+"[{""text"": ""Aspirin"", ""type"": ""Chemical"", ""mesh"": ""D001241""}]","[{""text"": ""heart disease"", ""type"": ""Disease"", ""mesh"": ""D006331""}]"

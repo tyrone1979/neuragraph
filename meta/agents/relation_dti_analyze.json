@@ -13,6 +13,6 @@
     "type": "dict"
   },
   "name": "Drug–Target Interaction Analysis (LLM)",
-  "model": "kimi-2.6",
+  "model": "deepseek",
   "engine": "llm"
 }

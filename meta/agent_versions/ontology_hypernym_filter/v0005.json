@@ -1,0 +1,29 @@
+{
+  "agent_id": "ontology_hypernym_filter",
+  "version": "v0005",
+  "parent_version": "v0004",
+  "created_at": "2026-06-02T10:58:25.574579",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "8151ae1d6a5849dcaeee5934a4a283e636bad707f783b083db84b7f8046c9779",
+  "content": {
+    "name": "Hypernym Filter (LLM)",
+    "type": "LLM",
+    "inputs": [
+      "entities"
+    ],
+    "outputs": {
+      "name": "filtered_entities",
+      "type": "list"
+    },
+    "model": "deepseek",
+    "prompt_template": {
+      "description": "Identify same-type hypernyms by MeSH id; drop hypernym rows from entity list",
+      "system": "You are a biomedical ontology analyst. The input is already a unified entity list (JSON). Do not call tools. Your reply must be ONLY the final JSON array — no reasoning, markdown, or prose.",
+      "human": "Entities (JSON array of {{text, id, label}}):\n{entities}\n\nRules:\n- Hypernyms must share the same label (Chemical vs Disease).\n- Within each label, entity A is a hypernym of B only if A's MeSH ID is a known broader term of B's MeSH ID (same-type hierarchy).\n- Remove hypernym rows; keep the more specific entity.\n- Do NOT remove distinct concepts that merely share a digit prefix.\n- Do not invent cross-label links.\n\nOutput ONLY a JSON array with the same schema:\n[{{\"text\": \"...\", \"id\": \"...\", \"label\": \"Chemical\"|\"Disease\"}}]"
+    },
+    "tools": [],
+    "created_at": "2026-06-02T10:58:25.560642"
+  }
+}

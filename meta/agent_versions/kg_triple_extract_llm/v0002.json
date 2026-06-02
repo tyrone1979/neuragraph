@@ -1,0 +1,30 @@
+{
+  "agent_id": "kg_triple_extract_llm",
+  "version": "v0002",
+  "parent_version": "v0001",
+  "created_at": "2026-06-02T10:36:44.146814",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "fc70b6b6a341b51721fddabef57f1c3e9c94174a5d6ffb5fb2ff85cd997bcacb",
+  "content": {
+    "name": "Triple Extraction (LLM)",
+    "type": "LLM",
+    "inputs": [
+      "text",
+      "entities"
+    ],
+    "outputs": {
+      "name": "triples",
+      "type": "list"
+    },
+    "model": "gpt-oss_120b",
+    "prompt_template": {
+      "description": "Biomedical knowledge-graph triple extraction",
+      "system": "You are a biomedical knowledge-graph curator. Extract factual subject–predicate–object triples suitable for RDF/KG storage. Output only valid lines, no markdown.",
+      "human": "Text:\n{text}\n\nEntities (JSON):\n{entities}\n\nExtract biomedical triples. One triple per line:\nsubject | predicate | object\n\nUse normalized predicates (e.g., treats, causes, inhibits, associated_with). Prefer entities from the list when possible."
+    },
+    "tools": [],
+    "created_at": "2026-06-02T10:36:44.129858"
+  }
+}

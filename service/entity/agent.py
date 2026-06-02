@@ -15,7 +15,15 @@ import re
 from typing_extensions import get_type_hints
 from typing import Dict, Any, List, get_type_hints, Iterator
 from service.entity.tool import ToolLoader
-from utils.conversion import convert_to_list, parse_entity_list, T, jsonify_state
+from utils.conversion import (
+    convert_to_list,
+    parse_entity_list,
+    parse_hypernym_list,
+    parse_plan_json,
+    parse_relation_triples,
+    T,
+    jsonify_state,
+)
 from service.entity.entity import Entity, EntityLoader
 from service.meta.loader import MetaLoader
 from service.meta.agent_version import AgentVersionStore
@@ -72,6 +80,50 @@ def _build_chat_openai(llm_info: dict) -> ChatOpenAI:
     if extra_body:
         kwargs["extra_body"] = extra_body
     return ChatOpenAI(**kwargs)
+
+
+def _message_content_to_str(content: Any) -> str:
+    """Normalize AIMessage.content (str or multimodal blocks) for SSE."""
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for block in content:
+            if isinstance(block, str):
+                parts.append(block)
+            elif isinstance(block, dict):
+                parts.append(
+                    str(block.get("text") or block.get("content") or block)
+                )
+            else:
+                parts.append(str(block))
+        return "".join(parts)
+    return str(content)
+
+
+def _extract_agent_stream_text(chunk: Any) -> str:
+    """Pull displayable text from LangGraph/LangChain agent stream chunks."""
+    if isinstance(chunk, str):
+        return chunk
+    if isinstance(chunk, tuple) and len(chunk) == 2:
+        chunk = chunk[1]
+    if not isinstance(chunk, dict):
+        return ""
+    for node_key in ("model", "agent", "tools"):
+        block = chunk.get(node_key)
+        if not isinstance(block, dict):
+            continue
+        messages = block.get("messages") or []
+        if not messages:
+            continue
+        msg = messages[-1]
+        if isinstance(msg, AIMessage):
+            return _message_content_to_str(msg.content)
+        if hasattr(msg, "content"):
+            return _message_content_to_str(getattr(msg, "content", ""))
+    return ""
 
 
 def _strip_reasoning_from_messages(messages: list) -> list:
@@ -199,6 +251,16 @@ class AgentEntity(Entity):
                     if not parsed and isinstance(state, dict):
                         parsed = parse_entity_list(state.get("entities"))
                     return {name: parsed}
+                if parse_as == "hypernym_list":
+                    parsed = parse_hypernym_list(result)
+                    return {name: parsed}
+                if name == "hypernyms":
+                    parsed = parse_hypernym_list(result)
+                    if parsed:
+                        return {name: parsed}
+                if parse_as == "relation_triples" or name == "triples":
+                    parsed = parse_relation_triples(result)
+                    return {name: parsed}
                 if isinstance(result, list):
                     if result and all(isinstance(x, dict) for x in result):
                         parsed = parse_entity_list(result)
@@ -206,6 +268,9 @@ class AgentEntity(Entity):
                             return {name: parsed}
                     return {name: result}
                 return {name: convert_to_list(result)}
+            if name == "plan_json" or parse_as == "plan_json":
+                parsed = parse_plan_json(result)
+                return {name: json.dumps(parsed, ensure_ascii=False)}
             if typ == "dict" and isinstance(result, str):
                 try:
                     import ast
@@ -216,6 +281,11 @@ class AgentEntity(Entity):
                     except (SyntaxError, ValueError):
                         parsed = result
                 return {name: parsed}
+            if name == "synonyms" and isinstance(result, str):
+                text = result.strip()
+                if not text:
+                    return {name: text}
+                return {name: text}
             return {name: result}
         elif self.type == "PGM":
             if isinstance(result, dict) and "error" in result and name not in result:
@@ -304,7 +374,10 @@ class AgentEntity(Entity):
             self._write_single(file_path, file_name, file_type, payload, columns)
 
     # ---------- 对外 API ----------
-    def invoke(self, state: T) -> Dict[str, Any]:
+    def invoke(self, state: T, **kwargs) -> Dict[str, Any]:
+        config = kwargs.get("config")
+        if isinstance(state, dict):
+            state = jsonify_state(dict(state))
         # 2. 无 LLM 分支
         if self.type == "PGM":
             result = self.execute_process(self.process, state)
@@ -325,7 +398,10 @@ class AgentEntity(Entity):
             prompt_value = self.template.invoke(base_dict)
             if self.tools:
                 messages = _strip_reasoning_from_messages(prompt_value.to_messages())
-                agent_out = self.agent.invoke({"messages": messages})
+                if config:
+                    agent_out = self.agent.invoke({"messages": messages}, config=config)
+                else:
+                    agent_out = self.agent.invoke({"messages": messages})
                 out_messages = agent_out.get("messages", []) if isinstance(agent_out, dict) else []
                 ai_msg = next(
                     (m for m in reversed(out_messages) if isinstance(m, AIMessage)),
@@ -363,21 +439,36 @@ class AgentEntity(Entity):
             prompt_value = self.template.invoke(base_dict)
             # ---------- 5. 逐 chunk 推流 ----------
             try:
+                emitted = False
                 if self.tools:
                     config = kwargs.get("config")
                     messages = _strip_reasoning_from_messages(prompt_value.to_messages())
                     for chunk in self.agent.stream({"messages": messages}, config=config):
-                        if isinstance(chunk, dict):
-                            if 'model' in chunk and 'messages' in chunk['model']:
-                                message = chunk['model']['messages'][-1]
-                                if isinstance(message, AIMessage):
-                                    yield f"{message.content}\n"
+                        text = _extract_agent_stream_text(chunk)
+                        if text:
+                            emitted = True
+                            yield f"{text}\n"
                 else:
                     for chunk in self.model.stream(prompt_value):
-                        yield f"{chunk.content}\n"
+                        text = _message_content_to_str(
+                            getattr(chunk, "content", chunk)
+                        )
+                        if text:
+                            emitted = True
+                            yield f"{text}\n"
+                if not emitted:
+                    result = self.invoke(state, config=kwargs.get("config"))
+                    out_name = (self.outputs or {}).get("name")
+                    payload = result.get(out_name) if out_name and isinstance(result, dict) else result
+                    if payload is None and isinstance(result, dict):
+                        payload = {k: v for k, v in result.items() if k not in state}
+                    if isinstance(payload, (dict, list)):
+                        yield json.dumps(payload, ensure_ascii=False) + "\n"
+                    elif payload is not None:
+                        yield f"{payload}\n"
             except Exception as e:
-                    yield f"[Stream Error] {str(e)}\n"
-                    return
+                yield f"[Stream Error] {str(e)}\n"
+                return
 
     def execute_process(self, code_string: str, state: dict) -> dict:
         """安全地执行代码（处理缩进问题）"""

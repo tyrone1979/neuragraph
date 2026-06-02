@@ -1,6 +1,6 @@
 {
   "agent_id": "agent_refiner",
-  "latest": "v0001",
+  "latest": "v0002",
   "versions": [
     {
       "version": "v0001",
@@ -10,6 +10,15 @@
       "change_note": "",
       "source": "update",
       "content_hash": "71be641e9f80e68b6b7ec870b4b800de4bd572f6170773ccc1098d5ed3156bd9"
+    },
+    {
+      "version": "v0002",
+      "parent_version": "v0001",
+      "created_at": "2026-06-02T10:35:55.820120",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "f76cc0fd35dccd8a1a6ef8371fba3baa603be0c818ae63b115217d5007c97287"
     }
   ]
 }
