@@ -1,6 +1,6 @@
 # NeuraGraph User Manual
 
-[README](../README.md) · [CODE_WIKI](CODE_WIKI.md) · [EXPERIMENT_GUIDE](EXPERIMENT_GUIDE.md) · [CHAT_COMMANDS](CHAT_COMMANDS.md)
+[README](../README.md) · [CODE_WIKI](CODE_WIKI.md) · [EXPERIMENT_GUIDE](EXPERIMENT_GUIDE.md) · [CHAT_COMMANDS](CHAT_COMMANDS.md) · [TESTING](TESTING.md)
 
 This manual is for **end users**. It walks through NeuraGraph features page by page. Each major step includes a screenshot (stored in `doc/images/`).
 

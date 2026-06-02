@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-06-02T04:43:38Z",
+  "mock_llm": false,
+  "total": 3,
+  "passed": 3,
+  "failed": 0,
+  "skipped": 0,
+  "note": "Live LLM verification for agent_refiner, ontology_synonym_extract, relation_from_tree_llm (commit 5555880).",
+  "results": [
+    {
+      "agent_id": "agent_refiner",
+      "agent_type": "LLM",
+      "status": "pass",
+      "live_model": "deepseek",
+      "message": "ok"
+    },
+    {
+      "agent_id": "ontology_synonym_extract",
+      "agent_type": "LLM",
+      "status": "pass",
+      "live_model": "gpt-oss_120b",
+      "message": "ok"
+    },
+    {
+      "agent_id": "relation_from_tree_llm",
+      "agent_type": "LLM",
+      "status": "pass",
+      "live_model": "gpt-oss_120b",
+      "message": "ok"
+    }
+  ]
+}

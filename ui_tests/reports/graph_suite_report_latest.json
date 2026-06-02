@@ -1,0 +1,10 @@
+{
+  "generated_at": "2026-06-02T00:00:00Z",
+  "mock_llm": false,
+  "status": "pending_full_run",
+  "note": "Placeholder until ui_tests/run_tests.py --suite graphs completes; see graph_suite_report_latest.md",
+  "graph_ids_count": 24,
+  "passed": null,
+  "failed": null,
+  "total": null
+}

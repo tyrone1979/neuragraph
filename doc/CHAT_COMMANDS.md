@@ -128,18 +128,22 @@ service/chat/commands.py
 
 ## 5. Regression Tests
 
+Full guide and **report links**: [TESTING.md](TESTING.md) · [ui_tests/reports/README.md](../ui_tests/reports/README.md)
+
 | Suite | Path |
 |-------|------|
+| All suites (entry) | `ui_tests/run_tests.py` (`--suite unit\|agents\|agents-live\|graphs\|…`) |
 | Chat commands | `ui_tests/unit/test_chat_commands.py` |
 | Report constraints | `ui_tests/unit/test_report_regression.py` |
-| All agents (mock LLM) | `ui_tests/run_tests.py --suite agents` or `agent_invoke_mock_llm_suite.py` |
+| All agents (mock LLM) | `--suite agents` → [agent_test_report_mock_latest.md](../ui_tests/reports/agent_test_report_mock_latest.md) |
+| Agents (live LLM) | `--suite agents-live` → [agent_test_report_live_latest.md](../ui_tests/reports/agent_test_report_live_latest.md) |
+| Graph workflows | `--suite graphs` → [graph_suite_report_latest.md](../ui_tests/reports/graph_suite_report_latest.md) |
 
 ```powershell
 set PYTHONPATH=%CD%
 py -3 ui_tests/run_tests.py --suite unit
-py -3 ui_tests/unit/test_chat_commands.py
-py -3 ui_tests/unit/test_report_regression.py
 py -3 ui_tests/run_tests.py --suite agents
+py -3 ui_tests/run_tests.py --suite agents-live
 ```
 
 ---

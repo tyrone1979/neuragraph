@@ -47,6 +47,14 @@ SNAPSHOT_GRAPH_IDS = frozenset(
 )
 
 
+def _safe_accept_dialog(dialog) -> None:
+    """Auto-dismiss alerts; ignore races when the page is already closed."""
+    try:
+        dialog.accept()
+    except Exception:
+        pass
+
+
 def _wait_editor_ready(page: Page) -> bool:
     try:
         page.wait_for_function(
@@ -107,17 +115,27 @@ def _wait_stream_done(base: str, graph_id: str, params: dict, timeout: int) -> t
     q = urllib.parse.urlencode({"graphId": graph_id, **params})
     url = f"{base}/stream/test?{q}"
     buf = ""
+    saw_done = False
     try:
         with urllib.request.urlopen(url, timeout=timeout) as resp:
             for raw in resp:
                 line = raw.decode("utf-8", errors="replace")
-                if "[DONE]" in line:
-                    return True, buf
                 if line.startswith("data: "):
-                    buf += line[6:].replace("\\n", "\n")[:500]
+                    payload = line[6:].replace("\\n", "\n")
+                    buf = (buf + payload)[-2000:]
+                    low = payload.lower()
+                    if "stream error" in low or '"status": "failed"' in low or '"status":"failed"' in low:
+                        return False, payload[:200]
+                if "[DONE]" in line:
+                    saw_done = True
+                    break
     except Exception as ex:
         return False, str(ex)[:200]
-    return False, buf[:200] or "no DONE"
+    if not saw_done:
+        return False, buf[:200] or "no DONE"
+    if "stream error" in buf.lower():
+        return False, buf[:200]
+    return True, "DONE"
 
 
 def _run_backup_and_clear(page: Page, base: str, screenshots_dir: str, graph_ids: list[str]) -> None:
@@ -299,7 +317,7 @@ def _run_stream_tests(page: Page, base: str, screenshots_dir: str, graph_ids: li
 
 def run(page: Page, base: str, screenshots_dir: str, tests_data_dir: Path) -> None:
     page.context.set_extra_http_headers({"Cache-Control": "no-cache", "Pragma": "no-cache"})
-    page.on("dialog", lambda d: d.accept())
+    page.context.on("dialog", _safe_accept_dialog)
 
     all_ids = discover_graph_ids(from_backup=False)
     graph_ids = graph_ids_for_testing(from_backup=False)
@@ -324,3 +342,10 @@ def run(page: Page, base: str, screenshots_dir: str, tests_data_dir: Path) -> No
     finally:
         restore_all_graphs()
         print("[graph full suite] restored meta/graphs from backup")
+        try:
+            from ui_tests.utils.graph_suite_report import write_graph_suite_report
+
+            report_path = write_graph_suite_report(screenshots_dir)
+            print(f"[graph full suite] report: {report_path}")
+        except Exception as ex:
+            print(f"[graph full suite] report write failed: {ex}")
