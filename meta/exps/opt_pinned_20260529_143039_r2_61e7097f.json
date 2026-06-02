@@ -1,0 +1,14 @@
+{
+  "exp_id": "opt_pinned_20260529_143039_r2_61e7097f",
+  "name": "wf_cid_re_llm_linear_opt_20260529_143039_r2_cid_dev_tuning_stratified.csv_opt_pinned_20260529_143039_r2_61e7097f",
+  "runner_type": "graph",
+  "runner_id": "wf_cid_re_llm_linear_opt_20260529_143039_r2",
+  "runner_display": "wf_cid_re_llm_linear_opt_20260529_143039_r2",
+  "dataset": "cid_dev_tuning_stratified.csv",
+  "tuning_dataset": "cid_dev_tuning_stratified.csv",
+  "test_dataset": "cid_dev_test_custom_sample_5_s42.csv",
+  "samples": 20,
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-05-29T14:52:48.225115"
+}

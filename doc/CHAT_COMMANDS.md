@@ -1,94 +1,159 @@
-# Chat Command Spec and Test Guide
+# Chat Command Spec and User Guide
 
-## Scope
+Slash commands work identically in:
 
-This document describes the unified command behavior for:
+- **Floating UI assistant** — bottom-right chat widget on every page (`/chat/api/message`)
+- **Terminal chat** — `python chat.py` from repo root
 
-- Floating UI assistant (`/chat/api/message`)
-- Terminal chat (`chat.py`)
+Shared implementation: `service/chat/commands.py`
 
-Both now use the same shared command core:
+UI walkthrough: [MANUAL.md §8](MANUAL.md#8-floating-assistant-chat-widget) · Screenshot: `doc/images/page_chat_help.png`
 
-- `service/chat/commands.py`
+---
 
-## Command Contract
+## 1. Opening the Assistant
 
-### Context and Preview
+1. Start NeuraGraph (`.\start.bat`)
+2. Open any page at http://127.0.0.1:5001
+3. Click the blue **chat bubble** (bottom-right)
+4. Type `/help` and press **Send**
 
-- `/pin show|clear|graph <id>|exp <id>|dataset <file>`
-- `/dryrun <slash_command>`
+![Chat widget](../doc/images/page_chat_widget.png)
 
-### CRUD and Execution
+---
 
-- `/list workflows|agents|tools|datasets|llms|experiments`
-- `/show workflow|agent|tool|dataset|llm|experiment <id>`
-- `/create testset <runner_id> <filename> [source_file] [count]`
-- `/create experiment [runner_id] [dataset] [runner_type]`
-- `/run workflow|agent <id> {json_inputs}`
-- `/run experiment <exp_id>`
-- `/copy workflow <source_id> <target_id>`
-- `/optimize <exp_id> [max_updates]`
-- `/orchestrate <goal>`
-- `/delete workflow|agent|tool|llm|experiment <id>`
+## 2. Command Reference
 
-### Output Style
+### 2.1 Context and preview
 
-- Command outputs are markdown cards or concise markdown text from shared layer.
-- Terminal and UI assistant should show equivalent content for the same command.
+| Command | Description |
+|---------|-------------|
+| `/pin show` | Show pinned graph/exp/dataset |
+| `/pin clear` | Clear all pins |
+| `/pin graph <id>` | Pin workflow for subsequent commands |
+| `/pin exp <id>` | Pin experiment |
+| `/pin dataset <file>` | Pin dataset filename |
+| `/dryrun <command>` | Parse command without side effects |
 
-## Architecture
+### 2.2 List and show
 
-### Shared Layer
+| Command | Example |
+|---------|---------|
+| `/list workflows` | All workflow families |
+| `/list agents` | All agents |
+| `/list tools` | All tools |
+| `/list datasets` | CSV files by runner |
+| `/list llms` | LLM connectors |
+| `/list experiments` | Experiment metadata |
+| `/show workflow <id>` | Graph JSON summary |
+| `/show agent <id>` | Agent definition |
+| `/show tool <id>` | Tool definition |
+| `/show dataset <runner>/<file>` | Dataset preview |
+| `/show llm <id>` | LLM config (masked key) |
+| `/show experiment <exp_id>` | Experiment status + datasets |
 
-- `service/chat/commands.py`
-  - Parses and executes slash commands
-  - Keeps session pins
-  - Returns normalized markdown responses
-  - Runs end-to-end orchestration (`/orchestrate`) for generate -> run -> report -> compare
+### 2.3 Create and run
 
-### UI Entry
+| Command | Description |
+|---------|-------------|
+| `/create testset <runner_id> <filename> [source] [count]` | Create sampled CSV |
+| `/create experiment [runner_id] [dataset] [runner_type]` | Uses pins when args omitted |
+| `/run workflow <id> {json}` | Single-shot workflow invoke |
+| `/run agent <id> {json}` | Single-shot agent invoke |
+| `/run experiment <exp_id>` | Start batch run (SSE in UI) |
 
-- `ui/chat_api.py`
-  - Session management (`session_id`)
-  - Delegates slash and intent actions to shared command functions
+### 2.4 Copy, optimize, delete
 
-### Terminal Entry
+| Command | Description |
+|---------|-------------|
+| `/copy workflow <source> <target>` | Duplicate graph JSON |
+| `/copy agent <source> <target>` | Duplicate agent |
+| `/optimize <exp_id> [max_updates]` | Run optimization loop |
+| `/delete workflow\|agent\|tool\|llm\|experiment <id>` | Remove meta file |
 
-- `chat.py`
-  - Delegates non-interactive command set to shared command functions
-  - Keeps local interactive workflow/agent run path for manual input mode
+### 2.5 Orchestration
 
-## Regression Test Suites
+| Command | Description |
+|---------|-------------|
+| `/orchestrate <goal>` | End-to-end: generate → run → report → compare |
 
-### Python suites
+Natural language (non-slash) messages are forwarded to the configured LLM with project context when available.
 
-- `tests/test_chat_feature_suite.py`
-  - Pin and dry-run
-  - List/show/delete/copy/create/optimize/orchestrate command flows
-- `tests/test_report_regression_suite.py`
-  - Report prompt anti-hardcode constraints
-  - Inline chart layout contract
+---
 
-### One-click batch runner
+## 3. Typical Workflows
 
-- `test_chat_suite.bat`
+### 3.1 Quick experiment from chat
 
-## How to Run
+```
+/pin graph wf_cid_re_llm_linear
+/list datasets
+/create experiment
+/run experiment <returned_exp_id>
+```
 
-From workspace root:
+### 3.2 Optimize an existing experiment
 
-- `test_chat_suite.bat`
+```
+/show experiment <exp_id>
+/optimize <exp_id> 3
+/list workflows
+/show workflow wf_cid_re_llm_linear_opt_20260529_143039_r1
+```
 
-Or manual:
+### 3.3 Safe preview
 
-- `set PYTHONPATH=%CD%`
-- `py -3 tests/test_chat_feature_suite.py`
-- `py -3 tests/test_report_regression_suite.py`
+```
+/dryrun /delete workflow my_test_wf
+/dryrun /optimize abc-123-def 5
+```
 
-## Acceptance Checklist
+---
 
-- Same slash command gives same semantic output in terminal and UI assistant.
-- `/create experiment` works with pinned defaults.
-- `/dryrun` never mutates state.
-- Report page renders charts inline with related sections (no overflow).
-- Report prompt rules explicitly disallow hardcoded keyword/sample special handling.
+## 4. Architecture
+
+```
+ui/chat_api.py          Session id, HTTP entry
+chat.py                 Terminal entry (interactive + slash)
+service/chat/commands.py
+  ├─ parse slash tokens
+  ├─ session pins (in-memory per session)
+  ├─ markdown card responses
+  └─ /orchestrate multi-step pipeline
+```
+
+**Output style**: Markdown cards or concise text — terminal and UI should show equivalent semantics for the same command.
+
+---
+
+## 5. Regression Tests
+
+| Suite | Path |
+|-------|------|
+| Chat commands | `tests/test_chat_feature_suite.py` |
+| Report constraints | `tests/test_report_regression_suite.py` |
+| Batch runner | `test_chat_suite.bat` |
+
+```powershell
+set PYTHONPATH=%CD%
+py -3 tests/test_chat_feature_suite.py
+py -3 tests/test_report_regression_suite.py
+```
+
+---
+
+## 6. Acceptance Checklist
+
+- [ ] Same slash command → same semantic output in terminal and UI
+- [ ] `/create experiment` respects pinned graph/dataset defaults
+- [ ] `/dryrun` never mutates filesystem or runs workflows
+- [ ] `/optimize` creates candidate experiments visible in `/exp` tree
+- [ ] Report pages render inline charts without overflow
+
+---
+
+## 7. Related Documents
+
+- [MANUAL.md](MANUAL.md) — full UI guide with screenshots
+- [EXPERIMENT_GUIDE.md](EXPERIMENT_GUIDE.md) — optimization pipeline details
+- [CODE_WIKI.md](CODE_WIKI.md) — `service/chat/commands.py` module map

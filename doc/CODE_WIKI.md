@@ -1,133 +1,250 @@
 # NeuraGraph Code Wiki
 
-This document is the single source of truth for project architecture and coding standards.
+Architecture, module map, and coding standards for contributors.
+
+User-facing UI guide: [MANUAL.md](MANUAL.md) · Operations: [EXPERIMENT_GUIDE.md](EXPERIMENT_GUIDE.md)
+
+---
 
 ## 1. Project Scope
 
-NeuraGraph is a lightweight workflow platform for biomedical NLP and knowledge graph pipelines.
-Typical tasks include:
+NeuraGraph is a lightweight workflow platform for biomedical NLP and knowledge graph pipelines:
 
-- Named entity recognition (chemical, disease, etc.)
-- Relation extraction (for example CID pairs)
-- Loop and branch orchestration across subgraphs
-- Experiment execution with built-in precision/recall/F1 metrics
+- Named entity recognition (chemical, disease, document/sentence level)
+- Relation extraction (CID, PubTator, DTI)
+- Loop and branch orchestration via LangGraph-style DAGs
+- Batch experiments with precision/recall/F1 metrics
+- **Agent optimization loop** — LLM-driven prompt patching with version pinning
+
+---
 
 ## 2. Architecture Overview
 
 ```
-UI (Flask templates + JS editor)
-  -> API Blueprints (agents / graph / llms / tools / exp / stream)
-  -> Service Layer (AgentEntity, GraphEntity, RunnerLoader)
-  -> Meta Layer (MetaLoader, GraphMetaLoader)
-  -> Plugin Layer (PGM sandbox, checkpointers, metrics)
-  -> Filesystem data (meta/, tests/, result/)
+Browser (Bootstrap + JointJS + jQuery)
+  │
+  ├─ Flask Blueprints (ui/*_api.py)
+  │     ├─ /agents, /graph, /llms, /tools  — CRUD + versions
+  │     ├─ /exp                              — experiments + optimization wizard
+  │     ├─ /testset, /dataset                — CSV datasets
+  │     ├─ /stream                           — SSE batch run & reports
+  │     └─ /chat                             — floating assistant
+  │
+  ├─ Service Layer (service/)
+  │     ├─ AgentEntity, GraphEntity, RunnerLoader
+  │     ├─ experiment_optimize, optimization_pipeline
+  │     ├─ pubtator_client, relation_normalize, dataset_cid
+  │     └─ chat/commands (shared slash command core)
+  │
+  ├─ Meta Layer (service/meta/)
+  │     └─ MetaLoader, agent/tool version snapshots
+  │
+  ├─ Plugin Layer (plugin/)
+  │     └─ PGM sandbox, Flair, metrics, checkpointers
+  │
+  └─ Filesystem
+        meta/    agents, graphs, llms, tools, exps
+        tests/   per-runner CSV datasets
+        result/  experiment states.json + reports
 ```
+
+---
 
 ## 3. Directory Layout
 
 ```
-meta/          agent, graph, llm, tool, experiment JSON
-service/       runtime entities and loaders
-ui/            Flask app, templates, static assets
-plugin/        plugin loader and plugin implementations
-tests/         per-workflow CSV datasets
-result/        experiment outputs (states.json)
-utils/         graph bindings and metrics helpers
-scripts/       maintenance scripts
-doc/           project documentation
+meta/
+  agents/              Agent JSON definitions
+  agent_versions/      Version snapshots per agent
+  graphs/              wf_* workflows, sg_* subgraphs
+  tools/               LLM-callable Python tools
+  tool_versions/       Tool version snapshots
+  llms/                Provider configs
+  exps/                Experiment metadata
+service/
+  entity/              AgentEntity, GraphEntity, RunnerLoader, TestLoader
+  meta/                MetaLoader, version helpers
+  result/              ResultLoader (states.json)
+  experiment_optimize.py
+  optimization_pipeline.py
+  optimize_suggestion_filter.py
+  pubtator_client.py
+  relation_normalize.py
+  dataset_cid.py
+  chat/commands.py
+ui/
+  app.py               Flask app factory
+  *_api.py             Route blueprints
+  templates/           Jinja2 pages + components
+  static/js/           graphs.js, experiment.js, chat_widget.js, …
+plugin/
+  plugin_loader.py
+  plugins.py           Metrics, Flair, PGM executor
+utils/
+  workflow_metrics.py  Post-run metric computation
+  graphutils.py        Bindings, agent roster, version resolution
+scripts/
+  refresh_manual_screenshots.py
+  run_optimize_exp.py
+doc/
+  MANUAL.md, EXPERIMENT_GUIDE.md, …
+tests/                 Unit tests + per-workflow CSV data
+result/                Experiment outputs
 ```
+
+---
 
 ## 4. Core Runtime Components
 
-### 4.1 `service/entity/agent.py`
+### 4.1 `service/entity/agent.py` — AgentEntity
 
-- `AgentEntity` supports `LLM`, `PGM`, and legacy `SUB`.
-- `invoke()` maps configured `inputs` from state, executes model or code, writes `outputs.name`.
-- PGM execution is sandboxed and returns values through `__result__`.
+- Types: `LLM`, `PGM`, legacy `SUB`
+- `invoke()` maps `inputs` from flat state, executes, writes `outputs.name`
+- Resolves pinned versions via `agentVersions` on parent graph
+- PGM: sandboxed execution; result via `__result__`
 
-### 4.2 `service/entity/graph.py`
+### 4.2 `service/entity/graph.py` — GraphEntity
 
-- `GraphEntity` compiles `nodes`/`edges` into a workflow DAG.
-- Applies graph `bindings` before node execution.
-- Supports `flowNodes` for loop and branch behavior.
+- Compiles `nodes`/`edges` to executable DAG (LangGraph)
+- Applies per-node `bindings` before invocation
+- `flowNodes`: loop (`foreach`) and branch controllers
+- Subgraph nodes reference `sg_*` graphs
 
-### 4.3 `service/entity/runner.py`
+### 4.3 `service/entity/runner.py` — RunnerLoader
 
-- `RunnerLoader` dispatches by id to an agent or workflow.
-- `persistence()` writes run outputs and computes configured metrics.
+- Dispatches by id to agent or workflow
+- `persistence()` writes outputs and runs graph `metrics` specs
+- Used by `/stream/run` SSE batch runner
 
-### 4.4 `service/meta/loader.py`
+### 4.4 `service/meta/loader.py` — MetaLoader
 
-- `MetaLoader.load/loads/dump/delete` manages JSON files in `meta/*`.
-- IDs are derived from file names.
+- `load/loads/dump/delete` for JSON under `meta/*`
+- ID = filename stem
 
-## 5. Runtime Metadata Rules
+### 4.5 Version system
 
-### 5.1 Agents (`meta/agents/*.json`)
+| Module | Role |
+|--------|------|
+| `service/meta/agent_version.py` | Snapshot on agent save |
+| `service/meta/tool_version.py` | Snapshot on tool save |
+| Graph `agentVersions` | Pin specific versions in optimized workflows |
+| UI modals | `entity_list.js`, `graphs.js` — diff & history |
 
-Common runtime fields:
+### 4.6 Optimization
 
-- `name`, `type`, `inputs`, `outputs`
-- `model`, `prompt_template` for LLM
-- `process` for PGM
-- optional `tools`, `sandbox`, `engine`, `persistence`
+| Module | Role |
+|--------|------|
+| `experiment_optimize.py` | Main loop: reports → refiner → patch → candidate graph → F1 compare |
+| `optimization_pipeline.py` | Maps wizard steps to runnable units |
+| `optimize_suggestion_filter.py` | Blocks disallowed agent modifications |
+| `agent_refiner` agent | LLM that proposes prompt patches |
 
-### 5.2 Graphs (`meta/graphs/*.json`)
+### 4.7 Metrics & normalization
 
-Common runtime fields:
+| Module | Role |
+|--------|------|
+| `utils/workflow_metrics.py` | Compute metrics from graph spec after run |
+| `service/relation_normalize.py` | MeSH ID normalization for relation_pairs |
+| `plugin/plugins.py` | `MetricsCalculation` plugin |
 
-- `name`, `description`
-- `nodes`, `edges`
-- `bindings`
-- optional `flowNodes` and `metrics`
+### 4.8 PubTator integration
 
-### 5.3 LLMs / Tools / Experiments
+| Module | Role |
+|--------|------|
+| `service/pubtator_client.py` | API client, entity filters, relation parsing |
+| `relation_extract_pubtator` agent | PubTator-based relation extraction |
 
-- LLM files define provider and model endpoint settings.
-- Tool files define function parameters and executable code.
-- Experiment files define `runner_id`, dataset, status, and progress.
+---
 
-## 6. Plugin System
+## 5. UI Module Map
 
-Plugins are loaded through `plugin/plugin_loader.py` and consumed via `get_plugin(name)`.
-Important built-ins:
+| Template / JS | Route | Purpose |
+|---------------|-------|---------|
+| `index.html` | `/` | Dashboard |
+| `agent_list.html`, `agent_form.html`, `agent.js` | `/agents` | Agent CRUD, test, version diff |
+| `graph_list.html`, `graph.html`, `graphs.js`, `graph_visual_editor.js` | `/graph` | Workflow list (families), JointJS editor |
+| `experiment_list.html`, `exp_tree_table.html`, `exp_list.js` | `/exp` | Tree: family → version → dataset |
+| `experiment.html`, `experiment.js` | `/exp/<id>` | 4-step wizard, SSE, optimization |
+| `runner_selector.html` | component | Workflow/agent search in forms |
+| `testset` templates | `/testset` | CSV upload, preview, split |
+| `chat_widget.js` | all pages | Floating `/chat` assistant |
+| `base.html` | layout | Nav, chat FAB |
 
-- PGM sandbox executor
-- Memory/Postgres checkpointer
-- Metrics calculation plugin
+Screenshot capture: `scripts/refresh_manual_screenshots.py` → `doc/images/`.
+
+---
+
+## 6. Metadata Conventions
+
+### Agents
+
+- Filename = agent id (snake_case, no `wf_`/`sg_` prefix)
+- Do **not** put `loopConfig` on agents — only on graph `flowNodes`
+- Prefer omitting empty optional fields
+
+### Graphs
+
+- `wf_*` — experiment runners; `sg_*` — subgraph loop bodies only
+- Bindings: `{{ START.field }}` or `{{ state_key }}`
+- Declare `metrics` on workflow, not inside loop subgraphs when possible
+
+### Experiments
+
+- Always set `test_dataset` and `tuning_dataset` for optimization
+- Keep `dataset` synced to `test_dataset` for legacy readers
+
+### State
+
+- Flat dict keys at top level
+- Each agent writes exactly one primary output key (`outputs.name`)
+
+---
 
 ## 7. Coding Guidelines
 
-### 7.1 Language and style
+### Style
 
-- Use Python 3.11+.
-- Follow PEP 8.
-- Prefer explicit naming and small focused functions.
-- Add type hints when practical.
+- Python 3.11+ (README badge: 3.12+)
+- PEP 8, type hints where practical
+- Small focused functions; match surrounding file style
 
-### 7.2 Metadata and workflow conventions
+### Safety
 
-- Keep IDs stable and filename-aligned.
-- Use `wf_` for top-level workflows and `sg_` for subgraphs.
-- Prefer `flowNodes.loop` over legacy `SUB` for new pipelines.
-- Keep state keys flat and predictable.
+- PGM/tool code: minimal imports, deterministic logic
+- Never commit `.env`, venv, model weights, `result/` dumps
 
-### 7.3 Safety and maintainability
+### Testing
 
-- Keep PGM code deterministic and minimal.
-- Avoid broad imports in sandboxed code.
-- Never commit virtual environments, model binaries, or cache artifacts.
+- Unit: `tests/test_*.py`
+- UI: `ui_tests/` (Playwright)
+- Chat regression: `tests/test_chat_feature_suite.py`
+- Report regression: `tests/test_report_regression_suite.py`
 
-## 8. Development and Validation
+### Documentation
 
-- Start service with `start.bat` (Windows) or `python -m ui.app`.
-- Validate workflows in the Graph editor test panel before batch experiments.
-- After experiment runs, verify `result/<exp_id>/states.json`.
+- User UI changes → update `doc/MANUAL.md` + refresh screenshots
+- Schema/API changes → update `doc/EXPERIMENT_GUIDE.md`
+- New slash commands → update `doc/CHAT_COMMANDS.md`
+
+---
+
+## 8. Development Workflow
+
+1. `.\start.bat` or `python -m ui.app`
+2. Edit meta JSON or use UI editors
+3. Single-sample test in graph editor
+4. Batch experiment on small CSV
+5. Check `result/<exp_id>/states.json`
+6. Run `py -3 -m pytest tests/` before commit
+
+---
 
 ## 9. Related Documentation
 
-- `README.md` for quick start and complete index.
-- `doc/EXPERIMENT_GUIDE.md` for startup, schema, and experiment operations.
-- `doc/MANUAL.md` for UI walkthrough with screenshots.
-- `doc/AUTOGEN_SKILL.md` for generation-oriented workflow authoring.
-
+| Doc | Audience |
+|-----|----------|
+| [MANUAL.md](MANUAL.md) | End users — UI walkthrough with screenshots |
+| [EXPERIMENT_GUIDE.md](EXPERIMENT_GUIDE.md) | Operators — schema, metrics, optimization |
+| [CHAT_COMMANDS.md](CHAT_COMMANDS.md) | Assistant / terminal command reference |
+| [AUTOGEN_SKILL.md](AUTOGEN_SKILL.md) | LLM agents generating workflows |
+| [README.md](../README.md) | Quick start + inventory |

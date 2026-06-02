@@ -3,13 +3,14 @@
   "type": "PGM",
   "inputs": [
     "relations",
-    "ground_truth"
+    "ground_truth",
+    "entities"
   ],
   "outputs": {
     "name": "metrics",
     "type": "dict"
   },
-  "process": "calculator = get_plugin('MetricsCalculation')\nexpected = calculator.parse_relation_pairs(state.get('ground_truth', []))\npredicted = calculator.parse_relation_pairs(state.get('relations', []))\n__result__ = calculator.calculate(expected, predicted)",
+  "process": "calculator = get_plugin('MetricsCalculation')\nentities = state.get('entities')\nexpected_raw = calculator.normalize_cid_lines(state.get('ground_truth', []), entities)\npredicted_raw = calculator.normalize_cid_lines(state.get('relations', []), entities)\nexpected = calculator.parse_relation_pairs(expected_raw)\npredicted = calculator.parse_relation_pairs(predicted_raw)\n__result__ = calculator.calculate(expected, predicted)",
   "created_at": "2026-05-18T12:00:00",
   "engine": "pgm"
 }

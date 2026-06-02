@@ -227,7 +227,12 @@ def _norm(s: str) -> str:
 
 
 def normalize_entity_filter(entities: Any) -> dict[str, list[str]] | None:
-    """Accept label->names dict or [{text, label, id}, ...] entity list."""
+    """Accept label->names dict, JSON string, or [{text, label, id}, ...] entity list."""
+    from service.relation_normalize import canonical_mesh_id, parse_entities_raw
+
+    parsed = parse_entities_raw(entities)
+    if parsed:
+        entities = parsed
     if not entities:
         return None
     if isinstance(entities, dict):
@@ -240,15 +245,35 @@ def normalize_entity_filter(entities: Any) -> dict[str, list[str]] | None:
         return out or None
     if isinstance(entities, list):
         out: dict[str, list[str]] = {}
+        id_out: dict[str, list[str]] = {}
         for item in entities:
             if not isinstance(item, dict):
                 continue
             label = str(item.get("label") or item.get("type") or "").strip()
             name = str(item.get("text") or item.get("name") or "").strip()
+            ent_id = canonical_mesh_id(str(item.get("id") or item.get("identifier") or ""))
             if label and name:
                 out.setdefault(label, []).append(name)
-        return out or None
+            if label and ent_id:
+                id_out.setdefault(label, []).append(ent_id)
+        if not out:
+            return None
+        out["_ids"] = id_out  # type: ignore[assignment]
+        return out
     return None
+
+
+def _entity_id_allowed(ent_id: str, label: str, entities: dict[str, Any] | None) -> bool:
+    from service.relation_normalize import canonical_mesh_id
+
+    if not entities or not ent_id:
+        return False
+    id_bucket = (entities.get("_ids") or {}).get(label) or (entities.get("_ids") or {}).get(
+        label.lower()
+    ) or []
+    if not id_bucket:
+        return False
+    return canonical_mesh_id(ent_id) in id_bucket
 
 
 def _entity_allowed(name: str, label: str, entities: dict[str, Any] | None) -> bool:
@@ -261,6 +286,27 @@ def _entity_allowed(name: str, label: str, entities: dict[str, Any] | None) -> b
         return True
     target = _norm(name)
     return any(_norm(x) == target or target in _norm(x) or _norm(x) in target for x in bucket)
+
+
+def _entity_side_allowed(
+    name: str,
+    ent_id: str,
+    label: str,
+    entities: dict[str, Any] | None,
+) -> bool:
+    if not entities:
+        return True
+    if _entity_allowed(name, label, entities):
+        return True
+    if ent_id and _entity_id_allowed(ent_id, label, entities):
+        return True
+    bucket = entities.get(label) or entities.get(label.lower()) or []
+    id_bucket = (entities.get("_ids") or {}).get(label) or (entities.get("_ids") or {}).get(
+        label.lower()
+    ) or []
+    if bucket or id_bucket:
+        return False
+    return True
 
 
 def parse_pubtator_relations(raw: str) -> list[dict[str, str]]:
@@ -386,23 +432,36 @@ def parse_biocjson_relations(article: dict[str, Any]) -> list[dict[str, str]]:
     return rows
 
 
-def to_cid_lines(rows: list[dict[str, str]], entities: dict[str, Any] | None = None) -> list[str]:
-    """Convert parsed relations to pipeline format: head | CID | tail."""
-    out: list[str] = []
+def to_cid_lines(
+    rows: list[dict[str, str]],
+    entities: dict[str, Any] | None = None,
+    *,
+    entities_raw: Any = None,
+) -> list[str]:
+    """Convert parsed relations to pipeline format: head | CID | tail (MeSH ids when known)."""
+    from service.relation_normalize import canonical_mesh_id, normalize_cid_relation_lines
+
+    interim: list[str] = []
     seen: set[tuple[str, str]] = set()
     for row in rows:
         head = row.get("head") or ""
         tail = row.get("tail") or ""
-        if not _entity_allowed(head, "Chemical", entities):
+        head_id = canonical_mesh_id(row.get("head_id") or "")
+        tail_id = canonical_mesh_id(row.get("tail_id") or "")
+        if not _entity_side_allowed(head, head_id, "Chemical", entities):
             continue
-        if not _entity_allowed(tail, "Disease", entities):
+        if not _entity_side_allowed(tail, tail_id, "Disease", entities):
             continue
-        key = (_norm(head), _norm(tail))
+        head_out = head_id or head
+        tail_out = tail_id or tail
+        key = (_norm(head_out), _norm(tail_out))
         if key in seen:
             continue
         seen.add(key)
-        out.append(f"{head} | CID | {tail}")
-    return out
+        interim.append(f"{head_out} | CID | {tail_out}")
+
+    raw = entities_raw if entities_raw is not None else entities
+    return normalize_cid_relation_lines(interim, raw)
 
 
 def extract_relations(
@@ -450,7 +509,7 @@ def extract_relations(
             ),
         }
 
-    relations = to_cid_lines(raw_relations, entity_filter)
+    relations = to_cid_lines(raw_relations, entity_filter, entities_raw=entities)
     return {
         "relations": relations,
         "raw_relations": raw_relations,

@@ -156,7 +156,8 @@ def compute_workflow_metrics(
     if not specs:
         return dict(state.get("metrics") or {})
 
-    metrics: dict[str, Any] = dict(state.get("metrics") or {})
+    agent_metrics = dict(state.get("metrics") or {})
+    metrics: dict[str, Any] = dict(agent_metrics)
     row = row or {}
     state = state or {}
 
@@ -179,16 +180,27 @@ def compute_workflow_metrics(
 
         prefix = spec.get("prefix") or ""
         if typ == "relation_pairs":
-            expected = calc.parse_relation_pairs(expected_val)
-            predicted = calc.parse_relation_pairs(predicted_val)
+            entities = _first_present(state, ("entities",)) or _first_present(
+                row, ("entities",)
+            )
+            ev, pv = expected_val, predicted_val
+            if entities and getattr(calc, "normalize_cid_lines", None):
+                ev = calc.normalize_cid_lines(expected_val, entities)
+                pv = calc.normalize_cid_lines(predicted_val, entities)
+            expected = calc.parse_relation_pairs(ev)
+            predicted = calc.parse_relation_pairs(pv)
             block = calc.calculate(expected, predicted)
+            # When eval_metrics_relation already wrote authoritative metrics, keep them
+            # and store graph-level recomputation under rel_* only.
+            rel_only = bool(agent_metrics)
             for key, val in block.items():
-                out_key = f"{prefix}{key}" if prefix else key
-                if key in ("tp", "fp", "fn") and not prefix:
+                if rel_only:
                     out_key = f"rel_{key}"
+                elif key in ("tp", "fp", "fn") and not prefix:
+                    out_key = f"rel_{key}"
+                else:
+                    out_key = f"{prefix}{key}" if prefix else key
                 metrics[out_key] = val
-            if not prefix:
-                metrics.setdefault("rel_f1", block.get("f1", 0.0))
         else:
             block = calc.calculate(expected_val, predicted_val)
             for key, val in block.items():

@@ -33,7 +33,8 @@
     },
     "eval_metrics_relation": {
       "relations": "{{ relation_extract_pubtator.relations }}",
-      "ground_truth": "{{ START.gold_relations }}"
+      "ground_truth": "{{ START.gold_relations }}",
+      "entities": "{{ START.entities }}"
     }
   }
 }
