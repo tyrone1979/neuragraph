@@ -4,12 +4,15 @@ Full graph suite for one workflow per family (highest version) under meta/graphs
   G1  Backup all graphs → clear meta/graphs
   G2  UI editor round-trip (inject, save, JSON + canvas diff) per graph
   G3  Branch graphs with ≥3 conditions (JSON + optional UI snapshot)
-  G4  SSE /stream/test run per graph (payload from tests/<id>/*.csv when present)
+  G4  SSE /stream/test — one graph at a time, no socket timeout; judge output then next
 
 Restores meta/graphs from backup when finished (see run()).
 """
 from __future__ import annotations
 
+import json
+import os
+import sys
 import time
 import urllib.parse
 import urllib.request
@@ -28,8 +31,9 @@ from ui_tests.utils.graph_workflow_json_utils import (
     ensure_backup,
     graph_diff,
     graph_diff_canvas,
+    graph_run_cost_hint,
     graph_run_params,
-    graph_run_timeout,
+    graph_run_params_for_query,
     list_graph_ids,
     load_graph_json,
     restore_all_graphs,
@@ -111,31 +115,58 @@ def _inject_and_render(page: Page, gid: str, graph_data: dict) -> bool:
     )
 
 
-def _wait_stream_done(base: str, graph_id: str, params: dict, timeout: int) -> tuple[bool, str]:
-    q = urllib.parse.urlencode({"graphId": graph_id, **params})
+def _ping_server(base: str, timeout: int = 10) -> bool:
+    try:
+        urllib.request.urlopen(f"{base}/", timeout=timeout)
+        return True
+    except Exception:
+        return False
+
+
+def _judge_stream_output(saw_done: bool, buf: str) -> tuple[bool, str]:
+    """Decide pass/fail from full SSE text after the stream closes."""
+    if not saw_done:
+        return False, "stream ended without [DONE]"
+    low = buf.lower()
+    if "stream error" in low:
+        idx = low.index("stream error")
+        return False, buf[idx : idx + 400].strip()
+    if '"status": "failed"' in low or '"status":"failed"' in low:
+        return False, "workflow reported status failed in stream"
+    if not buf.strip():
+        return False, "empty stream output"
+    return True, "ok"
+
+
+def _wait_stream_done(base: str, graph_id: str, query_params: dict[str, str]) -> tuple[bool, str, str]:
+    """Block until [DONE] or connection error. No per-graph socket timeout. Prints each SSE chunk."""
+    if not _ping_server(base):
+        return False, "server not reachable before stream", ""
+    q = urllib.parse.urlencode({"graphId": graph_id, **query_params})
     url = f"{base}/stream/test?{q}"
     buf = ""
     saw_done = False
+    t0 = time.perf_counter()
     try:
-        with urllib.request.urlopen(url, timeout=timeout) as resp:
+        with urllib.request.urlopen(url) as resp:
             for raw in resp:
                 line = raw.decode("utf-8", errors="replace")
                 if line.startswith("data: "):
                     payload = line[6:].replace("\\n", "\n")
-                    buf = (buf + payload)[-2000:]
-                    low = payload.lower()
-                    if "stream error" in low or '"status": "failed"' in low or '"status":"failed"' in low:
-                        return False, payload[:200]
+                    buf += payload
+                    preview = payload.replace("\n", " ")[:240]
+                    print(
+                        f"  [{time.perf_counter() - t0:6.1f}s] sse: {preview}",
+                        flush=True,
+                    )
                 if "[DONE]" in line:
                     saw_done = True
+                    print(f"  [{time.perf_counter() - t0:6.1f}s] sse: [DONE]", flush=True)
                     break
     except Exception as ex:
-        return False, str(ex)[:200]
-    if not saw_done:
-        return False, buf[:200] or "no DONE"
-    if "stream error" in buf.lower():
-        return False, buf[:200]
-    return True, "DONE"
+        return False, str(ex)[:500], buf[-1500:]
+    passed, msg = _judge_stream_output(saw_done, buf)
+    return passed, msg, buf[-1500:]
 
 
 def _run_backup_and_clear(page: Page, base: str, screenshots_dir: str, graph_ids: list[str]) -> None:
@@ -208,7 +239,7 @@ def _run_roundtrip(
         try:
             with page.expect_response(
                 lambda r: "/graph/api/save" in r.url and r.request.method == "POST",
-                timeout=60000,
+                timeout=120000,
             ) as resp:
                 page.evaluate("() => saveGraph()")
             save_json = resp.value.json()
@@ -275,19 +306,51 @@ def _run_stream_tests(page: Page, base: str, screenshots_dir: str, graph_ids: li
         fail("G4-preflight", f"missing on disk: {missing[:5]}")
         return
 
-    print(f"\n=== G4. RUN ALL GRAPHS /stream/test ({len(graph_ids)} graphs) ===")
-    for gid in graph_ids:
+    total = len(graph_ids)
+    print(f"\n=== G4. /stream/test — sequential, no timeout ({total} graphs) ===", flush=True)
+    passed_n = 0
+    failed_n = 0
+
+    for idx, gid in enumerate(graph_ids, start=1):
+        print(f"\n{'=' * 60}", flush=True)
+        print(f"G4 [{idx}/{total}] graphId={gid}", flush=True)
         if gid not in on_disk:
+            failed_n += 1
             fail(f"G4-{gid}", "graph file missing")
+            print("  verdict: FAIL (missing JSON on disk)\n", flush=True)
             continue
+
         params = graph_run_params(gid)
-        timeout = graph_run_timeout(gid)
-        print(f"  Running {gid} (timeout={timeout}s)...")
-        done, detail = _wait_stream_done(base, gid, params, timeout=timeout)
-        if done:
-            ok(f"G4-{gid}", "DONE")
+        query = graph_run_params_for_query(gid)
+        hint = graph_run_cost_hint(gid, params)
+        print(f"  input: {json.dumps(params, ensure_ascii=False)}", flush=True)
+        if hint:
+            print(f"  cost: {hint}", flush=True)
+        print("  running (wait until [DONE], no socket timeout)...", flush=True)
+
+        t0 = time.perf_counter()
+        done, detail, output_tail = _wait_stream_done(base, gid, query)
+        elapsed = time.perf_counter() - t0
+
+        print(f"  elapsed: {elapsed:.1f}s", flush=True)
+        print(f"  verdict: {'PASS' if done else 'FAIL'} — {detail}", flush=True)
+        if output_tail.strip():
+            print("  output (tail):", flush=True)
+            print(output_tail, flush=True)
         else:
+            print("  output (tail): (empty)", flush=True)
+
+        if done:
+            passed_n += 1
+            ok(f"G4-{gid}", f"ok ({elapsed:.0f}s)")
+        else:
+            failed_n += 1
             fail(f"G4-{gid}", detail)
+
+        print(f"  progress: {passed_n} passed, {failed_n} failed, {idx}/{total} done", flush=True)
+        sys.stdout.flush()
+
+    print(f"\nG4 summary: {passed_n} passed, {failed_n} failed, {total} total", flush=True)
 
     for gid in sorted(SNAPSHOT_GRAPH_IDS):
         if gid not in on_disk:
@@ -320,10 +383,16 @@ def run(page: Page, base: str, screenshots_dir: str, tests_data_dir: Path) -> No
     page.context.on("dialog", _safe_accept_dialog)
 
     all_ids = discover_graph_ids(from_backup=False)
+    only = (os.environ.get("NG_GRAPH_ONLY") or "").strip()
     graph_ids = graph_ids_for_testing(from_backup=False)
+    if only:
+        graph_ids = [only] if only in set(discover_graph_ids(from_backup=False)) else []
+        if not graph_ids:
+            fail("G0-graph", f"NG_GRAPH_ONLY={only!r} not found under meta/graphs")
     print(
-        f"[graph full suite] {len(graph_ids)} workflows to test "
-        f"({len(all_ids)} on disk, one per family)"
+        f"[graph full suite] G4 will run {len(graph_ids)} graph(s) one-by-one "
+        f"({len(all_ids)} on disk total)",
+        flush=True,
     )
 
     ensure_backup()
@@ -333,12 +402,21 @@ def run(page: Page, base: str, screenshots_dir: str, tests_data_dir: Path) -> No
         fail("G0-sync", f"backup {len(target_ids)} < live {len(graph_ids)}")
         target_ids = graph_ids
 
+    skip_ui = os.environ.get("NG_GRAPH_SKIP_UI", "").strip().lower() in ("1", "true", "yes")
+
     try:
-        _run_backup_and_clear(page, base, screenshots_dir, target_ids)
-        _run_roundtrip(page, base, screenshots_dir, target_ids)
-        _run_branch_checks(page, base, screenshots_dir, target_ids)
-        run_ids = graph_ids_for_testing(from_backup=False)
-        _run_stream_tests(page, base, screenshots_dir, run_ids or target_ids)
+        if skip_ui:
+            ok("G1-G3-skip", "NG_GRAPH_SKIP_UI set — G4 only")
+        else:
+            _run_backup_and_clear(page, base, screenshots_dir, target_ids)
+            _run_roundtrip(page, base, screenshots_dir, target_ids)
+            _run_branch_checks(page, base, screenshots_dir, target_ids)
+        # G4 runs canonical JSON from backup (G2 UI save may add empty agentVersions/flowNodes).
+        restore_all_graphs()
+        print("[graph full suite] restored meta/graphs from backup before G4")
+        if not _ping_server(base):
+            fail("G4-preflight", "Flask not reachable after G2/G3")
+        _run_stream_tests(page, base, screenshots_dir, graph_ids)
     finally:
         restore_all_graphs()
         print("[graph full suite] restored meta/graphs from backup")

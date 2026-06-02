@@ -36,6 +36,14 @@ class GraphWorkflowJsonUtilsTest(unittest.TestCase):
         b = {"name": "wf", "created_at": "2026-05-25", "nodes": ["START", "END"]}
         self.assertEqual(normalize_graph(a), normalize_graph(b))
 
+    def test_empty_agent_versions_and_flow_nodes_equivalent(self):
+        base = {
+            "nodes": ["START", "syntax_dep_parse", "END"],
+            "edges": [["START", "syntax_dep_parse"], ["syntax_dep_parse", "END"]],
+        }
+        with_extra = {**base, "agentVersions": {}, "flowNodes": {}}
+        self.assertEqual(graph_diff(base, with_extra), "")
+
     def test_self_diff_empty(self):
         ids = discover_graph_ids(from_backup=True)
         self.assertTrue(ids)

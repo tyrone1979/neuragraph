@@ -134,9 +134,16 @@ def _call_agent(name: str, graph_meta: dict | None = None):
         def invoke_loop(s):
             items = resolve_loop_items(array_expr, s)
             accum = dict(s)
-            for item in items:
+            n_items = len(items) if isinstance(items, list) else 0
+            for idx, item in enumerate(items):
                 if isinstance(item, dict) and item.get("error"):
                     continue
+                head = item.get("head", "?") if isinstance(item, dict) else "?"
+                tail = item.get("tail", "?") if isinstance(item, dict) else "?"
+                print(
+                    f"[{graph_id}] loop {name} {idx + 1}/{n_items}: {head} -> {tail}",
+                    flush=True,
+                )
                 iter_state = jsonify_state(
                     apply_loop_item_bindings(
                         accum, item, item_bindings, scalar_fields=scalar_fields

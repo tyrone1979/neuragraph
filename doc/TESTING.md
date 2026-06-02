@@ -95,7 +95,7 @@ Phases per representative workflow (`graph_ids_for_testing()` — one id per fam
 | G1 | Backup `meta/graphs` → clear directory |
 | G2 | UI inject → save → JSON + canvas topology diff |
 | G3 | Branch graphs with ≥3 conditions (UI smoke) |
-| G4 | SSE `/stream/test` until `[DONE]`; fails on `Stream error` or `status: failed` in stream |
+| G4 | One graph at a time: `/stream/test` until `[DONE]` (no socket timeout); print input, output tail, verdict; then next |
 
 **Not mock:** G4 runs real runners, agents, LLM, and plugins. G2/G3 do not execute LLM logic — only editor round-trip.
 
@@ -117,6 +117,31 @@ See `ui_tests/suites/playwright_*_suite.py`. Results append to `ui_tests/screens
 | [graph_suite_report_latest.md](../ui_tests/reports/graph_suite_report_latest.md) | Graph suite audit + per-case table (after full run) |
 
 Timestamped runs from local executions may also exist as `agent_test_report_YYYYMMDD_*.md`; only `*_latest*` files are updated for documentation links.
+
+---
+
+## Graph suite troubleshooting
+
+If **G4 shows `timed out` for every graph** (including fast `sg_*` subgraphs):
+
+1. **Server wedged** — G2 runs many `saveGraph()` calls; a stuck dialog or slow Flask can leave port 5001 unresponsive. Restart the app, then re-run. The suite now **restores `meta/graphs` from backup before G4** so stream tests use canonical JSON, not broken UI saves.
+2. **G2c false FAIL** — Editor adds empty `agentVersions` / `flowNodes` while backups omit them; `normalize_graph` now treats those as equivalent.
+3. **Quick G4-only check** (skip G1–G3 UI):
+
+   ```powershell
+   $env:NG_GRAPH_SKIP_UI = "1"
+   .\venv\Scripts\python.exe -u ui_tests\run_tests.py --suite graphs
+   ```
+
+4. **Single graph** (still sequential, no timeout):
+
+   ```powershell
+   $env:NG_GRAPH_ONLY = "sg_cid_re_verify"
+   $env:NG_GRAPH_SKIP_UI = "1"
+   .\venv\Scripts\python.exe -u ui_tests\run_tests.py --suite graphs
+   ```
+
+Ensure port **5001** responds (`curl http://127.0.0.1:5001/`) and plugin sandbox **5002** is up before G4.
 
 ---
 
