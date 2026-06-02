@@ -1,0 +1,2 @@
+runner_id,source,size,tuning_out,test_out,write_test_remain,mirror_ner
+wf_cid_re_llm_linear,comparison/data/CDR/dev.txt,2,cid_agent_test_tuning.csv,cid_agent_test_test.csv,false,false

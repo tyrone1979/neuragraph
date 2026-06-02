@@ -1,0 +1,55 @@
+{
+  "name": "RE Verify (pair loop)",
+  "description": "Generate evaluation pairs → loop verify subgraph → metrics.",
+  "nodes": [
+    "START",
+    "eval_pair_generate",
+    "verify_pairs_loop",
+    "eval_metrics",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "eval_pair_generate"
+    ],
+    [
+      "eval_pair_generate",
+      "verify_pairs_loop"
+    ],
+    [
+      "verify_pairs_loop",
+      "eval_metrics"
+    ],
+    [
+      "eval_metrics",
+      "END"
+    ]
+  ],
+  "flowNodes": {
+    "verify_pairs_loop": {
+      "kind": "loop",
+      "name": "Verify each pair",
+      "subgraphId": "sg_relation_verify",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ pairs }}",
+        "itemBindings": {
+          "text": "{{ text }}",
+          "head": "{{ head }}",
+          "tail": "{{ tail }}",
+          "entity_link": "{{ entity_link }}"
+        }
+      }
+    }
+  },
+  "bindings": {
+    "eval_pair_generate": {
+      "expected_entities": "{{ START.expected_entities }}"
+    },
+    "eval_metrics": {
+      "expected": "{{ START.expected_relations }}",
+      "predicted": "{{ predicted }}"
+    }
+  }
+}

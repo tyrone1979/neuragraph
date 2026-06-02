@@ -1,0 +1,83 @@
+{
+  "name": "Flair vs LLM NER Comparison",
+  "description": "Workflow for Flair vs LLM NER Comparison",
+  "nodes": [
+    "START",
+    "text_sentence_split",
+    "ner_flair_sent_loop",
+    "ner_flair_aggregate",
+    "ner_llm",
+    "eval_flair",
+    "eval_llm",
+    "merge_metrics",
+    "ner_comparison_report",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "text_sentence_split"
+    ],
+    [
+      "text_sentence_split",
+      "ner_flair_sent_loop"
+    ],
+    [
+      "ner_flair_sent_loop",
+      "ner_flair_aggregate"
+    ],
+    [
+      "ner_flair_aggregate",
+      "eval_flair"
+    ],
+    [
+      "START",
+      "ner_llm"
+    ],
+    [
+      "ner_llm",
+      "eval_llm"
+    ],
+    [
+      "eval_flair",
+      "merge_metrics"
+    ],
+    [
+      "eval_llm",
+      "merge_metrics"
+    ],
+    [
+      "merge_metrics",
+      "ner_comparison_report"
+    ],
+    [
+      "ner_comparison_report",
+      "END"
+    ]
+  ],
+  "flowNodes": {
+    "ner_flair_sent_loop": {
+      "kind": "loop",
+      "name": "Auto loop for ner_flair_sent",
+      "subgraphId": "ner_flair_sent_loop",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ sentences }}",
+        "itemBindings": {
+          "sentence": "{{ sentence }}",
+          "labels": "{{ START.labels }}"
+        },
+        "mergeAliases": {
+          "predicted": "ner_flair_sent"
+        }
+      }
+    }
+  },
+  "bindings": {
+    "ner_comparison_report": {
+      "text": "{{ START.text }}",
+      "merged_metrics": "{{ merged_metrics }}"
+    }
+  },
+  "created_at": "2026-05-28T13:46:27.085883"
+}

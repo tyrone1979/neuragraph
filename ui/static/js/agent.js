@@ -33,10 +33,17 @@ $(document).ready(function () {
             const desc = item.description
                 ? `<div class="wf-family-desc mt-1">${escHtml(item.description)}</div>`
                 : '';
+            const wfCount = Number(item.workflow_ref_count || 0);
+            const wfBadgeClass = wfCount > 0 ? 'bg-success' : 'bg-secondary';
+            const wfLabel = wfCount === 1 ? '1 workflow' : `${wfCount} workflows`;
             return `
                 <div class="mt-1">
                     <strong>Type:</strong>
                     <span class="badge ${typeBadge}">${escHtml(typeText)}</span>
+                </div>
+                <div class="mt-1">
+                    <strong>Workflow refs:</strong>
+                    <span class="badge ${wfBadgeClass}" title="Top-level workflows using this agent (incl. subgraphs)">${escHtml(wfLabel)}</span>
                 </div>
                 ${modelHtml}
                 ${desc}`;

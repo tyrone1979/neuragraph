@@ -1,0 +1,2 @@
+sentences,predicted,ner_flair_sent
+"[""Aspirin may reduce the risk of heart disease.""]","[{""Chemical"": [""Aspirin""], ""Disease"": [""heart disease""]}]","{""Chemical"": [""Aspirin""], ""Disease"": [""heart disease""]}"

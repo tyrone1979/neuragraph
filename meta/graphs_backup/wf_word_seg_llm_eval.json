@@ -1,0 +1,24 @@
+{
+  "name": "Word Segmentation Eval",
+  "description": "LLM word segmentation with boundary metrics.",
+  "nodes": [
+    "START",
+    "text_word_segment",
+    "eval_metrics_segment",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "text_word_segment"
+    ],
+    [
+      "text_word_segment",
+      "eval_metrics_segment"
+    ],
+    [
+      "eval_metrics_segment",
+      "END"
+    ]
+  ]
+}

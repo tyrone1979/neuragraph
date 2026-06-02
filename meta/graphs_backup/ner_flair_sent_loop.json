@@ -1,0 +1,20 @@
+{
+  "name": "Subgraph for ner_flair_sent_loop",
+  "nodes": [
+    "START",
+    "ner_flair_sent",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_flair_sent"
+    ],
+    [
+      "ner_flair_sent",
+      "END"
+    ]
+  ],
+  "description": "Auto-generated subgraph for loop node `ner_flair_sent_loop`",
+  "created_at": "2026-05-28T13:46:27.059333"
+}

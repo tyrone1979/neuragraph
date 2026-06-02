@@ -1,0 +1,30 @@
+{
+  "name": "Summarize + format",
+  "description": "Summarize text and pack into JSON result.",
+  "nodes": [
+    "START",
+    "text_summarize",
+    "report_format_json",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "text_summarize"
+    ],
+    [
+      "text_summarize",
+      "report_format_json"
+    ],
+    [
+      "report_format_json",
+      "END"
+    ]
+  ],
+  "bindings": {
+    "report_format_json": {
+      "text": "{{ START.text }}",
+      "summary": "{{ text_summarize.summary }}"
+    }
+  }
+}

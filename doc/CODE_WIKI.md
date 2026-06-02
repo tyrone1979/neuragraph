@@ -215,10 +215,11 @@ Screenshot capture: `scripts/refresh_manual_screenshots.py` → `doc/images/`.
 
 ### Testing
 
-- Unit: `tests/test_*.py`
-- UI: `ui_tests/` (Playwright)
-- Chat regression: `tests/test_chat_feature_suite.py`
-- Report regression: `tests/test_report_regression_suite.py`
+- Entry: `ui_tests/run_tests.py` (`--suite regression|current|graphs|agents|unit|all`)
+- Playwright: `ui_tests/suites/playwright_*_suite.py` (all graphs: `playwright_graph_full_suite.py`)
+- Agent batch (mock LLM default): `ui_tests/suites/agent_invoke_mock_llm_suite.py` or `--suite agents`
+- Unit tests: `ui_tests/unit/test_*.py`
+- Helpers: `playwright_helpers.py`, `graph_workflow_json_utils.py`, `agent_sample_row_fixtures.py`
 
 ### Documentation
 

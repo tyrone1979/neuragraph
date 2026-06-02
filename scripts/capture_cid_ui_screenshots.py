@@ -11,8 +11,8 @@ os.environ.setdefault("PLUGIN_SERVER_URL", "http://127.0.0.1:5002")
 
 from playwright.sync_api import sync_playwright
 
-from ui_tests import cid_experiment_ui_test as cid
-from ui_tests.common import goto
+from ui_tests.suites import playwright_cid_experiment_suite as cid
+from ui_tests.utils.playwright_helpers import goto
 
 SCREENSHOTS = ROOT / "ui_tests" / "screenshots"
 BASE = "http://127.0.0.1:5001"

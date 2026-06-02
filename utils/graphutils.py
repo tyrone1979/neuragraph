@@ -4,6 +4,8 @@ import difflib
 import json
 import re
 from copy import deepcopy
+from collections import defaultdict
+from pathlib import Path
 from typing import Dict, Any, List, TypedDict, Type
 
 from service.meta.loader import MetaLoader, GraphMetaLoader
@@ -400,7 +402,7 @@ def parse_workflow_family(graph_id: str) -> dict[str, Any]:
             "family_id": base,
             "variant_kind": "opt",
             "variant_label": f"opt {tag}",
-            "sort_key": (1, tag, 1000),
+            "sort_key": (1, tag, 0),
         }
 
     copy_match = _WORKFLOW_COPY_SUFFIX.match(gid)
@@ -447,6 +449,46 @@ def enrich_graph_list_item(graph: dict[str, Any]) -> dict[str, Any]:
         "updated_at": graph.get("updated_at") or "",
         "is_subgraph": gid.startswith("sg_"),
     }
+
+
+def select_representative_graph_ids(graph_ids: list[str] | None = None) -> list[str]:
+    """
+    Representative graph ids per workflow family for testing and pruning.
+
+    - Baseline (initial) workflow id is always kept when present (for A/B vs optimized).
+    - Among opt/copy variants, only the highest sort_key is kept.
+    """
+    if graph_ids is None:
+        graphs_dir = Path(__file__).resolve().parent.parent / "meta" / "graphs"
+        graph_ids = sorted(p.stem for p in graphs_dir.glob("*.json"))
+
+    by_family: dict[str, list[str]] = {}
+    for gid in graph_ids:
+        gid = str(gid or "").strip()
+        if not gid:
+            continue
+        fam = parse_workflow_family(gid)
+        by_family.setdefault(str(fam["family_id"]), []).append(gid)
+
+    selected: list[str] = []
+    for family_id, members in by_family.items():
+        members.sort(key=lambda g: (parse_workflow_family(g)["sort_key"], g))
+        highest = members[-1]
+        baseline = family_id if family_id in members else None
+        if baseline and baseline != highest:
+            selected.extend([baseline, highest])
+        else:
+            selected.append(highest)
+    return sorted(selected)
+
+
+def redundant_graph_ids(graph_ids: list[str] | None = None) -> list[str]:
+    """Graph ids that are not the highest-version representative of their family."""
+    if graph_ids is None:
+        graphs_dir = Path(__file__).resolve().parent.parent / "meta" / "graphs"
+        graph_ids = sorted(p.stem for p in graphs_dir.glob("*.json"))
+    keep = set(select_representative_graph_ids(graph_ids))
+    return sorted(g for g in graph_ids if g not in keep)
 
 
 def group_workflow_families(graphs: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -531,4 +573,37 @@ def compare_workflow_graphs(left_id: str, right_id: str) -> dict[str, Any] | Non
             for agent_id in changed_agents
         ],
     }
+
+
+def _agents_in_graph_package(graphs_cfg: Dict[str, Any]) -> set[str]:
+    """Agent node ids used anywhere in a workflow package (root + subgraphs)."""
+    found: set[str] = set()
+    for graph in (graphs_cfg or {}).values():
+        for node in (graph or {}).get("nodes", []):
+            if node in ("START", "END"):
+                continue
+            if MetaLoader.load("agents", node):
+                found.add(node)
+    return found
+
+
+def count_agent_workflow_references() -> Dict[str, int]:
+    """
+    Count how many top-level workflows reference each agent (directly or via subgraphs).
+
+    Each file under meta/graphs/*.json is one workflow; nested subgraph configs are
+    included when scanning that workflow's GraphMetaLoader package.
+    """
+    counts: Dict[str, int] = defaultdict(int)
+    graphs = MetaLoader.loads("graphs") or []
+    for graph in graphs:
+        graph_id = str(graph.get("id") or "").strip()
+        if not graph_id:
+            continue
+        graphs_cfg = GraphMetaLoader.load(graph_id)
+        if not graphs_cfg:
+            continue
+        for agent_id in _agents_in_graph_package(graphs_cfg):
+            counts[agent_id] += 1
+    return dict(counts)
 

@@ -1,0 +1,94 @@
+{
+  "name": "CID RE (multi-branch gate)",
+  "description": "NER then 4-way branch gate before relation extraction.",
+  "nodes": [
+    "START",
+    "ner_llm",
+    "cid_re_gate",
+    "relation_extract_llm",
+    "ontology_synonym_resolve",
+    "eval_metrics_relation",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_llm"
+    ],
+    [
+      "ner_llm",
+      "cid_re_gate"
+    ],
+    [
+      "cid_re_gate",
+      "relation_extract_llm"
+    ],
+    [
+      "cid_re_gate",
+      "ontology_synonym_resolve"
+    ],
+    [
+      "cid_re_gate",
+      "eval_metrics_relation"
+    ],
+    [
+      "relation_extract_llm",
+      "eval_metrics_relation"
+    ],
+    [
+      "ontology_synonym_resolve",
+      "eval_metrics_relation"
+    ],
+    [
+      "eval_metrics_relation",
+      "END"
+    ]
+  ],
+  "flowNodes": {
+    "cid_re_gate": {
+      "kind": "branch",
+      "name": "CID RE Gate",
+      "conditions": [
+        {
+          "label": "Run full RE",
+          "field": "entities",
+          "op": "not_empty"
+        },
+        {
+          "label": "Resolve synonyms",
+          "field": "entities",
+          "op": "contains",
+          "value": "Chemical"
+        },
+        {
+          "label": "Filter hypernyms",
+          "field": "entities",
+          "op": "contains",
+          "value": "Disease"
+        },
+        {
+          "label": "Skip RE",
+          "field": "entities",
+          "op": "empty"
+        }
+      ]
+    }
+  },
+  "bindings": {
+    "ner_llm": {
+      "text": "{{ START.text }}",
+      "labels": "Chemical, Disease"
+    },
+    "relation_extract_llm": {
+      "text": "{{ START.text }}",
+      "entities": "{{ ner_llm.entities }}"
+    },
+    "ontology_synonym_resolve": {
+      "entities": "{{ ner_llm.entities }}"
+    },
+    "eval_metrics_relation": {
+      "relations": "{{ relations }}",
+      "ground_truth": "{{ START.gold_relations }}"
+    }
+  }
+}

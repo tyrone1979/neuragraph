@@ -1,0 +1,2 @@
+text
+"{""experiment"": {""exp_id"": ""test-exp"", ""runner_id"": ""wf_cid_re_llm_linear""}, ""agents"": [{""id"": ""relation_verify_llm"", ""type"": ""LLM""}], ""states"": [{""metrics"": {""micro_f1"": 0.5}}], ""agent_versions"": {""effective"": {""relation_verify_llm"": ""current""}}}"

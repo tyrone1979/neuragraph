@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, request, jsonify, abort
 from service.entity.test import TestLoader
 from service.meta.loader import MetaLoader
 from service.meta.agent_version import AgentVersionStore
+from utils.graphutils import count_agent_workflow_references
 
 agent_bp = Blueprint('runner', __name__, url_prefix='/agents')
 version_store = AgentVersionStore()
@@ -51,6 +52,7 @@ def edit_agent(agent_id):
 @agent_bp.route('/api/list')
 def api_list():
     agents = MetaLoader.loads("agents") or []
+    workflow_ref_counts = count_agent_workflow_references()
     query = request.args.get('q', '').lower()
     result = []
     for agent in agents:
@@ -60,6 +62,7 @@ def api_list():
             **agent,
             "version_count": len(versions),
             "latest_version": versions[0]["version"] if versions else None,
+            "workflow_ref_count": workflow_ref_counts.get(agent_id, 0),
         }
         if query:
             haystack = " ".join([
@@ -67,6 +70,7 @@ def api_list():
                 agent_id,
                 item.get("type", ""),
                 item.get("model", ""),
+                str(item.get("workflow_ref_count", 0)),
             ]).lower()
             if query not in haystack:
                 continue
