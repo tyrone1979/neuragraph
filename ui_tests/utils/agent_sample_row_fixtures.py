@@ -32,9 +32,12 @@ MERGED_METRICS = {"flair": METRICS_FLair, "llm": METRICS_LLM}
 TRIPLES = [{"head": "Aspirin", "predicate": "treats", "tail": "heart disease"}]
 RELATION_LINES = ["Aspirin | treats | heart disease"]
 TREE = (
-    "1\tAspirin\taspirin\tNN\t_\t0\thead\t_\t_\t_\t_\n"
-    "2\tmay\tmay\tMD\t_\t1\tadvmod\t_\t_\t_\t_\n"
-    "3\treduce\treduce\tVB\t_\t0\troot\t_\t_\t_\t_\n"
+    "1\tAspirin\taspirin\tNN\t_\t2\tnsubj\t_\t_\t_\t_\n"
+    "2\ttreats\ttreat\tVBZ\t_\t0\troot\t_\t_\t_\t_\n"
+    "3\tpain\tpain\tNN\t_\t2\tobj\t_\t_\t_\t_\n"
+)
+SYNONYM_TEXT = (
+    "Aspirin (acetylsalicylic acid) may reduce the risk of heart disease."
 )
 SEG_PRED = "| Aspirin | may | reduce |"
 SEG_EXP = "| Aspirin | may | reduce |"
@@ -97,11 +100,11 @@ AGENT_SAMPLE_ROWS: dict[str, dict[str, Any]] = {
     "ontology_entity_link": {"entities": PREDICTED_NER},
     "ontology_hypernym_filter": {"entities": ENTITIES},
     "ontology_hypernym_identify": {
-        "heads": [{"text": "Aspirin", "id": "D001241"}],
-        "tails": [{"text": "heart disease", "id": "D006331"}],
+        "heads": [{"text": "Aspirin", "type": "Chemical", "mesh": "D001241"}],
+        "tails": [{"text": "heart disease", "type": "Disease", "mesh": "D006331"}],
     },
     "ontology_mesh_lookup": {"query": "aspirin", "limit": "3", "match": "contains"},
-    "ontology_synonym_extract": {"text": SENTENCE},
+    "ontology_synonym_extract": {"text": SYNONYM_TEXT},
     "ontology_synonym_resolve": {"text": SENTENCE, "entities": PREDICTED_NER},
     "relation_dti_analyze": {
         "drug_info": {"name": "Aspirin", "id": "D001241"},

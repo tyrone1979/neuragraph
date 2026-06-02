@@ -46,9 +46,11 @@ class GraphEntity(Entity):
         self.compiled_graph = sg.compile(checkpointer=checkpointer)
 
 
-    def invoke(self, state: T) -> Dict[str, Any]:
+    def invoke(self, state: T, **kwargs) -> Dict[str, Any]:
         import uuid
-        config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+        config = kwargs.get("config") or {
+            "configurable": {"thread_id": str(uuid.uuid4())}
+        }
         return self.compiled_graph.invoke(jsonify_state(dict(state)), config=config)
 
     def stream(self, state: T,**kwargs) -> Iterator[dict[str, Any] | Any]:

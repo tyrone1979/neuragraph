@@ -9,7 +9,6 @@
     "name": "report",
     "type": "str"
   },
-  "persistence": {},
   "model": "deepseek",
   "prompt_template": {
     "description": "Generates a comparison report between Flair and LLM NER results",
@@ -17,5 +16,5 @@
     "human": "Compare the NER performance of Flair and an LLM on the following text:\n\nText: {text}\n\nMerged Metrics (contains both Flair and LLM):\n{merged_metrics}\n\nProvide a comprehensive report including precision, recall, F1-score, entity-level analysis, and overall assessment."
   },
   "tools": [],
-  "created_at": "2026-01-01T00:00:00"
+  "created_at": "2026-06-02T10:37:08.757196"
 }

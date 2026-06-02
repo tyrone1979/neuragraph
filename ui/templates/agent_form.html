@@ -78,6 +78,12 @@
                 </div>
 
                 {% if action == 'edit' %}
+                <div class="small text-muted mb-2">
+                    <strong>Saved versions:</strong> {{ agent.version_count or 0 }}
+                    &nbsp;|&nbsp;
+                    <strong>Workflow refs:</strong> {{ agent.workflow_ref_count or 0 }}
+                    <span class="text-muted">(top-level workflows whose graph nodes use this exact agent id; version snapshots do not count)</span>
+                </div>
                 <div class="card border-info mb-3">
                     <div class="card-header py-2">
                         <strong>Agent Version Control</strong>

@@ -234,6 +234,167 @@ def parse_entity_list(raw: Any) -> list[dict[str, Any]]:
     return []
 
 
+def parse_hypernym_list(raw: Any) -> list[dict[str, str]]:
+    """
+    Parse hypernym_identify LLM output: JSON rows or ``entity→hypernym`` lines.
+    Ignores format hints like ``text,type,mesh``.
+    """
+    if raw is None:
+        return []
+    if isinstance(raw, list):
+        if raw and all(isinstance(x, dict) for x in raw):
+            out: list[dict[str, str]] = []
+            for item in raw:
+                row = _normalize_hypernym_row(item)
+                if row:
+                    out.append(row)
+            return out
+        if raw and all(isinstance(x, str) for x in raw):
+            raw = "\n".join(raw)
+        elif not raw:
+            return []
+    if not isinstance(raw, str):
+        return []
+
+    text = raw.strip()
+    if not text or text.lower() in ("type", "text,type,mesh", "text, type, mesh"):
+        return []
+
+    for block in re.findall(r"```(?:json)?\s*([\s\S]*?)\s*```", text, flags=re.IGNORECASE):
+        block = block.strip()
+        if block.startswith("["):
+            try:
+                parsed = json.loads(block)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(parsed, list):
+                out = [_normalize_hypernym_row(x) for x in parsed]
+                return [r for r in out if r]
+    try:
+        parsed = json.loads(text)
+        if isinstance(parsed, list):
+            out = [_normalize_hypernym_row(x) for x in parsed]
+            return [r for r in out if r]
+    except json.JSONDecodeError:
+        pass
+
+    rows: list[dict[str, str]] = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.lower() in ("type", "text,type,mesh"):
+            continue
+        for sep in ("→", "->", "=>"):
+            if sep in line:
+                left, right = line.split(sep, 1)
+                rows.append({"entity": left.strip(), "hypernym": right.strip()})
+                break
+    return rows
+
+
+def parse_plan_json(raw: Any) -> dict[str, Any]:
+    """Extract refiner plan JSON; default to empty modifications when model returns prose."""
+    if isinstance(raw, dict):
+        if "modifications" in raw:
+            return raw
+        return {"modifications": []}
+    if raw is None:
+        return {"modifications": []}
+    if not isinstance(raw, str):
+        return {"modifications": []}
+
+    text = raw.strip()
+    if not text:
+        return {"modifications": []}
+
+    for block in re.findall(r"```(?:json)?\s*([\s\S]*?)\s*```", text, flags=re.IGNORECASE):
+        try:
+            obj = json.loads(block.strip())
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, dict) and "modifications" in obj:
+            return obj
+
+    for match in re.finditer(r'\{[^{}]*"modifications"\s*:', text):
+        start = match.start()
+        depth = 0
+        for j in range(start, len(text)):
+            if text[j] == "{":
+                depth += 1
+            elif text[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        obj = json.loads(text[start : j + 1])
+                    except json.JSONDecodeError:
+                        break
+                    if isinstance(obj, dict) and "modifications" in obj:
+                        return obj
+                    break
+
+    try:
+        obj = json.loads(text)
+        if isinstance(obj, dict) and "modifications" in obj:
+            return obj
+    except json.JSONDecodeError:
+        pass
+
+    lower = text.lower()
+    if "modifications" in lower and ("[]" in text or "no safe change" in lower or "no actionable" in lower):
+        return {"modifications": []}
+    return {"modifications": []}
+
+
+def parse_relation_triples(raw: Any) -> list[str]:
+    """Parse head | verb | tail lines from relation_from_tree_llm output."""
+    if raw is None:
+        return []
+    if isinstance(raw, list):
+        out: list[str] = []
+        for item in raw:
+            if isinstance(item, str) and "|" in item:
+                out.append(item.strip())
+            elif isinstance(item, dict):
+                head = (item.get("head") or item.get("subject") or "").strip()
+                pred = (item.get("predicate") or item.get("verb") or "").strip()
+                tail = (item.get("tail") or item.get("object") or "").strip()
+                if head and pred and tail:
+                    out.append(f"{head} | {pred} | {tail}")
+        return out
+    if not isinstance(raw, str):
+        return []
+
+    lines: list[str] = []
+    for line in raw.splitlines():
+        line = line.strip().strip("`")
+        if not line or line.lower().startswith("here is"):
+            continue
+        if line.upper() == "NONE":
+            continue
+        if "|" in line:
+            lines.append(line)
+    if lines:
+        return lines
+    for item in convert_to_list(raw):
+        if isinstance(item, str) and "|" in item:
+            lines.append(item.strip())
+    return lines
+
+
+def _normalize_hypernym_row(item: Any) -> dict[str, str] | None:
+    if not isinstance(item, dict):
+        return None
+    entity = (
+        item.get("entity")
+        or item.get("head")
+        or item.get("text")
+        or ""
+    ).strip()
+    hypernym = (item.get("hypernym") or item.get("tail") or "").strip()
+    if entity and hypernym:
+        return {"entity": entity, "hypernym": hypernym}
+    return None
+
+
 def jsonify_state(state: T) -> T:
     """把 TypedDict 中值是 JSON 字符串的字段就地转成对象/list"""
     # 只拿出 TypedDict 声明的键

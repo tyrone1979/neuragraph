@@ -8,7 +8,7 @@
     "name": "predicted",
     "type": "text"
   },
-  "model": "mistral-7b-instruct-q8_0",
+  "model": "deepseek",
   "prompt_template": {
     "description": "English word segmentation",
     "system": "You are a NLP expert",

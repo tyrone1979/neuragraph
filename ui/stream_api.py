@@ -24,7 +24,13 @@ def process(chunk, graph_id: str | None = None):
         pretty_text = format_graph_chunk(node_path, payload, graph_id=graph_id)
         safe_chunk = pretty_text.replace("\n", "$$")
         return f"data: {safe_chunk}\n\n"
-    return chunk
+    if isinstance(chunk, (dict, list)):
+        safe_chunk = json.dumps(chunk, ensure_ascii=False, default=str).replace("\n", "\\n")
+        return f"data: {safe_chunk}\n\n"
+    if chunk is None:
+        return ""
+    safe_chunk = str(chunk).replace("\n", "\\n")
+    return f"data: {safe_chunk}\n\n"
 
 def run(target_id,scope,form_data,config=None):
 

@@ -942,84 +942,74 @@ $('#llmConfigSelect').on('change', function() {
     });
 
 
-    // 开始流式测试的函数
+    function parseTestInputValue(raw) {
+        if (raw == null) {
+            return raw;
+        }
+        if (typeof raw !== 'string') {
+            return raw;
+        }
+        const trimmed = raw.trim();
+        if (!trimmed || (trimmed[0] !== '[' && trimmed[0] !== '{')) {
+            return raw;
+        }
+        try {
+            return JSON.parse(trimmed);
+        } catch (_e) {
+            return raw;
+        }
+    }
+
     function startStreamingTest(agentId, testInputs, agentData) {
-        // 2. 更新运行按钮状态
-        $runTestBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Testing...');
-
-        // 3. 准备参数
-        // 将 testInputs 转换为简单对象（只保留值）
-        const simpleInputs = {};
-        Object.entries(testInputs).forEach(([name, data]) => {
-            simpleInputs[name] = data.value;
-        });
-
-        // 创建 URL 参数
-        const params = new URLSearchParams({
-            agentId: agentId,
-            ...simpleInputs
-        });
-
-        // 4. 清空测试结果并显示加载状态
-        $testResult.empty();
-
-        // 5. 关闭旧的 EventSource 连接
         if (window.agentEventSource) {
             window.agentEventSource.close();
-
+            window.agentEventSource = null;
         }
 
-        // 6. 创建新的 EventSource 连接
-        const streamUrl = `/stream/test?${params}`;
+        $runTestBtn.prop('disabled', true).html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Testing...'
+        );
 
-        window.agentEventSource = new EventSource(streamUrl);
+        const simpleInputs = {};
+        Object.entries(testInputs).forEach(([name, data]) => {
+            simpleInputs[name] = parseTestInputValue(data.value);
+        });
 
-        // 处理接收到的消息
-        window.agentEventSource.onmessage = function (e) {
+        $testResult.empty().append('<div class="text-muted">Running test…</div>');
 
-            if (e.data === '[DONE]') {
-                // 测试完成
-                window.agentEventSource.close();
+        $.ajax({
+            url: `/agents/api/${encodeURIComponent(agentId)}/test`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ inputs: simpleInputs }),
+            success: function (resp) {
+                $testResult.empty();
+                if (resp && resp.success) {
+                    const outName = ($('#outputName').val() || '').trim();
+                    const payload =
+                        outName && resp.result && Object.prototype.hasOwnProperty.call(resp.result, outName)
+                            ? { [outName]: resp.result[outName] }
+                            : resp.result;
+                    const pre = $('<pre class="mb-0 small">').text(
+                        JSON.stringify(payload, null, 2)
+                    );
+                    $testResult.append(pre);
+                } else {
+                    $testResult.append(
+                        `<div class="text-danger">${(resp && resp.error) || 'Test failed'}</div>`
+                    );
+                }
+            },
+            error: function (xhr) {
+                $testResult.empty().append(
+                    `<div class="text-danger">${xhr.responseJSON?.error || xhr.statusText || 'Test failed'}</div>`
+                );
+            },
+            complete: function () {
                 $('#loadingSpinner').addClass('d-none');
                 $runTestBtn.prop('disabled', false).html('<i class="fas fa-play me-1"></i> Run Test');
-
-                // 隐藏停止按钮（如果存在）
-                if ($('#stopTestBtn').length) {
-                    $('#stopTestBtn').hide();
-                }
-
-                return;
-            }
-            $testResult.append(e.data.replace(/\\n/g, ''));
-            // 自动滚动到底部
-            $testResult.scrollTop($testResult[0].scrollHeight);
-        };
-
-        // 处理错误
-        window.agentEventSource.onerror = function (err) {
-            console.error('SSE error:', err);
-
-            // 显示错误信息
-            $testResult.append('\n\n[Error] SSE connection closed or error occurred.\n');
-
-            // 隐藏加载指示器
-            $('#loadingSpinner').addClass('d-none');
-
-            // 恢复按钮状态
-            $runTestBtn.prop('disabled', false).html('<i class="fas fa-play me-1"></i> Run Test');
-
-            // 隐藏停止按钮（如果存在）
-            if ($('#stopTestBtn').length) {
-                $('#stopTestBtn').hide();
-            }
-
-            // 关闭连接
-            if (window.agentEventSource) {
-                window.agentEventSource.close();
-                window.agentEventSource = null;
-            }
-        };
-
+            },
+        });
     }
 
     // 在页面卸载时关闭 EventSource 连接

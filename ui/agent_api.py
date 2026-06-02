@@ -1,6 +1,10 @@
 # agent_api.py
+from datetime import datetime
+
 from flask import Blueprint, render_template, request, jsonify, abort
+from langchain_core.runnables import RunnableConfig
 from service.entity.test import TestLoader
+from service.entity.runner import RunnerLoader
 from service.meta.loader import MetaLoader
 from service.meta.agent_version import AgentVersionStore
 from utils.graphutils import count_agent_workflow_references
@@ -42,6 +46,10 @@ def edit_agent(agent_id):
     if not agent:
         abort(404)
     agent["id"] = agent_id
+    workflow_ref_counts = count_agent_workflow_references()
+    versions = version_store.list_versions(agent_id)
+    agent["workflow_ref_count"] = workflow_ref_counts.get(agent_id, 0)
+    agent["version_count"] = len(versions)
     return render_template("agent_form.html", agent=agent,
                            action="edit",
                            test_sets=test_sets,
@@ -183,6 +191,24 @@ def api_compare_versions(agent_id):
     if not result:
         return jsonify({"error": "Unable to compare versions"}), 404
     return jsonify(result)
+
+
+@agent_bp.route('/api/<agent_id>/test', methods=['POST'])
+def api_test_agent(agent_id):
+    """Run agent invoke once; return structured state (no SSE reasoning noise)."""
+    data = request.json or {}
+    inputs = dict(data.get("inputs") or {})
+    runner = RunnerLoader.load(agent_id)
+    if runner is None:
+        return jsonify({"success": False, "error": f"Agent '{agent_id}' not found"}), 404
+    config: RunnableConfig = {
+        "configurable": {"thread_id": f"ui_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}"}
+    }
+    try:
+        result = runner.invoke(inputs, config=config)
+        return jsonify({"success": True, "result": result})
+    except Exception as ex:
+        return jsonify({"success": False, "error": str(ex)}), 500
 
 
 @agent_bp.route('/api/<agent_id>/rollback', methods=['POST'])

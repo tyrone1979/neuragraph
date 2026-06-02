@@ -6,13 +6,14 @@
   ],
   "outputs": {
     "name": "triples",
-    "type": "list"
+    "type": "list",
+    "parse_as": "relation_triples"
   },
   "model": "gpt-oss_120b",
   "prompt_template": {
     "description": "Extract [head entity, verb, tail entity] triples from CoNLL-U dependency tree",
-    "system": "You are a CoNLL-U-to-triple extractor. Output CSV only, no prose.",
-    "human": "Task: Extract every [head, verb, tail] triple from the CoNLL-U below.\\nRules:\\n1. verb = (a) UPOS=VERB or (b) lemma='be' with dep=cop or (c) token='prevention' with dep=root (nominal predicate) or (d) concatenate every token that depends on the verb via aux/aux:pass (in linear order, space-separated) directly before the verb to form the final verb phrase.\n2. head = full surface string of all tokens recursively linked to verb by nsubj (keep original order, include det/amod/compound/conj/punct inside the phrase).\n3. tail = full surface string linked to verb by obj/iobj/obl/nmod/attr or their left modifiers (amod, compound, det, etc.) plus any conj/punct, for copula, the nominal parent of 'be' (dep=parataxis also allowed).\n4. Output csv format with | delimiter: \nhead entity1 | verb1 | tail entity1\nhead entity2 | verb2 | tail entity2\n...\n5. Return only the list, no extra text.\n- **Do not add any introductory sentences like \"Here is the output...\"\n\nCoNLL-U:\n{tree}"
+    "system": "You extract subject-verb-object triples from CoNLL-U. Output only lines: head | verb | tail",
+    "human": "CoNLL-U tree:\n{tree}\n\nExtract every subject–verb–object triple:\n- head = nsubj dependent phrase of the verb\n- verb = main verb (lemma or surface)\n- tail = obj/iobj/obl dependent phrase\n\nOutput one triple per line, pipe-separated:\nhead | verb | tail\n\nNo explanation. If none, output: NONE"
   },
   "engine": "llm"
 }

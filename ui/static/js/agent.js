@@ -43,7 +43,7 @@ $(document).ready(function () {
                 </div>
                 <div class="mt-1">
                     <strong>Workflow refs:</strong>
-                    <span class="badge ${wfBadgeClass}" title="Top-level workflows using this agent (incl. subgraphs)">${escHtml(wfLabel)}</span>
+                    <span class="badge ${wfBadgeClass}" title="Top-level workflows whose nodes reference this agent id (not version count)">${escHtml(wfLabel)}</span>
                 </div>
                 ${modelHtml}
                 ${desc}`;

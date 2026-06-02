@@ -1,6 +1,6 @@
 {
   "agent_id": "kg_triple_extract_llm",
-  "latest": "v0001",
+  "latest": "v0003",
   "versions": [
     {
       "version": "v0001",
@@ -10,6 +10,24 @@
       "change_note": "",
       "source": "update",
       "content_hash": "e473732f76bffde3dc15a7b19a9ce5699c92c013b9fec3f53873851dd0a9fab6"
+    },
+    {
+      "version": "v0002",
+      "parent_version": "v0001",
+      "created_at": "2026-06-02T10:36:44.146814",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "fc70b6b6a341b51721fddabef57f1c3e9c94174a5d6ffb5fb2ff85cd997bcacb"
+    },
+    {
+      "version": "v0003",
+      "parent_version": "v0002",
+      "created_at": "2026-06-02T10:37:44.426091",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "ac25ff229bb27fbe7752cc30ecd1c1d06cffbba8e813255ab0dd75deb5a9e04a"
     }
   ]
 }

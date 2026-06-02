@@ -6,7 +6,8 @@ Run UI Playwright suites and optional unit tests.
   python ui_tests/run_tests.py --suite experiment    # batch experiment UI
   python ui_tests/run_tests.py --suite cid-experiment
   python ui_tests/run_tests.py --suite graphs        # all meta/graphs (full suite)
-  python ui_tests/run_tests.py --suite agents        # agent_invoke_mock_llm_suite (mock LLM default)
+  python ui_tests/run_tests.py --suite agents        # agent suite (mock LLM default)
+  python ui_tests/run_tests.py --suite agents-live   # agent suite with real deepseek/gpt-oss
   python ui_tests/run_tests.py --suite unit          # ui_tests/unit/test_*.py
   python ui_tests/run_tests.py --suite all
   python ui_tests/suites/agent_invoke_mock_llm_suite.py --live-llm
@@ -127,7 +128,17 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--suite",
-        choices=["current", "regression", "experiment", "cid-experiment", "graphs", "agents", "unit", "all"],
+        choices=[
+            "current",
+            "regression",
+            "experiment",
+            "cid-experiment",
+            "graphs",
+            "agents",
+            "agents-live",
+            "unit",
+            "all",
+        ],
         default="current",
     )
     parser.add_argument(
@@ -146,10 +157,14 @@ def main():
 
     print(f"Python: {PYTHON}")
 
-    if args.suite == "agents":
+    if args.suite in ("agents", "agents-live"):
+        os.environ["PYTHONPATH"] = str(ROOT)
+        if str(ROOT) not in sys.path:
+            sys.path.insert(0, str(ROOT))
         from ui_tests.suites.agent_invoke_mock_llm_suite import main as run_agent_suite
 
-        sys.exit(run_agent_suite())
+        live_argv = ["--live-llm", "--llm", "auto"] if args.suite == "agents-live" else []
+        sys.exit(run_agent_suite(live_argv))
 
     if args.suite == "unit":
         sys.exit(run_unit_tests())
