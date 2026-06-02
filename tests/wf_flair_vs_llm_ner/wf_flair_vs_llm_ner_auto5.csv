@@ -1,6 +1,6 @@
-text,entities,gold_relations
-Aspirin reduces fever in patients with influenza.,"[{""text"":""Aspirin"",""id"":""D001241"",""label"":""Chemical""},{""text"":""influenza"",""id"":""D007251"",""label"":""Disease""}]",D001241 | D007251
-Metformin is used for type 2 diabetes treatment.,"[{""text"":""Metformin"",""id"":""D008687"",""label"":""Chemical""},{""text"":""type 2 diabetes"",""id"":""D003924"",""label"":""Disease""}]",D008687 | D003924
-Ibuprofen can relieve pain caused by arthritis.,"[{""text"":""Ibuprofen"",""id"":""D007052"",""label"":""Chemical""},{""text"":""arthritis"",""id"":""D001168"",""label"":""Disease""}]",D007052 | D001168
-Aspirin reduces fever in patients with influenza.,"[{""text"":""Aspirin"",""id"":""D001241"",""label"":""Chemical""},{""text"":""influenza"",""id"":""D007251"",""label"":""Disease""}]",D001241 | D007251
-Metformin is used for type 2 diabetes treatment.,"[{""text"":""Metformin"",""id"":""D008687"",""label"":""Chemical""},{""text"":""type 2 diabetes"",""id"":""D003924"",""label"":""Disease""}]",D008687 | D003924
+text,labels,entities,gold_relations
+Aspirin reduces fever in patients with influenza.,"Chemical,Disease","[{""text"":""Aspirin"",""id"":""D001241"",""label"":""Chemical""},{""text"":""influenza"",""id"":""D007251"",""label"":""Disease""}]",D001241 | D007251
+Metformin is used for type 2 diabetes treatment.,"Chemical,Disease","[{""text"":""Metformin"",""id"":""D008687"",""label"":""Chemical""},{""text"":""type 2 diabetes"",""id"":""D003924"",""label"":""Disease""}]",D008687 | D003924
+Ibuprofen can relieve pain caused by arthritis.,"Chemical,Disease","[{""text"":""Ibuprofen"",""id"":""D007052"",""label"":""Chemical""},{""text"":""arthritis"",""id"":""D001168"",""label"":""Disease""}]",D007052 | D001168
+Aspirin reduces fever in patients with influenza.,"Chemical,Disease","[{""text"":""Aspirin"",""id"":""D001241"",""label"":""Chemical""},{""text"":""influenza"",""id"":""D007251"",""label"":""Disease""}]",D001241 | D007251
+Metformin is used for type 2 diabetes treatment.,"Chemical,Disease","[{""text"":""Metformin"",""id"":""D008687"",""label"":""Chemical""},{""text"":""type 2 diabetes"",""id"":""D003924"",""label"":""Disease""}]",D008687 | D003924

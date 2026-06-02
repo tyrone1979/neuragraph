@@ -96,22 +96,20 @@ def write_graph_suite_report(
     out.write_text(text, encoding="utf-8")
     latest.write_text(text, encoding="utf-8")
     json_out = report_dir / f"graph_suite_report_{stamp}.json"
-    json_out.write_text(
-        json.dumps(
-            {
-                "generated_at": datetime.now(timezone.utc).isoformat(),
-                "mock_llm": mock_llm,
-                "graph_ids": graph_ids,
-                "input_sources": {gid: _input_source(gid) for gid in graph_ids},
-                "passed": passed,
-                "failed": failed,
-                "total": total,
-                "results": rows,
-                "page_errors": payload.get("errors") or ph.page_errors[:10],
-            },
-            ensure_ascii=False,
-            indent=2,
-        ),
-        encoding="utf-8",
+    json_payload = (
+        {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "mock_llm": mock_llm,
+            "graph_ids": graph_ids,
+            "input_sources": {gid: _input_source(gid) for gid in graph_ids},
+            "passed": passed,
+            "failed": failed,
+            "total": total,
+            "results": rows,
+            "page_errors": payload.get("errors") or ph.page_errors[:10],
+        }
     )
+    json_text = json.dumps(json_payload, ensure_ascii=False, indent=2)
+    json_out.write_text(json_text, encoding="utf-8")
+    (report_dir / "graph_suite_report_latest.json").write_text(json_text, encoding="utf-8")
     return out

@@ -5,7 +5,7 @@
 - Mock LLM: **no — G4 uses real /stream/test (LLM + plugins)**
 - Workflows under test: **26** (one per family via `graph_ids_for_testing`)
 - On disk (`meta/graphs`): **26** JSON files
-- Playwright cases: **27** | PASS **27** | FAIL **0** (G4 full run `20260602_161811`; `wf_flair_vs_llm_ner` labels fix verified `20260602_162156`)
+- Playwright cases: **27** | PASS **27** | FAIL **0** (after `labels` fix in `wf_flair_vs_llm_ner` CSV)
 
 ## Coverage audit (mock vs real)
 

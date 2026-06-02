@@ -11,6 +11,8 @@ GRAPHS = ROOT / "meta" / "graphs"
 BACKUP = ROOT / "meta" / "graphs_backup"
 
 SKIP_KEYS = frozenset({"created_at", "id"})
+# Editor saveGraph() adds these as {}; backups often omit them — treat as equivalent.
+OPTIONAL_OBJECT_KEYS = frozenset({"agentVersions", "flowNodes"})
 
 # Legacy fallbacks when tests/<graph_id>/*.csv is missing (see graph_run_params).
 LEGACY_GRAPH_INPUTS: dict[str, dict[str, Any]] = {
@@ -78,6 +80,13 @@ LEGACY_GRAPH_INPUTS: dict[str, dict[str, Any]] = {
     "sg_ner_flair_sent": {"sentence": "Aspirin treats pain.", "labels": "Chemical,Disease"},
     "sg_ner_llm_tree": {"sentence": "Aspirin treats pain.", "labels": "Chemical,Disease"},
     "sg_re_tree": {"sentence": "Aspirin treats pain."},
+    "sg_cid_re_verify": {
+        "text": "Aspirin may reduce the risk of heart disease.",
+        "head": "Aspirin",
+        "tail": "heart disease",
+        "head_id": "D001241",
+        "tail_id": "D006331",
+    },
     "sg_relation_verify": {
         "text": "Aspirin may cause headache.",
         "head": "Aspirin",
@@ -132,6 +141,63 @@ def graph_run_params(graph_id: str) -> dict[str, Any]:
     if legacy:
         return dict(legacy)
     return dict(DEFAULT_GRAPH_INPUT)
+
+
+def graph_run_params_for_query(graph_id: str) -> dict[str, str]:
+    """GET /stream/test query params: JSON-encode list/dict (not Python repr)."""
+    row = graph_run_params(graph_id)
+    out: dict[str, str] = {}
+    for key, val in row.items():
+        if isinstance(val, (list, dict)):
+            out[key] = json.dumps(val, ensure_ascii=False)
+        elif val is None:
+            continue
+        else:
+            out[key] = str(val)
+    return out
+
+
+def estimate_cid_verify_pairs(params: dict[str, Any]) -> int | None:
+    """Upper-bound C–D pairs after cid_pair_generate (unique MeSH ids per label)."""
+    entities = params.get("entities")
+    if isinstance(entities, str):
+        try:
+            entities = json.loads(entities)
+        except json.JSONDecodeError:
+            return None
+    if not isinstance(entities, list):
+        return None
+    chem: set[str] = set()
+    dis: set[str] = set()
+    for ent in entities:
+        if not isinstance(ent, dict):
+            continue
+        lbl = ent.get("label") or ent.get("type") or ""
+        eid = ent.get("id") or ent.get("mesh") or ""
+        if not eid:
+            continue
+        if lbl == "Chemical":
+            chem.add(eid)
+        elif lbl == "Disease":
+            dis.add(eid)
+    return len(chem) * len(dis)
+
+
+def graph_run_cost_hint(graph_id: str, params: dict[str, Any]) -> str:
+    """Human-readable note before G4 stream (why a graph may take minutes)."""
+    if graph_id == "wf_cid_re_llm_linear":
+        n = estimate_cid_verify_pairs(params)
+        if n is None:
+            return "1× hypernym LLM + N× loop verify (sg_cid_re_verify, each = 1× relation_verify LLM)"
+        return (
+            f"1× ontology_hypernym_filter LLM + up to {n}× loop verify "
+            f"(sg_cid_re_verify → relation_verify_llm); SSE may be silent until each node finishes"
+        )
+    if graph_id.startswith("wf_") and "llm" in graph_id:
+        return "multi-node workflow with real LLM calls; stream may buffer until subgraph steps complete"
+    if graph_id.startswith("sg_"):
+        return "single subgraph; usually finishes in under a minute if LLM/API healthy"
+    return ""
 
 
 def graph_run_timeout(graph_id: str) -> int:
@@ -211,8 +277,12 @@ def normalize_graph(data: dict[str, Any]) -> dict[str, Any]:
         out.pop("bindings", None)
     if not out.get("bindings"):
         out.pop("bindings", None)
-    if isinstance(out.get("flowNodes"), dict):
-        out["flowNodes"] = dict(sorted(out["flowNodes"].items()))
+    for key in OPTIONAL_OBJECT_KEYS:
+        val = out.get(key)
+        if val is None or (isinstance(val, dict) and len(val) == 0):
+            out.pop(key, None)
+        elif isinstance(val, dict):
+            out[key] = dict(sorted(val.items()))
     return out
 
 

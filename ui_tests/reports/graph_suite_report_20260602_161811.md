@@ -1,11 +1,11 @@
 # Graph Test Suite Report
 
-- Generated: 2026-06-02T08:21:56.262605+00:00
+- Generated: 2026-06-02T08:18:11.056276+00:00
 - Suite: `graphs` (Playwright `playwright_graph_full_suite.py`)
 - Mock LLM: **no — G4 uses real /stream/test (LLM + plugins)**
 - Workflows under test: **26** (one per family via `graph_ids_for_testing`)
 - On disk (`meta/graphs`): **26** JSON files
-- Playwright cases: **27** | PASS **27** | FAIL **0** (G4 full run `20260602_161811`; `wf_flair_vs_llm_ner` labels fix verified `20260602_162156`)
+- Playwright cases: **2** | PASS **2** | FAIL **0**
 
 ## Coverage audit (mock vs real)
 
@@ -54,30 +54,5 @@ Unlike `agent_invoke_mock_llm_suite.py`, this suite has **no mock-LLM mode**. Th
 | Case | Status | Detail |
 | --- | --- | --- |
 | `G1-G3-skip` | **PASS** | NG_GRAPH_SKIP_UI set — G4 only |
-| `G4-ner_flair_sent_loop` | **PASS** | ok (0s) |
-| `G4-sg_cid_re_verify` | **PASS** | ok (1s) |
-| `G4-sg_ner_flair_sent` | **PASS** | ok (1s) |
-| `G4-sg_ner_llm_tree` | **PASS** | ok (35s) |
-| `G4-sg_preprocess_inner` | **PASS** | ok (0s) |
-| `G4-sg_re_preprocess` | **PASS** | ok (2s) |
-| `G4-sg_re_tree` | **PASS** | ok (10s) |
-| `G4-sg_relation_verify` | **PASS** | ok (3s) |
-| `G4-wf_cid_ner_flair_eval` | **PASS** | ok (6s) |
-| `G4-wf_cid_ner_llm_eval` | **PASS** | ok (2s) |
-| `G4-wf_cid_re_branch` | **PASS** | ok (2s) |
 | `G4-wf_cid_re_llm_linear` | **PASS** | ok (5s) |
-| `G4-wf_cid_re_llm_linear_opt_20260529_143039_r2` | **PASS** | ok (5s) |
-| `G4-wf_doc_ner_flair_eval` | **PASS** | ok (0s) |
-| `G4-wf_doc_ner_llm_eval` | **PASS** | ok (2s) |
-| `G4-wf_doc_ner_loop_branch` | **PASS** | ok (3s) |
-| `G4-wf_doc_re_nested_branch` | **PASS** | ok (2s) |
-| `G4-wf_flair_vs_llm_ner` | **PASS** | ok (25s); added `labels` column to `tests/wf_flair_vs_llm_ner/wf_flair_vs_llm_ner_auto5.csv` |
-| `G4-wf_general_report_linear` | **PASS** | ok (1s) |
-| `G4-wf_kg_flair_full` | **PASS** | ok (7s) |
-| `G4-wf_kg_llm_full` | **PASS** | ok (7s) |
-| `G4-wf_kg_syntax_loop` | **PASS** | ok (14s) |
-| `G4-wf_re_pubtator_dev10` | **PASS** | ok (2s) |
-| `G4-wf_re_pubtator_eval` | **PASS** | ok (1s) |
-| `G4-wf_re_verify_llm_loop` | **PASS** | ok (2s) |
-| `G4-wf_word_seg_llm_eval` | **PASS** | ok (2s) |
 
