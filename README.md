@@ -50,48 +50,50 @@ Screenshots are saved to `doc/images/` and embedded in `MANUAL.md`.
 <details>
 <summary>42 agents (click to expand)</summary>
 
-- `agent_refiner`
-- `cid_pair_generate`
-- `dataset_cid_tuning_build`
-- `eval_flair`
-- `eval_llm`
-- `eval_metrics`
-- `eval_metrics_relation`
-- `eval_metrics_segment`
-- `eval_pair_generate`
-- `kg_rdf_export`
-- `kg_triple_extract_llm`
-- `kg_triple_merge`
-- `kg_triple_persist`
-- `merge_metrics`
-- `ner_comparison_report`
-- `ner_flair_aggregate`
-- `ner_flair_doc`
-- `ner_flair_sent`
-- `ner_from_tree_llm`
-- `ner_llm`
-- `ontology_entity_link`
-- `ontology_hypernym_filter`
-- `ontology_hypernym_identify`
-- `ontology_mesh_lookup`
-- `ontology_synonym_extract`
-- `ontology_synonym_resolve`
-- `relation_dti_analyze`
-- `relation_extract_llm`
-- `relation_extract_pubtator`
-- `relation_from_tree_llm`
-- `relation_result_to_id_pair`
-- `relation_verify_llm`
-- `relation_verify_to_pair`
-- `report_comparator`
-- `report_experiment`
-- `report_experiment_tool`
-- `report_format_json`
-- `syntax_dep_parse`
-- `text_coreference`
-- `text_sentence_split`
-- `text_summarize`
-- `text_word_segment`
+| ID | Type | Description |
+|----|------|-------------|
+| `agent_refiner` | LLM | Analyzes experiment diagnostics and proposes safe prompt/process patches for the optimization loop. |
+| `cid_pair_generate` | PGM | Builds chemical-disease head-tail pairs from filtered entities for CID relation verification. |
+| `dataset_cid_tuning_build` | PGM | Builds stratified CID tuning and test CSV datasets from PubTator gold annotations. |
+| `eval_flair` | PGM | Computes NER precision, recall, and F1 from Flair entity predictions. |
+| `eval_llm` | PGM | Computes NER precision, recall, and F1 from LLM entity predictions. |
+| `eval_metrics` | PGM | Generic entity-dict metrics calculator (precision, recall, F1). |
+| `eval_metrics_relation` | PGM | Computes relation-pair set metrics with optional MeSH ID normalization. |
+| `eval_metrics_segment` | PGM | Boundary/segmentation metrics for word-segmentation evaluation. |
+| `eval_pair_generate` | PGM | Generates head-tail evaluation pairs from gold entity annotations. |
+| `kg_rdf_export` | PGM | Exports knowledge-graph triples to RDF-JSON format. |
+| `kg_triple_extract_llm` | LLM | Extracts subject-predicate-object triples from text and entities. |
+| `kg_triple_merge` | PGM | Merges relations and entity links into a unified triple list. |
+| `kg_triple_persist` | PGM | Persists triples and synonym metadata to CSV output. |
+| `merge_metrics` | PGM | Merges Flair and LLM NER metric dicts for side-by-side comparison. |
+| `ner_comparison_report` | LLM | Generates a narrative NER comparison report from merged metrics. |
+| `ner_flair_aggregate` | PGM | Aggregates sentence-level Flair NER results to document-level entities. |
+| `ner_flair_doc` | PGM | Document-level named entity recognition using Flair models. |
+| `ner_flair_sent` | PGM | Sentence-level named entity recognition using Flair models. |
+| `ner_from_tree_llm` | LLM | NER guided by a dependency parse tree. |
+| `ner_llm` | LLM | Named entity recognition with configurable entity label types. |
+| `ontology_entity_link` | LLM | Entity linking and normalization to canonical forms or IDs. |
+| `ontology_hypernym_filter` | LLM | Filters entities using hypernym constraints before pair generation. |
+| `ontology_hypernym_identify` | LLM | Identifies hypernyms for chemical and disease entity pairs. |
+| `ontology_mesh_lookup` | PGM | Lookup of MeSH synonyms and hypernyms from local ontology data. |
+| `ontology_synonym_extract` | LLM | Extracts synonym variants from biomedical text. |
+| `ontology_synonym_resolve` | LLM | Resolves entity synonyms to canonical names. |
+| `relation_dti_analyze` | LLM | Analyzes drug-target interaction evidence from structured inputs. |
+| `relation_extract_llm` | LLM | Extracts relations between annotated entities in text. |
+| `relation_extract_pubtator` | PGM | Calls PubTator3 API for chemical-disease relation extraction. |
+| `relation_from_tree_llm` | LLM | Relation extraction using a dependency parse tree. |
+| `relation_result_to_id_pair` | PGM | Converts a relation verification result to a MeSH ID pair string. |
+| `relation_verify_llm` | LLM | Verifies whether a chemical-disease pair has an induce relation. |
+| `relation_verify_to_pair` | PGM | Formats a verified relation as an entity pair for metric comparison. |
+| `report_comparator` | LLM | Compares two experiment reports and highlights differences. |
+| `report_experiment` | LLM | Generates a full experiment report from batch run states. |
+| `report_experiment_tool` | LLM | Experiment report with tool-assisted error analysis. |
+| `report_format_json` | PGM | Wraps summary text and metadata into a JSON result payload. |
+| `syntax_dep_parse` | LLM | Dependency parsing output in CoNLL-U format. |
+| `text_coreference` | LLM | Coreference resolution on biomedical documents. |
+| `text_sentence_split` | LLM | Splits a document into sentences. |
+| `text_summarize` | LLM | Text summarization for documents or passages. |
+| `text_word_segment` | LLM | Word/boundary segmentation for evaluation tasks. |
 
 </details>
 
@@ -100,14 +102,40 @@ Screenshots are saved to `doc/images/` and embedded in `MANUAL.md`.
 <details>
 <summary>Workflows and subgraphs (click to expand)</summary>
 
-**Subgraphs (`sg_*`)**: `sg_cid_re_verify`, `sg_ner_flair_sent`, `sg_ner_llm_tree`, `sg_preprocess_inner`, `sg_re_preprocess`, `sg_re_tree`, `sg_relation_verify`
+#### Subgraphs (`sg_*`)
 
-**Evaluation / pipelines (`wf_*`)**:
+| ID | Name | Description |
+|----|------|-------------|
+| `sg_cid_re_verify` | CID RE verify pair | Verifies one chemical-disease pair; outputs `id \| id` if induce ($). |
+| `sg_ner_flair_sent` | Sentence Flair NER | Runs `ner_flair_sent` on one sentence (loop body). |
+| `sg_ner_llm_tree` | Tree-based LLM NER | `syntax_dep_parse` → `ner_from_tree_llm` per sentence. |
+| `sg_preprocess_inner` | Inner preprocess loop body | Format / pass-through inner loop step. |
+| `sg_re_preprocess` | RE preprocess + NER | Nested inner loop then `ner_llm` (outer loop body for document RE). |
+| `sg_re_tree` | Tree-based RE | `syntax_dep_parse` → `relation_from_tree_llm` per sentence. |
+| `sg_relation_verify` | Relation verify pair | `relation_verify_llm` → `relation_verify_to_pair` for one head/tail pair. |
 
-- NER: `wf_cid_ner_flair_eval`, `wf_cid_ner_llm_eval`, `wf_doc_ner_flair_eval`, `wf_doc_ner_llm_eval`, `wf_doc_ner_loop_branch`, `wf_flair_vs_llm_ner`, `wf_word_seg_llm_eval`
-- RE / CID: `wf_cid_re_branch`, `wf_cid_re_llm_linear`, `wf_doc_re_nested_branch`, `wf_re_pubtator_dev10`, `wf_re_pubtator_eval`, `wf_re_verify_llm_loop`
-- KG: `wf_kg_flair_full`, `wf_kg_llm_full`, `wf_kg_syntax_loop`
-- Other: `wf_general_report_linear`, `ner_flair_sent_loop`
+#### Workflows (`wf_*`)
+
+| ID | Name | Description |
+|----|------|-------------|
+| `wf_cid_ner_flair_eval` | CID NER Eval (Flair doc) | Document-level Flair NER with metrics. |
+| `wf_cid_ner_llm_eval` | CID NER Eval (LLM) | Chemical/disease NER with LLM and generic metrics. |
+| `wf_cid_re_branch` | CID RE (multi-branch gate) | NER then 4-way branch gate before relation extraction. |
+| `wf_cid_re_llm_linear` | CID RE Pipeline (linear) | Gold entities → hypernym filter → pair list → foreach RE verify → ID pairs. |
+| `wf_doc_ner_flair_eval` | Doc NER Eval (Flair) | Document Flair NER with metrics. |
+| `wf_doc_ner_llm_eval` | Doc NER Eval (LLM) | Split document then LLM NER with metrics. |
+| `wf_doc_ner_loop_branch` | Doc NER loop + branch | Sentence split → loop Flair NER → 4-way branch → optional LLM → metrics. |
+| `wf_doc_re_nested_branch` | Doc RE (nested loop + branch) | Outer loop with nested preprocess + NER, 4-way branch, then RE. |
+| `wf_flair_vs_llm_ner` | Flair vs LLM NER Comparison | Runs Flair and LLM NER pipelines and compares metrics side by side. |
+| `wf_general_report_linear` | Summarize + format | Summarize text and pack into JSON result. |
+| `wf_kg_flair_full` | KG Build (Flair NER) | Flair doc NER → entity link → triple extract → merge → RDF. |
+| `wf_kg_llm_full` | KG Build (LLM NER) | LLM NER → entity link → RE → triple merge → RDF export. |
+| `wf_kg_syntax_loop` | KG from syntax (sentence loop) | Coreference → split → loop tree-RE subgraph → CSV persist. |
+| `wf_re_pubtator_dev10` | PubTator RE Dev (10) | BC5CDR dev set (10 articles): gold entities → PubTator3 RE → relation-pair metrics. |
+| `wf_re_pubtator_eval` | PubTator RE Eval | Gold entities → PubTator relation extraction → relation-pair metrics. |
+| `wf_re_verify_llm_loop` | RE Verify (pair loop) | Generate evaluation pairs → loop verify subgraph → metrics. |
+| `wf_word_seg_llm_eval` | Word Segmentation Eval | LLM word segmentation with boundary metrics. |
+| `ner_flair_sent_loop` | Sentence Flair NER loop | Auto-generated loop-body workflow for sentence-level Flair NER. |
 
 Optimized variants (`wf_*_opt_*`) are created automatically by the optimization pipeline.
 
@@ -115,18 +143,20 @@ Optimized variants (`wf_*_opt_*`) are created automatically by the optimization 
 
 ### Tools (`meta/tools`)
 
-- `agent_change_impact_trace`
-- `agent_version_guard`
-- `dataset_cid_tuning_build`
-- `dataset_sampler_stratified`
-- `error_case_exporter`
-- `fn_fp_bucket_analyzer`
-- `merge_heads_tails_to_entities`
-- `metrics_delta_compare`
-- `prompt_patch_apply_safe`
-- `report_quality_scorer`
-- `tool_ner_flair`
-- `tool_pubtator_relation_extract`
+| ID | Description |
+|----|-------------|
+| `agent_change_impact_trace` | Estimates per-agent metric contribution from version maps and two experiment states. |
+| `agent_version_guard` | Policy-based guard for keep/alert/rollback decisions using metric deltas. |
+| `dataset_cid_tuning_build` | Builds a stratified CID tuning CSV (and optional test-remain set) from PubTator gold dev.txt. |
+| `dataset_sampler_stratified` | Stratified sampling by text length, entity density, and relation density for quick A/B validation. |
+| `error_case_exporter` | Exports worst-k error cases from states into Markdown and JSONL for review/regression. |
+| `fn_fp_bucket_analyzer` | Buckets FN/FP into boundary/type/relation/missed-recall categories with examples. |
+| `merge_heads_tails_to_entities` | Merges head/tail entity lists into unified `text,type,mesh` lines. |
+| `metrics_delta_compare` | Compares baseline and candidate states; returns P/R/F1 deltas and degraded samples. |
+| `prompt_patch_apply_safe` | Applies structured prompt patches (append/replace) with validation and safety checks. |
+| `report_quality_scorer` | Scores report quality on evidence, executability, and traceability. |
+| `tool_ner_flair` | Runs Flair NER on a sentence for given labels; returns a label → mentions dict. |
+| `tool_pubtator_relation_extract` | Calls PubTator3 API to extract chemical-disease relations from PMID or text. |
 
 ## Project Layout
 
