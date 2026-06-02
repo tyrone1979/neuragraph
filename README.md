@@ -169,11 +169,11 @@ service/       runtime entities, optimization, PubTator, chat commands
 ui/            Flask app, JointJS editor, experiment wizard, chat widget
 plugin/        PGM sandbox, metrics, Flair
 tests/         per-agent / per-workflow CSV datasets (no test scripts)
-ui_tests/      run_tests.py; suites/playwright_*_suite.py; agent_invoke_mock_llm_suite.py; unit/
+ui_tests/      run_tests.py; suites/; unit/; reports/ (see doc/TESTING.md)
 result/        experiment states.json and reports
 utils/         bindings, workflow metrics
 scripts/       screenshot refresh, optimize CLI
-doc/           documentation + images/
+doc/           documentation + images/; TESTING.md (suites, unit tests, report links)
 ```
 
 ## License

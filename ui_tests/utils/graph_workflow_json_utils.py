@@ -102,11 +102,23 @@ def discover_graph_ids(*, from_backup: bool = False) -> list[str]:
     return list_graph_ids(from_backup=from_backup)
 
 
+def _project_graphutils():
+    """Load utils/graphutils.py without conflicting with ui_tests.utils."""
+    import importlib.util
+
+    path = ROOT / "utils" / "graphutils.py"
+    spec = importlib.util.spec_from_file_location("project_graphutils", path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load graphutils from {path}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def graph_ids_for_testing(*, from_backup: bool = False) -> list[str]:
     """One graph id per workflow family (highest version), for suites and pruning."""
-    from utils.graphutils import select_representative_graph_ids
-
-    return select_representative_graph_ids(discover_graph_ids(from_backup=from_backup))
+    gu = _project_graphutils()
+    return gu.select_representative_graph_ids(discover_graph_ids(from_backup=from_backup))
 
 
 def graph_run_params(graph_id: str) -> dict[str, Any]:

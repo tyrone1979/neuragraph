@@ -151,6 +151,7 @@ def main():
     base_url = args.base.rstrip("/")
 
     os.chdir(str(ROOT))
+    os.environ["PYTHONPATH"] = str(ROOT)
     if str(ROOT) not in sys.path:
         sys.path.insert(0, str(ROOT))
     SCREENSHOTS.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,440 @@
+{
+  "generated_at": "2026-06-02T03:18:31.129391+00:00",
+  "total": 43,
+  "passed": 43,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "agent_refiner",
+      "agent_type": "LLM",
+      "output_name": "plan_json",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"{\\\"modifications\\\": []}\"",
+      "duration_ms": 4675,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "cid_pair_generate",
+      "agent_type": "PGM",
+      "output_name": "pairs",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"head\": \"Aspirin\", \"tail\": \"heart disease\", \"head_id\": \"D001241\", \"tail_id\": \"D006331\"}, {\"head\": \"Aspirin\", \"tail\": \"toxicity\", \"head_id\": \"D001241\", \"tail_id\": \"D064420\"}, {\"head\": \"Lithium carbonate\", \"tail\": \"heart disease\", \"head_...",
+      "duration_ms": 47,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "dataset_cid_tuning_build",
+      "agent_type": "PGM",
+      "output_name": "tuning_result",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"runner_id\": \"wf_cid_re_llm_linear\", \"tuning_output\": \"cid_agent_test_tuning.csv\", \"tuning_path\": \"tests/wf_cid_re_llm_linear/cid_agent_test_tuning.csv\", \"tuning_count\": 2, \"summary\": {\"picked\": 2, \"source\": \"comparison/data/CDR/dev.txt\"}}",
+      "duration_ms": 56,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_flair",
+      "agent_type": "PGM",
+      "output_name": "flair_metrics",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"total_entities\": 2, \"label_count\": 2, \"per_label_entity_count\": {\"Chemical\": 1, \"Disease\": 1}}",
+      "duration_ms": 47,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_llm",
+      "agent_type": "PGM",
+      "output_name": "llm_metrics",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"total_entities\": 2, \"label_count\": 2, \"per_label_entity_count\": {\"Chemical\": 1, \"Disease\": 1}}",
+      "duration_ms": 46,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_metrics",
+      "agent_type": "PGM",
+      "output_name": "metrics",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"precision\": 1.0, \"recall\": 0.6666666666666666, \"f1\": 0.8, \"tp\": 2, \"fp\": 0, \"fn\": 1}",
+      "duration_ms": 83,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_metrics_relation",
+      "agent_type": "PGM",
+      "output_name": "metrics",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"precision\": 1.0, \"recall\": 0.5, \"f1\": 0.6666666666666666, \"tp\": 1, \"fp\": 0, \"fn\": 1}",
+      "duration_ms": 57,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_metrics_segment",
+      "agent_type": "PGM",
+      "output_name": "output",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"metrics\": {\"precision\": 1.0, \"recall\": 1.0, \"f1\": 1.0, \"correct_boundaries\": 3, \"predicted_boundaries\": 3, \"real_boundaries\": 3}, \"error_analysis\": {\"over_segmentation\": [], \"under_segmentation\": [], \"boundary_shift\": []}, \"summary\": {...",
+      "duration_ms": 48,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_pair_generate",
+      "agent_type": "PGM",
+      "output_name": "pairs",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"head\": \"Aspirin\", \"tail\": \"heart disease\"}]",
+      "duration_ms": 43,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "kg_rdf_export",
+      "agent_type": "PGM",
+      "output_name": "graph",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"@context\": {\"label\": \"http://schema.org/name\"}, \"nodes\": [{\"@id\": \"Aspirin\", \"label\": \"Aspirin\"}, {\"@id\": \"heart_disease\", \"label\": \"heart disease\"}], \"edges\": [{\"@id\": \"e0\", \"subject\": \"Aspirin\", \"predicate\": \"treats\", \"object\": \"hear...",
+      "duration_ms": 62,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "kg_triple_extract_llm",
+      "agent_type": "LLM",
+      "output_name": "triples",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"head\": \"Aspirin\", \"predicate\": \"treats\", \"tail\": \"heart disease\"}]",
+      "duration_ms": 434,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "kg_triple_merge",
+      "agent_type": "PGM",
+      "output_name": "triples",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"head\": \"D001241\", \"predicate\": \"treats\", \"tail\": \"D006331\"}]",
+      "duration_ms": 61,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "kg_triple_persist",
+      "agent_type": "PGM",
+      "output_name": "output",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"head\": \"Aspirin\", \"predicate\": \"treats\", \"tail\": \"heart disease\"}]",
+      "duration_ms": 45,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "llm_link_bulk_update",
+      "agent_type": "PGM",
+      "output_name": "result",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"target_model\": \"deepseek\", \"source_model\": null, \"dry_run\": true, \"updated_count\": 8, \"skipped_count\": 35, \"updated\": [{\"agent_id\": \"kg_triple_extract_llm\", \"name\": \"Triple Extraction (LLM)\", \"old_model\": \"gpt-oss_120b\", \"new_model\": \"...",
+      "duration_ms": 95,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "merge_metrics",
+      "agent_type": "PGM",
+      "output_name": "merged_metrics",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"flair_metrics\": {\"micro\": {\"precision\": 0.8, \"recall\": 0.7, \"f1\": 0.75}}, \"llm_metrics\": {\"micro\": {\"precision\": 0.9, \"recall\": 0.6, \"f1\": 0.72}}}",
+      "duration_ms": 48,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_comparison_report",
+      "agent_type": "LLM",
+      "output_name": "report",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"## NER Comparison\\n\\nFlair and LLM metrics are comparable on the sample.\"",
+      "duration_ms": 96,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_flair_aggregate",
+      "agent_type": "PGM",
+      "output_name": "flair_entities",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"Chemical\": [\"Aspirin\"], \"Disease\": [\"heart disease\"]}",
+      "duration_ms": 65,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_flair_doc",
+      "agent_type": "PGM",
+      "output_name": "entities",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"Chemical\": [\"Aspirin\", \"Lithium carbonate\"], \"Disease\": [\"heart disease\"]}",
+      "duration_ms": 2986,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_flair_sent",
+      "agent_type": "PGM",
+      "output_name": "predicted",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"Chemical\": [\"Aspirin\"], \"Disease\": [\"heart disease\"]}",
+      "duration_ms": 583,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_from_tree_llm",
+      "agent_type": "LLM",
+      "output_name": "predicted",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"Chemical\": [\"Aspirin\"], \"Disease\": [\"heart disease\"]}",
+      "duration_ms": 414,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_llm",
+      "agent_type": "LLM",
+      "output_name": "entities",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"Chemical\": [\"Aspirin\"], \"Disease\": [\"heart disease\"]}",
+      "duration_ms": 59,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_entity_link",
+      "agent_type": "LLM",
+      "output_name": "entity_link",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"Aspirin\": {\"canonical\": \"Aspirin\", \"id\": \"D001241\"}}",
+      "duration_ms": 412,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_hypernym_filter",
+      "agent_type": "LLM",
+      "output_name": "filtered_entities",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"text\": \"Aspirin\", \"id\": \"D001241\", \"label\": \"Chemical\"}, {\"text\": \"heart disease\", \"id\": \"D006331\", \"label\": \"Disease\"}]",
+      "duration_ms": 58,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_hypernym_identify",
+      "agent_type": "LLM",
+      "output_name": "hypernyms",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"entity\": \"Aspirin\", \"hypernym\": \"Drug\"}]",
+      "duration_ms": 387,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_mesh_lookup",
+      "agent_type": "PGM",
+      "output_name": "mesh_ontology",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"query\": \"aspirin\", \"matches\": [{\"mesh_id\": \"D001241\", \"label\": \"Aspirin\", \"resource\": \"http://id.nlm.nih.gov/mesh/D001241\", \"synonyms\": [\"2-(Acetyloxy)benzoic Acid\", \"Acetylsalicylic Acid\", \"Acid, Acetylsalicylic\"], \"hypernyms\": [{\"mes...",
+      "duration_ms": 49871,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_synonym_extract",
+      "agent_type": "LLM",
+      "output_name": "synonyms",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"{\\\"Aspirin\\\": [\\\"acetylsalicylic acid\\\"]}\"",
+      "duration_ms": 490,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_synonym_resolve",
+      "agent_type": "LLM",
+      "output_name": "synonyms",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"{\\\"Aspirin\\\": [\\\"acetylsalicylic acid\\\"]}\"",
+      "duration_ms": 61,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_dti_analyze",
+      "agent_type": "LLM",
+      "output_name": "dti_result",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"interaction\": \"inhibits\", \"confidence\": \"medium\"}",
+      "duration_ms": 61,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_extract_llm",
+      "agent_type": "LLM",
+      "output_name": "relations",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[\"Aspirin | treats | heart disease\"]",
+      "duration_ms": 61,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_extract_pubtator",
+      "agent_type": "PGM",
+      "output_name": "relations",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[\"Aspirin | CID | heart disease\"]",
+      "duration_ms": 64,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_from_tree_llm",
+      "agent_type": "LLM",
+      "output_name": "triples",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"head\": \"Aspirin\", \"predicate\": \"treats\", \"tail\": \"heart disease\"}]",
+      "duration_ms": 624,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_result_to_id_pair",
+      "agent_type": "PGM",
+      "output_name": "relations",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[\"D001241 | D006331\"]",
+      "duration_ms": 65,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_verify_llm",
+      "agent_type": "LLM",
+      "output_name": "result",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"$\"",
+      "duration_ms": 90,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_verify_to_pair",
+      "agent_type": "PGM",
+      "output_name": "predicted",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[\"D001241\", \"D006331\"]",
+      "duration_ms": 77,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "report_comparator",
+      "agent_type": "LLM",
+      "output_name": "text",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"## Comparison\\n\\nBaseline and candidate reports are similar.\"",
+      "duration_ms": 209,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "report_experiment",
+      "agent_type": "LLM",
+      "output_name": "text",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"## 1) Metrics\\n\\n| Metric | Value |\\n| --- | --- |\\n| F1 | 0.5 |\\n\\n## 2) FN and FP Analysis\\n\\nSample FN noted.\\n\\n## 3) Agent Modification Suggestions\\n\\nTune relation_verify_llm prompt.\"",
+      "duration_ms": 98,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "report_experiment_tool",
+      "agent_type": "LLM",
+      "output_name": "text",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"## 1) Metrics\\n\\nF1=0.5\\n\\n## 2) FN and FP Analysis\\n\\nTool-assisted review complete.\\n\\n## 3) Agent Modification Suggestions\\n\\nNone.\"",
+      "duration_ms": 170,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "report_format_json",
+      "agent_type": "PGM",
+      "output_name": "result",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"original\": \"Aspirin may reduce the risk of heart disease. Lithium carbonate toxicity was reported in a newborn infant.\", \"summary\": \"Aspirin may reduce heart disease risk.\", \"original_length\": 106, \"summary_length\": 38}",
+      "duration_ms": 97,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "syntax_dep_parse",
+      "agent_type": "LLM",
+      "output_name": "tree",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"1\\tAspirin\\taspirin\\tNN\\t_\\t0\\thead\\t_\\t_\\t_\\t_\\n2\\tmay\\tmay\\tMD\\t_\\t1\\tadvmod\\t_\\t_\\t_\\t_\\n\"",
+      "duration_ms": 648,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "text_coreference",
+      "agent_type": "LLM",
+      "output_name": "text",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"Aspirin may reduce the risk of heart disease.\"",
+      "duration_ms": 561,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "text_sentence_split",
+      "agent_type": "LLM",
+      "output_name": "sentences",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[\"Aspirin may reduce the risk of heart disease.\", \"Lithium carbonate toxicity was reported.\"]",
+      "duration_ms": 81,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "text_summarize",
+      "agent_type": "LLM",
+      "output_name": "summary",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"Aspirin may reduce heart disease risk; lithium toxicity was reported.\"",
+      "duration_ms": 87,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "text_word_segment",
+      "agent_type": "LLM",
+      "output_name": "predicted",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "\"| Aspirin | may | reduce | the | risk | of | heart | disease |\"",
+      "duration_ms": 72,
+      "dataset": "sample.csv"
+    }
+  ]
+}
