@@ -239,11 +239,11 @@ class AgentEntity(Entity):
 
         name = self.outputs["name"]
         typ = self.outputs.get("type", "str").lower()
+        parse_as = self.outputs.get("parse_as") or self.meta.get("output_parse")
         if self.type=='LLM':
             if typ == "list":
                 parse_as = (
-                    self.outputs.get("parse_as")
-                    or self.meta.get("output_parse")
+                    parse_as
                     or ("entity_list" if name in ("filtered_entities", "entities") else None)
                 )
                 if parse_as == "entity_list":
