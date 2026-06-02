@@ -1,0 +1,58 @@
+{
+  "name": "KG from syntax (sentence loop)",
+  "description": "Coreference → split → loop tree-RE subgraph → CSV persist.",
+  "nodes": [
+    "START",
+    "text_coreference",
+    "text_sentence_split",
+    "sentence_re_loop",
+    "kg_triple_persist",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "text_coreference"
+    ],
+    [
+      "text_coreference",
+      "text_sentence_split"
+    ],
+    [
+      "text_sentence_split",
+      "sentence_re_loop"
+    ],
+    [
+      "sentence_re_loop",
+      "kg_triple_persist"
+    ],
+    [
+      "kg_triple_persist",
+      "END"
+    ]
+  ],
+  "flowNodes": {
+    "sentence_re_loop": {
+      "kind": "loop",
+      "name": "RE per sentence",
+      "subgraphId": "sg_re_tree",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ sentences }}",
+        "scalarItemField": "sentence"
+      }
+    }
+  },
+  "bindings": {
+    "text_coreference": {
+      "text": "{{ START.text }}"
+    },
+    "text_sentence_split": {
+      "text": "{{ text }}"
+    },
+    "kg_triple_persist": {
+      "doc_id": "{{ doc_id }}",
+      "triples": "{{ triples }}"
+    }
+  }
+}

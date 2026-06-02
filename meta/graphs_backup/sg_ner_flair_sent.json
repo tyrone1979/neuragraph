@@ -1,0 +1,25 @@
+{
+  "name": "Sentence Flair NER",
+  "description": "Run ner_flair_sent on one sentence (loop body).",
+  "nodes": [
+    "START",
+    "ner_flair_sent",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_flair_sent"
+    ],
+    [
+      "ner_flair_sent",
+      "END"
+    ]
+  ],
+  "bindings": {
+    "ner_flair_sent": {
+      "labels": "{{ labels }}",
+      "sentence": "{{ sentence }}"
+    }
+  }
+}

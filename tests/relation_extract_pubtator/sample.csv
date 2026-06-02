@@ -1,0 +1,2 @@
+text,entities,pmid
+Aspirin may reduce the risk of heart disease.,"[{""text"": ""Aspirin"", ""id"": ""D001241"", ""label"": ""Chemical""}, {""text"": ""heart disease"", ""id"": ""D006331"", ""label"": ""Disease""}]",12345678

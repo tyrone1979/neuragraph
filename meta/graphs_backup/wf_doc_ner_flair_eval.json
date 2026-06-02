@@ -1,0 +1,34 @@
+{
+  "name": "Doc NER Eval (Flair)",
+  "description": "Document Flair NER with metrics (replaces bio_ner_graph).",
+  "nodes": [
+    "START",
+    "ner_flair_doc",
+    "eval_metrics",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_flair_doc"
+    ],
+    [
+      "ner_flair_doc",
+      "eval_metrics"
+    ],
+    [
+      "eval_metrics",
+      "END"
+    ]
+  ],
+  "bindings": {
+    "ner_flair_doc": {
+      "text": "{{ START.text }}",
+      "labels": "{{ START.labels }}"
+    },
+    "eval_metrics": {
+      "expected": "{{ START.expected_entities }}",
+      "predicted": "{{ ner_flair_doc.entities }}"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+relations,ground_truth,entities
+"[""Aspirin | CID | heart disease""]","[""Aspirin | CID | heart disease"", ""Lithium carbonate | CID | toxicity""]","[{""text"": ""Aspirin"", ""id"": ""D001241"", ""label"": ""Chemical""}, {""text"": ""heart disease"", ""id"": ""D006331"", ""label"": ""Disease""}, {""text"": ""Lithium carbonate"", ""id"": ""D016651"", ""label"": ""Chemical""}, {""text"": ""toxicity"", ""id"": ""D064420"", ""label"": ""Disease""}]"

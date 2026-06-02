@@ -1,0 +1,47 @@
+{
+  "name": "CID NER Eval (LLM)",
+  "description": "Chemical/Disease NER with LLM and generic metrics.",
+  "nodes": [
+    "START",
+    "ner_llm",
+    "eval_metrics",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_llm"
+    ],
+    [
+      "ner_llm",
+      "eval_metrics"
+    ],
+    [
+      "eval_metrics",
+      "END"
+    ]
+  ],
+  "bindings": {
+    "ner_llm": {
+      "text": "{{ START.text }}",
+      "labels": "Chemical, Disease"
+    },
+    "eval_metrics": {
+      "expected": "{{ START.gold_entities }}",
+      "predicted": "{{ ner_llm.entities }}"
+    }
+  },
+  "metrics": [
+    {
+      "type": "entity_dict",
+      "expected": {
+        "from": "input",
+        "field": "gold_entities"
+      },
+      "predicted": {
+        "from": "state",
+        "field": "entities"
+      }
+    }
+  ]
+}

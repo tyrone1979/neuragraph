@@ -1,0 +1,2 @@
+doc_id,triples,synonyms
+agent_test_doc,"[{""head"": ""Aspirin"", ""predicate"": ""treats"", ""tail"": ""heart disease""}]","{""Aspirin"": [""acetylsalicylic acid""]}"

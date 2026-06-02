@@ -1,0 +1,37 @@
+{
+  "name": "Relation verify pair",
+  "description": "relation_verify_llm → relation_verify_to_pair for one head/tail pair.",
+  "nodes": [
+    "START",
+    "relation_verify_llm",
+    "relation_verify_to_pair",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "relation_verify_llm"
+    ],
+    [
+      "relation_verify_llm",
+      "relation_verify_to_pair"
+    ],
+    [
+      "relation_verify_to_pair",
+      "END"
+    ]
+  ],
+  "bindings": {
+    "relation_verify_llm": {
+      "text": "{{ text }}",
+      "head": "{{ head }}",
+      "tail": "{{ tail }}"
+    },
+    "relation_verify_to_pair": {
+      "result": "{{ result }}",
+      "head": "{{ head }}",
+      "tail": "{{ tail }}",
+      "entity_link": "{{ entity_link }}"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+flair_metrics,llm_metrics
+"{""micro"": {""precision"": 0.8, ""recall"": 0.7, ""f1"": 0.75}}","{""micro"": {""precision"": 0.9, ""recall"": 0.6, ""f1"": 0.72}}"

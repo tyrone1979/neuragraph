@@ -1,18 +1,22 @@
 """
-Run Playwright UI tests.
+Run UI Playwright suites and optional unit tests.
 
-  python ui_tests/run_tests.py --suite current     # flaky / new tests (default)
-  python ui_tests/run_tests.py --suite regression  # stable tests 1-14
-  python ui_tests/run_tests.py --suite experiment     # batch experiment UI
-  python ui_tests/run_tests.py --suite cid-experiment # CID NER+RE from dev.txt
-  python ui_tests/run_tests.py --suite graphs     # all graphs round-trip + run
+  python ui_tests/run_tests.py --suite current       # flaky / new UI tests (default)
+  python ui_tests/run_tests.py --suite regression    # stable UI tests 1-14
+  python ui_tests/run_tests.py --suite experiment    # batch experiment UI
+  python ui_tests/run_tests.py --suite cid-experiment
+  python ui_tests/run_tests.py --suite graphs        # all meta/graphs (full suite)
+  python ui_tests/run_tests.py --suite agents        # agent_invoke_mock_llm_suite (mock LLM default)
+  python ui_tests/run_tests.py --suite unit          # ui_tests/unit/test_*.py
   python ui_tests/run_tests.py --suite all
+  python ui_tests/suites/agent_invoke_mock_llm_suite.py --live-llm
 """
 import argparse
 import os
 import subprocess
 import sys
 import time
+import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -84,7 +88,6 @@ def start_server():
             return proc
         except Exception:
             pass
-    # Warm up graph editor (first load can be slow)
     try:
         urllib.request.urlopen(f"{BASE}/graph/new", timeout=30)
     except Exception:
@@ -103,11 +106,28 @@ def stop_server(proc):
             proc.kill()
 
 
+_PYTEST_ONLY = frozenset({"test_dataset_cid_suite.py", "test_testset_sample.py"})
+
+
+def run_unit_tests() -> int:
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    unit_dir = UI_TESTS / "unit"
+    for path in sorted(unit_dir.glob("test_*.py")):
+        if path.name in _PYTEST_ONLY:
+            continue
+        mod_suite = loader.loadTestsFromName(f"ui_tests.unit.{path.stem}")
+        suite.addTests(mod_suite)
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    return 0 if result.wasSuccessful() else 1
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--suite",
-        choices=["current", "regression", "experiment", "cid-experiment", "graphs", "all"],
+        choices=["current", "regression", "experiment", "cid-experiment", "graphs", "agents", "unit", "all"],
         default="current",
     )
     parser.add_argument(
@@ -125,16 +145,27 @@ def main():
     SCREENSHOTS.mkdir(parents=True, exist_ok=True)
 
     print(f"Python: {PYTHON}")
+
+    if args.suite == "agents":
+        from ui_tests.suites.agent_invoke_mock_llm_suite import main as run_agent_suite
+
+        sys.exit(run_agent_suite())
+
+    if args.suite == "unit":
+        sys.exit(run_unit_tests())
+
     ensure_playwright()
 
     from playwright.sync_api import sync_playwright
 
-    from ui_tests import common
-    from ui_tests import current_test
-    from ui_tests import cid_experiment_ui_test
-    from ui_tests import experiment_test
-    from ui_tests import graph_test
-    from ui_tests import regression_test
+    from ui_tests.suites import (
+        playwright_cid_experiment_suite as cid_experiment,
+        playwright_current_suite as current,
+        playwright_experiment_suite as experiment,
+        playwright_graph_full_suite as graph,
+        playwright_regression_suite as regression,
+    )
+    from ui_tests.utils import playwright_helpers as common
 
     os.environ.setdefault("PLUGIN_SANDBOX", "1")
     os.environ.setdefault("PLUGIN_SERVER_URL", "http://127.0.0.1:5002")
@@ -145,11 +176,6 @@ def main():
         plugin_procs = start_plugin_servers() or []
         server = start_server()
     exit_code = 1
-    suite_timeout = 900 if args.suite in ("experiment", "all") else None
-    if args.suite == "cid-experiment":
-        suite_timeout = None
-    if args.suite == "graphs":
-        suite_timeout = None  # graph run uses per-graph timeouts (long)
     try:
         with sync_playwright() as pw:
             browser = pw.chromium.launch(headless=True)
@@ -160,35 +186,35 @@ def main():
 
             if args.suite in ("regression", "all"):
                 common.reset_results()
-                regression_test.run(page, base_url, str(SCREENSHOTS))
+                regression.run(page, base_url, str(SCREENSHOTS))
                 reg_code = common.write_results(str(SCREENSHOTS))
 
             if args.suite in ("current", "all"):
                 if args.suite == "all":
                     common.reset_results()
-                current_test.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
+                current.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
                 cur_code = common.write_results(str(SCREENSHOTS))
 
             if args.suite in ("experiment", "all"):
                 if args.suite == "all":
                     common.reset_results()
-                experiment_test.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
+                experiment.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
                 exp_code = common.write_results(str(SCREENSHOTS))
 
             if args.suite in ("cid-experiment", "all"):
                 common.reset_results()
-                cid_experiment_ui_test.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
+                cid_experiment.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
                 exp_code = max(exp_code, common.write_results(str(SCREENSHOTS)))
 
             if args.suite in ("graphs", "all"):
                 common.reset_results()
-                if args.suite == "all":
-                    pass  # already reset
-                graph_test.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
+                graph.run(page, base_url, str(SCREENSHOTS), TESTS_DATA)
                 graph_code = common.write_results(str(SCREENSHOTS))
 
             browser.close()
             exit_code = max(reg_code, cur_code, exp_code, graph_code)
+            if args.suite == "all":
+                exit_code = max(exit_code, run_unit_tests())
     finally:
         stop_server(server)
         from plugin.sandbox_process import stop_processes

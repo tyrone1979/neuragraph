@@ -1,0 +1,56 @@
+{
+  "name": "KG Build (Flair NER)",
+  "description": "Flair doc NER → entity link → triple extract → merge → RDF.",
+  "nodes": [
+    "START",
+    "ner_flair_doc",
+    "ontology_entity_link",
+    "kg_triple_extract_llm",
+    "kg_triple_merge",
+    "kg_rdf_export",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_flair_doc"
+    ],
+    [
+      "ner_flair_doc",
+      "ontology_entity_link"
+    ],
+    [
+      "ontology_entity_link",
+      "kg_triple_extract_llm"
+    ],
+    [
+      "kg_triple_extract_llm",
+      "kg_triple_merge"
+    ],
+    [
+      "kg_triple_merge",
+      "kg_rdf_export"
+    ],
+    [
+      "kg_rdf_export",
+      "END"
+    ]
+  ],
+  "bindings": {
+    "ner_flair_doc": {
+      "text": "{{ START.text }}",
+      "labels": "Chemical,Disease"
+    },
+    "ontology_entity_link": {
+      "entities": "{{ ner_flair_doc.entities }}"
+    },
+    "kg_triple_extract_llm": {
+      "text": "{{ START.text }}",
+      "entities": "{{ ner_flair_doc.entities }}"
+    },
+    "kg_triple_merge": {
+      "relations": "{{ kg_triple_extract_llm.triples }}",
+      "entity_link": "{{ ontology_entity_link.entity_link }}"
+    }
+  }
+}

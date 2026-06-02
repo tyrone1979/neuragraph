@@ -1,0 +1,34 @@
+{
+  "name": "CID NER Eval (Flair doc)",
+  "description": "Document-level Flair NER with metrics.",
+  "nodes": [
+    "START",
+    "ner_flair_doc",
+    "eval_metrics",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "ner_flair_doc"
+    ],
+    [
+      "ner_flair_doc",
+      "eval_metrics"
+    ],
+    [
+      "eval_metrics",
+      "END"
+    ]
+  ],
+  "bindings": {
+    "ner_flair_doc": {
+      "text": "{{ START.text }}",
+      "labels": "Chemical,Disease"
+    },
+    "eval_metrics": {
+      "expected": "{{ START.expected_entities }}",
+      "predicted": "{{ ner_flair_doc.entities }}"
+    }
+  }
+}

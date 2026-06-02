@@ -9,10 +9,13 @@ A lightweight platform for building LLM-powered workflow agents for biomedical N
 
 ```bash
 py -m pip install -r requirements.txt
-.\start.bat
+.\start.bat          # Windows
+./start.sh           # Linux / macOS (chmod +x start.sh chat.sh)
 ```
 
 Open **http://127.0.0.1:5001**.
+
+Terminal chat: `.\chat.bat` or `./chat.sh` (optional `--llm deepseek`).
 
 ## Documentation
 
@@ -165,7 +168,8 @@ meta/          agents, graphs, llms, tools, exps (+ version snapshots)
 service/       runtime entities, optimization, PubTator, chat commands
 ui/            Flask app, JointJS editor, experiment wizard, chat widget
 plugin/        PGM sandbox, metrics, Flair
-tests/         unit tests + per-workflow CSV datasets
+tests/         per-agent / per-workflow CSV datasets (no test scripts)
+ui_tests/      run_tests.py; suites/playwright_*_suite.py; agent_invoke_mock_llm_suite.py; unit/
 result/        experiment states.json and reports
 utils/         bindings, workflow metrics
 scripts/       screenshot refresh, optimize CLI

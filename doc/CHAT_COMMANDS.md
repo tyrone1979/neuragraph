@@ -130,14 +130,16 @@ service/chat/commands.py
 
 | Suite | Path |
 |-------|------|
-| Chat commands | `tests/test_chat_feature_suite.py` |
-| Report constraints | `tests/test_report_regression_suite.py` |
-| Batch runner | `test_chat_suite.bat` |
+| Chat commands | `ui_tests/unit/test_chat_commands.py` |
+| Report constraints | `ui_tests/unit/test_report_regression.py` |
+| All agents (mock LLM) | `ui_tests/run_tests.py --suite agents` or `agent_invoke_mock_llm_suite.py` |
 
 ```powershell
 set PYTHONPATH=%CD%
-py -3 tests/test_chat_feature_suite.py
-py -3 tests/test_report_regression_suite.py
+py -3 ui_tests/run_tests.py --suite unit
+py -3 ui_tests/unit/test_chat_commands.py
+py -3 ui_tests/unit/test_report_regression.py
+py -3 ui_tests/run_tests.py --suite agents
 ```
 
 ---

@@ -1,0 +1,39 @@
+{
+  "name": "Doc NER Eval (LLM)",
+  "description": "Split document then LLM NER with metrics.",
+  "nodes": [
+    "START",
+    "text_sentence_split",
+    "ner_llm",
+    "eval_metrics",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "text_sentence_split"
+    ],
+    [
+      "text_sentence_split",
+      "ner_llm"
+    ],
+    [
+      "ner_llm",
+      "eval_metrics"
+    ],
+    [
+      "eval_metrics",
+      "END"
+    ]
+  ],
+  "bindings": {
+    "ner_llm": {
+      "text": "{{ START.text }}",
+      "labels": "{{ START.labels }}"
+    },
+    "eval_metrics": {
+      "expected": "{{ START.expected_entities }}",
+      "predicted": "{{ ner_llm.entities }}"
+    }
+  }
+}

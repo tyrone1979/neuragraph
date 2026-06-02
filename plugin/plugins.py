@@ -296,6 +296,33 @@ class CidDatasetPlugin(Plugin):
         return {"CidDatasetBuilder": CidDatasetBuilder}
 
 
+class LlmLinkBulkPlugin(Plugin):
+    """Bulk retarget all LLM agents to another meta/llms connector id."""
+
+    def load(self):
+        class LlmLinkBulkUpdater:
+            @staticmethod
+            def apply(
+                target_model: str,
+                *,
+                source_model: str | None = None,
+                agent_ids=None,
+                dry_run: bool = False,
+                change_note: str = "",
+            ):
+                from service.llm_link_bulk import bulk_update_llm_links
+
+                return bulk_update_llm_links(
+                    target_model,
+                    source_model=source_model,
+                    agent_ids=agent_ids,
+                    dry_run=dry_run,
+                    change_note=change_note,
+                )
+
+        return {"LlmLinkBulkUpdater": LlmLinkBulkUpdater}
+
+
 class PubTatorRelationExtractor(Plugin):
     """Extract chemical–disease relations via NCBI PubTator3 API."""
 
