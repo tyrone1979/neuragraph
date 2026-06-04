@@ -1,0 +1,29 @@
+{
+  "agent_id": "ontology_entity_link",
+  "version": "v0002",
+  "parent_version": "v0001",
+  "created_at": "2026-06-02T10:46:22.681650",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "78bd2ab7e0ca349ad603ceae42367e00c20fc5d40053944f2dc30bfd94500972",
+  "content": {
+    "name": "Entity Linking / Normalization (LLM)",
+    "type": "LLM",
+    "inputs": [
+      "entities"
+    ],
+    "outputs": {
+      "name": "entity_link",
+      "type": "dict"
+    },
+    "model": "gpt-oss_120b",
+    "prompt_template": {
+      "description": "Canonicalize entity mentions for knowledge-graph linking",
+      "system": "You are a biomedical entity normalization expert. Map each mention to a canonical name. Output JSON only.",
+      "human": "Entity mentions (JSON):\n{entities}\n\nReturn JSON mapping each original mention to an object:\n{{\"mention\": {{\"canonical\": \"...\", \"type\": \"Chemical|Disease|Gene|...\"}}}}\n\nUse consistent canonical strings (lowercase except proper nouns)."
+    },
+    "tools": [],
+    "created_at": "2026-06-02T10:46:22.672673"
+  }
+}

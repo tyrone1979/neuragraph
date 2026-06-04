@@ -78,6 +78,12 @@
   z-index: 1;
 }
 
+/* Keep cursor visible on SVG canvas */
+#paper_panel,
+#paper_panel svg {
+  cursor: default;
+}
+
 /* Property panel */
 #propertyPanel {
   min-width: 300px;

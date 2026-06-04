@@ -23,6 +23,7 @@ Terminal chat: `.\chat.bat` or `./chat.sh` (optional `--llm deepseek`).
 |----------|-------------|
 | [doc/MANUAL.md](doc/MANUAL.md) | **User manual** — full UI walkthrough with 30+ screenshots |
 | [doc/EXPERIMENT_GUIDE.md](doc/EXPERIMENT_GUIDE.md) | Startup, metadata schema, metrics, experiments, and optimization pipeline |
+| [doc/SUPPLEMENTARY.md](doc/SUPPLEMENTARY.md) | Supplementary Material text (sync to Word for submission) |
 | [doc/CODE_WIKI.md](doc/CODE_WIKI.md) | Architecture and coding conventions |
 | [doc/CHAT_COMMANDS.md](doc/CHAT_COMMANDS.md) | Floating assistant / terminal slash commands |
 | [doc/AUTOGEN_SKILL.md](doc/AUTOGEN_SKILL.md) | LLM workflow generation reference |
@@ -51,7 +52,7 @@ Screenshots are saved to `doc/images/` and embedded in `MANUAL.md`.
 ### Agents (`meta/agents`)
 
 <details>
-<summary>42 agents (click to expand)</summary>
+<summary>43 agents (click to expand)</summary>
 
 | ID | Type | Description |
 |----|------|-------------|
@@ -68,6 +69,7 @@ Screenshots are saved to `doc/images/` and embedded in `MANUAL.md`.
 | `kg_triple_extract_llm` | LLM | Extracts subject-predicate-object triples from text and entities. |
 | `kg_triple_merge` | PGM | Merges relations and entity links into a unified triple list. |
 | `kg_triple_persist` | PGM | Persists triples and synonym metadata to CSV output. |
+| `llm_link_bulk_update` | PGM | Bulk-updates `model` references across LLM agents when switching connector IDs. |
 | `merge_metrics` | PGM | Merges Flair and LLM NER metric dicts for side-by-side comparison. |
 | `ner_comparison_report` | LLM | Generates a narrative NER comparison report from merged metrics. |
 | `ner_flair_aggregate` | PGM | Aggregates sentence-level Flair NER results to document-level entities. |
@@ -121,7 +123,7 @@ Screenshots are saved to `doc/images/` and embedded in `MANUAL.md`.
 
 | ID | Name | Description |
 |----|------|-------------|
-| `wf_cid_ner_flair_eval` | CID NER Eval (Flair doc) | Document-level Flair NER with metrics. |
+| `wf_doc_ner_flair_sent_eval` | Doc NER Eval (Flair, sentence) | Sentence split → loop `sg_ner_flair_sent` → metrics. |
 | `wf_cid_ner_llm_eval` | CID NER Eval (LLM) | Chemical/disease NER with LLM and generic metrics. |
 | `wf_cid_re_branch` | CID RE (multi-branch gate) | NER then 4-way branch gate before relation extraction. |
 | `wf_cid_re_llm_linear` | CID RE Pipeline (linear) | Gold entities → hypernym filter → pair list → foreach RE verify → ID pairs. |

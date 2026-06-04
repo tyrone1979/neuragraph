@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T04:18:30.113385+00:00",
+  "total": 1,
+  "passed": 0,
+  "failed": 1,
+  "skipped": 0,
+  "mock_llm": false,
+  "results": [
+    {
+      "agent_id": "ontology_synonym_extract",
+      "agent_type": "LLM",
+      "output_name": "synonyms",
+      "status": "fail",
+      "message": "invoke exception: cannot access local variable 'parse_as' where it is not associated with a value",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\suites\\agent_invoke_mock_llm_suite.py\", line 413, in run_single_agent\n    result = _invoke_loaded(runner)\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\suites\\agent_invoke_mock_llm_suite.py\", line 392, in _invoke_loaded\n    return runner.invoke(inputs, config=config)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable 'parse_as' where it is not associated with a value\n",
+      "duration_ms": 24640,
+      "dataset": "sample.csv"
+    }
+  ]
+}

@@ -13,5 +13,5 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0sandbox\launch_all.ps1
 timeout /t 4 /nobreak >nul
 
 echo Starting Flask http://localhost:5001
-python -m ui.app
+"%~dp0venv\Scripts\python.exe" -m ui.app
 pause

@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T04:20:18.462361+00:00",
+  "total": 1,
+  "passed": 0,
+  "failed": 1,
+  "skipped": 0,
+  "mock_llm": false,
+  "results": [
+    {
+      "agent_id": "relation_from_tree_llm",
+      "agent_type": "LLM",
+      "output_name": "triples",
+      "status": "fail",
+      "message": "triples list is empty",
+      "output_preview": "[]",
+      "duration_ms": 3672,
+      "dataset": "sample.csv"
+    }
+  ]
+}

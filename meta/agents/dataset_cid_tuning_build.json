@@ -19,5 +19,6 @@
     "dataset_cid_tuning_build"
   ],
   "created_at": "2026-05-29T12:00:00",
-  "engine": "pgm"
+  "engine": "pgm",
+  "description": "Builds CID relation tuning and test splits from a PubTator source file via the CidDatasetBuilder plugin."
 }

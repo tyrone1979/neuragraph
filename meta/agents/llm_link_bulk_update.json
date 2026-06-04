@@ -14,5 +14,6 @@
   },
   "process": "updater = get_plugin('LlmLinkBulkUpdater')\ntarget = (state.get('target_model') or state.get('model') or '').strip()\nsource = (state.get('source_model') or '').strip() or None\nraw_dry = state.get('dry_run', False)\nif isinstance(raw_dry, str):\n    dry_run = raw_dry.strip().lower() in ('1', 'true', 'yes', 'y', 'on')\nelse:\n    dry_run = bool(raw_dry)\nagent_ids = state.get('agent_ids')\nchange_note = (state.get('change_note') or '').strip()\nif not updater:\n    __result__ = {'error': 'LlmLinkBulkUpdater plugin unavailable', 'updated': [], 'skipped': []}\nelif not target:\n    __result__ = {'error': \"Missing 'target_model' (LLM connector id under meta/llms/)\", 'updated': [], 'skipped': []}\nelse:\n    __result__ = updater.apply(\n        target,\n        source_model=source,\n        agent_ids=agent_ids,\n        dry_run=dry_run,\n        change_note=change_note,\n    )",
   "engine": "pgm",
-  "created_at": "2026-06-02T12:00:00"
+  "created_at": "2026-06-02T12:00:00",
+  "description": "Bulk-updates LLM connector links on selected agents from a source model to a target, optionally dry-run."
 }

@@ -11,5 +11,6 @@
   "persistence": {},
   "process": "pred = state.get('flair_entities') or {}\nif not isinstance(pred, dict):\n    pred = {}\nper_label = {}\nfor label, vals in pred.items():\n    if isinstance(vals, list):\n        cleaned = [str(v).strip() for v in vals if str(v).strip()]\n    else:\n        cleaned = [str(vals).strip()] if str(vals).strip() else []\n    per_label[str(label)] = len(set(cleaned))\n__result__ = {\n    'total_entities': int(sum(per_label.values())),\n    'label_count': int(len(per_label)),\n    'per_label_entity_count': per_label\n}",
   "engine": "pgm",
-  "created_at": "2026-05-28T14:00:54.743509"
+  "created_at": "2026-05-28T14:00:54.743509",
+  "description": "Counts unique FLAIR NER entities per label and returns total and per-label entity counts."
 }

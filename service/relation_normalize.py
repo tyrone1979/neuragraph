@@ -99,9 +99,12 @@ def resolve_entity_side(name: str, lookup: dict[str, str]) -> str:
 
 def parse_cid_line(line: str) -> tuple[str, str, str] | None:
     parts = [p.strip() for p in str(line or "").split("|")]
-    if len(parts) < 3:
+    if len(parts) < 2:
         return None
-    head, rel, tail = parts[0], parts[1], parts[-1]
+    if len(parts) >= 3:
+        head, rel, tail = parts[0], parts[1], parts[-1]
+    else:
+        head, rel, tail = parts[0], "", parts[1]
     if not head or not tail:
         return None
     return head, rel, tail

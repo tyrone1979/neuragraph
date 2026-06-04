@@ -1,0 +1,15 @@
+{
+  "agent_id": "ner_comparison_report",
+  "latest": "v0001",
+  "versions": [
+    {
+      "version": "v0001",
+      "parent_version": null,
+      "created_at": "2026-06-02T10:37:08.769164",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "773e2c246c7088cb503e9360ddcf724035f55f21dc25534f33db7a227343abf2"
+    }
+  ]
+}

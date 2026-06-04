@@ -1,0 +1,31 @@
+{
+  "name": "E2E Flair NER + Optimized RE",
+  "description": "Compose sg_e2e_flair_ner (sentence split → Flair → entities) + sg_e2e_cid_re (hypernym → verify → relations) → relation metrics. For Table S18.",
+  "nodes": [
+    "START",
+    "sg_e2e_flair_ner",
+    "sg_e2e_cid_re",
+    "eval_metrics_relation",
+    "END"
+  ],
+  "edges": [
+    ["START", "sg_e2e_flair_ner"],
+    ["sg_e2e_flair_ner", "sg_e2e_cid_re"],
+    ["sg_e2e_cid_re", "eval_metrics_relation"],
+    ["eval_metrics_relation", "END"]
+  ],
+  "metrics": [
+    {
+      "type": "relation_pairs",
+      "expected": { "from": "input", "field": "gold_relations" },
+      "predicted": { "from": "state", "field": "relations" }
+    }
+  ],
+  "bindings": {
+    "eval_metrics_relation": {
+      "relations": "{{ relations }}",
+      "ground_truth": "{{ START.gold_relations }}",
+      "entities": "{{ entities }}"
+    }
+  }
+}

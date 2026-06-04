@@ -21,7 +21,7 @@ LEGACY_GRAPH_INPUTS: dict[str, dict[str, Any]] = {
         "labels": "Chemical,Disease",
         "expected_entities": json.dumps({"Chemical": ["Aspirin"], "Disease": ["heart disease"]}),
     },
-    "wf_cid_ner_flair_eval": {
+    "wf_doc_ner_flair_sent_eval": {
         "text": "Aspirin may reduce the risk of heart disease.",
         "labels": "Chemical,Disease",
         "expected_entities": json.dumps({"Chemical": ["Aspirin"], "Disease": ["heart disease"]}),

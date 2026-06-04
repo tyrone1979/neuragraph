@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T01:21:35.774496+00:00",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "merge_metrics",
+      "agent_type": "PGM",
+      "output_name": "merged_metrics",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"flair_metrics\": {\"micro\": {\"precision\": 0.8, \"recall\": 0.7, \"f1\": 0.75}}, \"llm_metrics\": {\"micro\": {\"precision\": 0.9, \"recall\": 0.6, \"f1\": 0.72}}}",
+      "duration_ms": 129,
+      "dataset": "sample.csv"
+    }
+  ]
+}

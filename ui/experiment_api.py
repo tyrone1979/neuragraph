@@ -428,9 +428,12 @@ def _build_report_chart_payload(exp_id: str) -> dict:
             "f1": f1_sum / count,
         }
 
+    from service.result.loader import REPORT_CHART_SAMPLE_THRESHOLD
+
     return {
         "exp_id": exp_id,
         "sample_count": count,
+        "report_mode": "charts" if count > REPORT_CHART_SAMPLE_THRESHOLD else "table",
         "overall": overall,
         "per_sample": per_sample,
         "error_buckets": {

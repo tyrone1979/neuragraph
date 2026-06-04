@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T03:13:35.307602+00:00",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": false,
+  "results": [
+    {
+      "agent_id": "ontology_hypernym_identify",
+      "agent_type": "LLM",
+      "output_name": "hypernyms",
+      "status": "pass",
+      "message": "ok (live:gpt-oss_120b)",
+      "output_preview": "[]",
+      "duration_ms": 26189,
+      "dataset": "sample.csv"
+    }
+  ]
+}

@@ -18,7 +18,11 @@ from service.entity.runner import RunnerLoader
 from service.entity.test import TestLoader
 from service.meta.agent_version import AgentVersionStore
 from service.meta.loader import GraphMetaLoader, MetaLoader
-from service.result.loader import ResultLoader, compact_states_for_report, iter_sample_indices
+from service.result.loader import (
+    ResultLoader,
+    build_report_payload_states,
+    iter_sample_indices,
+)
 from utils.graphutils import resolve_report_agent_versions
 
 
@@ -357,10 +361,15 @@ def _run_experiment_with_progress(
         else:
             runner.invoke(payload, config=config)
 
+        # Persist every 10 articles to avoid data loss on interrupt.
+        if idx % 10 == 0 or idx == total:
+            RunnerLoader.persistence(exp_cfg)
+
     exp_cfg["status"] = "completed"
     exp_cfg["progress"] = 100
     exp_cfg["samples"] = total
     MetaLoader.dump("exps", exp_id, exp_cfg)
+    # Ensure final persistence run covers everything
     RunnerLoader.persistence(exp_cfg)
     _emit_sample(total)
 
@@ -382,7 +391,7 @@ def _build_report_payload(exp_id: str, exp_cfg: dict[str, Any]) -> dict[str, Any
         graphs_cfg, agents_cfg, root_graph_id=str(runner_id or "")
     )
     raw_states = ResultLoader.load(exp_id) or {}
-    states = compact_states_for_report(raw_states)
+    states = build_report_payload_states(raw_states, exp_id=exp_id)
     return {
         "exp_id": exp_id,
         "experiment": exp_cfg,
@@ -400,7 +409,9 @@ def _generate_report(payload: dict[str, Any]) -> str:
     last_err: Exception | None = None
     for attempt in range(3):
         try:
-            raw = agent.invoke({"text": json.dumps(payload, ensure_ascii=False, indent=2)})
+            raw = agent.invoke(
+                {"text": json.dumps(payload, ensure_ascii=False, separators=(",", ":"))}
+            )
             return str(raw.get("text", "")).strip()
         except Exception as ex:
             last_err = ex

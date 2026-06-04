@@ -1,0 +1,19 @@
+{
+  "name": "E2E PubTator3 RE (subgraph)",
+  "description": "Subgraph: PubTator3 API → CID relations. Input: text + pmid. Output: relations as head_id | CID | tail_id lines.",
+  "nodes": [
+    "START",
+    "relation_extract_pubtator",
+    "END"
+  ],
+  "edges": [
+    ["START", "relation_extract_pubtator"],
+    ["relation_extract_pubtator", "END"]
+  ],
+  "bindings": {
+    "relation_extract_pubtator": {
+      "text": "{{ text }}",
+      "pmid": "{{ pmid }}"
+    }
+  }
+}

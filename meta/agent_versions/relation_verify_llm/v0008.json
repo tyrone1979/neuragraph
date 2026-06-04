@@ -1,0 +1,30 @@
+{
+  "agent_id": "relation_verify_llm",
+  "version": "v0008",
+  "parent_version": "v0007",
+  "created_at": "2026-06-04T14:44:13.498854",
+  "created_by": "optimize_loop",
+  "change_note": "opt_loop 20260604_143447 r1: FN: LLM fails to recognize clinical trial AE reporting ('reported in X%', 'were common for combination recipients') as causal evidence (samples 42, 35). FP: LLM over-classifies symptom-list descriptions as causal (sample 33: serotonin syndrome symptoms). Strengthen both",
+  "source": "optimize_loop",
+  "content_hash": "fb4d2488885fcb68bda345e8687958d2d8efab683873d4114bff844da294001f",
+  "content": {
+    "name": "Relation Verification (LLM)",
+    "type": "LLM",
+    "model": "deepseek",
+    "inputs": [
+      "text",
+      "head",
+      "tail"
+    ],
+    "outputs": {
+      "name": "result",
+      "type": "str"
+    },
+    "prompt_template": {
+      "description": "Strict biomedical relation verifier based on triple list",
+      "human": "Article: {text}\n\nDoes the article state or imply that {head} causes, induces, or results in {tail}?\n- Answer '$' if the article contains causal language (e.g., 'caused by', 'induced by', 'resulted in', 'leads to', 'associated with', 'risk factor for', 'may cause', 'can lead to', 'due to', 'side effect of', 'adverse effect of', 'reported in', 'occurred in', 'was observed in', 'common adverse events included'). Clinical trial AE reporting (e.g., 'reported in X% of patients', 'were common for combination recipients') IS causal evidence — output '$'.\n- Answer '~' if {tail} is a pre-existing condition, co-occurrence without causal direction, speculation, correlation, or text negates causation. Also answer '~' if text lists symptoms of a syndrome (e.g., 'Syndrome X consists of A, B, C') without stating the drug caused those specific symptoms.\n- Output only '$' or '~'.",
+      "system": "You are a biomedical relation verifier. Return '$' if the article states or implies that {head} causes, induces, or is causally associated with {tail}. Accept causal language: 'caused by', 'induced by', 'resulted in', 'leads to', 'associated with', 'risk factor for', 'may cause', 'can lead to', 'due to', 'side effect of', 'adverse effect of', 'reported in', 'occurred in', 'was observed in', 'common adverse events included'. Clinical trial AE reporting (e.g., 'reported in X% of patients', 'were common for combination recipients') IS causal — output '$'. If text lists symptoms of a syndrome (e.g., 'Syndrome X consists of A, B, C'), do NOT output '$' for drug→symptom unless text explicitly states drug caused that symptom. Output '~' for all symptom-list pairs. Return '~' if {tail} is pre-existing condition, co-occurrence, speculation, correlation, or text negates causation. Output only '$' or '~'."
+    },
+    "created_at": "2026-05-27T13:48:50.624521"
+  }
+}

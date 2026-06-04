@@ -853,13 +853,43 @@ function disposeReportCharts() {
     }
 }
 
-function renderReportCharts(chartData) {
-    const root = $('#reportMarkdown');
+const REPORT_CHART_SAMPLE_THRESHOLD = 20;
+
+function stripPerSampleMetricsTables($root, sampleCount) {
+    if (Number(sampleCount || 0) <= REPORT_CHART_SAMPLE_THRESHOLD || !$root.length) {
+        return;
+    }
+    const headings = $root.find('h2, h3');
+    headings.each(function () {
+        const txt = ($(this).text() || '').toLowerCase();
+        if (!/metrics/.test(txt)) return;
+        let $node = $(this).next();
+        while ($node.length && !$node.is('h2, h3')) {
+            if ($node.is('table')) {
+                const rows = $node.find('tbody tr').length || $node.find('tr').length;
+                if (rows > REPORT_CHART_SAMPLE_THRESHOLD + 2) {
+                    $node.replaceWith(
+                        '<p class="text-muted"><em>Per-sample metrics table omitted (' +
+                        sampleCount + ' articles). See charts below.</em></p>'
+                    );
+                    return false;
+                }
+            }
+            $node = $node.next();
+        }
+        return true;
+    });
+}
+
+function renderReportCharts(chartData, rootSel) {
+    const root = $(rootSel || '#reportMarkdown');
     if (!chartData || Number(chartData.sample_count || 0) <= 0 || !root.length) {
         disposeReportCharts();
         root.find('.report-inline-chart-card').remove();
         return;
     }
+    const largeRun = Number(chartData.sample_count || 0) > REPORT_CHART_SAMPLE_THRESHOLD
+        || chartData.report_mode === 'charts';
     const ensureSlot = (slotId, title, headingRegex) => {
         let $slot = $(`#${slotId}`);
         if ($slot.length) return $slot;
@@ -887,7 +917,10 @@ function renderReportCharts(chartData) {
         return $slot;
     };
 
-    const sampleSlot = ensureSlot('reportSampleChartInline', 'Per-sample F1 Trend', /metrics/);
+    const sampleTitle = largeRun
+        ? `Per-sample F1 trend (${chartData.sample_count} articles, chart view)`
+        : 'Per-sample F1 Trend';
+    const sampleSlot = ensureSlot('reportSampleChartInline', sampleTitle, /metrics/);
     const errorSlot = ensureSlot('reportErrorBucketChartInline', 'FN/FP Composition', /(fn|fp|false negative|false positive)/);
     const impactSlot = ensureSlot('reportAgentImpactChartInline', 'Agent Version Impact (F1 Delta)', /(suggestion|agent modification)/);
 
@@ -908,12 +941,13 @@ function renderReportCharts(chartData) {
         tooltip: { trigger: 'axis' },
         legend: { data: ['F1', 'Precision', 'Recall'] },
         grid: { left: 45, right: 16, top: 30, bottom: 40 },
+        dataZoom: largeRun ? [{ type: 'inside' }, { type: 'slider', height: 18, bottom: 4 }] : [],
         xAxis: {
             type: 'category',
             data: xLabels,
             name: 'Sample',
             nameLocation: 'middle',
-            nameGap: 28
+            nameGap: largeRun ? 36 : 28
         },
         yAxis: { type: 'value', min: 0, max: 1 },
         series: [
@@ -1032,15 +1066,20 @@ function enhanceReportMarkup() {
     colorSuggestionPlusMinus(root);
 }
 
-function loadAndRenderReportCharts(expIdVal) {
-    return $.getJSON(`/exp/api/${encodeURIComponent(expIdVal)}/report-charts`)
-        .done((payload) => {
-            renderReportCharts(payload || {});
-        })
-        .fail(() => {
-            disposeReportCharts();
-            $('#reportMarkdown').find('.report-inline-chart-card').remove();
-        });
+function loadAndRenderReportCharts(expIdVal, rootSel) {
+    const $root = $(rootSel || '#reportMarkdown');
+    return new Promise((resolve) => {
+        $.getJSON(`/exp/api/${encodeURIComponent(expIdVal)}/report-charts`)
+            .done((payload) => {
+                renderReportCharts(payload || {}, rootSel);
+                resolve(payload || {});
+            })
+            .fail(() => {
+                disposeReportCharts();
+                $root.find('.report-inline-chart-card').remove();
+                resolve(null);
+            });
+    });
 }
 
 function renderReport(exp_id) {
@@ -1750,6 +1789,11 @@ function loadSavedReportMarkdown(expIdVal, containerSel, reportName) {
             }
             $el.html(marked.parse(text));
             enhanceReportMarkupIn($el);
+            loadAndRenderReportCharts(expIdVal, containerSel).then((chartData) => {
+                if (chartData && Number(chartData.sample_count || 0) > REPORT_CHART_SAMPLE_THRESHOLD) {
+                    stripPerSampleMetricsTables($el, chartData.sample_count);
+                }
+            });
         })
         .catch(() => $el.html('<p class="text-muted p-3">Report not available.</p>'));
 }

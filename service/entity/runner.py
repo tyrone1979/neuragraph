@@ -78,7 +78,14 @@ class RunnerLoader(EntityLoader):
             rows = []
         total = len(rows) if rows else int(meta.get("samples") or 0)
 
+        from service.result.loader import (
+            REPORT_CHART_SAMPLE_THRESHOLD,
+            write_sample_full,
+            write_states_bundle,
+        )
+
         result = {}
+        archive_full = total > REPORT_CHART_SAMPLE_THRESHOLD
         for idx in range(1, total + 1):
             config = {"configurable": {"thread_id": f"{exp_id}_{idx}"}}
             state = runner.get_state(config)
@@ -89,6 +96,8 @@ class RunnerLoader(EntityLoader):
                     row, values, graph_id=meta.get("runner_id")
                 )
                 result[str(idx)] = values
+                if archive_full:
+                    write_sample_full(exp_id, idx, values)
 
         if not result:
             import logging
@@ -97,10 +106,6 @@ class RunnerLoader(EntityLoader):
             )
             return {}
 
-        # 写入文件
-        (path / "states.json").write_text(
-            json.dumps(result, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
+        write_states_bundle(exp_id, result)
         return result
 

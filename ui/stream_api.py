@@ -4,7 +4,12 @@ from service.entity.test import TestLoader
 from langchain_core.runnables import RunnableConfig
 from service.meta.loader import MetaLoader, GraphMetaLoader
 from service.entity.agent import AgentLoader
-from service.result.loader import ResultLoader, compact_sample_for_report, iter_sample_indices
+from service.result.loader import (
+    ResultLoader,
+    build_report_payload_states,
+    compact_sample_for_report,
+    iter_sample_indices,
+)
 from service.entity.runner import _apply_plugin_metrics
 from service.entity.runner import RunnerLoader
 from plugin.plugin_loader import get_plugin
@@ -190,16 +195,17 @@ def _build_report_payload(exp_id: str, exp_cfg: dict) -> dict:
         graphs_cfg, agents_cfg, root_graph_id=str(runner_id or "")
     )
 
-    states = ResultLoader.load(exp_id)
-    if not states:
-        # best effort recovery: persist from checkpoints then reload
+    raw_states = ResultLoader.load(exp_id)
+    if not raw_states:
         exp_for_persistence = dict(exp_cfg)
         exp_for_persistence["exp_id"] = exp_id
         try:
             RunnerLoader.persistence(exp_for_persistence)
-            states = ResultLoader.load(exp_id)
+            raw_states = ResultLoader.load(exp_id)
         except Exception:
-            states = None
+            raw_states = None
+
+    states = build_report_payload_states(raw_states or {}, exp_id=exp_id)
 
     return {
         "exp_id": exp_id,
@@ -207,7 +213,7 @@ def _build_report_payload(exp_id: str, exp_cfg: dict) -> dict:
         "graphs": graphs_cfg,
         "agents": agents_cfg,
         "agent_versions": agent_versions,
-        "states": states or {},
+        "states": states,
     }
 
 
@@ -234,7 +240,7 @@ def stream_report(exp_id):
     if agent is None:
         msg = f"Report agent not found: {report_agent_id}"
         return Response(msg, mimetype='text/event-stream')
-    text_payload = json.dumps(full_payload, ensure_ascii=False, indent=2)
+    text_payload = json.dumps(full_payload, ensure_ascii=False, separators=(",", ":"))
 
     def generate():
         chunk = agent.invoke({'text': text_payload})

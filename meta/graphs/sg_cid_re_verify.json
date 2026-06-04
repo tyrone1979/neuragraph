@@ -1,6 +1,6 @@
 {
   "name": "CID RE verify pair",
-  "description": "Verify one Chemical–Disease pair; output id | id if induce ($).",
+  "description": "Verify one Chemical–Disease pair; output MeSH id pair when verdict is induces.",
   "nodes": [
     "START",
     "relation_verify_llm",

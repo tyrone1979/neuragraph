@@ -140,10 +140,8 @@ def _call_agent(name: str, graph_meta: dict | None = None):
                     continue
                 head = item.get("head", "?") if isinstance(item, dict) else "?"
                 tail = item.get("tail", "?") if isinstance(item, dict) else "?"
-                print(
-                    f"[{graph_id}] loop {name} {idx + 1}/{n_items}: {head} -> {tail}",
-                    flush=True,
-                )
+                # Silenced for batch runs — verbose per-pair logging generates
+                # excessive terminal output that obscures progress bars.
                 iter_state = jsonify_state(
                     apply_loop_item_bindings(
                         accum, item, item_bindings, scalar_fields=scalar_fields

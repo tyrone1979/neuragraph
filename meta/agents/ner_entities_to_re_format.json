@@ -1,0 +1,13 @@
+{
+  "name": "NER Entities to RE Format",
+  "type": "PGM",
+  "inputs": ["entities"],
+  "outputs": {
+    "name": "entities",
+    "type": "list"
+  },
+  "process": "raw = state.get('entities') or {}\nif isinstance(raw, dict):\n    result = []\n    for label, mentions in raw.items():\n        if not isinstance(mentions, list):\n            continue\n        for text in mentions:\n            if text and isinstance(text, str) and text.strip():\n                result.append({\"text\": text.strip(), \"label\": str(label).strip(), \"id\": \"\"})\n    __result__ = result\nelif isinstance(raw, list):\n    __result__ = raw\nelse:\n    __result__ = []",
+  "created_at": "2026-06-04T14:30:00",
+  "engine": "pgm",
+  "description": "Converts Flair NER label dict {Chemical:[...], Disease:[...]} to the entity list format [{text, label, id}] expected by the CID RE pipeline."
+}

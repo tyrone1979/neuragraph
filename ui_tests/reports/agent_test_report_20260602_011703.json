@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T01:17:03.706387+00:00",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "eval_pair_generate",
+      "agent_type": "PGM",
+      "output_name": "pairs",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"head\": \"Aspirin\", \"tail\": \"heart disease\"}]",
+      "duration_ms": 85,
+      "dataset": "sample.csv"
+    }
+  ]
+}

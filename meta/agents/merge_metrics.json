@@ -11,5 +11,6 @@
   },
   "process": "flair = state.get('flair_metrics') or {}\nllm = state.get('llm_metrics') or {}\n__result__ = {\n    'flair_metrics': flair,\n    'llm_metrics': llm\n}",
   "engine": "pgm",
-  "created_at": "2026-05-28T14:00:00.000000"
+  "created_at": "2026-05-28T14:00:00.000000",
+  "description": "Combines FLAIR and LLM NER metric dictionaries into a single merged_metrics report object."
 }

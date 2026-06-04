@@ -20,5 +20,6 @@
     "file_type": "csv"
   },
   "process": "__result__ = state.get('triples') or []",
-  "engine": "pgm"
+  "engine": "pgm",
+  "description": "Persists merged knowledge-graph triples to CSV under result with head, verb, and tail columns."
 }

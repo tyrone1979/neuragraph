@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T04:15:21.546801+00:00",
+  "total": 1,
+  "passed": 0,
+  "failed": 1,
+  "skipped": 0,
+  "mock_llm": false,
+  "results": [
+    {
+      "agent_id": "agent_refiner",
+      "agent_type": "LLM",
+      "output_name": "plan_json",
+      "status": "fail",
+      "message": "invoke exception: Single '}' encountered in format string",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\suites\\agent_invoke_mock_llm_suite.py\", line 403, in run_single_agent\n    runner = AgentLoader.load(agent_id)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\agentic_llmre\\service\\entity\\agent.py\", line 600, in load\n    return AgentEntity(meta, checkpointer=checkpointer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: Single '}' encountered in format string\n",
+      "duration_ms": 4294,
+      "dataset": "sample.csv"
+    }
+  ]
+}

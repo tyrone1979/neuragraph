@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T04:40:18.492132+00:00",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": false,
+  "results": [
+    {
+      "agent_id": "agent_refiner",
+      "agent_type": "LLM",
+      "output_name": "plan_json",
+      "status": "pass",
+      "message": "ok (live:deepseek)",
+      "output_preview": "\"{\\\"modifications\\\": []}\"",
+      "duration_ms": 5863,
+      "dataset": "sample.csv"
+    }
+  ]
+}
