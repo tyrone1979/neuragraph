@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T01:23:27.070414+00:00",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "ner_flair_doc",
+      "agent_type": "PGM",
+      "output_name": "entities",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"Chemical\": [\"Aspirin\", \"Lithium carbonate\"], \"Disease\": [\"heart disease\"]}",
+      "duration_ms": 2034,
+      "dataset": "sample.csv"
+    }
+  ]
+}

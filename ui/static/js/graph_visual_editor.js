@@ -80,6 +80,7 @@ function mergeFlowNodesFromGraph(wf) {
     (wf.nodes || []).forEach(function(nid) {
         if (nid === 'START' || nid === 'END') return;
         if (agentsData[nid] && agentsData[nid].type === 'SUB') mergeSubgraphMeta(nid, seen);
+        if (graphsById && graphsById[nid]) mergeSubgraphMeta(nid, seen);
     });
 }
 
@@ -132,6 +133,13 @@ function discoverNestedLoops(wf) {
             if (f.subgraphId) walkSub(f.subgraphId);
             if (!seen[nid]) { seen[nid] = true; ordered.push(nid); }
         }
+    });
+    // Also walk subgraph nodes that contain inner loops
+    (wf.nodes || []).forEach(function(nid) {
+        if (nid === 'START' || nid === 'END') return;
+        var fn = getGraphFlowNodes(wf)[nid];
+        if (fn && fn.kind === 'loop') return;
+        if (graphsById && graphsById[nid]) walkSub(nid);
     });
     return ordered;
 }
@@ -588,7 +596,18 @@ function collectSubgraphMemberPositions(subId) {
     if (!info) return positions;
     (info.nodes || []).forEach(function(nid) {
         var el = graph.getCell(nid);
-        if (el && !el.get('parentLoop')) positions.nodes[nid] = el.position();
+        if (!el) return;
+        if (!el.get('parentLoop')) positions.nodes[nid] = el.position();
+        // Include loop shell position
+        if (isLoopNode(nid) && hasLoopInners(nid)) {
+            var shell = graph.getCell(nid);
+            if (shell) positions.nodes[nid] = shell.position();
+            // Also collect all inner nodes of the loop so they move with the subgraph
+            getLoopInnerIds(nid).forEach(function(innerId) {
+                var inner = graph.getCell(innerId);
+                if (inner) positions.nodes[innerId] = inner.position();
+            });
+        }
     });
     (info.subgraphs || []).forEach(function(childId) {
         var cnt = graph.getCell(childId + '_container');
@@ -2210,7 +2229,7 @@ function expandSubgraph(wf) {
     var isSub = function(nid) {
         if (getNodeFlowKind(nid, wf) === 'loop') return false;
         if (agentsData[nid] && agentsData[nid].type === 'SUB') return true;
-        if (graphsById && graphsById[nid] && wf.nodes && wf.nodes.indexOf(nid) < 0) return true;
+        if (graphsById && graphsById[nid]) return true;
         if (wf.visualData && wf.visualData.nodes) {
             var vn = wf.visualData.nodes.find(function(n) { return n.id === nid || n.originalId === nid; });
             if (vn && (vn.type === 'subgraph' ||
@@ -2321,6 +2340,15 @@ function _containerBBox(subId) {
     (info.nodes || []).forEach(function(nid) {
         var el = graph.getCell(nid);
         if (el) bbox = bbox ? bbox.union(el.getBBox()) : el.getBBox();
+        // Include loop inner children in the bounding box
+        if (isLoopNode(nid) && hasLoopInners(nid)) {
+            var shell = graph.getCell(nid);
+            if (shell) bbox = bbox ? bbox.union(shell.getBBox()) : shell.getBBox();
+            getLoopInnerIds(nid).forEach(function(innerId) {
+                var inner = graph.getCell(innerId);
+                if (inner) bbox = bbox ? bbox.union(inner.getBBox()) : inner.getBBox();
+            });
+        }
     });
     (info.subgraphs || []).forEach(function(childId) {
         var childCnt = graph.getCell(childId + '_container');
@@ -2360,7 +2388,8 @@ function _drawSubgraphContainer(subId) {
     var stroke = nodeStyles.SUB.stroke;
     var fill = 'rgba(118,75,162,0.08)';
     var labelName = (getGraphFlowNodes()[subId] && getGraphFlowNodes()[subId].name) ||
-        (agentsData[subId] ? agentsData[subId].name : subId);
+        (agentsData[subId] ? agentsData[subId].name : null) ||
+        (graphsById[subId] ? (graphsById[subId].name || subId) : subId);
     var labelText = 'SUB · ' + labelName;
     var rect = new joint.shapes.standard.Rectangle({
         id: cntId, z: -10,
@@ -2880,6 +2909,7 @@ function showBlankContextMenu(x, y, lp) {
         { divider:true },
         { label:'Export as SVG', icon:'fa-file-image', action: downloadSVG },
         { label:'Export as PNG', icon:'fa-image', action: downloadPNG },
+        { label:'Export as TIFF (300 DPI)', icon:'fa-file-image', action: downloadTIFF },
         { divider:true },
         { label:'Fit to Content', icon:'fa-expand', action: fitToContent },
         { label:'Reset View', icon:'fa-sync', action: resetView }
@@ -2912,8 +2942,93 @@ function showLinkContextMenu(x, y, link) {
 }
 
 // ─── Export ─────────────────────────────────────────
-function downloadSVG() { var bb=graph.getBBox(),p=20,svg=paper.svg.cloneNode(true);svg.setAttribute('viewBox',(bb.x-p)+' '+(bb.y-p)+' '+(bb.width+p*2)+' '+(bb.height+p*2));svg.setAttribute('width',bb.width+p*2);svg.setAttribute('height',bb.height+p*2);svg.setAttribute('xmlns','http://www.w3.org/2000/svg');var b=new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='workflow.svg';a.click(); }
-function downloadPNG() { var bb=graph.getBBox(),p=20,s=2,svg=paper.svg.cloneNode(true);svg.setAttribute('viewBox',(bb.x-p)+' '+(bb.y-p)+' '+(bb.width+p*2)+' '+(bb.height+p*2));svg.setAttribute('width',(bb.width+p*2)*s);svg.setAttribute('height',(bb.height+p*2)*s);var c=document.createElement('canvas');c.width=(bb.width+p*2)*s;c.height=(bb.height+p*2)*s;var ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.scale(s,s);var img=new Image(),url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'}));img.onload=function(){ctx.drawImage(img,0,0);URL.revokeObjectURL(url);c.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='workflow.png';a.click();},'image/png');};img.src=url; }
+/** Inject computed node CSS into a cloned SVG so foreignObjects render correctly in standalone viewers. */
+function _injectNodeCss(svg) {
+    var s = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    s.textContent = [
+        '.wf-node{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:12px;line-height:1.35;color:#374151;overflow:visible;border-radius:12px;background:#fff;border:1.5px solid #e5e7eb}',
+        '.wf-node-header{display:flex;align-items:center;gap:8px;padding:0 12px;height:40px;width:100%;color:#fff;border-radius:10px 10px 0 0;overflow:visible}',
+        '.wf-node-icon{flex:0 0 auto;width:22px;height:22px;border-radius:6px;background:rgba(255,255,255,0.25);border:1.5px solid rgba(255,255,255,0.7);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}',
+        '.wf-node-title{flex:1 1 auto;min-width:60px;font-size:13px;font-weight:600;color:#fff;display:inline-block;white-space:nowrap;overflow:visible}',
+        '.wf-node-type{flex:0 0 auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.5);color:#fff;display:inline-block;white-space:nowrap}',
+        '.wf-node-body{padding:10px 12px 12px;overflow:visible;width:100%;color:#374151}',
+        '.wf-node-meta,.wf-node-id{font-size:11px;color:#6b7280;margin-bottom:8px;display:block;overflow:visible}',
+        '.wf-io-block{margin-bottom:6px;display:block}',
+        '.wf-io-label{font-size:10px;font-weight:700;letter-spacing:0.06em;color:#9ca3af;margin-bottom:4px;display:block}',
+        '.wf-io-row{display:flex;align-items:center;gap:6px;min-height:22px;padding:2px 0;width:100%}',
+        '.wf-io-dot{flex:0 0 auto;width:6px;height:6px;border-radius:50%}',
+        '.wf-io-dot--in{background:#3b82f6}.wf-io-dot--out{background:#10b981}',
+        '.wf-io-name{flex:1 1 auto;min-width:40px;font-size:12px;color:#1f2937;display:inline-block;overflow:visible}',
+        '.wf-io-type{flex:0 0 auto;font-size:10px;color:#9ca3af;display:inline-block}',
+        '.wf-io-empty{font-size:11px;color:#d1d5db;font-style:italic;padding:2px 0 2px 12px;display:block}'
+    ].join('\n');
+    svg.insertBefore(s, svg.firstChild);
+}
+
+function downloadSVG() {
+    var bb = graph.getBBox(), p = 20;
+    var svg = paper.svg.cloneNode(true);
+    _injectNodeCss(svg);
+    svg.setAttribute('viewBox', (bb.x-p)+' '+(bb.y-p)+' '+(bb.width+p*2)+' '+(bb.height+p*2));
+    svg.setAttribute('width', bb.width+p*2);
+    svg.setAttribute('height', bb.height+p*2);
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    var b = new Blob([new XMLSerializer().serializeToString(svg)], {type:'image/svg+xml'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = (current||'workflow')+'.svg'; a.click();
+}
+
+function downloadPNG() {
+    var bb = graph.getBBox(), p = 20, s = 2;
+    var svg = paper.svg.cloneNode(true);
+    _injectNodeCss(svg);
+    svg.setAttribute('viewBox', (bb.x-p)+' '+(bb.y-p)+' '+(bb.width+p*2)+' '+(bb.height+p*2));
+    svg.setAttribute('width', (bb.width+p*2)*s);
+    svg.setAttribute('height', (bb.height+p*2)*s);
+    var c = document.createElement('canvas');
+    c.width = (bb.width+p*2)*s; c.height = (bb.height+p*2)*s;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.scale(s,s);
+    var img = new Image(), url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'}));
+    img.onload = function() {
+        ctx.drawImage(img,0,0); URL.revokeObjectURL(url);
+        c.toBlob(function(b) {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(b); a.download = (current||'workflow')+'.png'; a.click();
+        }, 'image/png');
+    };
+    img.src = url;
+}
+
+function downloadTIFF() {
+    var bb = graph.getBBox(), p = 20, dpi = 300, s = dpi / 96;
+    var svg = paper.svg.cloneNode(true);
+    _injectNodeCss(svg);
+    svg.setAttribute('viewBox', (bb.x-p)+' '+(bb.y-p)+' '+(bb.width+p*2)+' '+(bb.height+p*2));
+    svg.setAttribute('width', (bb.width+p*2)*s);
+    svg.setAttribute('height', (bb.height+p*2)*s);
+    var c = document.createElement('canvas');
+    c.width = (bb.width+p*2)*s; c.height = (bb.height+p*2)*s;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.scale(s,s);
+    var img = new Image(), url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'}));
+    img.onload = function() {
+        ctx.drawImage(img,0,0); URL.revokeObjectURL(url);
+        var idata = ctx.getImageData(0,0,c.width,c.height);
+        if (typeof UTIF !== 'undefined' && UTIF.encodeImage) {
+            var tiff = UTIF.encodeImage(idata.data, c.width, c.height);
+            var b = new Blob([tiff], {type:'image/tiff'});
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(b); a.download = (current||'workflow')+'_300dpi.tiff'; a.click();
+        } else {
+            c.toBlob(function(b) {
+                var a = document.createElement('a');
+                a.href = URL.createObjectURL(b); a.download = (current||'workflow')+'_300dpi.png'; a.click();
+            }, 'image/png');
+        }
+    };
+    img.src = url;
+}
 
 // ─── Save / serialize ──────────────────────────────
 function saveGraph() {

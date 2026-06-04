@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T01:15:28.333659+00:00",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "dataset_cid_tuning_build",
+      "agent_type": "PGM",
+      "output_name": "tuning_result",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"runner_id\": \"wf_cid_re_llm_linear\", \"tuning_output\": \"cid_agent_test_tuning.csv\", \"tuning_path\": \"tests/wf_cid_re_llm_linear/cid_agent_test_tuning.csv\", \"tuning_count\": 2, \"summary\": {\"picked\": 2, \"source\": \"comparison/data/CDR/dev.txt\"}}",
+      "duration_ms": 79,
+      "dataset": "sample.csv"
+    }
+  ]
+}

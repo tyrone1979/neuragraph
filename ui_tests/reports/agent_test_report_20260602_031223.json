@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T03:12:23.550204+00:00",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "ontology_hypernym_filter",
+      "agent_type": "LLM",
+      "output_name": "filtered_entities",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"text\": \"Aspirin\", \"id\": \"D001241\", \"label\": \"Chemical\"}, {\"text\": \"heart disease\", \"id\": \"D006331\", \"label\": \"Disease\"}]",
+      "duration_ms": 4846,
+      "dataset": "sample.csv"
+    }
+  ]
+}

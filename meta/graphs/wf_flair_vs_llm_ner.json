@@ -1,6 +1,6 @@
 {
   "name": "Flair vs LLM NER Comparison",
-  "description": "Workflow for Flair vs LLM NER Comparison",
+  "description": "Sentence split, Flair loop NER, LLM NER, per-path metrics, and ner_comparison_report on the same document.",
   "nodes": [
     "START",
     "text_sentence_split",

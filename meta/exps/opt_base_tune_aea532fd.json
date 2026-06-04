@@ -1,0 +1,14 @@
+{
+  "exp_id": "opt_base_tune_aea532fd",
+  "name": "wf_cid_re_llm_linear_cid_dev_tuning_stratified_50.csv_opt_base_tune_aea532fd",
+  "runner_type": "graph",
+  "runner_id": "wf_cid_re_llm_linear",
+  "runner_display": "wf_cid_re_llm_linear",
+  "dataset": "cid_dev_tuning_stratified_50.csv",
+  "tuning_dataset": "cid_dev_tuning_stratified_50.csv",
+  "test_dataset": "cdr_test_500.csv",
+  "samples": 50,
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-04T14:26:41.469199"
+}

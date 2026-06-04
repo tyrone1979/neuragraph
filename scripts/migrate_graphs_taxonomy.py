@@ -199,23 +199,35 @@ def build() -> dict[str, dict]:
         },
     )
 
-    graphs["wf_cid_ner_flair_eval"] = wf(
-        "wf_cid_ner_flair_eval",
-        "CID NER Eval (Flair doc)",
-        "Document-level Flair NER with metrics.",
-        "cid",
+    graphs["wf_doc_ner_flair_sent_eval"] = wf(
+        "wf_doc_ner_flair_sent_eval",
+        "Doc NER Eval (Flair, sentence)",
+        "Sentence split → loop HunFlair2 per sentence → entity metrics.",
+        "doc_ner",
         "ner",
         "flair",
-        "linear",
-        ["ner_flair_doc", "eval_metrics"],
+        "loop",
+        ["text_sentence_split", "ner_sentence_loop", "eval_metrics"],
         [
-            ["START", "ner_flair_doc"],
-            ["ner_flair_doc", "eval_metrics"],
+            ["START", "text_sentence_split"],
+            ["text_sentence_split", "ner_sentence_loop"],
+            ["ner_sentence_loop", "eval_metrics"],
             ["eval_metrics", "END"],
         ],
-        {
-            "ner_flair_doc": {"text": "{{ START.text }}", "labels": "Chemical,Disease"},
-            "eval_metrics": {"expected": "{{ START.expected_entities }}", "predicted": "{{ ner_flair_doc.entities }}"},
+        flow_nodes={
+            "ner_sentence_loop": {
+                "kind": "loop",
+                "name": "Sentence NER loop",
+                "subgraphId": "sg_ner_flair_sent",
+                "loopConfig": {"loopType": "foreach", "array": "{{ sentences }}"},
+            },
+        },
+        bindings={
+            "text_sentence_split": {"text": "{{ START.text }}"},
+            "eval_metrics": {
+                "expected": "{{ START.expected_entities }}",
+                "predicted": "{{ entities }}",
+            },
         },
     )
 

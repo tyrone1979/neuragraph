@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T01:34:52.223184+00:00",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "llm_link_bulk_update",
+      "agent_type": "PGM",
+      "output_name": "result",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "{\"target_model\": \"deepseek\", \"source_model\": null, \"dry_run\": true, \"updated_count\": 13, \"skipped_count\": 30, \"updated\": [{\"agent_id\": \"kg_triple_extract_llm\", \"name\": \"Triple Extraction (LLM)\", \"old_model\": \"kimi-2.6\", \"new_model\": \"dee...",
+      "duration_ms": 130,
+      "dataset": "sample.csv"
+    }
+  ]
+}

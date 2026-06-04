@@ -1,0 +1,430 @@
+{
+  "generated_at": "2026-06-02T00:36:16.953295+00:00",
+  "total": 42,
+  "passed": 0,
+  "failed": 42,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "agent_refiner",
+      "agent_type": "LLM",
+      "output_name": "plan_json",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 2962,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "cid_pair_generate",
+      "agent_type": "PGM",
+      "output_name": "pairs",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 46,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "dataset_cid_tuning_build",
+      "agent_type": "PGM",
+      "output_name": "tuning_result",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 50,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_flair",
+      "agent_type": "PGM",
+      "output_name": "flair_metrics",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 47,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_llm",
+      "agent_type": "PGM",
+      "output_name": "llm_metrics",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 45,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_metrics",
+      "agent_type": "PGM",
+      "output_name": "metrics",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 46,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_metrics_relation",
+      "agent_type": "PGM",
+      "output_name": "metrics",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 46,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_metrics_segment",
+      "agent_type": "PGM",
+      "output_name": "output",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 47,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "eval_pair_generate",
+      "agent_type": "PGM",
+      "output_name": "pairs",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 43,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "kg_rdf_export",
+      "agent_type": "PGM",
+      "output_name": "graph",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 47,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "kg_triple_extract_llm",
+      "agent_type": "LLM",
+      "output_name": "triples",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 306,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "kg_triple_merge",
+      "agent_type": "PGM",
+      "output_name": "triples",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 47,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "kg_triple_persist",
+      "agent_type": "PGM",
+      "output_name": "output",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 56,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "merge_metrics",
+      "agent_type": "PGM",
+      "output_name": "merged_metrics",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 43,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_comparison_report",
+      "agent_type": "LLM",
+      "output_name": "report",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 65,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_flair_aggregate",
+      "agent_type": "PGM",
+      "output_name": "flair_entities",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 38,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_flair_doc",
+      "agent_type": "PGM",
+      "output_name": "entities",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 49,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_flair_sent",
+      "agent_type": "PGM",
+      "output_name": "predicted",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 44,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_from_tree_llm",
+      "agent_type": "LLM",
+      "output_name": "predicted",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 58,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ner_llm",
+      "agent_type": "LLM",
+      "output_name": "entities",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 44,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_entity_link",
+      "agent_type": "LLM",
+      "output_name": "entity_link",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 69,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_hypernym_filter",
+      "agent_type": "LLM",
+      "output_name": "filtered_entities",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 75,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_hypernym_identify",
+      "agent_type": "LLM",
+      "output_name": "hypernyms",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 222,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_mesh_lookup",
+      "agent_type": "PGM",
+      "output_name": "mesh_ontology",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 69,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_synonym_extract",
+      "agent_type": "LLM",
+      "output_name": "synonyms",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 269,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "ontology_synonym_resolve",
+      "agent_type": "LLM",
+      "output_name": "synonyms",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 62,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_dti_analyze",
+      "agent_type": "LLM",
+      "output_name": "dti_result",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 68,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_extract_llm",
+      "agent_type": "LLM",
+      "output_name": "relations",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 59,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_extract_pubtator",
+      "agent_type": "PGM",
+      "output_name": "relations",
+      "status": "fail",
+      "message": "invoke exception: <module 'plugin.plugins' from 'D:\\\\projects\\\\agentic_llmre\\\\plugin\\\\plugins.py'> does not have the attribute 'get_plugin'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 256, in run_single_agent\n    with _pubtator_plugin_mock():\n  File \"D:\\anaconda3\\Lib\\contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\nAttributeError: <module 'plugin.plugins' from 'D:\\\\projects\\\\agentic_llmre\\\\plugin\\\\plugins.py'> does not have the attribute 'get_plugin'\n",
+      "duration_ms": 59,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_from_tree_llm",
+      "agent_type": "LLM",
+      "output_name": "triples",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 375,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_result_to_id_pair",
+      "agent_type": "PGM",
+      "output_name": "relations",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 41,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_verify_llm",
+      "agent_type": "LLM",
+      "output_name": "result",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 50,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "relation_verify_to_pair",
+      "agent_type": "PGM",
+      "output_name": "predicted",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 40,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "report_comparator",
+      "agent_type": "LLM",
+      "output_name": "text",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 93,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "report_experiment",
+      "agent_type": "LLM",
+      "output_name": "text",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 61,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "report_experiment_tool",
+      "agent_type": "LLM",
+      "output_name": "text",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 101,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "report_format_json",
+      "agent_type": "PGM",
+      "output_name": "result",
+      "status": "fail",
+      "message": "invoke exception: AgentEntity.invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AgentEntity.invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 45,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "syntax_dep_parse",
+      "agent_type": "LLM",
+      "output_name": "tree",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 189,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "text_coreference",
+      "agent_type": "LLM",
+      "output_name": "text",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 157,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "text_sentence_split",
+      "agent_type": "LLM",
+      "output_name": "sentences",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 31,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "text_summarize",
+      "agent_type": "LLM",
+      "output_name": "summary",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 32,
+      "dataset": "sample.csv"
+    },
+    {
+      "agent_id": "text_word_segment",
+      "agent_type": "LLM",
+      "output_name": "predicted",
+      "status": "fail",
+      "message": "invoke exception: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'",
+      "output_preview": "Traceback (most recent call last):\n  File \"D:\\projects\\agentic_llmre\\ui_tests\\agent_test_suite.py\", line 259, in run_single_agent\n    result = runner.invoke(inputs, config=config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: _llm_mock_context.<locals>.patched_invoke() got an unexpected keyword argument 'config'\n",
+      "duration_ms": 161,
+      "dataset": "sample.csv"
+    }
+  ]
+}

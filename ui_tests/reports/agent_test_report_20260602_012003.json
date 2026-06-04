@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T01:20:03.211346+00:00",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "kg_triple_merge",
+      "agent_type": "PGM",
+      "output_name": "triples",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"head\": \"D001241\", \"predicate\": \"treats\", \"tail\": \"D006331\"}]",
+      "duration_ms": 66,
+      "dataset": "sample.csv"
+    }
+  ]
+}

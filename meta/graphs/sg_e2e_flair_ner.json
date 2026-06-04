@@ -1,0 +1,35 @@
+{
+  "name": "E2E Flair NER (subgraph)",
+  "description": "Subgraph: sentence split → loop HunFlair2 per sentence → RE format entities. Input: text + labels. Output: entities as [{text, label, id}].",
+  "nodes": [
+    "START",
+    "text_sentence_split",
+    "ner_sentence_loop",
+    "ner_entities_to_re_format",
+    "END"
+  ],
+  "edges": [
+    ["START", "text_sentence_split"],
+    ["text_sentence_split", "ner_sentence_loop"],
+    ["ner_sentence_loop", "ner_entities_to_re_format"],
+    ["ner_entities_to_re_format", "END"]
+  ],
+  "flowNodes": {
+    "ner_sentence_loop": {
+      "kind": "loop",
+      "name": "Sentence Flair NER loop",
+      "subgraphId": "sg_ner_flair_sent",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ sentences }}",
+        "scalarItemField": "sentence",
+        "itemBindings": { "labels": "{{ labels }}" },
+        "mergeAliases": { "predicted": "entities" }
+      }
+    }
+  },
+  "bindings": {
+    "text_sentence_split": { "text": "{{ text }}" },
+    "ner_entities_to_re_format": { "entities": "{{ entities }}" }
+  }
+}

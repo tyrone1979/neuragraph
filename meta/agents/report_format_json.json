@@ -10,5 +10,6 @@
     "type": "dict"
   },
   "process": "result = {\n    \"original\": state.get(\"text\", \"\"),\n    \"summary\": state.get(\"summary\", \"\"),\n    \"original_length\": len(state.get(\"text\", \"\")),\n    \"summary_length\": len(state.get(\"summary\", \"\"))\n}\n__result__ = result",
-  "engine": "pgm"
+  "engine": "pgm",
+  "description": "Formats original text and summary into JSON with character lengths for reporting pipelines."
 }

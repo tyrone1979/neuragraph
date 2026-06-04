@@ -1,0 +1,24 @@
+{
+  "agent_id": "ontology_entity_link",
+  "latest": "v0002",
+  "versions": [
+    {
+      "version": "v0001",
+      "parent_version": null,
+      "created_at": "2026-06-02T10:45:58.683738",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "c52845b459e359673e0b03895f835e0008f1c2638037b4e3f10a077db3266680"
+    },
+    {
+      "version": "v0002",
+      "parent_version": "v0001",
+      "created_at": "2026-06-02T10:46:22.681650",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "78bd2ab7e0ca349ad603ceae42367e00c20fc5d40053944f2dc30bfd94500972"
+    }
+  ]
+}

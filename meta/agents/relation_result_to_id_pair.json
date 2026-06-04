@@ -1,5 +1,4 @@
 {
-  "name": "Relation Result -> ID Pair",
   "type": "PGM",
   "inputs": [
     "result",

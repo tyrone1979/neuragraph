@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T01:27:56.144477+00:00",
+  "total": 1,
+  "passed": 0,
+  "failed": 1,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "relation_result_to_id_pair",
+      "agent_type": "PGM",
+      "output_name": "relations",
+      "status": "fail",
+      "message": "empty or invalid output for 'relations' (list)",
+      "output_preview": "[]",
+      "duration_ms": 77,
+      "dataset": "sample.csv"
+    }
+  ]
+}

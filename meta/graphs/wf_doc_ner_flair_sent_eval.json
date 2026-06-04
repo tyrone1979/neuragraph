@@ -1,0 +1,56 @@
+{
+  "name": "Doc NER Eval (Flair, sentence)",
+  "description": "Sentence split → loop HunFlair2 per sentence → entity metrics (Table S2 / Fig. S2).",
+  "nodes": [
+    "START",
+    "text_sentence_split",
+    "ner_sentence_loop",
+    "eval_metrics",
+    "END"
+  ],
+  "edges": [
+    [
+      "START",
+      "text_sentence_split"
+    ],
+    [
+      "text_sentence_split",
+      "ner_sentence_loop"
+    ],
+    [
+      "ner_sentence_loop",
+      "eval_metrics"
+    ],
+    [
+      "eval_metrics",
+      "END"
+    ]
+  ],
+  "flowNodes": {
+    "ner_sentence_loop": {
+      "kind": "loop",
+      "name": "Sentence NER loop",
+      "subgraphId": "sg_ner_flair_sent",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ sentences }}",
+        "scalarItemField": "sentence",
+        "itemBindings": {
+          "labels": "{{ START.labels }}"
+        },
+        "mergeAliases": {
+          "predicted": "entities"
+        }
+      }
+    }
+  },
+  "bindings": {
+    "text_sentence_split": {
+      "text": "{{ START.text }}"
+    },
+    "eval_metrics": {
+      "expected": "{{ START.expected_entities }}",
+      "predicted": "{{ entities }}"
+    }
+  }
+}

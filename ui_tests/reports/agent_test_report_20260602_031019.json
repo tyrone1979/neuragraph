@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T03:10:19.242479+00:00",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "ontology_hypernym_identify",
+      "agent_type": "LLM",
+      "output_name": "hypernyms",
+      "status": "pass",
+      "message": "ok",
+      "output_preview": "[{\"entity\": \"Aspirin\", \"hypernym\": \"Drug\"}]",
+      "duration_ms": 399,
+      "dataset": "sample.csv"
+    }
+  ]
+}

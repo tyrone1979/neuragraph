@@ -1,0 +1,16 @@
+{
+  "dataset": "cdr_test_500.csv",
+  "tuning_dataset": "cid_dev_tuning_stratified_50.csv",
+  "test_dataset": "cdr_test_500.csv",
+  "runner_type": "graph",
+  "runner_id": "wf_cid_re_llm_linear",
+  "runner_display": "wf_cid_re_llm_linear",
+  "samples": 500,
+  "exp_id": "864a8e26-35b2-4c99-8e00-0b74ffbabe18",
+  "name": "wf_cid_re_llm_linear_cdr_test_500.csv_20260604133509",
+  "status": "running",
+  "progress": 2,
+  "created_at": "2026-06-04T13:35:09.137411",
+  "id": "864a8e26-35b2-4c99-8e00-0b74ffbabe18",
+  "updated_at": "2026-06-04T13:35:19.693705"
+}

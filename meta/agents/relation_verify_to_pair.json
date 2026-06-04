@@ -13,5 +13,6 @@
   },
   "process": "if state.get('result') == '$':\n    link = state.get('entity_link') or {}\n    __result__ = (link.get(state['head']), link.get(state['tail']))\nelse:\n    __result__ = None",
   "created_at": "2026-05-26T12:00:00",
-  "engine": "pgm"
+  "engine": "pgm",
+  "description": "Maps a positive relation verification to canonical head and tail entity IDs from entity_link."
 }

@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-02T01:18:29.201997+00:00",
+  "total": 1,
+  "passed": 0,
+  "failed": 1,
+  "skipped": 0,
+  "mock_llm": true,
+  "results": [
+    {
+      "agent_id": "eval_metrics_relation",
+      "agent_type": "PGM",
+      "output_name": "metrics",
+      "status": "fail",
+      "message": "error field: Execution error: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.",
+      "output_preview": "null",
+      "duration_ms": 55,
+      "dataset": "sample.csv"
+    }
+  ]
+}

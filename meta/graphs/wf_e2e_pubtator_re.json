@@ -1,0 +1,29 @@
+{
+  "name": "E2E PubTator3 RE",
+  "description": "Compose sg_e2e_pubtator_re (PubTator3 API → relations) → relation metrics vs gold_relations. For Table S18 comparison.",
+  "nodes": [
+    "START",
+    "sg_e2e_pubtator_re",
+    "eval_metrics_relation",
+    "END"
+  ],
+  "edges": [
+    ["START", "sg_e2e_pubtator_re"],
+    ["sg_e2e_pubtator_re", "eval_metrics_relation"],
+    ["eval_metrics_relation", "END"]
+  ],
+  "metrics": [
+    {
+      "type": "relation_pairs",
+      "expected": { "from": "input", "field": "gold_relations" },
+      "predicted": { "from": "state", "field": "relations" }
+    }
+  ],
+  "bindings": {
+    "eval_metrics_relation": {
+      "relations": "{{ relations }}",
+      "ground_truth": "{{ START.gold_relations }}",
+      "entities": "{{ START.entities }}"
+    }
+  }
+}
