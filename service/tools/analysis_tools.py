@@ -301,6 +301,36 @@ def _dedupe_lines(text: str) -> str:
     return "\n".join(out).strip()
 
 
+_RULE_NUM_RE = re.compile(r"^\s*(\d+(?:\.\d+)*)\s*[\.\):\[\-]\s*", re.MULTILINE)
+
+
+def _remove_numbered_rules(text: str, rule_numbers: list[str]) -> str:
+    """Remove lines starting with numbered rules matching the given numbers."""
+    if not rule_numbers or not text:
+        return text
+    remove_set = {str(r).strip() for r in rule_numbers if str(r).strip()}
+    if not remove_set:
+        return text
+
+    lines = text.replace("\r\n", "\n").split("\n")
+    kept = []
+    removed_count = 0
+
+    for line in lines:
+        m = _RULE_NUM_RE.match(line)
+        if m and m.group(1) in remove_set:
+            removed_count += 1
+            continue
+        kept.append(line)
+
+    if removed_count:
+        result = "\n".join(kept).strip()
+        # Clean up blank lines left by removal
+        result = re.sub(r"\n{3,}", "\n\n", result)
+        return result
+    return text
+
+
 def _extract_placeholders(s: str) -> set[str]:
     return set(re.findall(r"(?<!\{)\{([a-zA-Z_][a-zA-Z0-9_]*)\}(?!\})", s or ""))
 
@@ -349,6 +379,14 @@ def prompt_patch_apply_safe(
         system = (system + "\n\n" + asys).strip() if system else asys
     if ah:
         human = (human + "\n\n" + ah).strip() if human else ah
+
+    # Remove specific numbered rules
+    sys_remove = p.get("prompt_system_remove_rules") or []
+    human_remove = p.get("prompt_human_remove_rules") or []
+    if isinstance(sys_remove, list) and sys_remove:
+        system = _remove_numbered_rules(system, sys_remove)
+    if isinstance(human_remove, list) and human_remove:
+        human = _remove_numbered_rules(human, human_remove)
 
     system = _dedupe_lines(system)
     human = _dedupe_lines(human)
