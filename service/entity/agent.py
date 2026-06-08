@@ -37,18 +37,28 @@ from dataclasses import dataclass
 logger = getLogger(__name__)
 
 
-def _escape_json_literal_braces(text: str) -> str:
+def _escape_json_literal_braces(text: str, inputs: list | None = None) -> str:
     """
-    Escape JSON literal braces in prompt templates so ChatPromptTemplate
-    does not treat keys like {"evidence_sentence": ...} as variables.
-    Keep normal placeholders such as {text}/{head}/{tail} unchanged.
+    Escape braces in prompt templates so ChatPromptTemplate only sees
+    declared input variables as template variables.
+    - JSON literal braces like {"key": ...} → escaped
+    - Braces that match declared inputs like {text}, {head} → left as-is
+    - All other single-brace tokens like {head} in example text → escaped
     """
     if not isinstance(text, str) or "{" not in text:
         return text
-    # opening brace before a quoted key: {"key": ...} -> {{"key": ...}
+    # Step 1: escape JSON literal braces ({"key": ...} → {{"key": ...}})
     text = re.sub(r'(?<!\{)\{(?=\s*")', "{{", text)
-    # closing brace after a quoted value/key segment -> ..."} -> ..."}}
     text = re.sub(r'(?<=")\}(?!\})', "}}", text)
+    # Step 2: escape any remaining single-brace {token} that is NOT a declared input
+    if inputs:
+        declared = set(inputs)
+        def _replace_unused_var(m: re.Match) -> str:
+            token = m.group(1)
+            if token in declared:
+                return m.group(0)  # keep as-is
+            return "{{" + token + "}}"  # escape to literal
+        text = re.sub(r'(?<!\{)\{(\w+)\}(?!\})', _replace_unused_var, text)
     return text
 
 
@@ -188,8 +198,8 @@ class AgentEntity(Entity):
             else:
                 raise ValueError(f"Unknown LLM type '{llm_type}' for agent '{self.id}'")
 
-            system_prompt = _escape_json_literal_braces(self.template_name["system"])
-            human_prompt = _escape_json_literal_braces(self.template_name["human"])
+            system_prompt = _escape_json_literal_braces(self.template_name["system"], self.inputs)
+            human_prompt = _escape_json_literal_braces(self.template_name["human"], self.inputs)
             self.template = ChatPromptTemplate(
                 [("system", system_prompt),
                  ("human", human_prompt)]
