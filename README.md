@@ -80,20 +80,36 @@ Linux sandbox setup installs `torch==2.6.0+cpu` from the PyTorch CPU index for F
 
 To add a custom sandbox, copy `sandbox/_template` to `sandbox/<id>/`, set `enabled: true` in the manifest, then run setup with that id.
 
-Start a single sandbox manually: `.\scripts\start_plugin_sandbox.ps1 -Name flair` (Windows) or `./scripts/start_plugin_sandbox.sh flair` (Linux / macOS).
+Start a single sandbox manually (foreground or background):
+
+**Windows:** `.\scripts\start_plugin_sandbox.ps1 -Name flair`
+**Linux / macOS:** `./scripts/start_plugin_sandbox.sh flair` (add `-b` for background)
 
 ## Quick Start
 
 After setup above:
 
+**Windows**
+
+```powershell
+.\start.bat          # Foreground (Ctrl+C to stop)
+```
+
+**Linux / macOS**
+
 ```bash
-.\start.bat          # Windows
-./start.sh           # Linux / macOS (chmod +x start.sh chat.sh)
+chmod +x start.sh stop.sh status.sh chat.sh sandbox/setup_venv.sh scripts/start_plugin_sandbox.sh
+
+./start.sh           # Start in background (survives terminal close)
+./stop.sh            # Stop all background processes
+./status.sh          # Check running status
 ```
 
 Open **http://127.0.0.1:5001**.
 
 Terminal chat: `.\chat.bat` or `./chat.sh` (optional `--llm deepseek`).
+
+> **Background mode** (Linux/macOS): `./start.sh` runs Flask and sandboxes under `nohup` with PIDs tracked in `.pids/` and output logged to `logs/`. Closing the terminal won't stop them. Use `./stop.sh` to shut down cleanly.
 
 ## Documentation
 

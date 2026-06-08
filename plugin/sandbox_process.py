@@ -35,6 +35,7 @@ def start_sandbox(spec: SandboxSpec) -> subprocess.Popen | None:
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        start_new_session=True,
     )
     url = f"{spec.url}/health"
     for _ in range(40):
