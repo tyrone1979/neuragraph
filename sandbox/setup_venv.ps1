@@ -1,6 +1,7 @@
-# Create / refresh a named plugin sandbox venv.
+# Create / refresh a named plugin sandbox venv (Windows).
 # Usage: .\sandbox\setup_venv.ps1 -Name flair
 #        .\sandbox\setup_venv.ps1 -Name custom
+# Linux / macOS: ./sandbox/setup_venv.sh flair
 param(
     [Parameter(Mandatory = $false)]
     [string]$Name = "flair"

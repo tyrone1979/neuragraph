@@ -5,10 +5,54 @@ A lightweight platform for building LLM-powered workflow agents for biomedical N
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Quick Start
+## Environment Setup
+
+Requires **Python 3.11+** (3.12 recommended). Install the main app and plugin sandboxes separately.
+
+### 1. Main application
+
+**Windows**
+
+```powershell
+py -3.12 -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+**Linux / macOS**
 
 ```bash
-py -m pip install -r requirements.txt
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 2. Plugin sandboxes (Flair NER, port 5002)
+
+Heavy PGM plugins run in isolated sidecar venvs defined in `meta/plugins_sandbox.json`.
+
+**Windows**
+
+```powershell
+.\sandbox\setup_venv.ps1 -Name flair
+```
+
+**Linux / macOS**
+
+```bash
+chmod +x sandbox/setup_venv.sh
+./sandbox/setup_venv.sh flair
+```
+
+To add a custom sandbox, copy `sandbox/_template` to `sandbox/<id>/`, set `enabled: true` in the manifest, then run setup with that id.
+
+Start a single sandbox manually: `.\scripts\start_plugin_sandbox.ps1 -Name flair` (Windows) or `./scripts/start_plugin_sandbox.sh flair` (Linux / macOS).
+
+## Quick Start
+
+After setup above:
+
+```bash
 .\start.bat          # Windows
 ./start.sh           # Linux / macOS (chmod +x start.sh chat.sh)
 ```

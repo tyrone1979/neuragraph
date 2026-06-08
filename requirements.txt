@@ -1,9 +1,12 @@
 numpy
 certifi
 requests
-langchain==0.2.17
-langgraph==0.2.34
-langchain-ollama==0.1.3
+langchain==1.3.1
+langgraph==1.2.1
+langgraph-checkpoint==4.1.0
+langgraph-prebuilt==1.1.0
+langgraph-sdk==0.3.14
+langchain-ollama==1.1.0
 ollama
 #psycopg[binary,pool]
 tqdm~=4.67.1
@@ -11,6 +14,6 @@ Flask[async]~=3.1.2
 flask-cors
 flask-sse
 pydantic
-langchain-core==0.2.43
-langchain-openai==0.1.25
+langchain-core==1.4.0
+langchain-openai==1.2.1
 #flair
