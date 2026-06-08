@@ -674,7 +674,8 @@ def run_optimization_step(
     if step_id == "final_test_report":
         final_exp_id = str(ctx.get("optimized_test_exp_id") or "")
         if not final_exp_id:
-            raise RuntimeError("Complete optimized test run (step 6) first.")
+            _set_flow_step(flow_steps, "final_test_report", "skipped", "No optimized test run to report")
+            return {"step_id": step_id, "flow_steps": flow_steps, "skipped": True}
         final_cfg = MetaLoader.load("exps", final_exp_id) or {}
         emit(80, "final_test_report", "Generating optimized test report", flow_step="final_test_report", flow_status="running")
         report_path = _generate_and_save_report(final_exp_id, final_cfg, "report_optimized_test.md")
