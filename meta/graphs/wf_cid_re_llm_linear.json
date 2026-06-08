@@ -1,35 +1,20 @@
 {
   "name": "CID RE Pipeline (linear)",
-  "description": "Gold entities → hypernym filter → pair list → foreach RE verify → id pairs.",
+  "description": "Gold entities → e2e dedup by id → e2e hypernym filter (with text context) → pair list → foreach RE verify → id pairs. Upgraded from wf_e2e_flair_opt_re agents.",
   "nodes": [
     "START",
-    "cid_entities_dedupe_mesh",
-    "ontology_hypernym_filter",
+    "e2e_entities_dedup_by_id",
+    "e2e_hypernym_filter",
     "cid_pair_generate",
     "cid_re_verify_loop",
     "END"
   ],
   "edges": [
-    [
-      "START",
-      "cid_entities_dedupe_mesh"
-    ],
-    [
-      "cid_entities_dedupe_mesh",
-      "ontology_hypernym_filter"
-    ],
-    [
-      "ontology_hypernym_filter",
-      "cid_pair_generate"
-    ],
-    [
-      "cid_pair_generate",
-      "cid_re_verify_loop"
-    ],
-    [
-      "cid_re_verify_loop",
-      "END"
-    ]
+    ["START", "e2e_entities_dedup_by_id"],
+    ["e2e_entities_dedup_by_id", "e2e_hypernym_filter"],
+    ["e2e_hypernym_filter", "cid_pair_generate"],
+    ["cid_pair_generate", "cid_re_verify_loop"],
+    ["cid_re_verify_loop", "END"]
   ],
   "metrics": [
     {
@@ -47,7 +32,7 @@
   "flowNodes": {
     "cid_re_verify_loop": {
       "kind": "loop",
-      "name": "Verify each Chemical–Disease pair",
+      "name": "Verify each Chemical-Disease pair",
       "subgraphId": "sg_cid_re_verify",
       "loopConfig": {
         "loopType": "foreach",
@@ -63,11 +48,12 @@
     }
   },
   "bindings": {
-    "cid_entities_dedupe_mesh": {
+    "e2e_entities_dedup_by_id": {
       "entities": "{{ START.entities }}"
     },
-    "ontology_hypernym_filter": {
-      "entities": "{{ entities }}"
+    "e2e_hypernym_filter": {
+      "entities": "{{ filtered_entities }}",
+      "text": "{{ START.text }}"
     },
     "cid_pair_generate": {
       "filtered_entities": "{{ filtered_entities }}"

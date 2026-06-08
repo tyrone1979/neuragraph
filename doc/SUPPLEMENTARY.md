@@ -369,7 +369,7 @@ The distribution includes **43** pre-built agents (**22** LLM-based, **21** prog
 
 ### 4.1 Agents (43)
 
-**Table S19. LLM agents (22)**
+**Table S19. LLM agents (19)**
 
 
 | No. | ID                           | Name                                   | Description                                                                                                                                                           |
@@ -381,24 +381,21 @@ The distribution includes **43** pre-built agents (**22** LLM-based, **21** prog
 | 5   | `ner_llm`                    | NER (LLM, configurable types)          | Extract biomedical named entities from text                                                                                                                           |
 | 6   | `ontology_entity_link`       | Entity Linking / Normalization (LLM)   | Canonicalize entity mentions for knowledge-graph linking                                                                                                              |
 | 7   | `ontology_hypernym_filter`   | Hypernym Filter (LLM)                  | Identify same-type hypernyms by MeSH id; drop hypernym rows from entity list                                                                                          |
-| 8   | `ontology_hypernym_identify` | Hypernym Identification (LLM)          | Identify the biomedical hypernym (super-class) from a given pair of entities based on explicit MeSH tree numbers or same-as links in the provided entity list.        |
-| 9   | `ontology_synonym_extract`   | Synonym Extraction (LLM)               | Biomedical abstract synonym extraction                                                                                                                                |
-| 10  | `ontology_synonym_resolve`   | Synonym Resolution (LLM)               | Biomedical abstract synonym extraction (aligned with synonym_extraction)                                                                                              |
-| 11  | `relation_dti_analyze`       | Drug–Target Interaction Analysis (LLM) | Analyze drug–target interactions from drug chemistry and target protein inputs; return a structured dict (mechanism, affinity, binding mode, assessment, confidence). |
-| 12  | `relation_extract_llm`       | Relation Extraction (LLM)              | Strict biomedical CID relation verifier for chemical–disease pairs                                                                                                    |
-| 13  | `relation_from_tree_llm`     | Relation Extraction from Tree (LLM)    | Extract [head entity, verb, tail entity] triples from CoNLL-U dependency tree                                                                                         |
-| 14  | `relation_verify_llm`        | Relation Verification (LLM)            | Strict biomedical relation verifier based on triple list                                                                                                              |
-| 15  | `report_comparator`          | Report Comparator (LLM)                | Compare baseline vs candidate experiment outcomes and report quality.                                                                                                 |
-| 16  | `report_experiment`          | Experiment Report (LLM)                | Generate a structured experiment diagnosis report from full workflow artifacts.                                                                                       |
-| 17  | `report_experiment_tool`     | Experiment Report (LLM + Tools)        | Generate a structured experiment diagnosis report from full workflow artifacts.                                                                                       |
-| 18  | `syntax_dep_parse`           | Dependency Parse (CoNLL-U)             | English sentence to CoNLL-U dependency tree                                                                                                                           |
-| 19  | `text_coreference`           | Coreference Resolution (LLM)           | Biomedical abstract coreference resolution                                                                                                                            |
-| 20  | `text_sentence_split`        | Sentence Split (LLM)                   | English sentence splitting for biomedical abstract                                                                                                                    |
-| 21  | `text_summarize`             | Text Summarization (LLM)               | Summarize text into 2-3 sentences                                                                                                                                     |
-| 22  | `text_word_segment`          | Word Segmentation (LLM)                | English word segmentation                                                                                                                                             |
+| 8   | `ontology_synonym_resolve`   | Synonym Resolution (LLM)               | Biomedical abstract synonym extraction (aligned with synonym_extraction)                                                                                              |
+| 9   | `relation_extract_llm`       | Relation Extraction (LLM)              | Strict biomedical CID relation verifier for chemical–disease pairs                                                                                                    |
+| 10  | `relation_from_tree_llm`     | Relation Extraction from Tree (LLM)    | Extract [head entity, verb, tail entity] triples from CoNLL-U dependency tree                                                                                         |
+| 11  | `relation_verify_llm`        | Relation Verification (LLM)            | Strict biomedical relation verifier based on triple list                                                                                                              |
+| 12  | `report_comparator`          | Report Comparator (LLM)                | Compare baseline vs candidate experiment outcomes and report quality.                                                                                                 |
+| 13  | `report_experiment`          | Experiment Report (LLM)                | Generate a structured experiment diagnosis report from full workflow artifacts.                                                                                       |
+| 14  | `report_experiment_tool`     | Experiment Report (LLM + Tools)        | Generate a structured experiment diagnosis report from full workflow artifacts.                                                                                       |
+| 15  | `syntax_dep_parse`           | Dependency Parse (CoNLL-U)             | English sentence to CoNLL-U dependency tree                                                                                                                           |
+| 16  | `text_coreference`           | Coreference Resolution (LLM)           | Biomedical abstract coreference resolution                                                                                                                            |
+| 17  | `text_sentence_split`        | Sentence Split (LLM)                   | English sentence splitting for biomedical abstract                                                                                                                    |
+| 18  | `text_summarize`             | Text Summarization (LLM)               | Summarize text into 2-3 sentences                                                                                                                                     |
+| 19  | `text_word_segment`          | Word Segmentation (LLM)                | English word segmentation                                                                                                                                             |
 
 
-**Table S20. PGM agents (21)**
+**Table S20. PGM agents (20)**
 
 
 | No. | ID                           | Name                               | Description                                                                                                        |
@@ -419,11 +416,10 @@ The distribution includes **43** pre-built agents (**22** LLM-based, **21** prog
 | 14  | `ner_flair_aggregate`        | Flair NER Aggregator               | Aggregates per-sentence FLAIR NER outputs into document-level label-to-unique-entity-text dictionaries.            |
 | 15  | `ner_flair_doc`              | NER (Flair, document)              | Runs HunFlair2 NER on a document split into sentences and returns deduplicated entities per label.                 |
 | 16  | `ner_flair_sent`             | NER (Flair, sentence)              | Tags one sentence with HunFlair2 NER and returns predicted entity texts grouped by label.                          |
-| 17  | `ontology_mesh_lookup`       | MeSH Synonym/Hypernym Lookup (PGM) | Looks up MeSH descriptors for a query and returns mesh IDs, synonyms, and hypernyms per match.                     |
-| 18  | `relation_extract_pubtator`  | Relation Extraction (PubTator)     | Extracts chemical–disease relations from text or PMID using PubTator3 and local entity annotations.                |
-| 19  | `relation_result_to_id_pair` | Relation Result -> ID Pair         | Emits head_id/tail_id CID relation lines when verification is positive, with negation and weak-association guards. |
-| 20  | `relation_verify_to_pair`    | Relation Verify → Entity Pair      | Maps a positive relation verification to canonical head and tail entity IDs from entity_link.                      |
-| 21  | `report_format_json`         | Result Formatter (PGM)             | Formats original text and summary into JSON with character lengths for reporting pipelines.                        |
+| 17  | `relation_extract_pubtator`  | Relation Extraction (PubTator)     | Extracts chemical–disease relations from text or PMID using PubTator3 and local entity annotations.                |
+| 18  | `relation_result_to_id_pair` | Relation Result -> ID Pair         | Emits head_id/tail_id CID relation lines when verification is positive, with negation and weak-association guards. |
+| 19  | `relation_verify_to_pair`    | Relation Verify → Entity Pair      | Maps a positive relation verification to canonical head and tail entity IDs from entity_link.                      |
+| 20  | `report_format_json`         | Result Formatter (PGM)             | Formats original text and summary into JSON with character lengths for reporting pipelines.                        |
 
 
 ### 4.2 Reusable subgraphs (7)

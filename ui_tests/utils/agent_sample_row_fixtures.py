@@ -99,17 +99,7 @@ AGENT_SAMPLE_ROWS: dict[str, dict[str, Any]] = {
     "ner_llm": {"text": SENTENCE, "labels": LABELS},
     "ontology_entity_link": {"entities": PREDICTED_NER},
     "ontology_hypernym_filter": {"entities": ENTITIES},
-    "ontology_hypernym_identify": {
-        "heads": [{"text": "Aspirin", "type": "Chemical", "mesh": "D001241"}],
-        "tails": [{"text": "heart disease", "type": "Disease", "mesh": "D006331"}],
-    },
-    "ontology_mesh_lookup": {"query": "aspirin", "limit": "3", "match": "contains"},
-    "ontology_synonym_extract": {"text": SYNONYM_TEXT},
     "ontology_synonym_resolve": {"text": SENTENCE, "entities": PREDICTED_NER},
-    "relation_dti_analyze": {
-        "drug_info": {"name": "Aspirin", "id": "D001241"},
-        "target_info": {"name": "COX-2", "type": "protein"},
-    },
     "relation_extract_llm": {"text": SENTENCE, "entities": PREDICTED_NER},
     "relation_extract_pubtator": {
         "text": SENTENCE,
