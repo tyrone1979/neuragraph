@@ -8,9 +8,9 @@
   "samples": 500,
   "exp_id": "a728966d-baea-460b-ab8d-5be74ed4ff31",
   "name": "wf_e2e_flair_opt_re_cdr_test_500.csv_20260608143358",
-  "status": "running",
-  "progress": 50,
+  "status": "completed",
+  "progress": 100,
   "created_at": "2026-06-08T14:33:58.779312",
   "id": "a728966d-baea-460b-ab8d-5be74ed4ff31",
-  "updated_at": "2026-06-08T14:38:25.048694"
+  "updated_at": "2026-06-08T14:42:53.199551"
 }

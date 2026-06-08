@@ -35,7 +35,7 @@ start_flair_sandbox() {
   local entry="${ROOT}/sandbox/flair/plugin_server.py"
   if [[ ! -x "${py}" ]]; then
     echo "[sandbox] flair venv not found at sandbox/flair/venv"
-    echo "          Create it: python3 -m venv sandbox/flair/venv && pip install -r sandbox/flair/requirements.txt"
+    echo "          Run: ./sandbox/setup_venv.sh flair"
     return 1
   fi
   echo "[sandbox] Starting flair on port ${FLAIR_PORT} ..."

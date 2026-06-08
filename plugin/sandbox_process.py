@@ -18,7 +18,7 @@ def start_sandbox(spec: SandboxSpec) -> subprocess.Popen | None:
     if not py.is_file():
         print(f"[WARN] Sandbox '{spec.id}': venv missing at {spec.venv}")
         print(f"       Windows: .\\sandbox\\setup_venv.ps1 -Name {spec.id}")
-        print(f"       Linux:   python3 -m venv {spec.venv} && pip install deps for {spec.id}")
+        print(f"       Linux:   ./sandbox/setup_venv.sh {spec.id}")
         return None
     if not spec.entry.is_file():
         print(f"[WARN] Sandbox '{spec.id}': entry missing {spec.entry}")

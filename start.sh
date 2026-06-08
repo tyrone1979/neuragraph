@@ -57,7 +57,7 @@ from plugin.sandbox_process import start_all_sandboxes, stop_processes
 
 procs = start_all_sandboxes()
 if not procs:
-    print('[WARN] No sandboxes started — check sandbox/*/venv (see sandbox/setup_venv.ps1 or create venv manually)')
+    print('[WARN] No sandboxes started — check sandbox/*/venv (see sandbox/setup_venv.sh or sandbox/setup_venv.ps1)')
 
 def _stop(*_):
     stop_processes(procs)
