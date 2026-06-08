@@ -7,9 +7,21 @@ A lightweight platform for building LLM-powered workflow agents for biomedical N
 
 ## Environment Setup
 
-Requires **Python 3.11+** (3.12 recommended). Install the main app and plugin sandboxes separately.
+Requires **Python 3.12** (langchain 1.x+ dependency). Install the main app and plugin sandboxes separately.
 
-### 1. Main application
+### 1. System prerequisites
+
+**Windows** — [Python 3.12](https://www.python.org/downloads/) (check "Add to PATH").
+
+**Linux (Ubuntu/Debian)**
+
+```bash
+apt install python3.12 python3.12-venv
+```
+
+The `python3.12-venv` package provides `ensurepip` — without it, `python3.12 -m venv` fails with exit status 1.
+
+### 2. Main application
 
 **Windows**
 
@@ -22,14 +34,29 @@ pip install -r requirements.txt
 **Linux / macOS**
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3.12 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Plugin sandboxes (Flair NER, port 5002)
+Key version requirements (pinned in `requirements.txt`):
 
-Heavy PGM plugins run in isolated sidecar venvs defined in `meta/plugins_sandbox.json`.
+| Package | Version |
+|---------|---------|
+| langchain | 1.3.1 |
+| langgraph | 1.2.1 |
+| langchain-core | 1.4.0 |
+| langchain-openai | 1.2.1 |
+| langchain-ollama | 1.1.0 |
+| langgraph-checkpoint | 4.1.0 |
+| langgraph-prebuilt | 1.1.0 |
+| langgraph-sdk | 0.3.14 |
+
+> **Note:** `create_agent` was introduced in langchain 1.0. Older versions (e.g. 0.2.17) do **not** have this API and will fail at import.
+
+### 3. Plugin sandboxes (Flair NER, port 5002)
+
+Heavy PGM plugins run in isolated sidecar venvs defined in `meta/plugins_sandbox.json`. The setup script picks the system Python (preferring 3.12) and creates a dedicated venv under `sandbox/<id>/`.
 
 **Windows**
 
@@ -43,6 +70,8 @@ Heavy PGM plugins run in isolated sidecar venvs defined in `meta/plugins_sandbox
 chmod +x sandbox/setup_venv.sh
 ./sandbox/setup_venv.sh flair
 ```
+
+Linux sandbox setup installs `torch==2.6.0+cpu` from the PyTorch CPU index for Flair.
 
 To add a custom sandbox, copy `sandbox/_template` to `sandbox/<id>/`, set `enabled: true` in the manifest, then run setup with that id.
 
