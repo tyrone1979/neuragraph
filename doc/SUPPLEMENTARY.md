@@ -10,7 +10,7 @@ NeuraGraph adopts a three-layer architecture (Fig. 1). The **Presentation Layer*
 
 **Fig. 1.** High-level architecture: Presentation Layer (visual editor), Service Layer (API, LangGraph, plugins), Persistence Layer (metadata, results, reports).
 
-**Distributed inventory (release v2.x).** 43 pre-built agents (22 LLM, 21 PGM), 7 reusable subgraphs (`sg_*`), 17 reference workflows (`wf_*`), 12 tools, native parsers for **CDR**, **ChemDisGene**, and plain text.
+**Distributed inventory (release v2.x).** 47 pre-built agents (21 LLM, 26 PGM), 9 reusable subgraphs (`sg_*`), 19 reference workflows (`wf_*`), 12 tools, native parsers for **CDR**, **ChemDisGene**, and plain text.
 
 ---
 
@@ -299,7 +299,7 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 | B    | NeuraGraph RE (dev50 tuning baseline)      | `wf_cid_re_llm_linear`                                      | `c422b97c-be21-4b6a-968c-c4994229d702` |
 | B    | NeuraGraph RE (dev50 tuned graph)          | `wf_cid_re_llm_linear_opt_20260605_085217`                  | (phase 3 test500 pending)              |
 | B    | NeuraGraph RE (optimized, test 500)        | `wf_cid_re_llm_linear_opt_20260604`                         | `f860e6d3-51fd-4b24-aa51-3d0fb9c88907` |
-| C    | NeuraGraph E2E (Flair NER → optimized RE) | `wf_doc_ner_flair_sent_eval` → `wf_cid_re_llm_linear_opt_`* | —                                      |
+| C    | NeuraGraph E2E (Flair NER → optimized RE) | `wf_e2e_flair_opt_re`                                       | `bffea244-c3dd-4b97-98f2-9ed4d7bb895a` |
 
 
 **Table S16.** NER on BC5CDR test (n=500). Entity-level metrics; gold = `gold_entities` in CSV.
@@ -351,9 +351,11 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 
 | Method                                               | RE workflow           | Micro-P | Micro-R | Micro-F1 | Macro-F1 |
 | ---------------------------------------------------- | --------------------- | ------- | ------- | -------- | -------- |
-| NeuraGraph Flair NER → optimized RE                  | `wf_e2e_flair_opt_re` | —       | —       | —        | —        |
+| NeuraGraph Flair NER → optimized RE                  | `wf_e2e_flair_opt_re` | 0.543   | 0.765   | 0.635    | 0.663    |
 | PubTator3 (NER + RE, via PubTator3 API)              | `wf_e2e_pubtator_re`  | 0.396   | 0.627   | 0.485    | 0.498    |
 
+
+*Table S18 (E2E row, n=500): merged experiment `bffea244-c3dd-4b97-98f2-9ed4d7bb895a` (`scripts/merge_e2e_states.py --500` on `cdr_test_500.csv`). Workflow `wf_e2e_flair_opt_re`: Flair sentence NER (`sg_e2e_flair_ner`) → optimized CID RE (`sg_e2e_cid_re`). Segment exps: `f859b257` (1–20), `309d1c78` (21–30), `a728966d` (31–50), `576ead7a` (51–100), `031fff5a` (101–199), `68ff0297` (200–500). Micro: TP=724, FP=609, FN=223; macro: mean per-article P/R/F1. Same relation-pair metric protocol as Table S17.*
 
 **Error analysis (summary).** After batch runs, aggregate false positives and false negatives on a stratified test subset (e.g. 50 articles). Section 3.2 **Table S10** remains a **20-article** worked example on dev.
 
@@ -365,141 +367,142 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 
 ## 4. Pre-built component inventory
 
-The distribution includes **43** pre-built agents (**22** LLM-based, **21** programmatic/PGM) covering end-to-end biomedical text mining, together with **7** reusable subgraphs orchestrated via native **loop** and **branch** flow nodes, **17** reference workflows, **12** callable tools, and native parsers for **CDR**, **ChemDisGene**, and plain text. Component ids match files under `meta/agents/`, `meta/graphs/`, and `meta/tools/` in release v2.x (workflow optimization copies with `_opt_` timestamps are excluded from the workflow count).
+The distribution includes **47** pre-built agents (**21** LLM-based, **26** programmatic/PGM) covering end-to-end biomedical text mining, together with **9** reusable subgraphs orchestrated via native **loop** and **branch** flow nodes, **19** reference workflows, **12** callable tools, and native parsers for **CDR**, **ChemDisGene**, and plain text. Component ids match files under `meta/agents/`, `meta/graphs/`, and `meta/tools/` in release v2.x (workflow optimization copies with `_opt_YYYYMMDD` timestamps and auto-generated `ner_flair_sent_loop` are excluded from the workflow count).
 
-### 4.1 Agents (43)
+### 4.1 Agents (47)
 
-**Table S19. LLM agents (19)**
+**Table S19. LLM agents (21)**
 
+| No. | ID | Name | Description |
+| --- | --- | --- | --- |
+| 1 | `agent_refiner` | Agent Refiner (LLM) | Generate actionable agent modifications from experiment diagnostics. |
+| 2 | `e2e_hypernym_filter` | E2E Hypernym Filter (LLM) | Remove hypernyms and standalone modifiers from entity list using article context; keep only the most specific entities per concept. |
+| 3 | `e2e_synonym_filter` | E2E Synonym Filter (LLM) | Assign every input entity to a synonym cluster (shared id); do not drop entities. |
+| 4 | `kg_triple_extract_llm` | Triple Extraction (LLM) | Biomedical knowledge-graph triple extraction |
+| 5 | `ner_comparison_report` | NER Comparison Report | Generates a comparison report between Flair and LLM NER results |
+| 6 | `ner_from_tree_llm` | NER from Dependency Tree (LLM) | Extract entities from CoNLL-U dependency tree |
+| 7 | `ner_llm` | NER (LLM, configurable types) | Extract biomedical named entities from text |
+| 8 | `ontology_entity_link` | Entity Linking / Normalization (LLM) | Canonicalize entity mentions for knowledge-graph linking |
+| 9 | `ontology_hypernym_filter` | Hypernym Filter (LLM) | Identify same-type hypernyms by MeSH id; drop hypernym rows from entity list |
+| 10 | `ontology_synonym_resolve` | Synonym Resolution (LLM) | Biomedical abstract synonym extraction (aligned with synonym_extraction) |
+| 11 | `relation_extract_llm` | Relation Extraction (LLM) | Strict biomedical CID relation verifier for chemical–disease pairs |
+| 12 | `relation_from_tree_llm` | Relation Extraction from Tree (LLM) | Extract [head entity, verb, tail entity] triples from CoNLL-U dependency tree |
+| 13 | `relation_verify_llm` | Relation Verification (LLM) | CID induce verifier (llmre prompt_templates.json RE.induce, lines 17-23) |
+| 14 | `report_comparator` | Report Comparator (LLM) | Compare baseline vs candidate experiment outcomes and report quality. |
+| 15 | `report_experiment` | Experiment Report (LLM) | Generate a structured experiment diagnosis report from full workflow artifacts. |
+| 16 | `report_experiment_tool` | Experiment Report (LLM + Tools) | Generate a structured experiment diagnosis report from full workflow artifacts. |
+| 17 | `syntax_dep_parse` | Dependency Parse (CoNLL-U) | English sentence to CoNLL-U dependency tree |
+| 18 | `text_coreference` | Coreference Resolution (LLM) | Biomedical abstract coreference resolution |
+| 19 | `text_sentence_split` | Sentence Split (LLM) | English sentence splitting for biomedical abstract |
+| 20 | `text_summarize` | Text Summarization (LLM) | Summarize text into 2-3 sentences |
+| 21 | `text_word_segment` | Word Segmentation (LLM) | English word segmentation |
 
-| No. | ID                           | Name                                   | Description                                                                                                                                                           |
-| --- | ---------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `agent_refiner`              | Agent Refiner (LLM)                    | Generate actionable agent modifications from experiment diagnostics.                                                                                                  |
-| 2   | `kg_triple_extract_llm`      | Triple Extraction (LLM)                | Biomedical knowledge-graph triple extraction                                                                                                                          |
-| 3   | `ner_comparison_report`      | NER Comparison Report                  | Generates a comparison report between Flair and LLM NER results                                                                                                       |
-| 4   | `ner_from_tree_llm`          | NER from Dependency Tree (LLM)         | Extract entities from CoNLL-U dependency tree                                                                                                                         |
-| 5   | `ner_llm`                    | NER (LLM, configurable types)          | Extract biomedical named entities from text                                                                                                                           |
-| 6   | `ontology_entity_link`       | Entity Linking / Normalization (LLM)   | Canonicalize entity mentions for knowledge-graph linking                                                                                                              |
-| 7   | `ontology_hypernym_filter`   | Hypernym Filter (LLM)                  | Identify same-type hypernyms by MeSH id; drop hypernym rows from entity list                                                                                          |
-| 8   | `ontology_synonym_resolve`   | Synonym Resolution (LLM)               | Biomedical abstract synonym extraction (aligned with synonym_extraction)                                                                                              |
-| 9   | `relation_extract_llm`       | Relation Extraction (LLM)              | Strict biomedical CID relation verifier for chemical–disease pairs                                                                                                    |
-| 10  | `relation_from_tree_llm`     | Relation Extraction from Tree (LLM)    | Extract [head entity, verb, tail entity] triples from CoNLL-U dependency tree                                                                                         |
-| 11  | `relation_verify_llm`        | Relation Verification (LLM)            | Strict biomedical relation verifier based on triple list                                                                                                              |
-| 12  | `report_comparator`          | Report Comparator (LLM)                | Compare baseline vs candidate experiment outcomes and report quality.                                                                                                 |
-| 13  | `report_experiment`          | Experiment Report (LLM)                | Generate a structured experiment diagnosis report from full workflow artifacts.                                                                                       |
-| 14  | `report_experiment_tool`     | Experiment Report (LLM + Tools)        | Generate a structured experiment diagnosis report from full workflow artifacts.                                                                                       |
-| 15  | `syntax_dep_parse`           | Dependency Parse (CoNLL-U)             | English sentence to CoNLL-U dependency tree                                                                                                                           |
-| 16  | `text_coreference`           | Coreference Resolution (LLM)           | Biomedical abstract coreference resolution                                                                                                                            |
-| 17  | `text_sentence_split`        | Sentence Split (LLM)                   | English sentence splitting for biomedical abstract                                                                                                                    |
-| 18  | `text_summarize`             | Text Summarization (LLM)               | Summarize text into 2-3 sentences                                                                                                                                     |
-| 19  | `text_word_segment`          | Word Segmentation (LLM)                | English word segmentation                                                                                                                                             |
+**Table S20. PGM agents (26)**
 
+| No. | ID | Name | Description |
+| --- | --- | --- | --- |
+| 1 | `cid_entities_dedupe_mesh` | CID Entities Dedupe (MeSH id) | Collapse oracle entities that share a MeSH id (synonyms) to one row per id before hypernym filter and pair generation. |
+| 2 | `cid_pair_generate` | CID Pair Generator (PGM) | Builds chemical–disease head/tail text pairs with MeSH IDs from filtered Chemical and Disease entities. |
+| 3 | `dataset_cid_tuning_build` | CID Tuning Dataset Builder (PGM) | Builds CID relation tuning and test splits from a PubTator source file via the CidDatasetBuilder plugin. |
+| 4 | `e2e_entities_assign_group_ids` | E2E Assign Synonym Group IDs (PGM) | Assign shared numeric ids (1, 2, ...) per label to synonym groups; all surface forms in a group share the same id. |
+| 5 | `e2e_entities_dedup_by_id` | E2E Entities Dedup By ID | Deduplicate entities by shared id; keep shortest surface form per id group. |
+| 6 | `e2e_entities_passthrough` | E2E Entities Passthrough | Dedupe Flair NER entities and use surface text as id when MeSH id is missing (E2E RE path). |
+| 7 | `e2e_entity_aliases_snapshot` | E2E Entity Aliases Snapshot (PGM) | Preserve all synonym surface forms + shared numeric ids for metrics lookup (before dedup). |
+| 8 | `eval_flair` | Auto FLAIR NER Metrics | Counts unique FLAIR NER entities per label and returns total and per-label entity counts. |
+| 9 | `eval_llm` | Auto LLM NER Metrics | Counts unique LLM NER entities per label and returns total and per-label entity counts. |
+| 10 | `eval_metrics` | Evaluation Metrics (PGM) | Computes NER precision, recall, and F1 by comparing predicted and expected entity sets via MetricsCalculation. |
+| 11 | `eval_metrics_relation` | Relation Set Metrics (PGM) | Evaluates chemical–induced-disease relation sets by normalizing and comparing predicted relations to ground truth. |
+| 12 | `eval_metrics_segment` | Segmentation Metrics (PGM) | Scores pipe-delimited word segmentation by boundary precision, recall, F1, and segmentation error analysis. |
+| 13 | `eval_pair_generate` | Evaluation Pair Generator (PGM) | Generates all chemical–disease evaluation pairs from expected Chemical and Disease entity lists. |
+| 14 | `kg_rdf_export` | RDF-JSON Export (PGM) | Exports knowledge-graph triples to RDF-JSON with node labels and subject–predicate–object edges. |
+| 15 | `kg_triple_merge` | Triple Merge (PGM) | Merges pipe-delimited relations with entity-link canonicalization and deduplicates head–predicate–tail triples. |
+| 16 | `kg_triple_persist` | Triple CSV Persistence (PGM) | Persists merged knowledge-graph triples to CSV under result with head, verb, and tail columns. |
+| 17 | `llm_link_bulk_update` | Bulk LLM Link Update (PGM) | Bulk-updates LLM connector links on selected agents from a source model to a target, optionally dry-run. |
+| 18 | `merge_metrics` | Merge Flair and LLM Metrics | Combines FLAIR and LLM NER metric dictionaries into a single merged_metrics report object. |
+| 19 | `ner_entities_to_re_format` | NER Entities to RE Format | Converts Flair NER label dict {Chemical:[...], Disease:[...]} to the entity list format [{text, label, id}] expected by the CID RE pipeline. |
+| 20 | `ner_flair_aggregate` | Flair NER Aggregator | Aggregates per-sentence FLAIR NER outputs into document-level label-to-unique-entity-text dictionaries. |
+| 21 | `ner_flair_doc` | NER (Flair, document) | Runs HunFlair2 NER on a document split into sentences and returns deduplicated entities per label. |
+| 22 | `ner_flair_sent` | NER (Flair, sentence) | Tags one sentence with HunFlair2 NER and returns predicted entity texts grouped by label. |
+| 23 | `relation_extract_pubtator` | Relation Extraction (PubTator) | Extracts chemical–disease relations from text or PMID using PubTator3 and local entity annotations. |
+| 24 | `relation_result_to_id_pair` | Relation Result -> ID Pair | Emits head_id/tail_id CID relation lines when verification is positive, with negation and weak-association guards. |
+| 25 | `relation_verify_to_pair` | Relation Verify → Entity Pair | Maps a positive relation verification to canonical head and tail entity IDs from entity_link. |
+| 26 | `report_format_json` | Result Formatter (PGM) | Formats original text and summary into JSON with character lengths for reporting pipelines. |
 
-**Table S20. PGM agents (20)**
+### 4.2 Reusable subgraphs (9)
 
+**Table S21. Reusable subgraphs (9)**
 
-| No. | ID                           | Name                               | Description                                                                                                        |
-| --- | ---------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| 1   | `cid_pair_generate`          | CID Pair Generator (PGM)           | Builds chemical–disease head/tail text pairs with MeSH IDs from filtered Chemical and Disease entities.            |
-| 2   | `dataset_cid_tuning_build`   | CID Tuning Dataset Builder (PGM)   | Builds CID relation tuning and test splits from a PubTator source file via the CidDatasetBuilder plugin.           |
-| 3   | `eval_flair`                 | Auto FLAIR NER Metrics             | Counts unique FLAIR NER entities per label and returns total and per-label entity counts.                          |
-| 4   | `eval_llm`                   | Auto LLM NER Metrics               | Counts unique LLM NER entities per label and returns total and per-label entity counts.                            |
-| 5   | `eval_metrics`               | Evaluation Metrics (PGM)           | Computes NER precision, recall, and F1 by comparing predicted and expected entity sets via MetricsCalculation.     |
-| 6   | `eval_metrics_relation`      | Relation Set Metrics (PGM)         | Evaluates chemical–induced-disease relation sets by normalizing and comparing predicted relations to ground truth. |
-| 7   | `eval_metrics_segment`       | Segmentation Metrics (PGM)         | Scores pipe-delimited word segmentation by boundary precision, recall, F1, and segmentation error analysis.        |
-| 8   | `eval_pair_generate`         | Evaluation Pair Generator (PGM)    | Generates all chemical–disease evaluation pairs from expected Chemical and Disease entity lists.                   |
-| 9   | `kg_rdf_export`              | RDF-JSON Export (PGM)              | Exports knowledge-graph triples to RDF-JSON with node labels and subject–predicate–object edges.                   |
-| 10  | `kg_triple_merge`            | Triple Merge (PGM)                 | Merges pipe-delimited relations with entity-link canonicalization and deduplicates head–predicate–tail triples.    |
-| 11  | `kg_triple_persist`          | Triple CSV Persistence (PGM)       | Persists merged knowledge-graph triples to CSV under result with head, verb, and tail columns.                     |
-| 12  | `llm_link_bulk_update`       | Bulk LLM Link Update (PGM)         | Bulk-updates LLM connector links on selected agents from a source model to a target, optionally dry-run.           |
-| 13  | `merge_metrics`              | Merge Flair and LLM Metrics        | Combines FLAIR and LLM NER metric dictionaries into a single merged_metrics report object.                         |
-| 14  | `ner_flair_aggregate`        | Flair NER Aggregator               | Aggregates per-sentence FLAIR NER outputs into document-level label-to-unique-entity-text dictionaries.            |
-| 15  | `ner_flair_doc`              | NER (Flair, document)              | Runs HunFlair2 NER on a document split into sentences and returns deduplicated entities per label.                 |
-| 16  | `ner_flair_sent`             | NER (Flair, sentence)              | Tags one sentence with HunFlair2 NER and returns predicted entity texts grouped by label.                          |
-| 17  | `relation_extract_pubtator`  | Relation Extraction (PubTator)     | Extracts chemical–disease relations from text or PMID using PubTator3 and local entity annotations.                |
-| 18  | `relation_result_to_id_pair` | Relation Result -> ID Pair         | Emits head_id/tail_id CID relation lines when verification is positive, with negation and weak-association guards. |
-| 19  | `relation_verify_to_pair`    | Relation Verify → Entity Pair      | Maps a positive relation verification to canonical head and tail entity IDs from entity_link.                      |
-| 20  | `report_format_json`         | Result Formatter (PGM)             | Formats original text and summary into JSON with character lengths for reporting pipelines.                        |
+| No. | ID | Name | Description |
+| --- | --- | --- | --- |
+| 1 | `sg_cid_re_verify` | CID RE verify pair | Verify one Chemical–Disease pair; output MeSH id pair when verdict is induces. |
+| 2 | `sg_e2e_cid_re` | E2E CID RE (subgraph) | Subgraph: passthrough → synonym → assign ids → alias snapshot → dedup → hypernym → pair gen → verify loop. |
+| 3 | `sg_e2e_flair_ner` | E2E Flair NER (subgraph) | Subgraph: sentence split → loop HunFlair2 per sentence → RE format entities. Input: text + labels. Output: entities as [{text, label, id}]. |
+| 4 | `sg_e2e_pubtator_re` | E2E PubTator3 RE (subgraph) | Subgraph: PubTator3 API → CID relations. Input: text + pmid. Output: relations as head_id / CID / tail_id lines. |
+| 5 | `sg_ner_flair_sent` | Sentence Flair NER | Run ner_flair_sent on one sentence (loop body). |
+| 6 | `sg_preprocess_inner` | Inner preprocess loop body | Format / pass-through inner loop step. |
+| 7 | `sg_re_preprocess` | RE preprocess + NER | Nested inner loop then ner_llm (outer loop body for doc RE). |
+| 8 | `sg_re_tree` | Tree-based RE | syntax_dep_parse → relation_from_tree_llm per sentence. |
+| 9 | `sg_relation_verify` | Relation verify pair | relation_verify_llm → relation_verify_to_pair for one head/tail pair. |
 
+### 4.3 Reference workflows (19)
 
-### 4.2 Reusable subgraphs (7)
+**Table S22. Reference workflows (19)**
 
-**Table S21. Reusable subgraphs (7)**
-
-
-| No. | ID                    | Name                       | Description                                                                    |
-| --- | --------------------- | -------------------------- | ------------------------------------------------------------------------------ |
-| 1   | `sg_cid_re_verify`    | CID RE verify pair         | Verify one Chemical–Disease pair; output MeSH id pair when verdict is induces. |
-| 2   | `sg_ner_flair_sent`   | Sentence Flair NER         | Run ner_flair_sent on one sentence (loop body).                                |
-| 3   | `sg_ner_llm_tree`     | Tree-based LLM NER         | syntax_dep_parse → ner_from_tree_llm per sentence.                             |
-| 4   | `sg_preprocess_inner` | Inner preprocess loop body | Format / pass-through inner loop step.                                         |
-| 5   | `sg_re_preprocess`    | RE preprocess + NER        | Nested inner loop then ner_llm (outer loop body for doc RE).                   |
-| 6   | `sg_re_tree`          | Tree-based RE              | syntax_dep_parse → relation_from_tree_llm per sentence.                        |
-| 7   | `sg_relation_verify`  | Relation verify pair       | relation_verify_llm → relation_verify_to_pair for one head/tail pair.          |
-
-
-### 4.3 Reference workflows (17)
-
-**Table S22. Reference workflows (17)**
-
-
-| No. | ID                           | Name                           | Description                                                                                                            |
-| --- | ---------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| 1   | `wf_cid_ner_llm_eval`        | CID NER Eval (LLM)             | Chemical/Disease NER with LLM and generic metrics.                                                                     |
-| 2   | `wf_cid_re_branch`           | CID RE (multi-branch gate)     | NER then 4-way branch gate before relation extraction.                                                                 |
-| 3   | `wf_cid_re_llm_linear`       | CID RE Pipeline (linear)       | Gold entities → hypernym filter → pair list → foreach RE verify → id pairs.                                            |
-| 4   | `wf_doc_ner_flair_eval`      | Doc NER Eval (Flair)           | Document Flair NER with metrics (replaces bio_ner_graph).                                                              |
-| 5   | `wf_doc_ner_flair_sent_eval` | Doc NER Eval (Flair, sentence) | Sentence split → loop HunFlair2 per sentence → entity metrics (Table S2 / Fig. S2).                                    |
-| 6   | `wf_doc_ner_llm_eval`        | Doc NER Eval (LLM)             | Split document then LLM NER with metrics.                                                                              |
-| 7   | `wf_doc_ner_loop_branch`     | Doc NER loop + branch          | Sentence split → loop Flair NER → 4-way branch → optional LLM → metrics.                                               |
-| 8   | `wf_doc_re_nested_branch`    | Doc RE (nested loop + branch)  | Outer loop with nested preprocess + NER, 4-way branch, then RE.                                                        |
-| 9   | `wf_flair_vs_llm_ner`        | Flair vs LLM NER Comparison    | Sentence split, Flair loop NER, LLM NER, per-path metrics, and ner_comparison_report on the same document.             |
-| 10  | `wf_general_report_linear`   | Summarize + format             | Summarize text and pack into JSON result.                                                                              |
-| 11  | `wf_kg_flair_full`           | KG Build (Flair NER)           | Flair doc NER → entity link → triple extract → merge → RDF.                                                            |
-| 12  | `wf_kg_llm_full`             | KG Build (LLM NER)             | LLM NER → entity link → RE → triple merge → RDF export.                                                                |
-| 13  | `wf_kg_syntax_loop`          | KG from syntax (sentence loop) | Coreference → split → loop tree-RE subgraph → CSV persist.                                                             |
-| 14  | `wf_re_pubtator_dev10`       | PubTator RE Dev (10)           | BC5CDR dev.txt (10 articles): gold entities → PubTator3 relation extraction → relation pair metrics vs gold_relations. |
-| 15  | `wf_re_pubtator_eval`        | PubTator RE Eval               | Gold entities → PubTator relation extraction → relation pair metrics.                                                  |
-| 16  | `wf_re_verify_llm_loop`      | RE Verify (pair loop)          | Generate evaluation pairs → loop verify subgraph → metrics.                                                            |
-| 17  | `wf_word_seg_llm_eval`       | Word Segmentation Eval         | LLM word segmentation with boundary metrics.                                                                           |
-
+| No. | ID | Name | Description |
+| --- | --- | --- | --- |
+| 1 | `wf_cid_ner_llm_eval` | CID NER Eval (LLM) | Chemical/Disease NER with LLM and generic metrics. |
+| 2 | `wf_cid_re_branch` | CID RE (multi-branch gate) | NER then 4-way branch gate before relation extraction. |
+| 3 | `wf_cid_re_llm_linear` | CID RE Pipeline (linear) | Gold entities → e2e dedup by id → e2e hypernym filter (with text context) → pair list → foreach RE verify → id pairs. Upgraded from wf_e2e_flair_opt_re agents. |
+| 4 | `wf_doc_ner_flair_eval` | Doc NER Eval (Flair) | Document Flair NER with metrics (replaces bio_ner_graph). |
+| 5 | `wf_doc_ner_flair_sent_eval` | Doc NER Eval (Flair, sentence) | Sentence split → loop HunFlair2 per sentence → entity metrics (Table S2 / Fig. S2). |
+| 6 | `wf_doc_ner_llm_eval` | Doc NER Eval (LLM) | Split document then LLM NER with metrics. |
+| 7 | `wf_doc_ner_loop_branch` | Doc NER loop + branch | Sentence split → loop Flair NER → 4-way branch → optional LLM → metrics. |
+| 8 | `wf_doc_re_nested_branch` | Doc RE (nested loop + branch) | Outer loop with nested preprocess + NER, 4-way branch, then RE. |
+| 9 | `wf_e2e_flair_opt_re` | E2E Flair NER + Optimized RE | Flair sentence-split NER → optimized CID RE (v0008 prompt) → relation metrics. For Table S18. |
+| 10 | `wf_e2e_pubtator_re` | E2E PubTator3 RE | Compose sg_e2e_pubtator_re (PubTator3 API → relations) → relation metrics vs gold_relations. For Table S18 comparison. |
+| 11 | `wf_flair_vs_llm_ner` | Flair vs LLM NER Comparison | Sentence split, Flair loop NER, LLM NER, per-path metrics, and ner_comparison_report on the same document. |
+| 12 | `wf_general_report_linear` | Summarize + format | Summarize text and pack into JSON result. |
+| 13 | `wf_kg_flair_full` | KG Build (Flair NER) | Flair doc NER → entity link → triple extract → merge → RDF. |
+| 14 | `wf_kg_llm_full` | KG Build (LLM NER) | LLM NER → entity link → RE → triple merge → RDF export. |
+| 15 | `wf_kg_syntax_loop` | KG from syntax (sentence loop) | Coreference → split → loop tree-RE subgraph → CSV persist. |
+| 16 | `wf_re_pubtator_dev10` | PubTator RE Dev (10) | BC5CDR dev.txt (10 articles): gold entities → PubTator3 relation extraction → relation pair metrics vs gold_relations. |
+| 17 | `wf_re_pubtator_eval` | PubTator RE Eval | Gold entities → PubTator relation extraction → relation pair metrics. |
+| 18 | `wf_re_verify_llm_loop` | RE Verify (pair loop) | Generate evaluation pairs → loop verify subgraph → metrics. |
+| 19 | `wf_word_seg_llm_eval` | Word Segmentation Eval | LLM word segmentation with boundary metrics. |
 
 ### 4.4 Callable tools (12)
 
 **Table S23. Callable tools (12)**
 
-
-| No. | ID                               | Name                            | Description                                                                                                                                                                                                                                          |
-| --- | -------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `agent_change_impact_trace`      | Agent Change Impact Trace       | Estimate per-agent metric contribution from version_map and two experiment states.                                                                                                                                                                   |
-| 2   | `agent_version_guard`            | Agent Version Guard             | Policy-based guard for keep/alert/rollback decisions using metric deltas.                                                                                                                                                                            |
-| 3   | `dataset_cid_tuning_build`       | CID Tuning Dataset Builder      | Build a stratified CID tuning CSV (and optional test-remain set) from PubTator gold dev.txt.                                                                                                                                                         |
-| 4   | `dataset_sampler_stratified`     | Dataset Sampler Stratified      | Stratified sample by text length, entity density, and relation density for quick A/B validation.                                                                                                                                                     |
-| 5   | `error_case_exporter`            | Error Case Exporter             | Export worst-k error cases from states into markdown and jsonl payloads for review/regression.                                                                                                                                                       |
-| 6   | `fn_fp_bucket_analyzer`          | FN FP Bucket Analyzer           | Bucket FN/FP into boundary/type/relation/missed-recall style categories with examples.                                                                                                                                                               |
-| 7   | `merge_heads_tails_to_entities`  | Merge Heads & Tails to Entities | Merge two lists of head/tail entities into a unified 'text,type,mesh' string format, one entity per line.                                                                                                                                            |
-| 8   | `metrics_delta_compare`          | Metrics Delta Compare           | Compare baseline and candidate states, return precision/recall/f1 deltas and significantly degraded samples.                                                                                                                                         |
-| 9   | `prompt_patch_apply_safe`        | Prompt Patch Apply Safe         | Apply structured prompt patch (append/replace) with validation and safety checks.                                                                                                                                                                    |
-| 10  | `report_quality_scorer`          | Report Quality Scorer           | Score report quality on evidence, executability, and traceability.                                                                                                                                                                                   |
-| 11  | `tool_ner_flair`                 | NER by Flair                    | Input a sentence string, and label string like "Chemical,Disease", the tool will do NER task and return a dict like {"Chemical":["a","b"], "Disease":["c","d"] }                                                                                     |
-| 12  | `tool_pubtator_relation_extract` | PubTator Relation Extract       | Call NCBI PubTator3 API ([https://www.ncbi.nlm.nih.gov/research/pubtator3-api](https://www.ncbi.nlm.nih.gov/research/pubtator3-api)) to extract chemical–disease relations from a PubMed PMID or text. Returns relations as head / CID / tail lines. |
-
+| No. | ID | Name | Description |
+| --- | --- | --- | --- |
+| 1 | `agent_change_impact_trace` | Agent Change Impact Trace | Estimate per-agent metric contribution from version_map and two experiment states. |
+| 2 | `agent_version_guard` | Agent Version Guard | Policy-based guard for keep/alert/rollback decisions using metric deltas. |
+| 3 | `dataset_cid_tuning_build` | CID Tuning Dataset Builder | Build a stratified CID tuning CSV (and optional test-remain set) from PubTator gold dev.txt. |
+| 4 | `dataset_sampler_stratified` | Dataset Sampler Stratified | Stratified sample by text length, entity density, and relation density for quick A/B validation. |
+| 5 | `error_case_exporter` | Error Case Exporter | Export worst-k error cases from states into markdown and jsonl payloads for review/regression. |
+| 6 | `fn_fp_bucket_analyzer` | FN FP Bucket Analyzer | Bucket FN/FP into boundary/type/relation/missed-recall style categories with examples. |
+| 7 | `merge_heads_tails_to_entities` | Merge Heads & Tails to Entities | Merge two lists of head/tail entities into a unified 'text,type,mesh' string format, one entity per line. |
+| 8 | `metrics_delta_compare` | Metrics Delta Compare | Compare baseline and candidate states, return precision/recall/f1 deltas and significantly degraded samples. |
+| 9 | `prompt_patch_apply_safe` | Prompt Patch Apply Safe | Apply structured prompt patch (append/replace/remove-rules) with validation and safety checks. |
+| 10 | `report_quality_scorer` | Report Quality Scorer | Score report quality on evidence, executability, and traceability. |
+| 11 | `tool_ner_flair` | NER by Flair | Input a sentence string, and label string like "Chemical,Disease", the tool will do NER task and return a dict like  {"Chemical":["a","b"], "Disease":["c","d"] } |
+| 12 | `tool_pubtator_relation_extract` | PubTator Relation Extract | Call NCBI PubTator3 API (https://www.ncbi.nlm.nih.gov/research/pubtator3-api) to extract chemical–disease relations from a PubMed PMID or text. Returns relations as head / CID / tail lines. |
 
 ### 4.5 Native dataset parsers
 
 **Table S24. Native dataset parsers (3)**
 
-
-| No. | ID                   | Name                    | Description                                                                                     |
-| --- | -------------------- | ----------------------- | ----------------------------------------------------------------------------------------------- |
-| 1   | `parser_cdr`         | CDR (PubTator)          | Load BioCreative V CDR PubTator .txt articles with gold entities and CID relations (CIDParser). |
-| 2   | `parser_chemdisgene` | ChemDisGene             | Load ChemDisGene article .txt files with companion .tsv annotation trees (ChemDisGeneParser).   |
-| 3   | `parser_plain_text`  | Plain text (raw upload) | Load user-uploaded plain-text .txt from data/raw for batch runs without bundled gold files.     |
-
+| No. | ID | Name | Description |
+| --- | --- | --- | --- |
+| 1 | `parser_cdr` | CDR (PubTator) | Load BioCreative V CDR PubTator .txt articles with gold entities and CID relations (CIDParser). |
+| 2 | `parser_chemdisgene` | ChemDisGene | Load ChemDisGene article .txt files with companion .tsv annotation trees (ChemDisGeneParser). |
+| 3 | `parser_plain_text` | Plain text (raw upload) | Load user-uploaded plain-text .txt from data/raw for batch runs without bundled gold files. |
 
 Built-in loaders are selected automatically from dataset folder layout (`data/data_load.py`: PubTator .txt, ChemDisGene .tsv trees, or `data/raw` uploads).
 
 ---
+
 
 ## Algorithm S1. Automatic input inference
 
@@ -536,8 +539,8 @@ Built-in loaders are selected automatically from dataset folder layout (`data/da
 - Fix caption **Table 3** → **Table S3** in §3.1.
 - Fix **Fig. 4** → **Fig. S4** for RE workflow.
 - Add §3.3 with Tables S11–S13 (tuning).
-- Update §1 inventory (43 agents, 7 sg, 17 wf).
-- Add §3.4 performance evaluation (Tables S14–S16; S17 baseline filled; S17 optimized and S18 pending optimized RE run).
+- Update §1 inventory (47 agents, 9 sg, 19 wf).
+- Add §3.4 performance evaluation (Tables S14–S18; S18 E2E test-500 merged `bffea244`, micro-F1 0.635).
 - Add §4 pre-built component inventory (Tables S19–S24: No., ID, Name, Description).
 - Replace Algorithm 2 table with Algorithm S2 loop version.
 
