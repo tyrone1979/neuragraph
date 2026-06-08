@@ -1,6 +1,6 @@
 {
   "name": "Prompt Patch Apply Safe",
-  "description": "Apply structured prompt patch (append/replace) with validation and safety checks.",
+  "description": "Apply structured prompt patch (append/replace/remove-rules) with validation and safety checks.",
   "parameters": {
     "properties": {
       "original_prompt": {
@@ -9,7 +9,7 @@
       },
       "patch": {
         "type": "object",
-        "description": "Patch object supporting prompt_system_append/prompt_human_append/prompt_system_replace/prompt_human_replace."
+        "description": "Patch object supporting prompt_system_append/prompt_human_append/prompt_system_replace/prompt_human_replace/prompt_system_remove_rules/prompt_human_remove_rules."
       },
       "max_system_chars": {
         "type": "integer",
@@ -31,4 +31,3 @@
   },
   "code": "def func(original_prompt: dict, patch: dict, max_system_chars: int = 1200, max_human_chars: int = 1800, allowed_placeholders: list = None):\n    from service.tools.analysis_tools import prompt_patch_apply_safe\n    return prompt_patch_apply_safe(original_prompt=original_prompt, patch=patch, max_system_chars=max_system_chars, max_human_chars=max_human_chars, allowed_placeholders=allowed_placeholders)"
 }
-

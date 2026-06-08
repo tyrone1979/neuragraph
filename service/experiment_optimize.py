@@ -613,6 +613,24 @@ def _apply_modifications(
             )
             changed = True
 
+        # Remove specific numbered rules
+        sys_remove = mod.get("prompt_system_remove_rules") or []
+        if isinstance(sys_remove, list) and sys_remove:
+            old_sys = str(prompt.get("system") or "")
+            from service.tools.analysis_tools import _remove_numbered_rules
+            new_sys = _remove_numbered_rules(old_sys, sys_remove)
+            if new_sys != old_sys:
+                prompt["system"] = new_sys
+                changed = True
+        human_remove = mod.get("prompt_human_remove_rules") or []
+        if isinstance(human_remove, list) and human_remove:
+            old_human = str(prompt.get("human") or "")
+            from service.tools.analysis_tools import _remove_numbered_rules
+            new_human = _remove_numbered_rules(old_human, human_remove)
+            if new_human != old_human:
+                prompt["human"] = new_human
+                changed = True
+
         if prompt:
             if "system" in prompt:
                 prompt["system"] = _compact_prompt_text(
