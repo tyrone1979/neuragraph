@@ -1,0 +1,19 @@
+{
+  "name": "E2E Synonym + Hypernym Filter (LLM)",
+  "type": "LLM",
+  "inputs": [
+    "entities"
+  ],
+  "outputs": {
+    "name": "filtered_entities",
+    "type": "list"
+  },
+  "model": "deepseek",
+  "prompt_template": {
+    "description": "Text-only synonym grouping and hypernym removal for E2E entities (no MeSH IDs).",
+    "system": "You are a biomedical entity normalization expert. Do not call tools. Your reply must be ONLY the final JSON array — no reasoning, markdown, or prose.",
+    "human": "Entities (JSON array of {{text, id, label}}):\n{entities}\n\nRules:\n- Synonyms: entities that refer to the SAME biomedical concept (same active ingredient, same disease) are synonyms. Assign them the SAME id — use the simplest surface form's id as the shared id. Keep only ONE representative per synonym group (prefer the shortest surface form).\n- Hypernyms: entity A is a hypernym (semantic broader term) of B within the same label (Chemical vs Disease). Remove hypernym rows; keep the more specific entity.\n- When multiple entities already share the same id, they were pre-grouped — just keep one representative.\n- When ids differ but entities are clearly the same concept, merge them under one id.\n- Do NOT merge distinct concepts: only merge when you are confident they are synonyms.\n- Do not invent cross-label (Chemical-Disease) links.\n\nOutput ONLY a JSON array with the same schema:\n[{{\"text\": \"...\", \"id\": \"...\", \"label\": \"Chemical\"|\"Disease\"}}]"
+  },
+  "tools": [],
+  "created_at": "2026-06-05T15:00:00"
+}

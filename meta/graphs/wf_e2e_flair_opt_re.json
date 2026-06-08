@@ -1,6 +1,6 @@
 {
   "name": "E2E Flair NER + Optimized RE",
-  "description": "Compose sg_e2e_flair_ner (sentence split → Flair → entities) + sg_e2e_cid_re (hypernym → verify → relations) → relation metrics. For Table S18.",
+  "description": "Flair sentence-split NER → optimized CID RE (v0008 prompt) → relation metrics. For Table S18.",
   "nodes": [
     "START",
     "sg_e2e_flair_ner",
@@ -22,10 +22,12 @@
     }
   ],
   "bindings": {
+    "sg_e2e_flair_ner": { "text": "{{ START.text }}", "labels": "{{ START.labels }}" },
+    "sg_e2e_cid_re": { "text": "{{ START.text }}", "entities": "{{ entities }}", "filtered_entities": "{{ filtered_entities }}" },
     "eval_metrics_relation": {
       "relations": "{{ relations }}",
       "ground_truth": "{{ START.gold_relations }}",
-      "entities": "{{ entities }}"
+      "entities": "{{ entity_aliases }}"
     }
   }
 }

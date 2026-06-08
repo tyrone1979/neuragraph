@@ -180,7 +180,7 @@ def compute_workflow_metrics(
 
         prefix = spec.get("prefix") or ""
         if typ == "relation_pairs":
-            entities = _first_present(state, ("entities",)) or _first_present(
+            entities = _first_present(state, ("entity_aliases", "entities", "filtered_entities")) or _first_present(
                 row, ("entities",)
             )
             ev, pv = expected_val, predicted_val

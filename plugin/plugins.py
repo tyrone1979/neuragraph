@@ -16,6 +16,22 @@ class Plugin:
 # Main process keeps lightweight exec_globals for metrics-only PGM agents.
 
 
+def _pgm_service_helpers() -> dict[str, Any]:
+    """Pre-bound helpers for PGM agents (imports blocked in exec sandbox)."""
+    from service.relation_normalize import (
+        assign_e2e_group_ids,
+        canonical_mesh_id,
+        parse_entities_raw,
+    )
+
+    return {
+        "json": json,
+        "assign_e2e_group_ids": assign_e2e_group_ids,
+        "parse_entities_raw": parse_entities_raw,
+        "canonical_mesh_id": canonical_mesh_id,
+    }
+
+
 class PGMExecutorLite(Plugin):
     """In-process PGM (no flair). Used for eval_metrics and similar agents."""
 
@@ -29,8 +45,9 @@ class PGMExecutorLite(Plugin):
             "bool": bool,
             "list": list,
             "dict": dict,
-            "set": set,
-            "tuple": tuple,
+    "set": set,
+    "frozenset": frozenset,
+    "tuple": tuple,
             "enumerate": enumerate,
             "zip": zip,
             "max": max,
@@ -44,6 +61,8 @@ class PGMExecutorLite(Plugin):
         }
 
         def safe_import(name, globals=None, locals=None, fromlist=(), level=0):
+            if name == "json":
+                return json
             raise ImportError(
                 f"Import {name} not allowed in main-process PGM; use plugin sandbox for flair."
             )
@@ -53,6 +72,7 @@ class PGMExecutorLite(Plugin):
             "exec_globals": {
                 "__builtins__": safe_builtins,
                 "__result__": None,
+                **_pgm_service_helpers(),
             }
         }
 
@@ -70,8 +90,9 @@ class PGMExecutorInProcess(Plugin):
             "bool": bool,
             "list": list,
             "dict": dict,
-            "set": set,
-            "tuple": tuple,
+    "set": set,
+    "frozenset": frozenset,
+    "tuple": tuple,
             "enumerate": enumerate,
             "zip": zip,
             "max": max,
@@ -85,7 +106,7 @@ class PGMExecutorInProcess(Plugin):
         }
 
         def safe_import(name, globals=None, locals=None, fromlist=(), level=0):
-            allowed = {"flair", "flair.data"}
+            allowed = {"flair", "flair.data", "json"}
             if name not in allowed:
                 raise ImportError(f"Import {name} not allowed")
             return __import__(name, globals, locals, fromlist, level)
@@ -110,6 +131,7 @@ class PGMExecutorInProcess(Plugin):
             "exec_globals": {
                 "__builtins__": safe_builtins,
                 "__result__": None,
+                **_pgm_service_helpers(),
             }
         }
         if tag is not None:

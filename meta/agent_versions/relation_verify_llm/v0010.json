@@ -1,0 +1,30 @@
+{
+  "agent_id": "relation_verify_llm",
+  "version": "v0010",
+  "parent_version": "v0009",
+  "created_at": "2026-06-08T13:49:36.842644",
+  "created_by": "manual",
+  "change_note": "Assumptions before Conditions; rescue/resuscitation/antidote for tail/LAST -> ~ (1.5).",
+  "source": "save",
+  "content_hash": "4b86418c6f7022c2f2495c6dcf058f7b17608aaf7fc5d6e483eb1c6e7f45af77",
+  "content": {
+    "name": "Relation Verification (LLM)",
+    "type": "LLM",
+    "model": "kimi-2.6",
+    "inputs": [
+      "text",
+      "head",
+      "tail"
+    ],
+    "outputs": {
+      "name": "result",
+      "type": "str"
+    },
+    "prompt_template": {
+      "description": "CID induce verifier (llmre prompt_templates.json RE.induce, lines 17-23)",
+      "system": "You are a biomedical expert. Answer with '$' or '~' only. Do not output any other message.",
+      "human": "{text}\nYou are biomedical expert, refer to above biomedical article, please give answer '$' or '~' only\nbased on below rules. Apply all Assumptions first; if any assumption applies, answer '~' immediately and do not use Conditions.\nAssumptions:\n1.1 if 'patient had/exhibited {tail} on the Xth day of {head} treatment', please do not use it and find other reason.\n1.2 if 'difference did not reach statistical significance compared to groups' appeared, please do not use it and find other reason.\n1.3 if {head} appears only as a physiological/dietary state or experimental grouping (e.g. 'sodium depletion/repletion', 'volume depleted', 'fasted', 'control group') and not as a chemical administered to subjects, answer '~'.\n1.4 if the only link between {head} and {tail} is inhibition/blockade/suppression of {head} or '{head} synthesis' by another drug (e.g. 'inhibition of {head} synthesis', 'another drug inhibits {head}'), and {tail} is attributed to that other drug or the inhibition mechanism—not to {head} itself as the causative agent—answer '~'.\n1.5 if {head} is used as resuscitation, rescue therapy, antidote, or treatment for {tail} (or for local anaesthetic systemic toxicity / LAST) and {tail} is the condition being treated rather than caused by {head}, answer '~'.\nConditions:\n1. if the article explicitly states that {head} caused or induced {tail} (e.g., '{head}-induced {tail}', '{head} caused {tail}', '{head} resulted in {tail}', '{head} led to {tail}'), answer '$'\n2. else if the article states that the interaction between {head} and another chemical induces {tail}, answer '$'\n3. else if {head} is administered together with other chemical(s) as a combination/co-treatment regimen and {tail} is reported as an adverse event, toxicity, or complication (including incidence or percentage) in patients receiving that regimen, answer '$' for {head} as a component of the regimen—even when the text attributes the event to the combination rather than {head} alone\n4. else if the article mentions {tail} was reported in the percentage of patients because of {head}, and the article explicitly establishes causation (not merely listing adverse events), answer '$'\n5. else if the article mentions '{head} is mediating/attenuating {tail}', answer '~'\n6. else if {head} and {tail} have no relationship, answer '~'.\nDO NOT output any other message."
+    },
+    "created_at": "2026-05-27T13:48:50.624521"
+  }
+}

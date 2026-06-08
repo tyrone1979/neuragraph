@@ -3,6 +3,7 @@
   "description": "Gold entities → hypernym filter → pair list → foreach RE verify → id pairs.",
   "nodes": [
     "START",
+    "cid_entities_dedupe_mesh",
     "ontology_hypernym_filter",
     "cid_pair_generate",
     "cid_re_verify_loop",
@@ -11,6 +12,10 @@
   "edges": [
     [
       "START",
+      "cid_entities_dedupe_mesh"
+    ],
+    [
+      "cid_entities_dedupe_mesh",
       "ontology_hypernym_filter"
     ],
     [
@@ -58,8 +63,11 @@
     }
   },
   "bindings": {
-    "ontology_hypernym_filter": {
+    "cid_entities_dedupe_mesh": {
       "entities": "{{ START.entities }}"
+    },
+    "ontology_hypernym_filter": {
+      "entities": "{{ entities }}"
     },
     "cid_pair_generate": {
       "filtered_entities": "{{ filtered_entities }}"

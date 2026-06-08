@@ -37,9 +37,6 @@ def _load_sync():
         inst = Cls()
         bundle = inst.load() or {}
         loaded.update(bundle)
-        inst = Cls()
-        bundle = inst.load() or {}
-        loaded.update(bundle)
     if sandbox_enabled():
         print("[plugin] Heavy plugins (Flair/PGM) run in sandbox sidecar; main process stays lightweight.")
     return loaded

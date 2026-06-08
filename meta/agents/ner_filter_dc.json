@@ -1,0 +1,15 @@
+{
+  "name": "NER Filter DC",
+  "type": "PGM",
+  "inputs": [
+    "entities"
+  ],
+  "outputs": {
+    "name": "entities",
+    "type": "dict"
+  },
+  "process": "entities = state.get('entities', {})\nif isinstance(entities, dict):\n    keep = ['Chemical', 'Disease']\n    __result__ = {k: entities[k] for k in keep if k in entities}\nelse:\n    __result__ = entities\n",
+  "created_at": "2026-06-05T14:40:00",
+  "engine": "pgm",
+  "description": "Strip non-Chemical/non-Disease entity types so MetricsCalculation ignores Treat/Physiology/Immune/Gene keys that are extracted by the llmre-style multi-type prompt but are out of scope for BC5CDR NER evaluation."
+}

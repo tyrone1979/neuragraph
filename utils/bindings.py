@@ -77,6 +77,8 @@ def resolve_loop_items(array_expr: str, state: dict[str, Any]) -> list[Any]:
 def merge_loop_values(prev: Any, new: Any) -> Any:
     if new is None:
         return prev
+    if isinstance(new, dict) and not new and prev is None:
+        return {}
     if isinstance(new, list) and not new:
         return prev
     if prev is None:

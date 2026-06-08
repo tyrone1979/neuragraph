@@ -1,0 +1,16 @@
+{
+  "dataset": "cdr_test_500.csv",
+  "tuning_dataset": "cdr_test_500.csv",
+  "test_dataset": "cdr_test_500.csv",
+  "runner_type": "graph",
+  "runner_id": "wf_e2e_flair_opt_re",
+  "runner_display": "wf_e2e_flair_opt_re",
+  "samples": 500,
+  "exp_id": "e507cb73-10f8-45e6-a1eb-90f3029860de",
+  "name": "wf_e2e_flair_opt_re_cdr_test_500.csv_20260605082047",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-05T08:20:47.782932",
+  "id": "e507cb73-10f8-45e6-a1eb-90f3029860de",
+  "updated_at": "2026-06-05T08:21:02.353775"
+}

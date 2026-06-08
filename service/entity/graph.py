@@ -235,6 +235,16 @@ def _call_agent(name: str, graph_meta: dict | None = None):
         )
         agent = AgentLoader.load(name)
     if agent is None:
+        nested_graph = GraphLoader.load(name)
+        if nested_graph is not None:
+            def invoke_nested(s):
+                bound = apply_node_bindings(s, name, bindings_map)
+                out = nested_graph.invoke(bound)
+                if not isinstance(out, dict):
+                    return {}
+                return {k: v for k, v in out.items() if v is not None}
+            return invoke_nested
+
         def passthrough(_s):
             # Missing agent node should not emit state updates.
             # Returning full state can trigger INVALID_CONCURRENT_GRAPH_UPDATE.

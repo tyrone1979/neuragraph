@@ -1,0 +1,13 @@
+{
+  "name": "E2E Entity Aliases Snapshot (PGM)",
+  "type": "PGM",
+  "inputs": ["filtered_entities"],
+  "outputs": {
+    "name": "entity_aliases",
+    "type": "list"
+  },
+  "process": "raw = state.get('filtered_entities') or []\nif isinstance(raw, str):\n    import json\n    try:\n        raw = json.loads(raw)\n    except Exception:\n        raw = []\nrows = []\nfor e in raw:\n    if not isinstance(e, dict):\n        continue\n    txt = str(e.get('text') or '').strip()\n    eid = str(e.get('id') or '').strip() or txt\n    lbl = str(e.get('label') or '').strip()\n    if txt and lbl:\n        rows.append({'text': txt, 'id': eid, 'label': lbl})\n__result__ = rows",
+  "created_at": "2026-06-08T14:10:00",
+  "engine": "pgm",
+  "description": "Preserve all synonym surface forms + shared numeric ids for metrics lookup (before dedup)."
+}

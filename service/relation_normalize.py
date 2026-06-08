@@ -47,21 +47,34 @@ def parse_entities_raw(entities: Any) -> list[dict[str, Any]]:
     return []
 
 
-def build_entity_id_lookup(entities: Any) -> dict[str, str]:
+def build_entity_id_lookup(entities: Any, *, label: str | None = None) -> dict[str, str]:
     """
-    Map lowercase entity surface form -> canonical MeSH id (D/C prefix).
+    Map lowercase entity surface form -> canonical id (MeSH or group id).
 
-    Multiple synonyms (CM, contrast media) share the same id when present in entities.
+    Multiple synonyms sharing the same id are all registered to that id.
+    When label is set, only entities with that label are included.
     """
     lookup: dict[str, str] = {}
+    by_mesh: dict[str, list[str]] = {}
     for ent in parse_entities_raw(entities):
+        ent_label = str(ent.get("label") or ent.get("type") or "").strip()
+        if label and ent_label and ent_label != label:
+            continue
         text = str(ent.get("text") or ent.get("name") or "").strip()
         ent_id = canonical_mesh_id(str(ent.get("id") or ent.get("identifier") or ""))
-        if not text or not ent_id:
+        if not text:
             continue
-        lookup[_norm_text(text)] = ent_id
-        if is_mesh_id(text):
-            lookup[_norm_text(ent_id)] = ent_id
+        if ent_id:
+            by_mesh.setdefault(ent_id, []).append(text)
+        else:
+            lookup[_norm_text(text)] = _norm_text(text)
+    for ent_id, texts in by_mesh.items():
+        for text in texts:
+            lookup[_norm_text(text)] = ent_id
+        lookup[_norm_text(ent_id)] = ent_id
+        for text in texts:
+            if is_mesh_id(text):
+                lookup[_norm_text(ent_id)] = ent_id
     return lookup
 
 
@@ -127,7 +140,8 @@ def normalize_cid_relation_lines(
     Returns:
         Deduped list of 'head | CID | tail' lines.
     """
-    lookup = build_entity_id_lookup(entities)
+    chem_lookup = build_entity_id_lookup(entities, label="Chemical")
+    dis_lookup = build_entity_id_lookup(entities, label="Disease")
     lines: list[str] = []
     if isinstance(relations, str):
         lines = [ln.strip() for ln in relations.splitlines() if ln.strip()]
@@ -146,15 +160,15 @@ def normalize_cid_relation_lines(
             continue
         head, _rel, tail = parsed
         if output_format == "text":
-            h = resolve_entity_side(head, lookup)
-            t = resolve_entity_side(tail, lookup)
+            h = resolve_entity_side(head, chem_lookup)
+            t = resolve_entity_side(tail, dis_lookup)
             if not is_mesh_id(h):
                 h = _norm_text(h)
             if not is_mesh_id(t):
                 t = _norm_text(t)
         else:
-            h = resolve_entity_side(head, lookup)
-            t = resolve_entity_side(tail, lookup)
+            h = resolve_entity_side(head, chem_lookup)
+            t = resolve_entity_side(tail, dis_lookup)
         key = (_norm_text(h), _norm_text(t))
         if key in seen:
             continue
@@ -168,3 +182,116 @@ def normalize_relation_pair_key(head: str, tail: str, lookup: dict[str, str]) ->
     h = resolve_entity_side(head, lookup)
     t = resolve_entity_side(tail, lookup)
     return _norm_text(h), _norm_text(t)
+
+
+def _strip_induced_suffix(text: str) -> str:
+    t = str(text or "").strip()
+    if t.lower().endswith("-induced"):
+        base = t[: -len("-induced")].strip()
+        if base:
+            return base
+    return t
+
+
+def assign_e2e_group_ids(source_entities: Any, groups: Any) -> list[dict[str, Any]]:
+    """
+    Expand LLM synonym groups into rows that share numeric ids per label (1, 2, ...).
+    Example: CYP + cyclophosphamide -> both id '1' (Chemical); cystitis -> id '1' (Disease).
+    """
+    passthrough = parse_entities_raw(source_entities)
+    group_rows = parse_entities_raw(groups)
+    passthrough = [
+        {**e, "text": _strip_induced_suffix(e.get("text") or "")} for e in passthrough if e.get("text")
+    ]
+    group_rows = [
+        {
+            **g,
+            "text": _strip_induced_suffix(g.get("text") or ""),
+            "id": _strip_induced_suffix(g.get("id") or g.get("text") or ""),
+        }
+        for g in group_rows
+        if g.get("text") or g.get("id")
+    ]
+    if not group_rows:
+        return passthrough
+
+    out: list[dict[str, Any]] = []
+    chem_n, dis_n = 1, 1
+
+    # Bucket LLM rows by (label, cluster key) so shared id → one numeric id (MeSH-like cluster).
+    from collections import OrderedDict
+
+    clusters: OrderedDict[tuple[str, str], list[dict[str, Any]]] = OrderedDict()
+    for g in group_rows:
+        lbl = str(g.get("label") or g.get("type") or "").strip()
+        if lbl not in ("Chemical", "Disease"):
+            continue
+        canonical = str(g.get("id") or g.get("text") or "").strip()
+        rep = str(g.get("text") or canonical).strip()
+        if not canonical and not rep:
+            continue
+        if not canonical:
+            canonical = rep
+        if canonical.upper().startswith("MESH:") or is_mesh_id(canonical):
+            canonical = rep or canonical
+        key = (lbl, canonical.lower())
+        clusters.setdefault(key, []).append(g)
+
+    for (lbl, _cluster_key), rows in clusters.items():
+        nid = str(chem_n if lbl == "Chemical" else dis_n)
+        if lbl == "Chemical":
+            chem_n += 1
+        else:
+            dis_n += 1
+
+        forms: set[str] = set()
+        for g in rows:
+            canonical = str(g.get("id") or g.get("text") or "").strip()
+            rep = str(g.get("text") or canonical).strip()
+            if not canonical:
+                canonical = rep
+            if canonical.upper().startswith("MESH:") or is_mesh_id(canonical):
+                canonical = rep or canonical
+            if rep:
+                forms.add(rep)
+            if canonical:
+                forms.add(canonical)
+
+        refs = [r.lower() for r in forms if r]
+        for p in passthrough:
+            if str(p.get("label") or p.get("type") or "").strip() != lbl:
+                continue
+            pt = str(p.get("text") or "").strip()
+            if not pt:
+                continue
+            pl = pt.lower()
+            if pl in {f.lower() for f in forms}:
+                forms.add(pt)
+                continue
+            if any(pl == rl or (len(pl) >= 2 and (pl in rl or rl in pl)) for rl in refs):
+                forms.add(pt)
+
+        for text in sorted(forms, key=lambda s: (len(s), s.lower())):
+            out.append({"text": text, "id": nid, "label": lbl})
+
+    assigned: set[tuple[str, str]] = {
+        (str(e.get("label") or "").strip(), str(e.get("text") or "").strip().lower())
+        for e in out
+        if e.get("text") and e.get("label")
+    }
+    for p in passthrough:
+        lbl = str(p.get("label") or p.get("type") or "").strip()
+        if lbl not in ("Chemical", "Disease"):
+            continue
+        pt = str(p.get("text") or "").strip()
+        if not pt or (lbl, pt.lower()) in assigned:
+            continue
+        nid = str(chem_n if lbl == "Chemical" else dis_n)
+        if lbl == "Chemical":
+            chem_n += 1
+        else:
+            dis_n += 1
+        out.append({"text": pt, "id": nid, "label": lbl})
+        assigned.add((lbl, pt.lower()))
+
+    return out
