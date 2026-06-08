@@ -152,10 +152,16 @@ function hydrateExpFormFromServer() {
     return $.getJSON(`/exp/api/${encodeURIComponent(id)}`)
         .done((cfg) => {
             if (!cfg || cfg.error) return;
-            window._savedTuningFilename = cfg.tuning_dataset || defaultTuningFilename;
-            window._savedTestFilename = cfg.test_dataset || defaultFilename;
-            if (cfg.test_dataset) $('#datasetSelect').val(cfg.test_dataset);
-            if (cfg.tuning_dataset) $('#tuningDatasetSelect').val(cfg.tuning_dataset);
+            // Only set dropdown values if they're empty (not already populated by server render).
+            // This prevents the async API response from overwriting URL-param-driven selections.
+            const currentTest = $('#datasetSelect').val();
+            const currentTuning = $('#tuningDatasetSelect').val();
+            const apiTest = cfg.test_dataset || '';
+            const apiTuning = cfg.tuning_dataset || '';
+            if (!currentTest && apiTest) $('#datasetSelect').val(apiTest);
+            if (!currentTuning && apiTuning) $('#tuningDatasetSelect').val(apiTuning);
+            window._savedTuningFilename = apiTuning || defaultTuningFilename;
+            window._savedTestFilename = apiTest || defaultFilename;
             const split = cfg.dataset_split || datasetSplit || {};
             if (split && split.mode === 'auto') {
                 $('#autoSplitMode').prop('checked', true);
@@ -194,6 +200,20 @@ function showWizardTab(index) {
 }
 
 function refreshWizardTabContent(tabId) {
+    if (tabId === 'config') {
+        // Refresh datasets when coming back to config tab (no exp_id required)
+        const runnerVal = $('#runnerId').val();
+        if (runnerVal) {
+            $.getJSON('/testset/api/by_agent/' + encodeURIComponent(runnerVal))
+                .done(function(resp) {
+                    var lite = (resp || []).map(function(t) {
+                        return { name: t.name, count: t.count };
+                    });
+                    renderTestset(lite);
+                });
+        }
+        return;
+    }
     const id = getExpId();
     if (!id || id === 'Not saved yet') return;
     if (tabId === 'baseline') {
@@ -229,7 +249,8 @@ function inferWizardTabFromFlow(steps) {
     if (byId.final_test_report && byId.final_test_report.status === 'done') return 3;
     if (byId.optimize_rounds && (byId.optimize_rounds.status === 'done' || byId.optimize_rounds.status === 'skipped')) return 3;
     if (byId.baseline_test_report && byId.baseline_test_report.status === 'done') return 1;
-    if (getExpId() && getExpId() !== 'Not saved yet') return 1;
+    // Don't auto-advance just because an experiment is saved.
+    // Only advance when actual work has been completed.
     return 0;
 }
 
@@ -407,6 +428,26 @@ $(document).ready(function () {
     observer.observe(runnerType[0], {attributes: true, childList: true, subtree: true});
     observer.observe(runnerId[0], {attributes: true, childList: true, subtree: true});
 
+    // If runner is already selected (pre-populated from server), load datasets
+    // immediately. The MutationObserver only fires on changes, so initial
+    // pre-populated values won't trigger it.
+    var initialRunnerId = runnerId.val();
+    if (initialRunnerId) {
+        $.getJSON('/testset/api/by_agent/' + encodeURIComponent(initialRunnerId))
+            .done(function(resp) {
+                var lite = (resp || []).map(function(t) {
+                    return { name: t.name, count: t.count };
+                });
+                renderTestset(lite);
+                refreshPreviewIfReady();
+                refreshRunnerAgentRoster(initialRunnerId);
+            })
+            .fail(function() {
+                datasetSelect.html('<option value="">-- Error loading test sets --</option>');
+                tuningDatasetSelect.html('<option value="">-- Error loading test sets --</option>');
+            });
+    }
+
     $('#autoSplitMode').on('change', function () {
         const enabled = $(this).is(':checked');
         $('#autoSplitPanel').toggle(enabled);
@@ -439,6 +480,102 @@ $(document).ready(function () {
     $('#runFinalTabBtn').on('click', function () {
         if (window._pipelineRunning) return;
         runFinalTabPipeline().catch((err) => alert(err.message || 'Final test pipeline failed'));
+    });
+
+    // Batch pause/resume/stop handlers
+    $(document).on('click', '#batchPauseBtn', function () {
+        const expIdVal = getExpId();
+        if (!expIdVal) return;
+        $.post(`/stream/pause/${encodeURIComponent(expIdVal)}`)
+            .done(function (resp) {
+                if (resp.success) {
+                    $('#batchPauseBtn').prop('disabled', true).text('Pausing...');
+                }
+            })
+            .fail(function () {
+                alert('Failed to pause');
+            });
+    });
+
+    $(document).on('click', '#batchResumeBtn', function () {
+        const expIdVal = getExpId();
+        if (!expIdVal) return;
+        const progressSelector = '#overallProgress';
+        $('#batchResumeBtn').prop('disabled', true).text('Resuming...');
+        $.ajax({
+            url: '/exp/api/update',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ exp_id: expIdVal, status: 'running' }),
+            success: function () {
+                stream(expIdVal, { progressSelector });
+            },
+            error: function () {
+                alert('Failed to resume');
+                $('#batchResumeBtn').prop('disabled', false).html('<i class="fas fa-play"></i>');
+            },
+        });
+    });
+
+    $(document).on('click', '#batchStopBtn', function () {
+        const expIdVal = getExpId();
+        if (!expIdVal) return;
+        if (!confirm('Stop the current batch run? Completed samples will be saved.')) return;
+        $.post(`/stream/stop/${encodeURIComponent(expIdVal)}`)
+            .done(function (resp) {
+                if (resp.success) {
+                    $('#batchStopBtn').prop('disabled', true).text('Stopping...');
+                }
+            })
+            .fail(function () {
+                alert('Failed to stop');
+            });
+    });
+
+    // Tuning batch controls
+    $(document).on('click', '#tuningBatchPauseBtn', function () {
+        const expIdVal = window._tuningStreamExpId || getExpId();
+        if (!expIdVal) return;
+        $.post(`/stream/pause/${encodeURIComponent(expIdVal)}`)
+            .done(function (resp) {
+                if (resp.success) {
+                    $('#tuningBatchPauseBtn').prop('disabled', true).text('Pausing...');
+                }
+            })
+            .fail(function () { alert('Failed to pause'); });
+    });
+
+    $(document).on('click', '#tuningBatchResumeBtn', function () {
+        const expIdVal = window._tuningStreamExpId || getExpId();
+        if (!expIdVal) return;
+        const progressSelector = '#baselineTuningProgress';
+        $('#tuningBatchResumeBtn').prop('disabled', true).text('Resuming...');
+        $.ajax({
+            url: '/exp/api/update',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ exp_id: expIdVal, status: 'running' }),
+            success: function () {
+                stream(expIdVal, { progressSelector });
+            },
+            error: function () {
+                alert('Failed to resume');
+                $('#tuningBatchResumeBtn').prop('disabled', false).html('<i class="fas fa-play"></i>');
+            },
+        });
+    });
+
+    $(document).on('click', '#tuningBatchStopBtn', function () {
+        const expIdVal = window._tuningStreamExpId || getExpId();
+        if (!expIdVal) return;
+        if (!confirm('Stop the current batch run? Completed samples will be saved.')) return;
+        $.post(`/stream/stop/${encodeURIComponent(expIdVal)}`)
+            .done(function (resp) {
+                if (resp.success) {
+                    $('#tuningBatchStopBtn').prop('disabled', true).text('Stopping...');
+                }
+            })
+            .fail(function () { alert('Failed to stop'); });
     });
 
     $('#wizardPrevBtn').on('click', function () {
@@ -774,12 +911,43 @@ function unfreezeInputs() {
 
 
 
+// Map progress selectors to their batch control button IDs
+const _batchControlMap = {
+    '#overallProgress': { pause: '#batchPauseBtn', resume: '#batchResumeBtn', stop: '#batchStopBtn' },
+    '#baselineTuningProgress': { pause: '#tuningBatchPauseBtn', resume: '#tuningBatchResumeBtn', stop: '#tuningBatchStopBtn' },
+};
+
+function _showBatchControls(progressSelector, show) {
+    const map = _batchControlMap[progressSelector];
+    if (!map) return;
+    $(map.pause).toggleClass('d-none', !show);
+    $(map.stop).toggleClass('d-none', !show);
+    $(map.resume).addClass('d-none');
+}
+
+function _showResumeButton(progressSelector, show) {
+    const map = _batchControlMap[progressSelector];
+    if (!map) return;
+    $(map.pause).addClass('d-none');
+    $(map.stop).addClass('d-none');
+    $(map.resume).toggleClass('d-none', !show);
+}
+
+function _hideAllBatchControls(progressSelector) {
+    const map = _batchControlMap[progressSelector];
+    if (!map) return;
+    $(map.pause).addClass('d-none');
+    $(map.resume).addClass('d-none');
+    $(map.stop).addClass('d-none');
+}
+
 function stream(exp_id, options = {}) {
     const progressSelector = options.progressSelector || '#overallProgress';
     let current_process = 0;
     let current_status = 'pending';
     let reconnectCount = 0;
     const maxReconnect = 2;
+    let isPaused = false;
     updateProgress(current_process, progressSelector);
     if (progressSelector === '#overallProgress') {
         freezeInputAndLink();
@@ -787,6 +955,7 @@ function stream(exp_id, options = {}) {
     } else if (progressSelector === '#baselineTuningProgress') {
         _setLocalFlowStep('baseline_tuning', 'running', 'Running tuning baseline...');
     }
+    _showBatchControls(progressSelector, true);
     window.agentEventSource?.close();
 
     function openStream() {
@@ -795,7 +964,12 @@ function stream(exp_id, options = {}) {
         window.agentEventSource.onmessage = (e) => {
             if (e.data === '[DONE]') {
                 window.agentEventSource.close();
-                complete_task(exp_id, current_process, current_status, { progressSelector });
+                if (!isPaused) {
+                    _hideAllBatchControls(progressSelector);
+                    complete_task(exp_id, current_process, current_status, { progressSelector });
+                }
+                // When paused, the resume button was already shown by the pause handler.
+                // When stopped, the controls were already hidden by the stop handler.
                 return;
             }
             try {
@@ -804,6 +978,38 @@ function stream(exp_id, options = {}) {
                     $('#error_message').text(msg.error);
                     current_status = 'failed';
                     updateTableRow(msg.current_index, { status: 'failed' });
+                    _hideAllBatchControls(progressSelector);
+                } else if (msg.status === 'paused') {
+                    current_status = 'paused';
+                    current_process = msg.percent;
+                    isPaused = true;
+                    updateProgress(current_process, progressSelector);
+                    _showResumeButton(progressSelector, true);
+                    if (progressSelector === '#overallProgress') {
+                        _setLocalFlowStep('baseline_test', 'paused', `Paused at ${msg.completed}/${msg.total}`);
+                        updateTableRow(msg.current_index, { status: 'paused' });
+                    } else if (progressSelector === '#baselineTuningProgress') {
+                        _setLocalFlowStep('baseline_tuning', 'paused', `Paused at ${msg.completed}/${msg.total}`);
+                    }
+                    unfreezeInputs();
+                } else if (msg.status === 'stopped') {
+                    current_status = 'stopped';
+                    current_process = msg.percent;
+                    updateProgress(current_process, progressSelector);
+                    _hideAllBatchControls(progressSelector);
+                    if (progressSelector === '#overallProgress') {
+                        _setLocalFlowStep('baseline_test', 'done', `Stopped at ${msg.completed}/${msg.total}`);
+                    }
+                    unfreezeInputs();
+                } else if (msg.status === 'resumed') {
+                    current_process = msg.percent;
+                    isPaused = false;
+                    updateProgress(current_process, progressSelector);
+                    _showBatchControls(progressSelector, true);
+                    if (progressSelector === '#overallProgress') {
+                        freezeInputAndLink();
+                        _setLocalFlowStep('baseline_test', 'running', `Resumed from ${msg.completed}/${msg.total}`);
+                    }
                 } else {
                     current_status = msg.batch_status || msg.status;
                     current_process = msg.percent;
@@ -819,13 +1025,16 @@ function stream(exp_id, options = {}) {
         window.agentEventSource.onerror = (err) => {
             console.error('SSE error:', err);
             window.agentEventSource.close();
-            if (reconnectCount < maxReconnect) {
+            if (reconnectCount < maxReconnect && !isPaused) {
                 reconnectCount += 1;
                 $('#error_message').text(`SSE reconnected (${reconnectCount}/${maxReconnect})...`);
                 setTimeout(openStream, 1200);
                 return;
             }
-            $('#error_message').text('SSE disconnected. Please retry run.');
+            if (!isPaused) {
+                $('#error_message').text('SSE disconnected. Please retry run.');
+                _hideAllBatchControls(progressSelector);
+            }
         };
     }
 
@@ -1186,6 +1395,7 @@ function runBaselineTuningStream(tuneExpId) {
             reject(new Error('Missing tuning baseline experiment id'));
             return;
         }
+        window._tuningStreamExpId = tuneExpId;
         $('#baselineTuningProgress')
             .css('width', '0%')
             .text('0%')
@@ -1325,14 +1535,24 @@ const ASYNC_PIPELINE_STEPS = new Set([
 function _flowProgressHtml(stepId) {
     if (stepId === 'baseline_test') {
         return `
-        <div class="progress exp-progress-step w-100">
-          <div id="overallProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Baseline test progress">0%</div>
+        <div class="d-flex align-items-center gap-2 w-100">
+          <div class="progress exp-progress-step flex-grow-1">
+            <div id="overallProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Baseline test progress">0%</div>
+          </div>
+          <button type="button" class="btn btn-sm btn-warning batch-pause-btn d-none" id="batchPauseBtn" title="Pause"><i class="fas fa-pause"></i></button>
+          <button type="button" class="btn btn-sm btn-success batch-resume-btn d-none" id="batchResumeBtn" title="Resume"><i class="fas fa-play"></i></button>
+          <button type="button" class="btn btn-sm btn-danger batch-stop-btn d-none" id="batchStopBtn" title="Stop"><i class="fas fa-stop"></i></button>
         </div>`;
     }
     if (stepId === 'baseline_tuning') {
         return `
-        <div class="progress exp-progress-step w-100">
-          <div id="baselineTuningProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Tuning baseline progress">0%</div>
+        <div class="d-flex align-items-center gap-2 w-100">
+          <div class="progress exp-progress-step flex-grow-1">
+            <div id="baselineTuningProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Tuning baseline progress">0%</div>
+          </div>
+          <button type="button" class="btn btn-sm btn-warning batch-pause-btn d-none" id="tuningBatchPauseBtn" title="Pause"><i class="fas fa-pause"></i></button>
+          <button type="button" class="btn btn-sm btn-success batch-resume-btn d-none" id="tuningBatchResumeBtn" title="Resume"><i class="fas fa-play"></i></button>
+          <button type="button" class="btn btn-sm btn-danger batch-stop-btn d-none" id="tuningBatchStopBtn" title="Stop"><i class="fas fa-stop"></i></button>
         </div>`;
     }
     if (stepId === 'optimize_rounds') {

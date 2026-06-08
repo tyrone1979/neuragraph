@@ -572,3 +572,21 @@ button.exp-tree-row.is-open .exp-tree-chevron {
   gap: 0.35rem;
   justify-content: flex-end;
 }
+
+.batch-pause-btn,
+.batch-resume-btn,
+.batch-stop-btn {
+  flex-shrink: 0;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.batch-pause-btn i,
+.batch-resume-btn i,
+.batch-stop-btn i {
+  font-size: 0.8rem;
+}

@@ -712,6 +712,23 @@ def experiment_detail(exp_id):
     runner_type=exp_cfg['runner_type']
     runner_display=exp_cfg['runner_display']
     tuning_dataset, test_dataset = _resolve_exp_datasets(exp_cfg)
+
+    # Allow URL params to override saved dataset selection (e.g. from dropdown change)
+    url_filename = request.args.get('filename', '').strip()
+    url_tuning = request.args.get('tuning_filename', '').strip()
+    dirty = False
+    if url_filename and url_filename != test_dataset:
+        test_dataset = url_filename
+        exp_cfg['test_dataset'] = test_dataset
+        exp_cfg['dataset'] = test_dataset
+        dirty = True
+    if url_tuning and url_tuning != tuning_dataset:
+        tuning_dataset = url_tuning
+        exp_cfg['tuning_dataset'] = tuning_dataset
+        dirty = True
+    if dirty:
+        MetaLoader.dump("exps", exp_id, exp_cfg)
+
     return render_html(
         'experiment.html',
         runner_id=runner_id,
