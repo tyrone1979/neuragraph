@@ -37,7 +37,12 @@ pip install -r requirements.txt
 python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+
+# langgraph and langgraph-prebuilt share a namespace; reinstall prebuilt last
+pip install --force-reinstall --no-deps langgraph-prebuilt==1.1.0
 ```
+
+> **Why the extra line?** `langgraph` depends on `langgraph-prebuilt`, so pip installs prebuilt *before* langgraph. Since both write to `langgraph/prebuilt/__init__.py`, langsgraph's version (missing `ToolCallTransformer`) overwrites prebuilt's. Reinstalling `langgraph-prebuilt` last fixes this. This is not needed on Windows where pip may resolve in a different order.
 
 Key version requirements (pinned in `requirements.txt`):
 
