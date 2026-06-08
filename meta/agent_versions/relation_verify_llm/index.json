@@ -1,6 +1,6 @@
 {
   "agent_id": "relation_verify_llm",
-  "latest": "v0008",
+  "latest": "v0010",
   "versions": [
     {
       "version": "v0001",
@@ -73,6 +73,24 @@
       "change_note": "opt_loop 20260604_143447 r1: FN: LLM fails to recognize clinical trial AE reporting ('reported in X%', 'were common for combination recipients') as causal evidence (samples 42, 35). FP: LLM over-classifies symptom-list descriptions as causal (sample 33: serotonin syndrome symptoms). Strengthen both",
       "source": "optimize_loop",
       "content_hash": "fb4d2488885fcb68bda345e8687958d2d8efab683873d4114bff844da294001f"
+    },
+    {
+      "version": "v0009",
+      "parent_version": "v0008",
+      "created_at": "2026-06-05T09:03:08.072553",
+      "created_by": "optimize_loop",
+      "change_note": "opt_loop 20260605_085217 r1: FN sample 42: LLM returns ~ for amlodipine->diarrhea despite text stating incidences were similar (treatment-emergent AE). FP samples 15,33,44: LLM over-applies condition 2 to mere adverse event listings without causation. Clarify condition 2 to require explicit causal l",
+      "source": "optimize_loop",
+      "content_hash": "2faebee6b016edaf0a35bffb2ddd48c04de3454f9c09633d5e1bc5cacf416f7c"
+    },
+    {
+      "version": "v0010",
+      "parent_version": "v0009",
+      "created_at": "2026-06-08T13:49:36.842644",
+      "created_by": "manual",
+      "change_note": "Assumptions before Conditions; rescue/resuscitation/antidote for tail/LAST -> ~ (1.5).",
+      "source": "save",
+      "content_hash": "4b86418c6f7022c2f2495c6dcf058f7b17608aaf7fc5d6e483eb1c6e7f45af77"
     }
   ]
 }

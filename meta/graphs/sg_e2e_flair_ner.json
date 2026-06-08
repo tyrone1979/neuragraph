@@ -23,7 +23,7 @@
         "loopType": "foreach",
         "array": "{{ sentences }}",
         "scalarItemField": "sentence",
-        "itemBindings": { "labels": "{{ labels }}" },
+        "itemBindings": { "labels": "{{ START.labels }}" },
         "mergeAliases": { "predicted": "entities" }
       }
     }

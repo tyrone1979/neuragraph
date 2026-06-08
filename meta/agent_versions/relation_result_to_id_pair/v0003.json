@@ -1,0 +1,25 @@
+{
+  "agent_id": "relation_result_to_id_pair",
+  "version": "v0003",
+  "parent_version": "v0001",
+  "created_at": "2026-06-05T09:13:02.182672",
+  "created_by": "optimize_loop",
+  "change_note": "opt_loop 20260605_085217 r2: FP sample 33: 'no other evidence of rhabdomyolysis' not caught by negation guard. Add missing negation phrases. FN samples 12,45,6: associative guard (30-char proximity for 'may','could','possible') overrides legitimate causal relations. Reduce proximity to 15 and add ca",
+  "source": "optimize_loop",
+  "content_hash": "40d0d85aab0fd40f8ff5691415e8b58f11990658463006eb58596dc875285833",
+  "content": {
+    "type": "PGM",
+    "inputs": [
+      "result",
+      "head_id",
+      "tail_id"
+    ],
+    "outputs": {
+      "name": "relations",
+      "type": "list"
+    },
+    "process": "result = state.get('result')\nhid = state.get('head_id') or ''\ntid = state.get('tail_id') or ''\ntext = state.get('text') or ''\nhead = state.get('head') or ''\ntail = state.get('tail') or ''\n\nif result == '$' and hid and tid:\n    text_lower = text.lower()\n    head_lower = head.lower()\n    tail_lower = tail.lower()\n    \n    # Negation guard: if text explicitly negates causation near head or tail, override\n    negation_phrases = [\n        'did not cause', 'did not induce', 'did not result', 'did not lead',\n        'no effect', 'not associated', 'not cause', 'not induce',\n        'not result in', 'not lead to', 'failed to', 'unable to',\n        'no evidence', 'not significant', 'does not cause', 'does not induce',\n        'no evidence of', 'without', 'not associated with', 'no indication of',\n        'not related to', 'no sign of', 'not due to'\n    ]\n    override = False\n    for phrase in negation_phrases:\n        idx = text_lower.find(phrase)\n        if idx == -1:\n            continue\n        for term in [head_lower, tail_lower]:\n            if not term:\n                continue\n            tidx = text_lower.find(term)\n            if tidx == -1:\n                continue\n            if abs(idx - tidx) <= 50:\n                override = True\n                break\n        if override:\n            break\n    \n    if not override:\n        # Causal override: if explicit causal language near terms, skip associative guard\n        causal_patterns = [\n            f'{head_lower}-induced {tail_lower}',\n            f'{head_lower}-associated {tail_lower}',\n        ]\n        has_causal = False\n        for cp in causal_patterns:\n            if cp in text_lower:\n                has_causal = True\n                break\n        if not has_causal:\n            causal_verbs = ['cause', 'caused', 'induces', 'induced', 'result in', 'resulted in', 'lead to', 'led to']\n            for verb in causal_verbs:\n                vidx = text_lower.find(verb)\n                if vidx == -1:\n                    continue\n                for term in [head_lower, tail_lower]:\n                    if not term:\n                        continue\n                    tidx = text_lower.find(term)\n                    if tidx == -1:\n                        continue\n                    if abs(vidx - tidx) <= 100:\n                        has_causal = True\n                        break\n                if has_causal:\n                    break\n        \n        if not has_causal:\n            # Relaxed associative guard: only override if phrase within 15 chars\n            associative_phrases = [\n                'associated with', 'linked to', 'correlated with', 'related to',\n                'risk factor', 'risk of', 'presumably', 'suggest', 'may', 'could',\n                'possible', 'might', 'co-occurrence'\n            ]\n            for phrase in associative_phrases:\n                idx = text_lower.find(phrase)\n                if idx == -1:\n                    continue\n                for term in [head_lower, tail_lower]:\n                    if not term:\n                        continue\n                    tidx = text_lower.find(term)\n                    if tidx == -1:\n                        continue\n                    if abs(idx - tidx) <= 15:\n                        override = True\n                        break\n                if override:\n                    break\n    \n    if override:\n        __result__ = []\n    else:\n        __result__ = [f\"{hid} | {tid}\"]\nelse:\n    __result__ = []",
+    "created_at": "2026-05-29T08:00:00",
+    "engine": "pgm"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "E2E Synonym Filter (LLM)",
+  "type": "LLM",
+  "inputs": [
+    "entities",
+    "text"
+  ],
+  "outputs": {
+    "name": "filtered_entities",
+    "type": "list"
+  },
+  "model": "kimi-2.6",
+  "prompt_template": {
+    "description": "Assign every input entity to a synonym cluster (shared id); do not drop entities.",
+    "system": "You are a biomedical entity normalization expert. Do not call tools. Your reply must be ONLY the final JSON array — no reasoning, markdown, or prose.",
+    "human": "Text:\n{text}\n\nEntities (JSON array of {{\"text\", \"id\", \"label\"}}):\n{entities}\n\nTask: assign each input entity to a synonym CLUSTER. Grouping only — do NOT drop any entity.\n\nA cluster = entities that would map to the same MeSH concept in BC5CDR (same chemical, or same disease), based on this article.\n\nSame label + same cluster id when:\n- Abbreviation, generic name, or trade name of the same drug/substance.\n- Morphological variant of the same drug (e.g. -related, -associated, -induced).\n- Clinical near-synonyms for the SAME disease event or pathological process in context: e.g. organ injury, organ toxicity, organ inflammation, organ damage, or named syndrome wording that refers to one outcome.\n- One drug-adverse-event narrative in the article → one Disease cluster id for all Disease mentions describing that same reaction (do not split injury vs toxicity vs inflammation vs named disease if they refer to one event).\n- Multi-word disease phrase and its head term → same cluster.\n- Bare temporal/severity/course modifier alone → same cluster id as the disease phrase it modifies in the text, not a separate cluster.\n\nDifferent cluster ids only when the article clearly denotes distinct chemicals, or distinct unrelated disease conditions/events.\n\nOutput — ONE row per INPUT entity (count must match input):\n- text = exact input surface form (preserve casing).\n- id = cluster key shared by all cluster members (stable canonical phrase from the group; no MeSH/CHEBI/DOID codes).\n- label = Chemical or Disease.\n\nCRITICAL:\n- Every input entity exactly once; do NOT omit entities.\n- All members of one cluster use the identical id string.\n- Do not invent ontology codes.\n\nOutput ONLY a JSON array:\n[{{\"text\": \"...\", \"id\": \"...\", \"label\": \"Chemical\"|\"Disease\"}}]"
+  },
+  "tools": [],
+  "created_at": "2026-06-08T08:00:00"
+}

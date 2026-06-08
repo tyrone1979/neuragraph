@@ -58,14 +58,17 @@ def compute_states(graph_id):
     g = graphs[graph_id]
     state = set()
     for node in g["nodes"]:
-        agent = MetaLoader.load("agents", node)
-        if not agent:
+        if node in ("START", "END"):
             continue
-        for inp in agent.get("inputs", []):
-            state.add(inp)
-        outputs = agent.get("outputs", {})
-        if "name" in outputs:
-            state.add(outputs["name"])
+        agent = MetaLoader.load("agents", node)
+        if agent:
+            for inp in agent.get("inputs", []):
+                state.add(inp)
+            outputs = agent.get("outputs") or {}
+            if "name" in outputs:
+                state.add(outputs["name"])
+        elif MetaLoader.load("graphs", node):
+            state.update(collect_subgraph_output_fields(node))
 
     for _node, binds in (g.get("bindings") or {}).items():
         for field in binds:

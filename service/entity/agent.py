@@ -288,9 +288,11 @@ class AgentEntity(Entity):
                 return {name: text}
             return {name: result}
         elif self.type == "PGM":
-            if isinstance(result, dict) and "error" in result and name not in result:
+            if isinstance(result, dict) and "error" in result:
                 if typ == "list":
                     return {name: []}
+                if typ == "dict":
+                    return {name: {}}
                 return {name: None}
             return {name: result}
         else:

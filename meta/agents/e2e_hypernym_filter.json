@@ -1,0 +1,20 @@
+{
+  "name": "E2E Hypernym Filter (LLM)",
+  "type": "LLM",
+  "inputs": [
+    "entities",
+    "text"
+  ],
+  "outputs": {
+    "name": "filtered_entities",
+    "type": "list"
+  },
+  "model": "kimi-2.6",
+  "prompt_template": {
+    "description": "Remove hypernyms and standalone modifiers from entity list using article context; keep only the most specific entities per concept.",
+    "system": "You are a biomedical entity normalization expert. Do not call tools. Your reply must be ONLY the final JSON array — no reasoning, markdown, or prose.",
+    "human": "{text}\nYou are an expert of biomedical domain, above article is a biomedical paper.\n\nEntities (JSON array of {{\"text\", \"id\", \"label\"}}):\n{entities}\n\nStep 1 — Drop standalone modifiers (before any pairwise comparison):\n- Remove Disease rows whose text is ONLY a modifier token (temporal course, severity, stage, or similar qualifying adjective) with no disease head noun.\n- Keep multi-word disease phrases even when they begin with such a modifier.\n- Do not remove Chemical entities in this step.\n\nStep 2 — Rules BEFORE pairwise hypernym removal:\n1. Same id = same synonym cluster (upstream grouping). NEVER remove an entity based on comparison with another entity that has the SAME id.\n2. Only compare pairs with DIFFERENT ids (same label).\n3. Clinical near-synonyms or same disease event in this article: if two entities with different ids name the same condition/process, treat as '~' in BOTH orderings and KEEP both — do not remove either as a hypernym.\n4. Do not remove a specific disease mention in favor of a bare modifier-only token.\n\nStep 3 — For each pair (A,B) with the SAME label and DIFFERENT ids, substitute head and tail with the two entity texts:\n1. different type → '~'\n2. same type, head narrower than tail → '~'\n3. same type, head broader than tail → '$'\n\nEvaluate both (A,B) and (B,A). Remove an entity only if it receives '$' as head in comparison with another entity with a DIFFERENT id.\n\nCRITICAL: Do NOT change or invent ids. Keep exact ids from input.\n\nOutput ONLY a JSON array:\n[{{\"text\": \"...\", \"id\": \"...\", \"label\": \"Chemical\"|\"Disease\"}}]"
+  },
+  "tools": [],
+  "created_at": "2026-06-08T12:00:00"
+}

@@ -13,10 +13,13 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from service.dataset_cid import RE_FIELDS, load_source_articles, re_row
-from service.entity.test import TestLoader
+from service.entity.test import TEST_DIR, TestLoader
+from service.meta.loader import MetaLoader
 
 DATASET = "cdr_test_500.csv"
 SOURCE = ROOT / "comparison" / "data" / "CDR" / "test.txt"
+DEV_SOURCE = ROOT / "data" / "raw" / "dev.txt"
+DEV50_DATASET = "cid_dev_tuning_stratified_50.csv"
 RUNNER_BASELINE = "wf_cid_re_llm_linear"
 
 
@@ -60,22 +63,62 @@ def _persist_sample(
     write_states_bundle(exp_id, result, touch_sample_ids={str(idx)})
 
 
-def _aggregate(states_path: Path) -> dict:
+def _load_script_module(name: str, filename: str):
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location(
-        "agg", ROOT / "scripts" / "_aggregate_exp_metrics.py"
-    )
+    spec = importlib.util.spec_from_file_location(name, ROOT / "scripts" / filename)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    return mod.aggregate_states(states_path)
+    return mod
 
 
-def build_csv(runner_id: str) -> Path:
-    articles = load_source_articles(SOURCE)
-    rows = [re_row(a) for a in articles]
-    path = TestLoader.save_csv_rows(runner_id, DATASET, RE_FIELDS, rows)
-    print(f"Wrote {path} ({len(rows)} rows) for {runner_id}")
+def _aggregate(states_path: Path) -> dict:
+    return _load_script_module("agg", "_aggregate_exp_metrics.py").aggregate_states(
+        states_path
+    )
+
+
+def _s17_metrics(states_path: Path) -> dict:
+    return _load_script_module("s17", "s17_metrics_compare.py").metrics_from_states(
+        states_path
+    )
+
+
+def _s17_format(cur: dict, *, milestone: int, total: int) -> str:
+    return _load_script_module("s17", "s17_metrics_compare.py").format_s17_report(
+        cur, milestone=milestone, total=total
+    )
+
+
+def _s17_checkpoint(states_path: Path, milestone: int, *, total: int) -> None:
+    _load_script_module("s17", "s17_metrics_compare.py").print_checkpoint(
+        states_path, milestone, total=total
+    )
+
+
+def build_csv(
+    runner_id: str,
+    *,
+    dataset: str = DATASET,
+    source: Path | None = None,
+    dev_stratified_50: bool = False,
+) -> Path | None:
+    if dataset != DATASET and (TEST_DIR / runner_id / dataset).is_file():
+        print(f"Using existing {dataset} for {runner_id}")
+        return TEST_DIR / runner_id / dataset
+    src = source or (DEV_SOURCE if dev_stratified_50 else SOURCE)
+    articles = load_source_articles(src)
+    if dev_stratified_50:
+        from service.dataset_cid import stratified_pick
+
+        picked, _ = stratified_pick(articles, 50)
+        rows = [re_row(a) for a in picked]
+        out_name = dataset
+    else:
+        rows = [re_row(a) for a in articles]
+        out_name = dataset
+    path = TestLoader.save_csv_rows(runner_id, out_name, RE_FIELDS, rows)
+    print(f"Wrote {path} ({len(rows)} rows) from {src.name}")
     return path
 
 
@@ -88,7 +131,11 @@ def _progress_bar(current: int, total: int, *, width: int = 50) -> str:
 
 
 def run_batch(
-    runner_id: str, *, limit: int | None = None, exp_id: str | None = None
+    runner_id: str,
+    *,
+    dataset: str = DATASET,
+    limit: int | None = None,
+    exp_id: str | None = None,
 ) -> dict:
     from langchain_core.runnables import RunnableConfig
 
@@ -102,12 +149,14 @@ def run_batch(
         if not exp:
             raise RuntimeError(f"experiment not found: {exp_id}")
     else:
-        exp = create_experiment_record(runner_id, DATASET, "graph")
+        exp = create_experiment_record(
+            runner_id, dataset, "graph", tuning_dataset=dataset, test_dataset=dataset
+        )
         exp_id = exp["exp_id"]
     if not exp_id:
         exp_id = exp["exp_id"]
 
-    _, rows = TestLoader.load_by_id_file(runner_id, DATASET)
+    _, rows = TestLoader.load_by_id_file(runner_id, dataset)
     if limit is not None:
         rows = rows[: int(limit)]
         MetaLoader.update("exps", exp_id, {"samples": len(rows)})
@@ -154,13 +203,19 @@ def run_batch(
             },
         )
         print(_progress_bar(idx, total), end="", flush=True)
+        if idx % 100 == 0 and states_path.is_file():
+            _s17_checkpoint(states_path, idx, total=total)
     print()  # final newline after progress bar
+
+    if states_path.is_file():
+        cur = _s17_metrics(states_path)
+        print(_s17_format(cur, milestone=total, total=total), flush=True)
 
     agg = _aggregate(states_path)
     summary = {
         "runner_id": runner_id,
         "exp_id": exp_id,
-        "dataset": DATASET,
+        "dataset": dataset,
         "n": total,
         "aggregate": agg,
     }
@@ -180,16 +235,60 @@ def main() -> int:
     )
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--exp-id", default="", help="Resume existing experiment")
+    parser.add_argument("--dataset", default=DATASET, help="CSV under tests/<runner>/")
+    parser.add_argument(
+        "--dev50",
+        action="store_true",
+        help="Use cid_dev_tuning_stratified_50.csv from data/raw/dev.txt",
+    )
+    parser.add_argument("--skip-build", action="store_true")
+    parser.add_argument(
+        "--fresh",
+        action="store_true",
+        help="Clear existing states for --exp-id before run",
+    )
     args = parser.parse_args()
 
     runner_id = (args.runner or RUNNER_BASELINE).strip()
-    build_csv(runner_id)
+    dataset = DEV50_DATASET if args.dev50 else (args.dataset or DATASET).strip()
+    if not args.skip_build:
+        build_csv(
+            runner_id,
+            dataset=dataset,
+            dev_stratified_50=args.dev50 or dataset == DEV50_DATASET,
+        )
+    elif args.build_only:
+        build_csv(
+            runner_id,
+            dataset=dataset,
+            dev_stratified_50=args.dev50 or dataset == DEV50_DATASET,
+        )
+        return 0
     if args.build_only:
         return 0
 
     limit = args.limit if args.limit > 0 else None
     resume_id = args.exp_id.strip() or None
-    run_batch(runner_id, limit=limit, exp_id=resume_id)
+    if resume_id and args.fresh:
+        import shutil
+
+        result_dir = ROOT / "result" / resume_id
+        if result_dir.is_dir():
+            shutil.rmtree(result_dir)
+            print(f"Cleared result/{resume_id}")
+        MetaLoader.update(
+            "exps",
+            resume_id,
+            {
+                "dataset": dataset,
+                "tuning_dataset": dataset,
+                "test_dataset": dataset,
+                "samples": 50 if dataset == DEV50_DATASET else 500,
+                "progress": 0,
+                "status": "pending",
+            },
+        )
+    run_batch(runner_id, dataset=dataset, limit=limit, exp_id=resume_id)
     return 0
 
 

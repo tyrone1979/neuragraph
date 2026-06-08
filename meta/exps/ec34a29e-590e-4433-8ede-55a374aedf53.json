@@ -1,0 +1,16 @@
+{
+  "dataset": "cdr_test_500.csv",
+  "tuning_dataset": "cdr_test_500.csv",
+  "test_dataset": "cdr_test_500.csv",
+  "runner_type": "graph",
+  "runner_id": "wf_doc_ner_llm_eval",
+  "runner_display": "wf_doc_ner_llm_eval",
+  "samples": 500,
+  "exp_id": "ec34a29e-590e-4433-8ede-55a374aedf53",
+  "name": "wf_doc_ner_llm_eval_cdr_test_500.csv_20260605144723",
+  "status": "running",
+  "progress": 86,
+  "created_at": "2026-06-05T14:47:23.868506",
+  "id": "ec34a29e-590e-4433-8ede-55a374aedf53",
+  "updated_at": "2026-06-05T15:22:18.312023"
+}

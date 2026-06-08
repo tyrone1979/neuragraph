@@ -32,5 +32,9 @@
       "head_id": "{{ head_id }}",
       "tail_id": "{{ tail_id }}"
     }
+  },
+  "agentVersions": {
+    "relation_verify_llm": "v0010",
+    "relation_result_to_id_pair": "v0003"
   }
 }

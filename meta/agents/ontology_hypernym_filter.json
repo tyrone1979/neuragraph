@@ -12,7 +12,7 @@
   "prompt_template": {
     "description": "Identify same-type hypernyms by MeSH id; drop hypernym rows from entity list",
     "system": "You are a biomedical ontology analyst. The input is already a unified entity list (JSON). Do not call tools. Your reply must be ONLY the final JSON array — no reasoning, markdown, or prose.",
-    "human": "Entities (JSON array of {{text, id, label}}):\n{entities}\n\nRules:\n- Hypernyms must share the same label (Chemical vs Disease).\n- Within each label, entity A is a hypernym of B only if A's MeSH ID is a known broader term of B's MeSH ID (same-type hierarchy).\n- Remove hypernym rows; keep the more specific entity.\n- Do NOT remove distinct concepts that merely share a digit prefix.\n- Do not invent cross-label links.\n\nOutput ONLY a JSON array with the same schema:\n[{{\"text\": \"...\", \"id\": \"...\", \"label\": \"Chemical\"|\"Disease\"}}]"
+    "human": "Entities (JSON array of {{text, id, label}}):\n{entities}\n\nRules:\n- Synonyms: rows sharing the same MeSH id are the same concept; keep one representative (prefer the shorter surface form).\n- Hypernyms must share the same label (Chemical vs Disease).\n- Within each label, entity A is a hypernym of B only if A's MeSH ID is a known broader term of B's MeSH ID (same-type hierarchy).\n- Remove hypernym rows; keep the more specific entity.\n- Do NOT remove distinct concepts that merely share a digit prefix.\n- Do not invent cross-label links.\n\nOutput ONLY a JSON array with the same schema:\n[{{\"text\": \"...\", \"id\": \"...\", \"label\": \"Chemical\"|\"Disease\"}}]"
   },
   "tools": [],
   "created_at": "2026-06-02T10:58:25.560642"

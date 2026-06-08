@@ -1,6 +1,6 @@
 {
   "agent_id": "relation_result_to_id_pair",
-  "latest": "v0001",
+  "latest": "v0003",
   "versions": [
     {
       "version": "v0001",
@@ -19,6 +19,15 @@
       "change_note": "opt_loop 20260604_142752 r1: The 'Relaxed associative guard' section overrides LLM '$' verdicts when associative phrases like 'associated with', 'may', 'suggest' appear within 30 chars of entity mentions. This is the dominant cause of 160 FNs (recall 14.9%). The LLM correctly returns '$' for causal",
       "source": "optimize_loop",
       "content_hash": "c3f10990156a5d33a9724d7f574ebfb9596601e96166c03caa78b767e28e81cc"
+    },
+    {
+      "version": "v0003",
+      "parent_version": "v0001",
+      "created_at": "2026-06-05T09:13:02.182672",
+      "created_by": "optimize_loop",
+      "change_note": "opt_loop 20260605_085217 r2: FP sample 33: 'no other evidence of rhabdomyolysis' not caught by negation guard. Add missing negation phrases. FN samples 12,45,6: associative guard (30-char proximity for 'may','could','possible') overrides legitimate causal relations. Reduce proximity to 15 and add ca",
+      "source": "optimize_loop",
+      "content_hash": "40d0d85aab0fd40f8ff5691415e8b58f11990658463006eb58596dc875285833"
     }
   ]
 }
