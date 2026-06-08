@@ -59,10 +59,16 @@ pick_python() {
   fi
 }
 
+PY_BOOT="$(pick_python)"
 if [[ ! -x "${SANDBOX_PY}" ]]; then
-  PY_BOOT="$(pick_python)"
   echo "[sandbox:${NAME}] Creating venv at ${VENV_DIR} ..."
-  "${PY_BOOT}" -m venv "${VENV_DIR}"
+  "${PY_BOOT}" -m venv --upgrade-deps "${VENV_DIR}"
+fi
+
+# Bootstrap pip if venv is missing it (e.g. after failed prior run)
+if ! "${SANDBOX_PY}" -m pip --version &>/dev/null; then
+  echo "[sandbox:${NAME}] pip missing, bootstrapping ..."
+  "${PY_BOOT}" -m venv --upgrade-deps --clear "${VENV_DIR}"
 fi
 
 echo "[sandbox:${NAME}] pip install ..."
