@@ -49,10 +49,8 @@ LIVE_LLM_IDS = frozenset({"deepseek", "gpt-oss_120b"})
 # Prefer gpt-oss for tool-using / long JSON agents; deepseek for the rest.
 LIVE_LLM_GPT_OSS_AGENTS = frozenset(
     {
-        "ontology_hypernym_identify",
         "ontology_hypernym_filter",
         "ontology_entity_link",
-        "ontology_synonym_extract",
         "kg_triple_extract_llm",
         "ner_from_tree_llm",
         "relation_from_tree_llm",
@@ -81,10 +79,7 @@ def _mock_llm_content(agent_id: str) -> str:
         "ner_llm": '{"Chemical": ["Aspirin"], "Disease": ["heart disease"]}',
         "ontology_entity_link": '{"Aspirin": {"canonical": "Aspirin", "id": "D001241"}}',
         "ontology_hypernym_filter": _entities_json(),
-        "ontology_hypernym_identify": '[{"entity": "Aspirin", "hypernym": "Drug"}]',
-        "ontology_synonym_extract": '{"Aspirin": ["acetylsalicylic acid"]}',
         "ontology_synonym_resolve": '{"Aspirin": ["acetylsalicylic acid"]}',
-        "relation_dti_analyze": '{"interaction": "inhibits", "confidence": "medium"}',
         "relation_extract_llm": '["Aspirin | treats | heart disease"]',
         "relation_from_tree_llm": '[{"head": "Aspirin", "predicate": "treats", "tail": "heart disease"}]',
         "relation_verify_llm": "$",
@@ -93,7 +88,6 @@ def _mock_llm_content(agent_id: str) -> str:
         "report_experiment_tool": "## 1) Metrics\n\nF1=0.5\n\n## 2) FN and FP Analysis\n\nTool-assisted review complete.\n\n## 3) Agent Modification Suggestions\n\nNone.",
         "syntax_dep_parse": "1\tAspirin\taspirin\tNN\t_\t2\tnsubj\t_\t_\t_\t_\n2\ttreats\ttreat\tVBZ\t_\t0\troot\t_\t_\t_\t_\n3\tpain\tpain\tNN\t_\t2\tobj\t_\t_\t_\t_\n",
         "relation_from_tree_llm": "Aspirin | treats | pain",
-        "ontology_synonym_extract": "Aspirin|is|acetylsalicylic acid",
         "text_coreference": "Aspirin may reduce the risk of heart disease.",
         "text_sentence_split": '["Aspirin may reduce the risk of heart disease.", "Lithium carbonate toxicity was reported."]',
         "text_summarize": "Aspirin may reduce heart disease risk; lithium toxicity was reported.",

@@ -146,7 +146,7 @@ Screenshots are saved to `doc/images/` and embedded in `MANUAL.md`.
 ### Agents (`meta/agents`)
 
 <details>
-<summary>43 agents (click to expand)</summary>
+<summary>37 agents (click to expand)</summary>
 
 | ID | Type | Description |
 |----|------|-------------|
@@ -173,11 +173,7 @@ Screenshots are saved to `doc/images/` and embedded in `MANUAL.md`.
 | `ner_llm` | LLM | Named entity recognition with configurable entity label types. |
 | `ontology_entity_link` | LLM | Entity linking and normalization to canonical forms or IDs. |
 | `ontology_hypernym_filter` | LLM | Filters entities using hypernym constraints before pair generation. |
-| `ontology_hypernym_identify` | LLM | Identifies hypernyms for chemical and disease entity pairs. |
-| `ontology_mesh_lookup` | PGM | Lookup of MeSH synonyms and hypernyms from local ontology data. |
-| `ontology_synonym_extract` | LLM | Extracts synonym variants from biomedical text. |
 | `ontology_synonym_resolve` | LLM | Resolves entity synonyms to canonical names. |
-| `relation_dti_analyze` | LLM | Analyzes drug-target interaction evidence from structured inputs. |
 | `relation_extract_llm` | LLM | Extracts relations between annotated entities in text. |
 | `relation_extract_pubtator` | PGM | Calls PubTator3 API for chemical-disease relation extraction. |
 | `relation_from_tree_llm` | LLM | Relation extraction using a dependency parse tree. |
