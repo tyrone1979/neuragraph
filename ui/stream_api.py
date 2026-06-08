@@ -17,7 +17,12 @@ from utils.graphutils import collect_loop_stream_fields, is_loop_flow_node
 import json
 from datetime import datetime
 import asyncio
+import threading
 sse_bp = Blueprint('sse', __name__, url_prefix='/stream')
+
+# Global batch run state for pause/resume support
+_batch_run_state: dict[str, str] = {}  # exp_id -> "running" | "paused" | "stopped"
+_batch_run_lock = threading.Lock()
 
 def process(chunk, graph_id: str | None = None):
     if isinstance(chunk, str):
@@ -253,7 +258,8 @@ def stream_report(exp_id):
 
 @sse_bp.route('/run/<exp_id>', methods=['GET'])
 def stream_exp_batch(exp_id):
-    """Batch-run experiment samples. Uses sync graph.invoke (same as local runner) to avoid
+    """Batch-run experiment samples with pause/resume support.
+    Uses sync graph.invoke (same as local runner) to avoid
     nested asyncio event-loop deadlocks inside Flask SSE workers."""
     exp_cfg = MetaLoader.load("exps", exp_id)
     dataset = exp_cfg["dataset"]
@@ -262,15 +268,86 @@ def stream_exp_batch(exp_id):
     total = len(data)
     exp_cfg["exp_id"] = exp_id
 
+    # Load existing results for resume support
+    try:
+        from service.result.loader import ResultLoader
+        existing_results = ResultLoader.load(exp_id) or {}
+        completed_indices = {int(k) for k in existing_results.keys() if k.isdigit()}
+    except Exception:
+        completed_indices = set()
+
+    # Mark as running
+    with _batch_run_lock:
+        _batch_run_state[exp_id] = "running"
+    MetaLoader.update("exps", exp_id, {"status": "running"})
+
     def generate():
         runner = RunnerLoader.load(runner_id)
         if runner is None:
+            with _batch_run_lock:
+                _batch_run_state.pop(exp_id, None)
             yield f'data: {json.dumps({"status": "failed", "error": f"runner not found: {runner_id}"})}\n\n'
             yield "data: [DONE]\n\n"
             return
 
-        completed = 0
+        completed = len(completed_indices)
+        # Send initial progress for resume case
+        if completed > 0:
+            resume_msg = {
+                "status": "resumed",
+                "batch_status": "running",
+                "percent": int(completed / total * 100) if total else 0,
+                "completed": completed,
+                "total": total,
+                "current_index": completed,
+            }
+            yield f"data: {json.dumps(resume_msg)}\n\n"
+
         for idx, row in enumerate(data, start=1):
+            # Skip already-completed samples (resume)
+            if idx in completed_indices:
+                continue
+
+            # Check for pause signal
+            with _batch_run_lock:
+                state = _batch_run_state.get(exp_id, "running")
+            if state == "paused":
+                pause_msg = {
+                    "status": "paused",
+                    "batch_status": "paused",
+                    "percent": int(completed / total * 100) if total else 0,
+                    "completed": completed,
+                    "total": total,
+                    "current_index": idx,
+                }
+                yield f"data: {json.dumps(pause_msg)}\n\n"
+                MetaLoader.update("exps", exp_id, {
+                    "progress": int(completed / total * 100) if total else 100,
+                    "status": "paused",
+                })
+                yield "data: [DONE]\n\n"
+                with _batch_run_lock:
+                    _batch_run_state.pop(exp_id, None)
+                return
+            if state == "stopped":
+                stop_msg = {
+                    "status": "stopped",
+                    "batch_status": "stopped",
+                    "percent": int(completed / total * 100) if total else 0,
+                    "completed": completed,
+                    "total": total,
+                    "current_index": idx,
+                }
+                yield f"data: {json.dumps(stop_msg)}\n\n"
+                MetaLoader.update("exps", exp_id, {
+                    "progress": int(completed / total * 100) if total else 100,
+                    "status": "interrupted",
+                })
+                yield "data: [DONE]\n\n"
+                with _batch_run_lock:
+                    _batch_run_state.pop(exp_id, None)
+                return
+
             config: RunnableConfig = {"configurable": {"thread_id": f"{exp_id}_{idx}"}}
             try:
                 running_msg = {
@@ -323,9 +400,66 @@ def stream_exp_batch(exp_id):
                 }
                 yield f"data: {json.dumps(msg)}\n\n"
                 break
+
+        # Final status
+        MetaLoader.update("exps", exp_id, {
+            "progress": 100,
+            "status": "completed",
+        })
+        with _batch_run_lock:
+            _batch_run_state.pop(exp_id, None)
         yield "data: [DONE]\n\n"
 
     return Response(generate(), mimetype="text/event-stream")
+
+
+@sse_bp.route('/pause/<exp_id>', methods=['POST'])
+def pause_exp_batch(exp_id):
+    """Pause a running batch experiment."""
+    with _batch_run_lock:
+        current = _batch_run_state.get(exp_id)
+        if current == "running":
+            _batch_run_state[exp_id] = "paused"
+            return jsonify({"success": True, "status": "pausing"})
+        elif current == "paused":
+            return jsonify({"success": True, "status": "already_paused"})
+        else:
+            return jsonify({"success": False, "status": current or "not_running", "message": "No running batch to pause"}), 400
+
+
+@sse_bp.route('/stop/<exp_id>', methods=['POST'])
+def stop_exp_batch(exp_id):
+    """Stop a running batch experiment."""
+    with _batch_run_lock:
+        current = _batch_run_state.get(exp_id)
+        if current in ("running", "paused"):
+            _batch_run_state[exp_id] = "stopped"
+            return jsonify({"success": True, "status": "stopping"})
+        else:
+            return jsonify({"success": False, "status": current or "not_running", "message": "No running batch to stop"}), 400
+
+
+@sse_bp.route('/batch-status/<exp_id>', methods=['GET'])
+def batch_status(exp_id):
+    """Get current batch run status for an experiment."""
+    with _batch_run_lock:
+        state = _batch_run_state.get(exp_id, "idle")
+    try:
+        from service.result.loader import ResultLoader
+        existing = ResultLoader.load(exp_id) or {}
+        completed = sum(1 for k in existing.keys() if k.isdigit())
+    except Exception:
+        completed = 0
+    exp_cfg = MetaLoader.load("exps", exp_id) or {}
+    total = exp_cfg.get("samples") or 0
+    return jsonify({
+        "exp_id": exp_id,
+        "state": state,
+        "completed": completed,
+        "total": total,
+        "status": exp_cfg.get("status", "unknown"),
+        "progress": exp_cfg.get("progress", 0),
+    })
 
 
 import textwrap
