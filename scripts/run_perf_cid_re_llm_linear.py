@@ -89,11 +89,10 @@ def run_batch(*, limit: int | None = None, offset: int = 0, checkpoints: list[in
             continue
         config = RunnableConfig(configurable={"thread_id": f"{exp_id}_{idx}"})
         payload = dict(row)
-        (runner.compiled_graph if hasattr(runner, "compiled_graph") else runner).invoke(
+        final_state = (runner.compiled_graph if hasattr(runner, "compiled_graph") else runner).invoke(
             payload, config=config)
-        state = runner.get_state(config)
-        if state and state.values:
-            values = dict(state.values)
+        if final_state and isinstance(final_state, dict):
+            values = dict(final_state)
             try:
                 m = compute_workflow_metrics(RUNNER, payload, values)
                 if m:

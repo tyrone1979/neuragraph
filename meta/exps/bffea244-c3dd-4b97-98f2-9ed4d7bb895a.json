@@ -1,0 +1,65 @@
+{
+  "dataset": "cdr_test_500.csv",
+  "tuning_dataset": "cdr_test_500.csv",
+  "test_dataset": "cdr_test_500.csv",
+  "runner_type": "graph",
+  "runner_id": "wf_e2e_flair_opt_re",
+  "runner_display": "wf_e2e_flair_opt_re",
+  "samples": 500,
+  "exp_id": "bffea244-c3dd-4b97-98f2-9ed4d7bb895a",
+  "name": "wf_e2e_flair_opt_re_cdr_test_500.csv_merged500_20260608175222",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-08T17:52:22.651861",
+  "updated_at": "2026-06-08T17:52:22.651861",
+  "merge_source_segments": [
+    {
+      "exp_id": "f859b257-12fa-4c9e-951f-cc8088d9461d",
+      "range": [
+        1,
+        20
+      ],
+      "n": 20
+    },
+    {
+      "exp_id": "309d1c78-acd6-499b-b97f-ed5bcba3ca57",
+      "range": [
+        21,
+        30
+      ],
+      "n": 10
+    },
+    {
+      "exp_id": "a728966d-baea-460b-ab8d-5be74ed4ff31",
+      "range": [
+        31,
+        50
+      ],
+      "n": 20
+    },
+    {
+      "exp_id": "576ead7a-0027-48e4-b2ea-7170a080f157",
+      "range": [
+        51,
+        100
+      ],
+      "n": 50
+    },
+    {
+      "exp_id": "031fff5a-a91b-48f0-b9cd-9aac3540ce0c",
+      "range": [
+        101,
+        199
+      ],
+      "n": 99
+    },
+    {
+      "exp_id": "68ff0297-e2fe-4c57-84ca-d5b7b390a4c1",
+      "range": [
+        200,
+        500
+      ],
+      "n": 301
+    }
+  ]
+}
