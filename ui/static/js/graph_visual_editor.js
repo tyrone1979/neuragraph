@@ -709,6 +709,7 @@ function layoutLoopRegion(loopId) {
         if (l.get('parentLoop') === loopId) l.set('z', 8);
     });
     reattachLinkPorts();
+    rerouteAllLinks();
 }
 
 function isLoopShellInsideParent(loopId) {
@@ -1074,6 +1075,240 @@ const WF_ID_ROW_H = 20;
 const WF_ROW_H = 26;
 const WF_SECTION_LABEL_H = WF_IO_LABEL_H;
 const WF_BODY_PAD = WF_BODY_PAD_TOP;
+
+const LINK_ROUTE_PAD = 28;
+const LINK_PORT_CORRIDOR = LINK_ROUTE_PAD + 18;
+const LINK_PORT_OFFSET = 0;
+const LINK_BOUNDARY_OFFSET = 5;
+var _routeObstacleElements = null;
+
+function expandRect(bb, pad) {
+    return {
+        x: bb.x - pad,
+        y: bb.y - pad,
+        width: bb.width + pad * 2,
+        height: bb.height + pad * 2
+    };
+}
+
+function pointInRect(p, r) {
+    return p.x >= r.x && p.x <= r.x + r.width && p.y >= r.y && p.y <= r.y + r.height;
+}
+
+function isInsideStrictInterior(point, bb, inset) {
+    inset = inset == null ? 2 : inset;
+    return point.x > bb.x + inset && point.x < bb.x + bb.width - inset &&
+        point.y > bb.y + inset && point.y < bb.y + bb.height - inset;
+}
+
+function isPortCorridor(point, bb, side, pad) {
+    pad = pad == null ? LINK_ROUTE_PAD : pad;
+    var depth = LINK_PORT_CORRIDOR;
+    if (side === 'right') {
+        return point.x >= bb.x + bb.width - 2 && point.x <= bb.x + bb.width + depth &&
+            point.y >= bb.y - pad && point.y <= bb.y + bb.height + pad;
+    }
+    if (side === 'left') {
+        return point.x >= bb.x - depth && point.x <= bb.x + 2 &&
+            point.y >= bb.y - pad && point.y <= bb.y + bb.height + pad;
+    }
+    if (side === 'bottom') {
+        return point.y >= bb.y + bb.height - 2 && point.y <= bb.y + bb.height + depth &&
+            point.x >= bb.x - pad && point.x <= bb.x + bb.width + pad;
+    }
+    if (side === 'top') {
+        return point.y >= bb.y - depth && point.y <= bb.y + 2 &&
+            point.x >= bb.x - pad && point.x <= bb.x + bb.width + pad;
+    }
+    return false;
+}
+
+function isEndpointCorridor(point, bb, role) {
+    if (role === 'source') return isPortCorridor(point, bb, 'right');
+    if (role === 'target') return isPortCorridor(point, bb, 'left');
+    return false;
+}
+
+function isNodeInSubgraph(nid, subId) {
+    var info = subgraphRanges[subId];
+    if (!info || !nid) return false;
+    if ((info.nodes || []).indexOf(nid) >= 0) return true;
+    if ((info.subgraphs || []).indexOf(nid) >= 0) return true;
+    if (isLoopInnerNode(nid)) {
+        var lp = getLoopParentId(nid);
+        if (lp && (info.nodes || []).indexOf(lp) >= 0) return true;
+    }
+    var i;
+    for (i = 0; i < (info.subgraphs || []).length; i++) {
+        if (isNodeInSubgraph(nid, info.subgraphs[i])) return true;
+    }
+    return false;
+}
+
+function areBothInSubgraph(aId, bId, subId) {
+    return isNodeInSubgraph(aId, subId) && isNodeInSubgraph(bId, subId);
+}
+
+function isNodeInLoop(nid, loopId) {
+    if (!nid || !loopId) return false;
+    if (nid === loopId) return true;
+    return getLoopParentId(nid) === loopId;
+}
+
+function areBothInLoop(aId, bId, loopId) {
+    return isNodeInLoop(aId, loopId) && isNodeInLoop(bId, loopId);
+}
+
+function linkCrossesLoopBoundary(link, loopId) {
+    var src = link.get('source'), tgt = link.get('target');
+    if (!src || !tgt || !src.id || !tgt.id) return false;
+    return isNodeInLoop(src.id, loopId) !== isNodeInLoop(tgt.id, loopId);
+}
+
+function linkCrossesSubgraphBoundary(link, subId) {
+    var src = link.get('source'), tgt = link.get('target');
+    if (!src || !tgt || !src.id || !tgt.id) return false;
+    return isNodeInSubgraph(src.id, subId) !== isNodeInSubgraph(tgt.id, subId);
+}
+
+function isRoutingElement(el) {
+    if (!el || !el.id) return false;
+    if (String(el.id).indexOf('_container') >= 0 && !el.get('subgraph')) return false;
+    return true;
+}
+
+function getRouteObstacleElements() {
+    if (_routeObstacleElements) return _routeObstacleElements;
+    _routeObstacleElements = graph.getElements().filter(isRoutingElement);
+    return _routeObstacleElements;
+}
+
+function isElementObstacleForPoint(link, point, el) {
+    var src = link.get('source'), tgt = link.get('target');
+    var srcId = src && src.id, tgtId = tgt && tgt.id;
+    var bb = el.getBBox();
+    var pad = LINK_ROUTE_PAD;
+    var role = el.id === srcId ? 'source' : (el.id === tgtId ? 'target' : null);
+
+    if (el.get('subgraph')) {
+        var subId = el.get('subgraph');
+        if (areBothInSubgraph(srcId, tgtId, subId)) return false;
+        if (linkCrossesSubgraphBoundary(link, subId)) {
+            if (isNodeInSubgraph(srcId, subId)) {
+                if (isPortCorridor(point, bb, 'right')) return false;
+            } else if (isNodeInSubgraph(tgtId, subId)) {
+                if (isPortCorridor(point, bb, 'left')) return false;
+            }
+        }
+        return pointInRect(point, expandRect(bb, pad));
+    }
+
+    if (el.get('isLoopShell')) {
+        if (areBothInLoop(srcId, tgtId, el.id)) return false;
+        if (linkCrossesLoopBoundary(link, el.id)) {
+            if (isNodeInLoop(srcId, el.id)) {
+                if (isPortCorridor(point, bb, 'right')) return false;
+            } else if (isNodeInLoop(tgtId, el.id)) {
+                if (isPortCorridor(point, bb, 'left')) return false;
+            }
+        }
+        if (role && isInsideStrictInterior(point, bb)) return true;
+        if (role && isEndpointCorridor(point, bb, role)) return false;
+        return pointInRect(point, expandRect(bb, pad));
+    }
+
+    if (role) {
+        if (isInsideStrictInterior(point, bb)) return true;
+        if (isEndpointCorridor(point, bb, role)) return false;
+        if (pointInRect(point, expandRect(bb, pad))) return true;
+        return false;
+    }
+
+    var parentLoop = link.get('parentLoop');
+    if (el.get('parentLoop')) {
+        if (parentLoop && el.get('parentLoop') !== parentLoop) return false;
+        if (!parentLoop && el.get('parentLoop')) return pointInRect(point, expandRect(bb, pad));
+    }
+    if (isLoopInnerNode(el.id)) {
+        if (parentLoop && getLoopParentId(el.id) !== parentLoop) return false;
+    }
+
+    return pointInRect(point, expandRect(bb, pad));
+}
+
+function isLinkRouteObstacle(link, point) {
+    var elements = getRouteObstacleElements();
+    for (var i = 0; i < elements.length; i++) {
+        if (isElementObstacleForPoint(link, point, elements[i])) return true;
+    }
+    return false;
+}
+
+function configureLinkRouting(link) {
+    if (!link || typeof link.router !== 'function') return;
+    refreshLinkEndpointGeometry(link);
+    link.vertices([]);
+    link.router('manhattan', {
+        step: 10,
+        padding: LINK_ROUTE_PAD,
+        maximumLoops: 5000,
+        startDirections: ['right'],
+        endDirections: ['left'],
+        isPointObstacle: function(point) { return isLinkRouteObstacle(link, point); }
+    });
+    link.connector('rounded', { radius: 8 });
+    if (!link.get('parentLoop')) link.set('z', 5);
+}
+
+function rerouteAllLinks() {
+    if (!graph) return;
+    _routeObstacleElements = null;
+    graph.getLinks().forEach(configureLinkRouting);
+    _routeObstacleElements = null;
+}
+
+function linkEndpointGeometry(side) {
+    return {
+        anchor: {
+            name: 'perpendicular',
+            args: { padding: LINK_PORT_OFFSET, rotate: true }
+        },
+        connectionPoint: {
+            name: 'boundary',
+            args: {
+                sticky: true,
+                stroke: true,
+                offset: side === 'out' ? -LINK_BOUNDARY_OFFSET : 0
+            }
+        }
+    };
+}
+
+function resolveLinkEndpoint(cellOrId, side, preferredPortId) {
+    var cellId = typeof cellOrId === 'string' ? cellOrId : (cellOrId ? cellOrId.id : '');
+    var cell = typeof cellOrId === 'object' && cellOrId ? cellOrId : (graph && cellId ? graph.getCell(cellId) : null);
+    var endpoint = resolvePortEndpoint(cell, side, preferredPortId);
+    if (!endpoint.id && cellId) {
+        endpoint.id = cellId;
+        if (cellId === 'START' && side === 'out') endpoint.port = endpoint.port || 'out_trigger';
+        else if (cellId === 'END' && side === 'in') endpoint.port = endpoint.port || 'in_input';
+        else if (preferredPortId) endpoint.port = preferredPortId;
+    }
+    if (endpoint.id) {
+        var geom = linkEndpointGeometry(side);
+        endpoint.anchor = geom.anchor;
+        endpoint.connectionPoint = geom.connectionPoint;
+    }
+    return endpoint;
+}
+
+function refreshLinkEndpointGeometry(link) {
+    var src = link.get('source'), tgt = link.get('target');
+    if (!src || !tgt || !src.id || !tgt.id) return;
+    var opts = inferLinkPorts(src.id, tgt.id);
+    link.source(resolveLinkEndpoint(src.id, 'out', opts.sourcePort || src.port));
+    link.target(resolveLinkEndpoint(tgt.id, 'in', opts.targetPort || tgt.port));
+}
 
 const WF_PORT_GROUPS = {
     in: {
@@ -1518,9 +1753,13 @@ function initJointJS() {
         linkPinning: false, snapLinks: { radius: 30 }, async: true,
         defaultLink: function() {
             var l = new joint.shapes.standard.Link();
-            l.connector('smooth', { radius: 20 });
-            l.router('normal');
+            configureLinkRouting(l);
             return l;
+        },
+        defaultAnchor: { name: 'perpendicular', args: { padding: 0, rotate: true } },
+        defaultConnectionPoint: {
+            name: 'boundary',
+            args: { sticky: true, stroke: true, offset: -LINK_BOUNDARY_OFFSET }
         },
         validateConnection: function(cvS, mS, cvT, mT, end, linkView) {
             if (!mT || cvS === cvT) return false;
@@ -1646,6 +1885,7 @@ function initJointJS() {
         loopDragState = null;
         sgDragState = null;
         updateSubgraphContainerPositions();
+        rerouteAllLinks();
     });
     graph.on('add', function(cell) {
         if (!cell.isLink || !cell.isLink()) return;
@@ -2101,12 +2341,8 @@ function createNode(id) {
 function createLink(sourceId, targetId, opts) {
     opts = opts || inferLinkPorts(sourceId, targetId);
     var link = new joint.shapes.standard.Link();
-    var srcRef = { id: sourceId };
-    var tgtRef = { id: targetId };
-    if (opts.sourcePort) srcRef.port = opts.sourcePort;
-    if (opts.targetPort) tgtRef.port = opts.targetPort;
-    link.source(srcRef);
-    link.target(tgtRef);
+    link.source(resolveLinkEndpoint(sourceId, 'out', opts.sourcePort));
+    link.target(resolveLinkEndpoint(targetId, 'in', opts.targetPort));
     var srcCell = graph.getCell(sourceId);
     var color = '#666', sn = srcCell;
     if (sn) {
@@ -2121,18 +2357,13 @@ function createLink(sourceId, targetId, opts) {
         },
         wrapper: { strokeWidth: 8, stroke: 'transparent', fill: 'none' }
     });
-    link.connector('smooth', { radius: 20 });
-    link.router('normal');
+    configureLinkRouting(link);
     return link;
 }
 
 function reattachLinkPorts() {
     graph.getLinks().forEach(function(link) {
-        var src = link.get('source'), tgt = link.get('target');
-        if (!src || !tgt || !src.id || !tgt.id) return;
-        var opts = inferLinkPorts(src.id, tgt.id);
-        link.source(resolvePortEndpoint(graph.getCell(src.id), 'out', opts.sourcePort));
-        link.target(resolvePortEndpoint(graph.getCell(tgt.id), 'in', opts.targetPort));
+        configureLinkRouting(link);
     });
 }
 
