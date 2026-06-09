@@ -1056,22 +1056,34 @@ function stream(exp_id, options = {}) {
 
 
 
-function disposeReportCharts() {
-    if (window.reportOverallChartInstance) {
-        window.reportOverallChartInstance.dispose();
-        window.reportOverallChartInstance = null;
+function _reportChartScopeKey(rootSel) {
+    const $root = $(rootSel || '#reportMarkdown');
+    return $root.attr('id') || 'reportMarkdown';
+}
+
+function disposeReportCharts(rootSel) {
+    const key = _reportChartScopeKey(rootSel);
+    const bag = window._reportChartInstances || {};
+    const scoped = bag[key];
+    if (scoped) {
+        Object.values(scoped).forEach((inst) => {
+            try {
+                inst?.dispose();
+            } catch (_err) {
+                /* ignore stale echarts instances */
+            }
+        });
+        delete bag[key];
     }
-    if (window.reportSampleChartInstance) {
-        window.reportSampleChartInstance.dispose();
-        window.reportSampleChartInstance = null;
+    if (rootSel) {
+        $(rootSel).find('.report-inline-chart-card').remove();
     }
-    if (window.reportErrorBucketChartInstance) {
-        window.reportErrorBucketChartInstance.dispose();
-        window.reportErrorBucketChartInstance = null;
-    }
-    if (window.reportAgentImpactChartInstance) {
-        window.reportAgentImpactChartInstance.dispose();
-        window.reportAgentImpactChartInstance = null;
+    if (!rootSel) {
+        if (window.reportOverallChartInstance) {
+            window.reportOverallChartInstance.dispose();
+            window.reportOverallChartInstance = null;
+        }
+        window._reportChartInstances = {};
     }
 }
 
@@ -1105,20 +1117,24 @@ function stripPerSampleMetricsTables($root, sampleCount) {
 
 function renderReportCharts(chartData, rootSel) {
     const root = $(rootSel || '#reportMarkdown');
+    const chartScopeKey = _reportChartScopeKey(rootSel);
     if (!chartData || Number(chartData.sample_count || 0) <= 0 || !root.length) {
-        disposeReportCharts();
-        root.find('.report-inline-chart-card').remove();
+        disposeReportCharts(rootSel);
         return;
     }
+    disposeReportCharts(rootSel);
     const largeRun = Number(chartData.sample_count || 0) > REPORT_CHART_SAMPLE_THRESHOLD
         || chartData.report_mode === 'charts';
-    const ensureSlot = (slotId, title, headingRegex) => {
-        let $slot = $(`#${slotId}`);
-        if ($slot.length) return $slot;
+    const ensureSlot = (slotName, title, headingRegex) => {
+        let $slot = root.find(`[data-report-chart-slot="${slotName}"]`);
+        if ($slot.length) {
+            $slot.closest('.report-inline-chart-card').find('.small.text-muted').first().text(title);
+            return $slot;
+        }
         const blockHtml = `
-          <div class="report-inline-chart-card" data-slot="${slotId}">
+          <div class="report-inline-chart-card" data-report-chart-scope="${chartScopeKey}" data-report-chart-slot-wrap="${slotName}">
             <div class="small text-muted mb-2">${title}</div>
-            <div id="${slotId}" class="report-inline-chart-canvas"></div>
+            <div data-report-chart-slot="${slotName}" class="report-inline-chart-canvas"></div>
           </div>
         `;
         const headings = root.find('h2, h3');
@@ -1135,16 +1151,16 @@ function renderReportCharts(chartData, rootSel) {
         if (!inserted) {
             root.append(blockHtml);
         }
-        $slot = $(`#${slotId}`);
+        $slot = root.find(`[data-report-chart-slot="${slotName}"]`);
         return $slot;
     };
 
     const sampleTitle = largeRun
         ? `Per-sample F1 trend (${chartData.sample_count} articles, chart view)`
         : 'Per-sample F1 Trend';
-    const sampleSlot = ensureSlot('reportSampleChartInline', sampleTitle, /metrics/);
-    const errorSlot = ensureSlot('reportErrorBucketChartInline', 'FN/FP Composition', /(fn|fp|false negative|false positive)/);
-    const impactSlot = ensureSlot('reportAgentImpactChartInline', 'Agent Version Impact (F1 Delta)', /(suggestion|agent modification)/);
+    const sampleSlot = ensureSlot('sample', sampleTitle, /metrics/);
+    const errorSlot = ensureSlot('error', 'FN/FP Composition', /(fn|fp|false negative|false positive)/);
+    const impactSlot = ensureSlot('impact', 'Agent Version Impact (F1 Delta)', /(suggestion|agent modification)/);
 
     const perSample = Array.isArray(chartData.per_sample) ? chartData.per_sample : [];
     const xLabels = perSample.map((x) => String(x.sample_id));
@@ -1157,9 +1173,11 @@ function renderReportCharts(chartData, rootSel) {
     if (!sampleDom || !errorDom || !impactDom || typeof echarts === 'undefined') {
         return;
     }
-    disposeReportCharts();
-    window.reportSampleChartInstance = echarts.init(sampleDom);
-    window.reportSampleChartInstance.setOption({
+    window._reportChartInstances = window._reportChartInstances || {};
+    const scopedInstances = {};
+    window._reportChartInstances[chartScopeKey] = scopedInstances;
+    scopedInstances.sample = echarts.init(sampleDom);
+    scopedInstances.sample.setOption({
         tooltip: { trigger: 'axis' },
         legend: { data: ['F1', 'Precision', 'Recall'] },
         grid: { left: 45, right: 16, top: 30, bottom: 40 },
@@ -1180,8 +1198,8 @@ function renderReportCharts(chartData, rootSel) {
     });
 
     const err = chartData.error_buckets || {};
-    window.reportErrorBucketChartInstance = echarts.init(errorDom);
-    window.reportErrorBucketChartInstance.setOption({
+    scopedInstances.error = echarts.init(errorDom);
+    scopedInstances.error.setOption({
         tooltip: { trigger: 'item' },
         legend: { bottom: 0 },
         series: [{
@@ -1203,8 +1221,8 @@ function renderReportCharts(chartData, rootSel) {
     const agentNames = topImpacts.map((x) => String(x.agent_id || 'unknown'));
     const bestDeltas = topImpacts.map((x) => Number(x.best_f1_delta || 0));
     const acceptedRounds = topImpacts.map((x) => Number(x.accepted_rounds || 0));
-    window.reportAgentImpactChartInstance = echarts.init(impactDom);
-    window.reportAgentImpactChartInstance.setOption({
+    scopedInstances.impact = echarts.init(impactDom);
+    scopedInstances.impact.setOption({
         tooltip: { trigger: 'axis' },
         legend: { data: ['Best F1 Delta', 'Accepted Rounds'] },
         grid: { left: 100, right: 16, top: 30, bottom: 24 },
@@ -1229,9 +1247,7 @@ function renderReportCharts(chartData, rootSel) {
         ]
     });
     setTimeout(() => {
-        window.reportSampleChartInstance?.resize();
-        window.reportErrorBucketChartInstance?.resize();
-        window.reportAgentImpactChartInstance?.resize();
+        Object.values(scopedInstances).forEach((inst) => inst?.resize());
     }, 50);
 }
 
@@ -1297,8 +1313,7 @@ function loadAndRenderReportCharts(expIdVal, rootSel) {
                 resolve(payload || {});
             })
             .fail(() => {
-                disposeReportCharts();
-                $root.find('.report-inline-chart-card').remove();
+                disposeReportCharts(rootSel);
                 resolve(null);
             });
     });

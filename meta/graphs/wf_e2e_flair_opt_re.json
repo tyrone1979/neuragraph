@@ -1,33 +1,174 @@
 {
-  "name": "E2E Flair NER + Optimized RE",
+  "agentVersions": {},
+  "bindings": {
+    "eval_metrics_relation": {
+      "entities": "{{ entity_aliases }}",
+      "ground_truth": "{{ START.gold_relations }}",
+      "relations": "{{ relations }}"
+    },
+    "sg_e2e_cid_re": {
+      "entities": "{{ entities }}",
+      "filtered_entities": "{{ filtered_entities }}",
+      "text": "{{ START.text }}"
+    },
+    "sg_e2e_flair_ner": {
+      "labels": "{{ START.labels }}",
+      "text": "{{ START.text }}"
+    }
+  },
+  "created_at": "2026-06-09T10:03:15.681808",
   "description": "Flair sentence-split NER → optimized CID RE (v0008 prompt) → relation metrics. For Table S18.",
-  "nodes": [
-    "START",
-    "sg_e2e_flair_ner",
-    "sg_e2e_cid_re",
-    "eval_metrics_relation",
-    "END"
-  ],
   "edges": [
-    ["START", "sg_e2e_flair_ner"],
-    ["sg_e2e_flair_ner", "sg_e2e_cid_re"],
-    ["sg_e2e_cid_re", "eval_metrics_relation"],
-    ["eval_metrics_relation", "END"]
+    [
+      "text_sentence_split",
+      "ner_sentence_loop"
+    ],
+    [
+      "ner_sentence_loop",
+      "ner_entities_to_re_format"
+    ],
+    [
+      "e2e_entities_passthrough",
+      "e2e_synonym_filter"
+    ],
+    [
+      "e2e_synonym_filter",
+      "e2e_entities_assign_group_ids"
+    ],
+    [
+      "e2e_entities_assign_group_ids",
+      "e2e_entity_aliases_snapshot"
+    ],
+    [
+      "e2e_entity_aliases_snapshot",
+      "e2e_entities_dedup_by_id"
+    ],
+    [
+      "e2e_entities_dedup_by_id",
+      "e2e_hypernym_filter"
+    ],
+    [
+      "e2e_hypernym_filter",
+      "cid_pair_generate"
+    ],
+    [
+      "cid_pair_generate",
+      "cid_re_verify_loop"
+    ],
+    [
+      "START",
+      "text_sentence_split"
+    ],
+    [
+      "ner_entities_to_re_format",
+      "e2e_entities_passthrough"
+    ],
+    [
+      "cid_re_verify_loop",
+      "eval_metrics_relation"
+    ],
+    [
+      "eval_metrics_relation",
+      "END"
+    ]
   ],
+  "flowNodes": {},
   "metrics": [
     {
-      "type": "relation_pairs",
-      "expected": { "from": "input", "field": "gold_relations" },
-      "predicted": { "from": "state", "field": "relations" }
+      "expected": {
+        "field": "gold_relations",
+        "from": "input"
+      },
+      "predicted": {
+        "field": "relations",
+        "from": "state"
+      },
+      "type": "relation_pairs"
     }
   ],
-  "bindings": {
-    "sg_e2e_flair_ner": { "text": "{{ START.text }}", "labels": "{{ START.labels }}" },
-    "sg_e2e_cid_re": { "text": "{{ START.text }}", "entities": "{{ entities }}", "filtered_entities": "{{ filtered_entities }}" },
-    "eval_metrics_relation": {
-      "relations": "{{ relations }}",
-      "ground_truth": "{{ START.gold_relations }}",
-      "entities": "{{ entity_aliases }}"
+  "name": "\n                     wf_e2e_flair_opt_re \n                ",
+  "nodes": [
+    "START",
+    "cid_pair_generate",
+    "cid_re_verify_loop",
+    "e2e_entities_assign_group_ids",
+    "e2e_entities_dedup_by_id",
+    "e2e_entities_passthrough",
+    "e2e_entity_aliases_snapshot",
+    "e2e_hypernym_filter",
+    "e2e_synonym_filter",
+    "eval_metrics_relation",
+    "ner_entities_to_re_format",
+    "ner_sentence_loop",
+    "text_sentence_split",
+    "END"
+  ],
+  "visualData": {
+    "layout": {
+      "sg_e2e_cid_re_container": {
+        "x": 230,
+        "y": 470
+      },
+      "sg_e2e_flair_ner_container": {
+        "x": 80,
+        "y": 61
+      },
+      "START": {
+        "x": -90,
+        "y": 170
+      },
+      "cid_pair_generate": {
+        "x": 1040,
+        "y": 852
+      },
+      "cid_re_verify_loop": {
+        "x": 1500,
+        "y": 872
+      },
+      "e2e_entities_assign_group_ids": {
+        "x": 980,
+        "y": 522
+      },
+      "e2e_entities_dedup_by_id": {
+        "x": 370,
+        "y": 852
+      },
+      "e2e_entities_passthrough": {
+        "x": 282,
+        "y": 557
+      },
+      "e2e_entity_aliases_snapshot": {
+        "x": 1320,
+        "y": 532
+      },
+      "e2e_hypernym_filter": {
+        "x": 710,
+        "y": 852
+      },
+      "e2e_synonym_filter": {
+        "x": 630,
+        "y": 522
+      },
+      "eval_metrics_relation": {
+        "x": 1880,
+        "y": 810
+      },
+      "ner_entities_to_re_format": {
+        "x": 830,
+        "y": 120
+      },
+      "ner_sentence_loop": {
+        "x": 480,
+        "y": 120
+      },
+      "text_sentence_split": {
+        "x": 132,
+        "y": 113
+      },
+      "END": {
+        "x": 2230,
+        "y": 870
+      }
     }
   }
 }

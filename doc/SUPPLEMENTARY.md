@@ -296,8 +296,9 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 | ---- | ----------------------------------------- | ----------------------------------------------------------- | -------------------------------------- |
 | A    | NeuraGraph Flair NER                      | `wf_doc_ner_flair_sent_eval`                                | `064f47ac-2d08-4e9a-85e3-2ca2e564c7da` |
 | A    | NeuraGraph LLM NER                        | `wf_doc_ner_llm_eval`                                       | `aba808f2-46ad-4585-984f-633955729315` |
-| B    | NeuraGraph RE (dev50 tuning baseline)      | `wf_cid_re_llm_linear`                                      | `c422b97c-be21-4b6a-968c-c4994229d702` |
+| B    | NeuraGraph RE (dev50 tuning baseline)      | `wf_cid_re_llm_linear`                                      | `opt_base_tune_81781d50`                 |
 | B    | NeuraGraph RE (dev50 tuned graph)          | `wf_cid_re_llm_linear_opt_20260605_085217`                  | (phase 3 test500 pending)              |
+| B    | NeuraGraph RE (baseline, test 500)         | `wf_cid_re_llm_linear`                                      | `678a855f-1f8a-492e-9d39-be37df122795` |
 | B    | NeuraGraph RE (optimized, test 500)        | `wf_cid_re_llm_linear_opt_20260604`                         | `f860e6d3-51fd-4b24-aa51-3d0fb9c88907` |
 | C    | NeuraGraph E2E (Flair NER → optimized RE) | `wf_e2e_flair_opt_re`                                       | `bffea244-c3dd-4b97-98f2-9ed4d7bb895a` |
 
@@ -317,19 +318,19 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 
 **RE tuning on dev50 (Task B).** Pharmacovigilance CID–RE was tuned on a **stratified 50-article** subset of CDR `dev.txt` (`cid_dev_tuning_stratified_50.csv`; same builder as §3.3). Oracle **gold entities** in CSV include multiple surface strings per MeSH id (synonyms); evaluation maps predicted and gold relation endpoints to **head MeSH id | tail MeSH id** via `normalize_cid_lines` and the per-article entity list. The baseline workflow `wf_cid_re_llm_linear` was updated before tuning: **llmre** `RE.induce` verifier prompt (`prompt_templates.json`, induce block), PGM **`cid_entities_dedupe_mesh`** (one row per MeSH id before hypernym filter), and hypernym-filter instructions to collapse synonym rows.
 
-**Protocol (phases 1–2 only).** (1) **Tuning baseline** — `scripts/run_perf_re_test500.py --dev50 --exp-id c422b97c-be21-4b6a-968c-c4994229d702`. (2) **Tuning report** — LLM report on FP/FN exemplars (`result/c422b97c-…/report.md`). (3) **agent_refiner** — two modifications; each applied alone and re-run on the same 50 articles; kept only if **macro-averaged** tuning F1 rose (`scripts/opt_refine_and_rounds.py`). A separate **phase-3** full re-run of the frozen optimized graph on dev50 was **not** performed; accepted versions are saved in `wf_cid_re_llm_linear_opt_20260605_085217` for downstream **test-500** evaluation (Table S17).
+**Protocol (phases 1–2 only).** (1) **Tuning baseline** — optimization wizard baseline-tuning step on `cid_dev_tuning_stratified_50.csv` (exp `opt_base_tune_81781d50`; same frozen workflow as test-500 baseline `678a855f`, `relation_verify_llm` v0010 + `relation_result_to_id_pair` v0003). (2) **Tuning report** — LLM report on FP/FN exemplars (`result/opt_base_tune_81781d50/report_tuning_baseline.md`). (3) **agent_refiner** — two modifications; each applied alone and re-run on the same 50 articles; kept only if **macro-averaged** tuning F1 rose (`scripts/opt_refine_and_rounds.py`). A separate **phase-3** full re-run of the frozen optimized graph on dev50 was **not** performed; accepted versions are saved in `wf_cid_re_llm_linear_opt_20260605_085217` for downstream **test-500** evaluation (Table S17).
 
 **Table S16b.** Dev50 tuning — baseline and accepted refinement rounds (oracle entities, n=50). **Micro** = corpus-level P/R/F1 from summed TP/FP/FN; **macro** = mean of per-article P/R/F1 (same protocol as Tables S16–S17). Accept/reject in the tuning loop used **macro-F1** only.
 
 
 | Stage | Workflow / agent | Micro-P | Micro-R | Micro-F1 | Macro-P | Macro-R | Macro-F1 | TP | FP | FN |
 | ----- | ---------------- | ------- | ------- | -------- | ------- | ------- | -------- | -- | -- | -- |
-| Baseline (phase 1) | `wf_cid_re_llm_linear` | 0.521 | 0.734 | 0.609 | 0.565 | 0.762 | 0.603 | 138 | 127 | 50 |
+| Baseline (phase 1) | `wf_cid_re_llm_linear` | 0.583 | 0.750 | 0.656 | 0.610 | 0.757 | 0.642 | 141 | 101 | 47 |
 | After round 1 (accepted) | `relation_verify_llm` → **v0009** | 0.598 | 0.617 | 0.607 | 0.625 | 0.678 | 0.615 | 116 | 78 | 72 |
 | After round 2 (accepted) | `relation_result_to_id_pair` → **v0003** | 0.601 | 0.617 | 0.609 | 0.630 | 0.669 | 0.617 | 116 | 77 | 72 |
 
 
-*Phase 1: `c422b97c-be21-4b6a-968c-c4994229d702`. Round 1: `opt_cand_20260605_085217_r1_510398a6`; round 2: `opt_cand_20260605_085217_r2_c892305d`. Frozen graph `wf_cid_re_llm_linear_opt_20260605_085217`. Rounds 1–2 raise macro-F1 (+0.011, +0.002) but lower micro-recall (fewer TP, more FN) because edits trim FP-heavy articles; the wizard keeps a change when macro-F1 improves.*
+*Phase 1: `opt_base_tune_81781d50` (completed 2026-06-09; effective `relation_verify_llm` v0010, `relation_result_to_id_pair` v0003). Round 1–2 rows below are from the prior 2026-06-05 tuning pass on induce-style baseline (`c422b97c-be21-4b6a-968c-c4994229d702`, macro-F1 0.603). Frozen graph from that pass: `wf_cid_re_llm_linear_opt_20260605_085217`. Rounds 1–2 raise macro-F1 (+0.011, +0.002) but lower micro-recall (fewer TP, more FN) because edits trim FP-heavy articles; the wizard keeps a change when macro-F1 improves.*
 
 **Tuning report (macro-F1 0.603).** Main **FN** drivers: (i) verifier returns `~` despite treatment-emergent or explicit causal wording (e.g. sample 42, amlodipine → diarrhea); (ii) **`relation_result_to_id_pair`** associative guard (30-character window on *may* / *could* / *possible*) drops valid `$` verdicts (samples 12, 45, 6). Main **FP** drivers: (i) Cartesian **Chemical×Disease** pairs including lab markers and non-drugs (creatinine, phosphate, alanine); (ii) incomplete **negation** phrases (*no evidence of*); (iii) verifier **condition 2** applied to adverse-event lists without clear causation.
 
@@ -340,11 +341,11 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 
 | Method                                                                    | Micro-P | Micro-R | Micro-F1 | Macro-P | Macro-R | Macro-F1 | TP  | FP    | FN  |
 | ------------------------------------------------------------------------- | ------- | ------- | -------- | ------- | ------- | -------- | --- | ----- | --- |
-| NeuraGraph RE (baseline, `wf_cid_re_llm_linear`)                          | 0.495   | 0.672   | 0.570    | 0.555   | 0.768   | 0.596    | 716 | 731   | 350 |
+| NeuraGraph RE (baseline, `wf_cid_re_llm_linear`)                          | 0.489   | 0.853   | 0.622    | 0.573   | 0.869   | 0.647    | 909 | 949   | 157 |
 | NeuraGraph RE (optimized, `wf_cid_re_llm_linear_opt_20260604`, dev-tuned) | 0.505   | 0.668   | 0.575    | 0.575   | 0.766   | 0.608    | 712 | 698   | 354 |
 
 
-*Table S17 (test 500): Baseline oracle-RE batch on `cdr_test_500.csv` (exp `4c3fd046`, `wf_cid_re_llm_linear`; micro-F1 0.570, macro-F1 0.596). Includes MeSH-deduplication (`cid_entities_dedupe_mesh`), synonym-filtered hypernyms, and induce-style `relation_verify_llm` prompt. Optimized row: `wf_cid_re_llm_linear_opt_20260604` (exp `31c46ba9`, micro-F1 0.575, macro-F1 0.608). Test-500 re-run with `wf_cid_re_llm_linear_opt_20260605_085217` (v0009 + v0003) is pending.*
+*Table S17 (test 500): Baseline oracle-RE batch on `cdr_test_500.csv` (exp `678a855f`, `wf_cid_re_llm_linear`; micro-F1 0.622, macro-F1 0.647). Effective agents: `relation_verify_llm` v0010, `relation_result_to_id_pair` v0003; includes MeSH-deduplication (`cid_entities_dedupe_mesh`), synonym-filtered hypernyms, and five-condition `relation_verify_llm` prompt. Optimized row: `wf_cid_re_llm_linear_opt_20260604` (exp `f860e6d3`, micro-F1 0.575, macro-F1 0.608). Test-500 re-run with `wf_cid_re_llm_linear_opt_20260605_085217` (v0009 + v0003) is pending.*
 
 **Table S18.** CID relation extraction on BC5CDR test (n=500) — **end-to-end** (Flair NER predictions from Task A → frozen optimized RE).
 

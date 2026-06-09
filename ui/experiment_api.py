@@ -776,7 +776,8 @@ def api_experiment_detail(exp_id):
 def api_experiment_report_charts(exp_id):
     """Return chart-friendly metrics payload for experiment report."""
     exp_cfg = MetaLoader.load("exps", exp_id)
-    if not exp_cfg:
+    states_path = _ROOT / "result" / exp_id / "states.json"
+    if not exp_cfg and not states_path.is_file():
         return jsonify({"error": f"experiment not found: {exp_id}"}), 404
     try:
         payload = _build_report_chart_payload(exp_id)
