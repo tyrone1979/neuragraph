@@ -13,6 +13,7 @@ from service.experiment_optimize import (
     ROOT,
     _apply_modifications,
     _avg_metrics,
+    _micro_metrics,
     _baseline_report_ready,
     _baseline_test_ready,
     _baseline_test_report_path,
@@ -470,6 +471,7 @@ def optimization_flow_state(exp_id: str) -> dict[str, Any]:
         "tuning_dataset": tuning,
         "test_dataset": test,
         "baseline_test_metrics": _avg_metrics(exp_id) if ready else {},
+        "baseline_test_micro_metrics": _micro_metrics(exp_id) if ready else {},
         "baseline_tuning_exp_id": tune_id,
         "baseline_tuning_metrics": _avg_metrics(tune_id) if tune_id else {},
         "flow_steps": flow_steps,
@@ -1018,6 +1020,7 @@ def _build_summary(
         "tuning_dataset": active_tuning,
         "test_dataset": active_test,
         "baseline_test_metrics": _avg_metrics(exp_id),
+        "baseline_test_micro_metrics": _micro_metrics(exp_id),
         "baseline_tuning_metrics": _avg_metrics(tune_id) if tune_id else {},
         "baseline_test_report_path": str(_baseline_test_report_path(exp_id)),
         "baseline_tuning_report_path": str(ctx.get("baseline_tuning_report_path") or ""),
@@ -1032,6 +1035,7 @@ def _build_summary(
         "final_best_exp_id": current_best_exp_id,
         "final_best_metrics": ctx.get("current_best_metrics") or {},
         "final_test_metrics": _avg_metrics(optimized_test_exp_id) if optimized_test_exp_id else {},
+        "final_test_micro_metrics": _micro_metrics(optimized_test_exp_id) if optimized_test_exp_id else {},
         "final_graph_id": str(ctx.get("final_graph_id") or ""),
     }
 

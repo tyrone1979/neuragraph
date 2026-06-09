@@ -2287,22 +2287,64 @@ function _hasCompareMetrics(metrics) {
     return Number(m.precision || 0) > 0 || Number(m.recall || 0) > 0 || Number(m.f1 || 0) > 0;
 }
 
+function _isWizardSubExperimentId(expId) {
+    const id = String(expId || '').trim();
+    return /^opt_(cand|base_tune|best|pinned|final)_/i.test(id);
+}
+
+function resolveWizardParentExpId(summary) {
+    const src = summary || {};
+    const pre = window._lastPreflightResp || {};
+    const wizardId = getExpId();
+    const candidates = [
+        pre.exp_id,
+        src.source_exp_id,
+        wizardId,
+        src.baseline_exp_id,
+    ];
+    for (const id of candidates) {
+        if (!id || id === 'Not saved yet') continue;
+        if (!_isWizardSubExperimentId(id)) return id;
+    }
+    return wizardId && wizardId !== 'Not saved yet' ? wizardId : '';
+}
+
 function resolveOptimizationCompareView(summary) {
     const src = summary || {};
     const pre = window._lastPreflightResp || {};
-    const parentExpId = src.source_exp_id || src.baseline_exp_id || pre.exp_id || getExpId() || '';
-    const optimizedExpId = src.optimized_test_exp_id || window._finalStreamExpId || '';
-    const baselineMetrics = _hasCompareMetrics(pre.baseline_test_metrics)
+    const optSummary = pre.optimization_summary || {};
+    const parentExpId = resolveWizardParentExpId(src);
+    const optimizedExpId = src.optimized_test_exp_id || optSummary.optimized_test_exp_id || window._finalStreamExpId || '';
+    const baselineMacro = (pre.exp_id === parentExpId && _hasCompareMetrics(pre.baseline_test_metrics))
         ? pre.baseline_test_metrics
         : (src.baseline_test_metrics || {});
-    const optimizedMetrics = _hasCompareMetrics(src.final_test_metrics)
+    const baselineMicro = (pre.exp_id === parentExpId && _hasCompareMetrics(pre.baseline_test_micro_metrics))
+        ? pre.baseline_test_micro_metrics
+        : (src.baseline_test_micro_metrics || {});
+    const optimizedMacro = _hasCompareMetrics(src.final_test_metrics)
         ? src.final_test_metrics
-        : {};
+        : (_hasCompareMetrics(optSummary.final_test_metrics) ? optSummary.final_test_metrics : {});
+    const optimizedMicro = _hasCompareMetrics(src.final_test_micro_metrics)
+        ? src.final_test_micro_metrics
+        : (_hasCompareMetrics(optSummary.final_test_micro_metrics) ? optSummary.final_test_micro_metrics : {});
     return {
         parentExpId,
         optimizedExpId,
-        baselineMetrics,
-        optimizedMetrics,
+        baselineMacro,
+        baselineMicro,
+        optimizedMacro,
+        optimizedMicro,
+    };
+}
+
+function _fmtMetricRow(macro, micro) {
+    const mac = macro || {};
+    const mic = micro || {};
+    return {
+        macroP: Number(mac.precision || 0).toFixed(4),
+        macroR: Number(mac.recall || 0).toFixed(4),
+        macroF1: Number(mac.f1 || 0).toFixed(4),
+        microF1: _hasCompareMetrics(mic) ? Number(mic.f1 || 0).toFixed(4) : '—',
     };
 }
 
@@ -2313,8 +2355,8 @@ function renderOptimizationCompare(summary) {
     }
     window._lastOptimizationSummary = summary;
     const view = resolveOptimizationCompareView(summary);
-    const b = view.baselineMetrics;
-    const f = view.optimizedMetrics;
+    const b = _fmtMetricRow(view.baselineMacro, view.baselineMicro);
+    const f = _fmtMetricRow(view.optimizedMacro, view.optimizedMicro);
     const bExp = view.parentExpId;
     const oExp = view.optimizedExpId;
     const optimizedExpCell = oExp
@@ -2322,24 +2364,29 @@ function renderOptimizationCompare(summary) {
         : '<span class="text-muted">Pending</span>';
     $('#optimizationCompare').html(`
       <div class="card">
-        <div class="card-header"><strong>Test Set Comparison (Baseline vs Optimized)</strong></div>
+        <div class="card-header">
+          <strong>Test Set Comparison (Baseline vs Optimized)</strong>
+          <div class="small text-muted fw-normal mt-1">Macro = mean of per-article P/R/F1 on <code>cdr_test_500.csv</code>; Micro-F1 = corpus-level F1 from summed TP/FP/FN (Table S17).</div>
+        </div>
         <div class="card-body">
           <div class="report-table-wrap">
             <table class="report-table table table-sm mb-0">
-              <thead><tr><th>Phase</th><th>Precision</th><th>Recall</th><th>F1</th><th>Experiment</th></tr></thead>
+              <thead><tr><th>Phase</th><th>Macro-P</th><th>Macro-R</th><th>Macro-F1</th><th>Micro-F1</th><th>Experiment</th></tr></thead>
               <tbody>
                 <tr>
                   <td>Baseline Test</td>
-                  <td>${Number(b.precision || 0).toFixed(4)}</td>
-                  <td>${Number(b.recall || 0).toFixed(4)}</td>
-                  <td>${Number(b.f1 || 0).toFixed(4)}</td>
+                  <td>${b.macroP}</td>
+                  <td>${b.macroR}</td>
+                  <td>${b.macroF1}</td>
+                  <td>${b.microF1}</td>
                   <td>${bExp ? `<a href="/exp/${encodeURIComponent(bExp)}"><code>${escHtml(bExp)}</code></a>` : '-'}</td>
                 </tr>
                 <tr>
                   <td>Optimized Test</td>
-                  <td>${Number(f.precision || 0).toFixed(4)}</td>
-                  <td>${Number(f.recall || 0).toFixed(4)}</td>
-                  <td>${Number(f.f1 || 0).toFixed(4)}</td>
+                  <td>${f.macroP}</td>
+                  <td>${f.macroR}</td>
+                  <td>${f.macroF1}</td>
+                  <td>${f.microF1}</td>
                   <td>${optimizedExpCell}</td>
                 </tr>
               </tbody>
