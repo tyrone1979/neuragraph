@@ -1081,6 +1081,8 @@ const LINK_PORT_CORRIDOR = LINK_ROUTE_PAD + 18;
 const LINK_PORT_OFFSET = 0;
 const LINK_BOUNDARY_OFFSET = 5;
 var _routeObstacleElements = null;
+var _obstacleBBoxCache = null;
+var _rerouteScheduled = null;
 
 function expandRect(bb, pad) {
     return {
@@ -1171,6 +1173,63 @@ function linkCrossesSubgraphBoundary(link, subId) {
     return isNodeInSubgraph(src.id, subId) !== isNodeInSubgraph(tgt.id, subId);
 }
 
+function oppositeSide(side) {
+    if (side === 'left') return 'right';
+    if (side === 'right') return 'left';
+    if (side === 'top') return 'bottom';
+    return 'top';
+}
+
+function sideOfBoxFromPoint(box, point) {
+    var dx = point.x - (box.x + box.width / 2);
+    var dy = point.y - (box.y + box.height / 2);
+    if (Math.abs(dx) / Math.max(box.width, 1) >= Math.abs(dy) / Math.max(box.height, 1)) {
+        return dx > 0 ? 'right' : 'left';
+    }
+    return dy > 0 ? 'bottom' : 'top';
+}
+
+function subgraphBoundarySides(link, subId) {
+    var src = link.get('source'), tgt = link.get('target');
+    if (!src || !tgt || !src.id || !tgt.id) return null;
+    var srcIn = isNodeInSubgraph(src.id, subId);
+    var tgtIn = isNodeInSubgraph(tgt.id, subId);
+    if (srcIn === tgtIn) return null;
+    var outEl = graph.getCell(srcIn ? tgt.id : src.id);
+    var shell = graph.getCell(subId + '_container');
+    if (!outEl || !shell) return null;
+    var sb = shell.getBBox();
+    var ob = outEl.getBBox();
+    var oc = { x: ob.x + ob.width / 2, y: ob.y + ob.height / 2 };
+    var borderSide = sideOfBoxFromPoint(sb, oc);
+    if (srcIn) {
+        return { mode: 'exit', exitSide: borderSide, entrySide: oppositeSide(borderSide) };
+    }
+    return { mode: 'enter', entrySide: borderSide, exitSide: oppositeSide(borderSide) };
+}
+
+function isSubgraphBoundaryCorridor(point, bb, sides, role) {
+    if (!sides) return false;
+    if (sides.mode === 'exit') return isPortCorridor(point, bb, sides.exitSide);
+    if (sides.mode === 'enter') return isPortCorridor(point, bb, sides.entrySide);
+    if (role === 'source') return isPortCorridor(point, bb, sides.exitSide);
+    if (role === 'target') return isPortCorridor(point, bb, sides.entrySide);
+    return isPortCorridor(point, bb, sides.entrySide) || isPortCorridor(point, bb, sides.exitSide);
+}
+
+function isInsideSubgraphFrame(point, bb, pad, thickness) {
+    var outer = expandRect(bb, pad);
+    if (!pointInRect(point, outer)) return false;
+    thickness = thickness == null ? LINK_ROUTE_PAD : thickness;
+    var inner = {
+        x: bb.x + thickness,
+        y: bb.y + thickness,
+        width: Math.max(0, bb.width - thickness * 2),
+        height: Math.max(0, bb.height - thickness * 2)
+    };
+    return !pointInRect(point, inner);
+}
+
 function isRoutingElement(el) {
     if (!el || !el.id) return false;
     if (String(el.id).indexOf('_container') >= 0 && !el.get('subgraph')) return false;
@@ -1183,22 +1242,33 @@ function getRouteObstacleElements() {
     return _routeObstacleElements;
 }
 
+function getCachedElementBBox(el) {
+    if (!el || !el.id) return el.getBBox();
+    if (_obstacleBBoxCache && _obstacleBBoxCache[el.id]) return _obstacleBBoxCache[el.id];
+    var bb = el.getBBox();
+    if (_obstacleBBoxCache) _obstacleBBoxCache[el.id] = bb;
+    return bb;
+}
+
 function isElementObstacleForPoint(link, point, el) {
     var src = link.get('source'), tgt = link.get('target');
     var srcId = src && src.id, tgtId = tgt && tgt.id;
-    var bb = el.getBBox();
+    var bb = getCachedElementBBox(el);
     var pad = LINK_ROUTE_PAD;
     var role = el.id === srcId ? 'source' : (el.id === tgtId ? 'target' : null);
 
     if (el.get('subgraph')) {
         var subId = el.get('subgraph');
         if (areBothInSubgraph(srcId, tgtId, subId)) return false;
-        if (linkCrossesSubgraphBoundary(link, subId)) {
-            if (isNodeInSubgraph(srcId, subId)) {
-                if (isPortCorridor(point, bb, 'right')) return false;
-            } else if (isNodeInSubgraph(tgtId, subId)) {
-                if (isPortCorridor(point, bb, 'left')) return false;
+        var crosses = linkCrossesSubgraphBoundary(link, subId);
+        var sgSides = crosses ? subgraphBoundarySides(link, subId) : null;
+        if (crosses && sgSides) {
+            if (isInsideSubgraphFrame(point, bb, pad, LINK_ROUTE_PAD)) {
+                if (role && isSubgraphBoundaryCorridor(point, bb, sgSides, role)) return false;
+                if (!role && isSubgraphBoundaryCorridor(point, bb, sgSides, null)) return false;
+                return true;
             }
+            return false;
         }
         return pointInRect(point, expandRect(bb, pad));
     }
@@ -1244,18 +1314,76 @@ function isLinkRouteObstacle(link, point) {
     return false;
 }
 
+function applySubgraphCrossingVertices(link) {
+    if (!graph) return;
+    var src = link.get('source'), tgt = link.get('target');
+    if (!src || !tgt || !src.id || !tgt.id) return;
+    var srcEl = graph.getCell(src.id), tgtEl = graph.getCell(tgt.id);
+    if (!srcEl || !tgtEl) return;
+    var pad = LINK_ROUTE_PAD + 16;
+    var srcY = srcEl.getBBox().y + srcEl.size().height / 2;
+    var srcX = srcEl.getBBox().x + srcEl.size().width / 2;
+    var tgtX = tgtEl.getBBox().x;
+    var tgtY = tgtEl.getBBox().y + tgtEl.size().height / 2;
+    var curY = srcY;
+    var exitVerts = [], enterVerts = [];
+    var shells = graph.getElements().filter(function(e) { return e.get('subgraph'); }).sort(function(a, b) {
+        return getSubgraphDepth(a.get('subgraph')) - getSubgraphDepth(b.get('subgraph'));
+    });
+    shells.forEach(function(shell) {
+        var subId = shell.get('subgraph');
+        if (!linkCrossesSubgraphBoundary(link, subId)) return;
+        var sides = subgraphBoundarySides(link, subId);
+        if (!sides || sides.mode !== 'exit') return;
+        var sb = shell.getBBox();
+        if (sides.exitSide === 'bottom') { curY = sb.y + sb.height + pad; exitVerts.push({ x: srcX, y: curY }); }
+        else if (sides.exitSide === 'right') exitVerts.push({ x: sb.x + sb.width + pad, y: srcY });
+        else if (sides.exitSide === 'top') { curY = sb.y - pad; exitVerts.push({ x: srcX, y: curY }); }
+        else if (sides.exitSide === 'left') exitVerts.push({ x: sb.x - pad, y: srcY });
+    });
+    shells.forEach(function(shell) {
+        var subId = shell.get('subgraph');
+        if (!linkCrossesSubgraphBoundary(link, subId)) return;
+        var sides = subgraphBoundarySides(link, subId);
+        if (!sides || sides.mode !== 'enter') return;
+        var sb = shell.getBBox();
+        if (sides.entrySide === 'top') {
+            enterVerts.push({ x: sb.x - pad, y: curY });
+            enterVerts.push({ x: sb.x - pad, y: sb.y - pad });
+            enterVerts.push({ x: tgtX, y: sb.y - pad });
+        } else if (sides.entrySide === 'left') {
+            enterVerts.push({ x: sb.x - pad, y: tgtY });
+        } else if (sides.entrySide === 'bottom') {
+            enterVerts.push({ x: sb.x - pad, y: curY });
+            curY = sb.y + sb.height + pad;
+            enterVerts.push({ x: sb.x - pad, y: curY });
+            enterVerts.push({ x: tgtX, y: curY });
+        } else if (sides.entrySide === 'right') {
+            enterVerts.push({ x: sb.x + sb.width + pad, y: tgtY });
+        }
+    });
+    var verts = exitVerts.concat(enterVerts);
+    if (verts.length) link.vertices(verts);
+}
+
 function configureLinkRouting(link) {
     if (!link || typeof link.router !== 'function') return;
     refreshLinkEndpointGeometry(link);
     link.vertices([]);
-    link.router('manhattan', {
-        step: 10,
-        padding: LINK_ROUTE_PAD,
-        maximumLoops: 5000,
-        startDirections: ['right'],
-        endDirections: ['left'],
-        isPointObstacle: function(point) { return isLinkRouteObstacle(link, point); }
-    });
+    applySubgraphCrossingVertices(link);
+    var customVerts = link.vertices();
+    if (customVerts && customVerts.length) {
+        link.router('normal');
+    } else {
+        link.router('manhattan', {
+            step: 10,
+            padding: LINK_ROUTE_PAD,
+            maximumLoops: 5000,
+            startDirections: ['right'],
+            endDirections: ['left'],
+            isPointObstacle: function(point) { return isLinkRouteObstacle(link, point); }
+        });
+    }
     link.connector('rounded', { radius: 8 });
     if (!link.get('parentLoop')) link.set('z', 5);
 }
@@ -1263,8 +1391,18 @@ function configureLinkRouting(link) {
 function rerouteAllLinks() {
     if (!graph) return;
     _routeObstacleElements = null;
+    _obstacleBBoxCache = {};
     graph.getLinks().forEach(configureLinkRouting);
     _routeObstacleElements = null;
+    _obstacleBBoxCache = null;
+}
+
+function scheduleRerouteAllLinks() {
+    if (_rerouteScheduled) clearTimeout(_rerouteScheduled);
+    _rerouteScheduled = setTimeout(function() {
+        _rerouteScheduled = null;
+        rerouteAllLinks();
+    }, 60);
 }
 
 function linkEndpointGeometry(side) {
@@ -1885,7 +2023,7 @@ function initJointJS() {
         loopDragState = null;
         sgDragState = null;
         updateSubgraphContainerPositions();
-        rerouteAllLinks();
+        scheduleRerouteAllLinks();
     });
     graph.on('add', function(cell) {
         if (!cell.isLink || !cell.isLink()) return;
@@ -2457,6 +2595,7 @@ function renderWorkflow(wf) {
     mergeFlowNodesFromGraph(wf);
     syncFlowNodeAgents(wf);
     var expanded = expandSubgraph(wf);
+    buildSubgraphRangesFromBindings(wf);
     var nestedLoopOrder = discoverNestedLoops(wf);
     nestedLoopOrder.forEach(function(nid) { expandLoopInner(nid, wf); });
     var innerFromSubs = collectSubgraphInnerNodes();
@@ -2492,6 +2631,7 @@ function renderWorkflow(wf) {
         syncNestedLoopShellPositions();
         reattachLinkPorts();
         updateSubgraphContainerPositions();
+        rerouteAllLinks();
     } else {
         // Saved layout: still materialize loop inner nodes, then restore coordinates.
         getRootLoopIds(wf).forEach(function(lid) { layoutLoopRegion(lid); });
@@ -2501,8 +2641,8 @@ function renderWorkflow(wf) {
             fitLoopShellToContent(lid, { anchor: true, skipReposition: true });
         });
         syncNestedLoopShellPositions();
-        reattachLinkPorts();
         updateSubgraphContainerPositions();
+        rerouteAllLinks();
     }
     fitToContent(); saveToHistory();
     syncCurrentGraphFromCanvas();
@@ -2564,6 +2704,40 @@ function expandSubgraph(wf) {
     });
     var uniq = Array.from(new Set(nodes)), ns = new Set(uniq.concat(['START', 'END']));
     return { nodes: uniq, edges: edges.filter(function(e) { return ns.has(e[0]) && ns.has(e[1]); }) };
+}
+
+/** Subgraphs referenced via workflow bindings (sg_*) but not as SUB nodes in wf.nodes. */
+function isSubgraphContainerId(id) {
+    if (!id || id === 'START' || id === 'END') return false;
+    if (!/^sg_/.test(id)) return false;
+    var g = graphsById && graphsById[id];
+    return !!(g && g.nodes && g.edges);
+}
+
+function mergeSubgraphRangeFromGraph(subId, sub, visited) {
+    if (!subId || !sub || visited[subId]) return;
+    visited[subId] = true;
+    if (!subgraphRanges[subId]) subgraphRanges[subId] = { nodes: [], subgraphs: [], edges: [] };
+    var info = subgraphRanges[subId];
+    (sub.nodes || []).forEach(function(n) {
+        if (n === 'START' || n === 'END') return;
+        if (isSubgraphContainerId(n)) {
+            if (info.subgraphs.indexOf(n) < 0) info.subgraphs.push(n);
+            mergeSubgraphRangeFromGraph(n, graphsById[n], visited);
+        } else if (info.nodes.indexOf(n) < 0) {
+            info.nodes.push(n);
+        }
+    });
+    info.edges = filterInnerEdges(sub.edges || []);
+}
+
+function buildSubgraphRangesFromBindings(wf) {
+    wf = wf || currentGraph || {};
+    var visited = {};
+    Object.keys(getGraphBindings(wf)).forEach(function(key) {
+        if (!isSubgraphContainerId(key)) return;
+        mergeSubgraphRangeFromGraph(key, graphsById[key], visited);
+    });
 }
 
 function expandLoopInner(loopNid, wf) {

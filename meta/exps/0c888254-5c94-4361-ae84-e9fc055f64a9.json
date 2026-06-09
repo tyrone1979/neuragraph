@@ -1,6 +1,6 @@
 {
-  "dataset": "cid_dev_5samples.csv",
-  "test_dataset": "cid_dev_5samples.csv",
+  "dataset": "cid_dev_test_custom_sample_5_s42.csv",
+  "test_dataset": "cid_dev_test_custom_sample_5_s42.csv",
   "tuning_dataset": "cid_dev_tuning_stratified.csv",
   "runner_type": "graph",
   "runner_id": "wf_cid_re_llm_linear",
@@ -11,6 +11,5 @@
   "status": "completed",
   "progress": 100,
   "created_at": "2026-05-29T08:59:32.860737",
-  "id": "0c888254-5c94-4361-ae84-e9fc055f64a9",
-  "updated_at": "2026-05-29T09:01:23.582614"
+  "updated_at": "2026-06-08T19:19:05.263533"
 }
