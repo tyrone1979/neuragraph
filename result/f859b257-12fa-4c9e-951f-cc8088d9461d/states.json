@@ -1,0 +1,5125 @@
+{
+  "1": {
+    "entities": [
+      {
+        "text": "Famotidine-associated",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Famotidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "histamine H2-receptor antagonist",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "H2-receptor antagonists",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "famotidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "famotidine-associated",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "famotidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "famotidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "famotidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "delirium",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "stress ulcers",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "delirium",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "delirium",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "Famotidine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "famotidine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "famotidine-associated",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Famotidine-associated",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "H2-receptor antagonists",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "histamine H2-receptor antagonist",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "delirium",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "stress ulcers",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "famotidine-associated",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "histamine H2-receptor antagonist",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "delirium",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "stress ulcers",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "famotidine | CID | delirium",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "rel_precision": 0.5,
+      "rel_recall": 1.0,
+      "rel_f1": 0.6666666666666666,
+      "rel_tp": 1,
+      "rel_fp": 1,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "famotidine-associated",
+        "tail": "delirium",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "famotidine-associated",
+        "tail": "stress ulcers",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "histamine H2-receptor antagonist",
+        "tail": "delirium",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "histamine H2-receptor antagonist",
+        "tail": "stress ulcers",
+        "head_id": "2",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "2 | 1"
+    ],
+    "sentences": [
+      "Famotidine-associated delirium.",
+      "A series of six cases.",
+      "Famotidine is a histamine H2-receptor antagonist used in inpatient settings for prevention of stress ulcers and is showing increasing popularity because of its low cost.",
+      "Although all of the currently available H2-receptor antagonists have shown the propensity to cause delirium, only two previously reported cases have been associated with famotidine.",
+      "The authors report on six cases of famotidine-associated delirium in hospitalized patients who cleared completely upon removal of famotidine.",
+      "The pharmacokinetics of famotidine are reviewed, with no change in its metabolism in the elderly population seen.",
+      "The implications of using famotidine in elderly persons are discussed."
+    ],
+    "text": "Famotidine-associated delirium. A series of six cases. Famotidine is a histamine H2-receptor antagonist used in inpatient settings for prevention of stress ulcers and is showing increasing popularity because of its low cost. Although all of the currently available H2-receptor antagonists have shown the propensity to cause delirium, only two previously reported cases have been associated with famotidine. The authors report on six cases of famotidine-associated delirium in hospitalized patients who cleared completely upon removal of famotidine. The pharmacokinetics of famotidine are reviewed, with no change in its metabolism in the elderly population seen. The implications of using famotidine in elderly persons are discussed."
+  },
+  "2": {
+    "entities": [
+      {
+        "text": "Indomethacin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "indomethacin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "IDM",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "indomethacin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "indomethacin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "prostaglandin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "hypotension",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "IDM",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "indomethacin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Indomethacin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "sodium",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "prostaglandin",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "hypotension",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "indomethacin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "sodium",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "prostaglandin",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "hypotension",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "indomethacin | CID | hypotension",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "indomethacin",
+        "tail": "hypotension",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "sodium",
+        "tail": "hypotension",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "prostaglandin",
+        "tail": "hypotension",
+        "head_id": "3",
+        "tail_id": "1"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "Indomethacin induced hypotension in sodium and volume depleted rats.",
+      "After a single oral dose of 4 mg/kg indomethacin (IDM) to sodium and volume depleted rats plasma renin activity (PRA) and systolic blood pressure fell significantly within four hours.",
+      "In sodium repleted animals indomethacin did not change systolic blood pressure (BP) although plasma renin activity was decreased.",
+      "Thus, indomethacin by inhibition of prostaglandin synthesis may diminish the blood pressure maintaining effect of the stimulated renin-angiotensin system in sodium and volume depletion."
+    ],
+    "text": "Indomethacin induced hypotension in sodium and volume depleted rats. After a single oral dose of 4 mg/kg indomethacin (IDM) to sodium and volume depleted rats plasma renin activity (PRA) and systolic blood pressure fell significantly within four hours. In sodium repleted animals indomethacin did not change systolic blood pressure (BP) although plasma renin activity was decreased. Thus, indomethacin by inhibition of prostaglandin synthesis may diminish the blood pressure maintaining effect of the stimulated renin-angiotensin system in sodium and volume depletion."
+  },
+  "3": {
+    "entities": [
+      {
+        "text": "tacrolimus",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "prednisolone",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "corticosteroid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "cyclosporine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "tacrolimus",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "corticosteroids",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "tacrolimus",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "scleroderma renal crisis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Scleroderma renal crisis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "SRC",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "systemic sclerosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "SSc",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "SRC",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "thrombotic microangiopathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "SSc",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "SRC",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "SSc",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "tacrolimus",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "prednisolone",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "corticosteroid",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "corticosteroids",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "cyclosporine",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "SRC",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Scleroderma renal crisis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "scleroderma renal crisis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "SSc",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "systemic sclerosis",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "thrombotic microangiopathy",
+        "id": "3",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "tacrolimus",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "prednisolone",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "corticosteroids",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "cyclosporine",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "Scleroderma renal crisis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "systemic sclerosis",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "thrombotic microangiopathy",
+        "id": "3",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "cyclosporine | CID | thrombotic microangiopathy\ncorticosteroids | CID | SSc\ntacrolimus | CID | SSc",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.2222222222222222,
+      "recall": 0.6666666666666666,
+      "f1": 0.3333333333333333,
+      "tp": 2,
+      "fp": 7,
+      "fn": 1,
+      "rel_precision": 0.2222222222222222,
+      "rel_recall": 0.6666666666666666,
+      "rel_f1": 0.3333333333333333,
+      "rel_tp": 2,
+      "rel_fp": 7,
+      "rel_fn": 1
+    },
+    "pairs": [
+      {
+        "head": "tacrolimus",
+        "tail": "Scleroderma renal crisis",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "tacrolimus",
+        "tail": "systemic sclerosis",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "tacrolimus",
+        "tail": "thrombotic microangiopathy",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "prednisolone",
+        "tail": "Scleroderma renal crisis",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "prednisolone",
+        "tail": "systemic sclerosis",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "prednisolone",
+        "tail": "thrombotic microangiopathy",
+        "head_id": "2",
+        "tail_id": "3"
+      },
+      {
+        "head": "corticosteroids",
+        "tail": "Scleroderma renal crisis",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "corticosteroids",
+        "tail": "systemic sclerosis",
+        "head_id": "3",
+        "tail_id": "2"
+      },
+      {
+        "head": "corticosteroids",
+        "tail": "thrombotic microangiopathy",
+        "head_id": "3",
+        "tail_id": "3"
+      },
+      {
+        "head": "cyclosporine",
+        "tail": "Scleroderma renal crisis",
+        "head_id": "4",
+        "tail_id": "1"
+      },
+      {
+        "head": "cyclosporine",
+        "tail": "systemic sclerosis",
+        "head_id": "4",
+        "tail_id": "2"
+      },
+      {
+        "head": "cyclosporine",
+        "tail": "thrombotic microangiopathy",
+        "head_id": "4",
+        "tail_id": "3"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 2",
+      "1 | 3",
+      "2 | 1",
+      "2 | 2",
+      "2 | 3",
+      "3 | 1",
+      "3 | 2",
+      "3 | 3"
+    ],
+    "sentences": [
+      "Late-onset scleroderma renal crisis induced by tacrolimus and prednisolone: a case report.",
+      "Scleroderma renal crisis (SRC) is a rare complication of systemic sclerosis (SSc) but can be severe enough to require temporary or permanent renal replacement therapy.",
+      "Moderate to high dose corticosteroid use is recognized as a major risk factor for SRC.",
+      "Furthermore, there have been reports of thrombotic microangiopathy precipitated by cyclosporine in patients with SSc.",
+      "In this article, we report a patient with SRC induced by tacrolimus and corticosteroids.",
+      "The aim of this work is to call attention to the risk of tacrolimus use in patients with SSc."
+    ],
+    "text": "Late-onset scleroderma renal crisis induced by tacrolimus and prednisolone: a case report. Scleroderma renal crisis (SRC) is a rare complication of systemic sclerosis (SSc) but can be severe enough to require temporary or permanent renal replacement therapy. Moderate to high dose corticosteroid use is recognized as a major risk factor for SRC. Furthermore, there have been reports of thrombotic microangiopathy precipitated by cyclosporine in patients with SSc. In this article, we report a patient with SRC induced by tacrolimus and corticosteroids. The aim of this work is to call attention to the risk of tacrolimus use in patients with SSc."
+  },
+  "4": {
+    "entities": [
+      {
+        "text": "methamphetamine-dependent",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methamphetamine psychosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "psychosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dependence",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "psychosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "psychosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "psychiatric disorders",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "psychotic symptoms",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "psychotic symptoms",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "major depressive disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "bipolar disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "antisocial personality disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "psychosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Major depressive disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "antisocial personality disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "psychosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "psychosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dependence",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "co-morbid affective disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "antisocial personality",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dependence",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "psychotic symptoms",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "methamphetamine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "methamphetamine-dependent",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "psychosis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "psychotic symptoms",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "methamphetamine psychosis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "methamphetamine-induced psychosis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "dependence",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "methamphetamine dependence",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "psychiatric disorders",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "major depressive disorder",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "Major depressive disorder",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "bipolar disorder",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "antisocial personality",
+        "id": "6",
+        "label": "Disease"
+      },
+      {
+        "text": "antisocial personality disorder",
+        "id": "6",
+        "label": "Disease"
+      },
+      {
+        "text": "co-morbid affective disorder",
+        "id": "7",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "methamphetamine-dependent",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "methamphetamine-induced psychosis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "methamphetamine dependence",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "psychiatric disorders",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "major depressive disorder",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "bipolar disorder",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "antisocial personality disorder",
+        "id": "6",
+        "label": "Disease"
+      },
+      {
+        "text": "co-morbid affective disorder",
+        "id": "7",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "methamphetamine | CID | psychotic symptoms\nmethamphetamine | CID | bipolar disorder\nmethamphetamine | CID | antisocial personality",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.3333333333333333,
+      "recall": 0.3333333333333333,
+      "f1": 0.3333333333333333,
+      "tp": 1,
+      "fp": 2,
+      "fn": 2,
+      "rel_precision": 0.3333333333333333,
+      "rel_recall": 0.3333333333333333,
+      "rel_f1": 0.3333333333333333,
+      "rel_tp": 1,
+      "rel_fp": 2,
+      "rel_fn": 2
+    },
+    "pairs": [
+      {
+        "head": "methamphetamine-dependent",
+        "tail": "methamphetamine-induced psychosis",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "methamphetamine-dependent",
+        "tail": "methamphetamine dependence",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "methamphetamine-dependent",
+        "tail": "psychiatric disorders",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "methamphetamine-dependent",
+        "tail": "major depressive disorder",
+        "head_id": "1",
+        "tail_id": "4"
+      },
+      {
+        "head": "methamphetamine-dependent",
+        "tail": "bipolar disorder",
+        "head_id": "1",
+        "tail_id": "5"
+      },
+      {
+        "head": "methamphetamine-dependent",
+        "tail": "antisocial personality disorder",
+        "head_id": "1",
+        "tail_id": "6"
+      },
+      {
+        "head": "methamphetamine-dependent",
+        "tail": "co-morbid affective disorder",
+        "head_id": "1",
+        "tail_id": "7"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 3",
+      "1 | 7"
+    ],
+    "sentences": [
+      "The risk and associated factors of methamphetamine psychosis in methamphetamine-dependent patients in Malaysia.",
+      "OBJECTIVE: The objective of this study was to determine the risk of lifetime and current methamphetamine-induced psychosis in patients with methamphetamine dependence.",
+      "The association between psychiatric co-morbidity and methamphetamine-induced psychosis was also studied.",
+      "METHODS: This was a cross-sectional study conducted concurrently at a teaching hospital and a drug rehabilitation center in Malaysia.",
+      "Patients with the diagnosis of methamphetamine based on DSM-IV were interviewed using the Mini International Neuropsychiatric Interview (M.I.N.I.) for methamphetamine-induced psychosis and other Axis I psychiatric disorders.",
+      "The information on sociodemographic background and drug use history was obtained from interview or medical records.",
+      "RESULTS: Of 292 subjects, 47.9% of the subjects had a past history of psychotic symptoms and 13.0% of the patients were having current psychotic symptoms.",
+      "Co-morbid major depressive disorder (OR=7.18, 95 CI=2.612-19.708), bipolar disorder (OR=13.807, 95 CI=5.194-36.706), antisocial personality disorder (OR=12.619, 95 CI=6.702-23.759) and heavy methamphetamine uses were significantly associated with lifetime methamphetamine-induced psychosis after adjusted for other factors.",
+      "Major depressive disorder (OR=2.870, CI=1.154-7.142) and antisocial personality disorder (OR=3.299, 95 CI=1.375-7.914) were the only factors associated with current psychosis.",
+      "CONCLUSION: There was a high risk of psychosis in patients with methamphetamine dependence.",
+      "It was associated with co-morbid affective disorder, antisocial personality, and heavy methamphetamine use.",
+      "It is recommended that all cases of methamphetamine dependence should be screened for psychotic symptoms."
+    ],
+    "text": "The risk and associated factors of methamphetamine psychosis in methamphetamine-dependent patients in Malaysia. OBJECTIVE: The objective of this study was to determine the risk of lifetime and current methamphetamine-induced psychosis in patients with methamphetamine dependence. The association between psychiatric co-morbidity and methamphetamine-induced psychosis was also studied. METHODS: This was a cross-sectional study conducted concurrently at a teaching hospital and a drug rehabilitation center in Malaysia. Patients with the diagnosis of methamphetamine based on DSM-IV were interviewed using the Mini International Neuropsychiatric Interview (M.I.N.I.) for methamphetamine-induced psychosis and other Axis I psychiatric disorders. The information on sociodemographic background and drug use history was obtained from interview or medical records. RESULTS: Of 292 subjects, 47.9% of the subjects had a past history of psychotic symptoms and 13.0% of the patients were having current psychotic symptoms. Co-morbid major depressive disorder (OR=7.18, 95 CI=2.612-19.708), bipolar disorder (OR=13.807, 95 CI=5.194-36.706), antisocial personality disorder (OR=12.619, 95 CI=6.702-23.759) and heavy methamphetamine uses were significantly associated with lifetime methamphetamine-induced psychosis after adjusted for other factors. Major depressive disorder (OR=2.870, CI=1.154-7.142) and antisocial personality disorder (OR=3.299, 95 CI=1.375-7.914) were the only factors associated with current psychosis. CONCLUSION: There was a high risk of psychosis in patients with methamphetamine dependence. It was associated with co-morbid affective disorder, antisocial personality, and heavy methamphetamine use. It is recommended that all cases of methamphetamine dependence should be screened for psychotic symptoms."
+  },
+  "5": {
+    "entities": [
+      {
+        "text": "levodopa-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "PAS-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Parkinson's disease",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dyskinetic",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Parkinson's disease",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "PD",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dyskinesias",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "LIDs",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "LIDs",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "abnormal involuntary movements",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "levodopa",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "PAS",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "PD",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Parkinson's disease",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "LIDs",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "dyskinetic",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "dyskinesias",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "levodopa-induced dyskinesias",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "abnormal involuntary movements",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "levodopa",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "PAS",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Parkinson's disease",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "abnormal involuntary movements",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "levodopa | CID | abnormal involuntary movements",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "levodopa",
+        "tail": "Parkinson's disease",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "levodopa",
+        "tail": "abnormal involuntary movements",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "PAS",
+        "tail": "Parkinson's disease",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "PAS",
+        "tail": "abnormal involuntary movements",
+        "head_id": "2",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 2"
+    ],
+    "sentences": [
+      "Cerebellar sensory processing alterations impact motor cortical plasticity in Parkinson's disease: clues from dyskinetic patients.",
+      "The plasticity of primary motor cortex (M1) in patients with Parkinson's disease (PD) and levodopa-induced dyskinesias (LIDs) is severely impaired.",
+      "We recently reported in young healthy subjects that inhibitory cerebellar stimulation enhanced the sensorimotor plasticity of M1 that was induced by paired associative stimulation (PAS).",
+      "This study demonstrates that the deficient sensorimotor M1 plasticity in 16 patients with LIDs could be reinstated by a single session of real inhibitory cerebellar stimulation but not sham stimulation.",
+      "This was evident only when a sensory component was involved in the induction of plasticity, indicating that cerebellar sensory processing function is involved in the resurgence of M1 plasticity.",
+      "The benefit of inhibitory cerebellar stimulation on LIDs is known.",
+      "To explore whether this benefit is linked to the restoration of sensorimotor plasticity of M1, we conducted an additional study looking at changes in LIDs and PAS-induced plasticity after 10 sessions of either bilateral, real inhibitory cerebellar stimulation or sham stimulation.",
+      "Only real and not sham stimulation had an antidyskinetic effect and it was paralleled by a resurgence in the sensorimotor plasticity of M1.",
+      "These results suggest that alterations in cerebellar sensory processing function, occurring secondary to abnormal basal ganglia signals reaching it, may be an important element contributing to the maladaptive sensorimotor plasticity of M1 and the emergence of abnormal involuntary movements."
+    ],
+    "text": "Cerebellar sensory processing alterations impact motor cortical plasticity in Parkinson's disease: clues from dyskinetic patients. The plasticity of primary motor cortex (M1) in patients with Parkinson's disease (PD) and levodopa-induced dyskinesias (LIDs) is severely impaired. We recently reported in young healthy subjects that inhibitory cerebellar stimulation enhanced the sensorimotor plasticity of M1 that was induced by paired associative stimulation (PAS). This study demonstrates that the deficient sensorimotor M1 plasticity in 16 patients with LIDs could be reinstated by a single session of real inhibitory cerebellar stimulation but not sham stimulation. This was evident only when a sensory component was involved in the induction of plasticity, indicating that cerebellar sensory processing function is involved in the resurgence of M1 plasticity. The benefit of inhibitory cerebellar stimulation on LIDs is known. To explore whether this benefit is linked to the restoration of sensorimotor plasticity of M1, we conducted an additional study looking at changes in LIDs and PAS-induced plasticity after 10 sessions of either bilateral, real inhibitory cerebellar stimulation or sham stimulation. Only real and not sham stimulation had an antidyskinetic effect and it was paralleled by a resurgence in the sensorimotor plasticity of M1. These results suggest that alterations in cerebellar sensory processing function, occurring secondary to abnormal basal ganglia signals reaching it, may be an important element contributing to the maladaptive sensorimotor plasticity of M1 and the emergence of abnormal involuntary movements."
+  },
+  "6": {
+    "entities": [
+      {
+        "text": "cyclophosphamide-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "cyclophosphamide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CYP",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "0.9% saline",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CYP",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CYP",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Suramin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "GR 82334",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CYP",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Cyclophosphamide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CYP-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "cystitis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cystitis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "pain",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "pain",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "bladder instability",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "edema",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "inflammatory",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cystitis",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "CYP",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "cyclophosphamide",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Cyclophosphamide",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "0.9% saline",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Suramin",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "GR 82334",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "pain",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "edema",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "cystitis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "inflammatory",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "bladder instability",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "cyclophosphamide",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "0.9% saline",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Suramin",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "GR 82334",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "bladder instability",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "CYP | CID | cystitis\nCYP | CID | pain\nCYP | CID | edema",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "cyclophosphamide",
+        "tail": "bladder instability",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "0.9% saline",
+        "tail": "bladder instability",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "Suramin",
+        "tail": "bladder instability",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "GR 82334",
+        "tail": "bladder instability",
+        "head_id": "4",
+        "tail_id": "1"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "The function of P2X3 receptor and NK1 receptor antagonists on cyclophosphamide-induced cystitis in rats.",
+      "PURPOSE: The purpose of the study is to explore the function of P2X3 and NK1 receptors antagonists on cyclophosphamide (CYP)-induced cystitis in rats.",
+      "METHODS: Sixty female Sprague-Dawley (SD) rats were randomly divided into three groups.",
+      "The rats in the control group were intraperitoneally (i.p.) injected with 0.9% saline (4 ml/kg); the rats in the model group were i.p. injected with CYP (150 mg/kg); and the rats in the intervention group were i.p. injected with CYP with subsequently perfusion of bladder with P2X3 and NK1 receptors' antagonists, Suramin and GR 82334.",
+      "Spontaneous pain behaviors following the administration of CYP were observed.",
+      "Urodynamic parameters, bladder pressure-volume curve, maximum voiding pressure (MVP), and maximum cystometric capacity (MCC), were recorded.",
+      "Pathological changes in bladder tissue were observed.",
+      "Immunofluorescence was used to detect the expression of P2X3 and NK1 receptors in bladder.",
+      "RESULTS: Cyclophosphamide treatment increased the spontaneous pain behaviors scores.",
+      "The incidence of bladder instability during urine storage period of model group was significantly higher than intervention group (X(2) = 7.619, P = 0.007) and control group (X(2) = 13.755, P = 0.000).",
+      "MCC in the model group was lower than the control and intervention groups (P < 0.01).",
+      "Histological changes evident in model and intervention groups rats' bladder included edema, vasodilation, and infiltration of inflammatory cells.",
+      "In model group, the expression of P2X3 receptor increased in urothelium and suburothelium, and NK1 receptor increased in suburothelium, while the expression of them in intervention group was lower.",
+      "CONCLUSIONS: In CYP-induced cystitis, the expression of P2X3 and NK1 receptors increased in urothelium and/or suburothelium.",
+      "Perfusion of bladder with P2X3 and NK1 receptors antagonists ameliorated the bladder function."
+    ],
+    "text": "The function of P2X3 receptor and NK1 receptor antagonists on cyclophosphamide-induced cystitis in rats. PURPOSE: The purpose of the study is to explore the function of P2X3 and NK1 receptors antagonists on cyclophosphamide (CYP)-induced cystitis in rats. METHODS: Sixty female Sprague-Dawley (SD) rats were randomly divided into three groups. The rats in the control group were intraperitoneally (i.p.) injected with 0.9% saline (4 ml/kg); the rats in the model group were i.p. injected with CYP (150 mg/kg); and the rats in the intervention group were i.p. injected with CYP with subsequently perfusion of bladder with P2X3 and NK1 receptors' antagonists, Suramin and GR 82334. Spontaneous pain behaviors following the administration of CYP were observed. Urodynamic parameters, bladder pressure-volume curve, maximum voiding pressure (MVP), and maximum cystometric capacity (MCC), were recorded. Pathological changes in bladder tissue were observed. Immunofluorescence was used to detect the expression of P2X3 and NK1 receptors in bladder. RESULTS: Cyclophosphamide treatment increased the spontaneous pain behaviors scores. The incidence of bladder instability during urine storage period of model group was significantly higher than intervention group (X(2) = 7.619, P = 0.007) and control group (X(2) = 13.755, P = 0.000). MCC in the model group was lower than the control and intervention groups (P < 0.01). Histological changes evident in model and intervention groups rats' bladder included edema, vasodilation, and infiltration of inflammatory cells. In model group, the expression of P2X3 receptor increased in urothelium and suburothelium, and NK1 receptor increased in suburothelium, while the expression of them in intervention group was lower. CONCLUSIONS: In CYP-induced cystitis, the expression of P2X3 and NK1 receptors increased in urothelium and/or suburothelium. Perfusion of bladder with P2X3 and NK1 receptors antagonists ameliorated the bladder function."
+  },
+  "7": {
+    "entities": [
+      {
+        "text": "clopidogrel",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "clopidogrel-related",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "clopidogrel",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "clopidogrel",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Acute hepatitis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hepatotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "acute",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hepatitis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "acute hepatitis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hepatotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hepatic injury",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "clopidogrel",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "clopidogrel-related",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "acute",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "hepatitis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "hepatic injury",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "hepatotoxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Acute hepatitis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "acute hepatitis",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "clopidogrel-related",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Acute hepatitis",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "clopidogrel | CID | hepatic injury",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "clopidogrel-related",
+        "tail": "Acute hepatitis",
+        "head_id": "1",
+        "tail_id": "1"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "Acute hepatitis associated with clopidogrel: a case report and review of the literature.",
+      "Drug-induced hepatotoxicity is a common cause of acute hepatitis, and the recognition of the responsible drug may be difficult.",
+      "We describe a case of clopidogrel-related acute hepatitis.",
+      "The diagnosis is strongly suggested by an accurate medical history and liver biopsy.",
+      "Reports about cases of hepatotoxicity due to clopidogrel are increasing in the last few years, after the increased use of this drug.",
+      "In conclusion, we believe that physicians should carefully consider the risk of drug-induced hepatic injury when clopidogrel is prescribed."
+    ],
+    "text": "Acute hepatitis associated with clopidogrel: a case report and review of the literature. Drug-induced hepatotoxicity is a common cause of acute hepatitis, and the recognition of the responsible drug may be difficult. We describe a case of clopidogrel-related acute hepatitis. The diagnosis is strongly suggested by an accurate medical history and liver biopsy. Reports about cases of hepatotoxicity due to clopidogrel are increasing in the last few years, after the increased use of this drug. In conclusion, we believe that physicians should carefully consider the risk of drug-induced hepatic injury when clopidogrel is prescribed."
+  },
+  "8": {
+    "entities": [
+      {
+        "text": "Bortezomib",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "dexamethasone",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Bortezomib",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bort",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "dexamethasone",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "dex",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bort",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "dex",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bort",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bort-dex",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bort-dex",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bort-dex",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Bort-dex",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "multiple myeloma",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "multiple myeloma",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "MM",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "MM",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "peripheral neuropathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "MM",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "bort",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Bort-dex",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "bort-dex",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Bortezomib",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "dex",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Bort-dex",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "bort-dex",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "dexamethasone",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "dex",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "bort",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "Bort-dex",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "bort-dex",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "MM",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "multiple myeloma",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "peripheral neuropathy",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Bortezomib",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "dexamethasone",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Bort-dex",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "multiple myeloma",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "peripheral neuropathy",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "dex | CID | peripheral neuropathy\nBort | CID | peripheral neuropathy",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.3333333333333333,
+      "recall": 1.0,
+      "f1": 0.5,
+      "tp": 1,
+      "fp": 2,
+      "fn": 0,
+      "rel_precision": 0.3333333333333333,
+      "rel_recall": 1.0,
+      "rel_f1": 0.5,
+      "rel_tp": 1,
+      "rel_fp": 2,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Bortezomib",
+        "tail": "multiple myeloma",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "Bortezomib",
+        "tail": "peripheral neuropathy",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "dexamethasone",
+        "tail": "multiple myeloma",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "dexamethasone",
+        "tail": "peripheral neuropathy",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "Bort-dex",
+        "tail": "multiple myeloma",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "Bort-dex",
+        "tail": "peripheral neuropathy",
+        "head_id": "3",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 2",
+      "2 | 2",
+      "3 | 2"
+    ],
+    "sentences": [
+      "Bortezomib and dexamethasone as salvage therapy in patients with relapsed/refractory multiple myeloma: analysis of long-term clinical outcomes.",
+      "Bortezomib (bort)-dexamethasone (dex) is an effective therapy for relapsed/refractory (R/R) multiple myeloma (MM).",
+      "This retrospective study investigated the combination of bort (1.3 mg/m(2) on days 1, 4, 8, and 11 every 3 weeks) and dex (20 mg on the day of and the day after bort) as salvage treatment in 85 patients with R/R MM after prior autologous stem cell transplantation or conventional chemotherapy.",
+      "The median number of prior lines of therapy was 2.",
+      "Eighty-seven percent of the patients had received immunomodulatory drugs included in some line of therapy before bort-dex.",
+      "The median number of bort-dex cycles was 6, up to a maximum of 12 cycles.",
+      "On an intention-to-treat basis, 55 % of the patients achieved at least partial response, including 19 % CR and 35 % achieved at least very good partial response.",
+      "Median durations of response, time to next therapy and treatment-free interval were 8, 11.2, and 5.1 months, respectively.",
+      "The most relevant adverse event was peripheral neuropathy, which occurred in 78 % of the patients (grade II, 38 %; grade III, 21 %) and led to treatment discontinuation in 6 %.",
+      "With a median follow up of 22 months, median time to progression, progression-free survival (PFS) and overall survival (OS) were 8.9, 8.7, and 22 months, respectively.",
+      "Prolonged PFS and OS were observed in patients achieving CR and receiving bort-dex a single line of prior therapy.",
+      "Bort-dex was an effective salvage treatment for MM patients, particularly for those in first relapse."
+    ],
+    "text": "Bortezomib and dexamethasone as salvage therapy in patients with relapsed/refractory multiple myeloma: analysis of long-term clinical outcomes. Bortezomib (bort)-dexamethasone (dex) is an effective therapy for relapsed/refractory (R/R) multiple myeloma (MM). This retrospective study investigated the combination of bort (1.3 mg/m(2) on days 1, 4, 8, and 11 every 3 weeks) and dex (20 mg on the day of and the day after bort) as salvage treatment in 85 patients with R/R MM after prior autologous stem cell transplantation or conventional chemotherapy. The median number of prior lines of therapy was 2. Eighty-seven percent of the patients had received immunomodulatory drugs included in some line of therapy before bort-dex. The median number of bort-dex cycles was 6, up to a maximum of 12 cycles. On an intention-to-treat basis, 55 % of the patients achieved at least partial response, including 19 % CR and 35 % achieved at least very good partial response. Median durations of response, time to next therapy and treatment-free interval were 8, 11.2, and 5.1 months, respectively. The most relevant adverse event was peripheral neuropathy, which occurred in 78 % of the patients (grade II, 38 %; grade III, 21 %) and led to treatment discontinuation in 6 %. With a median follow up of 22 months, median time to progression, progression-free survival (PFS) and overall survival (OS) were 8.9, 8.7, and 22 months, respectively. Prolonged PFS and OS were observed in patients achieving CR and receiving bort-dex a single line of prior therapy. Bort-dex was an effective salvage treatment for MM patients, particularly for those in first relapse."
+  },
+  "9": {
+    "entities": [
+      {
+        "text": "Bisphenol A",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Bisphenol A",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "BPA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "BPA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "BPA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "BPA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "BPA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "BPA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "PBE",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "anxiety-like",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "anxiety-like",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "BPA",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "PBE",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Bisphenol A",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "anxiety-like",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Bisphenol A",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "anxiety-like",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "BPA | CID | anxiety",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Bisphenol A",
+        "tail": "anxiety-like",
+        "head_id": "1",
+        "tail_id": "1"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "Pubertal exposure to Bisphenol A increases anxiety-like behavior and decreases acetylcholinesterase activity of hippocampus in adult male mice.",
+      "The negative effects of Bisphenol A (BPA) on neurodevelopment and behaviors have been well established.",
+      "Acetylcholinesterase (AChE) is a regulatory enzyme which is involved in anxiety-like behavior.",
+      "This study investigated behavioral phenotypes and AChE activity in male mice following BPA exposure during puberty.",
+      "On postnatal day (PND) 35, male mice were exposed to 50mg BPA/kg diet per day for a period of 35 days.",
+      "On PND71, a behavioral assay was performed using the elevated plus maze (EPM) and the light/dark test.",
+      "In addition, AChE activity was measured in the prefrontal cortex, hypothalamus, cerebellum and hippocampus.",
+      "Results from our behavioral phenotyping indicated that anxiety-like behavior was increased in mice exposed to BPA.",
+      "AChE activity was significantly decreased in the hippocampus of mice with BPA compared to control mice, whereas no difference was found in the prefrontal cortex, hypothalamus and cerebellum.",
+      "Our findings showed that pubertal BPA exposure increased anxiety-like behavior, which may be associated with decreased AChE activity of the hippocampus in adult male mice.",
+      "Further studies are necessary to investigate the cholinergic signaling of the hippocampus in PBE induced anxiety-like behaviors."
+    ],
+    "text": "Pubertal exposure to Bisphenol A increases anxiety-like behavior and decreases acetylcholinesterase activity of hippocampus in adult male mice. The negative effects of Bisphenol A (BPA) on neurodevelopment and behaviors have been well established. Acetylcholinesterase (AChE) is a regulatory enzyme which is involved in anxiety-like behavior. This study investigated behavioral phenotypes and AChE activity in male mice following BPA exposure during puberty. On postnatal day (PND) 35, male mice were exposed to 50mg BPA/kg diet per day for a period of 35 days. On PND71, a behavioral assay was performed using the elevated plus maze (EPM) and the light/dark test. In addition, AChE activity was measured in the prefrontal cortex, hypothalamus, cerebellum and hippocampus. Results from our behavioral phenotyping indicated that anxiety-like behavior was increased in mice exposed to BPA. AChE activity was significantly decreased in the hippocampus of mice with BPA compared to control mice, whereas no difference was found in the prefrontal cortex, hypothalamus and cerebellum. Our findings showed that pubertal BPA exposure increased anxiety-like behavior, which may be associated with decreased AChE activity of the hippocampus in adult male mice. Further studies are necessary to investigate the cholinergic signaling of the hippocampus in PBE induced anxiety-like behaviors."
+  },
+  "10": {
+    "entities": [
+      {
+        "text": "Solidago virgaurea extract",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Solidago virgaurea extract",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "isoproterenol-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "isoproterenol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "cholesterol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "triglycerides",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fatty acid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "malondialdehyde",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "MDA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "nitric oxide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "glutathione",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "S. virgaurea extract",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "isoproterenol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Captopril",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "S. virgaurea extract",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "MDA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "isoproterenol-treated",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "S. virgaurea extract",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "cardiotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Cardiovascular diseases",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "CVDs",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cardiotoxicity",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "S. virgaurea extract",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Solidago virgaurea extract",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "isoproterenol",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "isoproterenol-treated",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "cholesterol",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "triglycerides",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "fatty acid",
+        "id": "5",
+        "label": "Chemical"
+      },
+      {
+        "text": "MDA",
+        "id": "6",
+        "label": "Chemical"
+      },
+      {
+        "text": "malondialdehyde",
+        "id": "6",
+        "label": "Chemical"
+      },
+      {
+        "text": "nitric oxide",
+        "id": "7",
+        "label": "Chemical"
+      },
+      {
+        "text": "glutathione",
+        "id": "8",
+        "label": "Chemical"
+      },
+      {
+        "text": "Captopril",
+        "id": "9",
+        "label": "Chemical"
+      },
+      {
+        "text": "cardiotoxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "CVDs",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "Cardiovascular diseases",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Solidago virgaurea extract",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "isoproterenol-treated",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "cholesterol",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "triglycerides",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "fatty acid",
+        "id": "5",
+        "label": "Chemical"
+      },
+      {
+        "text": "malondialdehyde",
+        "id": "6",
+        "label": "Chemical"
+      },
+      {
+        "text": "nitric oxide",
+        "id": "7",
+        "label": "Chemical"
+      },
+      {
+        "text": "glutathione",
+        "id": "8",
+        "label": "Chemical"
+      },
+      {
+        "text": "Captopril",
+        "id": "9",
+        "label": "Chemical"
+      },
+      {
+        "text": "cardiotoxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Cardiovascular diseases",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "isoproterenol | CID | cardiotoxicity",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "rel_precision": 0.5,
+      "rel_recall": 1.0,
+      "rel_f1": 0.6666666666666666,
+      "rel_tp": 1,
+      "rel_fp": 1,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Solidago virgaurea extract",
+        "tail": "cardiotoxicity",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "Solidago virgaurea extract",
+        "tail": "Cardiovascular diseases",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "isoproterenol-treated",
+        "tail": "cardiotoxicity",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "isoproterenol-treated",
+        "tail": "Cardiovascular diseases",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "cholesterol",
+        "tail": "cardiotoxicity",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "cholesterol",
+        "tail": "Cardiovascular diseases",
+        "head_id": "3",
+        "tail_id": "2"
+      },
+      {
+        "head": "triglycerides",
+        "tail": "cardiotoxicity",
+        "head_id": "4",
+        "tail_id": "1"
+      },
+      {
+        "head": "triglycerides",
+        "tail": "Cardiovascular diseases",
+        "head_id": "4",
+        "tail_id": "2"
+      },
+      {
+        "head": "fatty acid",
+        "tail": "cardiotoxicity",
+        "head_id": "5",
+        "tail_id": "1"
+      },
+      {
+        "head": "fatty acid",
+        "tail": "Cardiovascular diseases",
+        "head_id": "5",
+        "tail_id": "2"
+      },
+      {
+        "head": "malondialdehyde",
+        "tail": "cardiotoxicity",
+        "head_id": "6",
+        "tail_id": "1"
+      },
+      {
+        "head": "malondialdehyde",
+        "tail": "Cardiovascular diseases",
+        "head_id": "6",
+        "tail_id": "2"
+      },
+      {
+        "head": "nitric oxide",
+        "tail": "cardiotoxicity",
+        "head_id": "7",
+        "tail_id": "1"
+      },
+      {
+        "head": "nitric oxide",
+        "tail": "Cardiovascular diseases",
+        "head_id": "7",
+        "tail_id": "2"
+      },
+      {
+        "head": "glutathione",
+        "tail": "cardiotoxicity",
+        "head_id": "8",
+        "tail_id": "1"
+      },
+      {
+        "head": "glutathione",
+        "tail": "Cardiovascular diseases",
+        "head_id": "8",
+        "tail_id": "2"
+      },
+      {
+        "head": "Captopril",
+        "tail": "cardiotoxicity",
+        "head_id": "9",
+        "tail_id": "1"
+      },
+      {
+        "head": "Captopril",
+        "tail": "Cardiovascular diseases",
+        "head_id": "9",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "2 | 1",
+      "2 | 2"
+    ],
+    "sentences": [
+      "Biochemical effects of Solidago virgaurea extract on experimental cardiotoxicity.",
+      "Cardiovascular diseases (CVDs) are the major health problem of advanced as well as developing countries of the world.",
+      "The aim of the present study was to investigate the protective effect of the Solidago virgaurea extract on isoproterenol-induced cardiotoxicity in rats.",
+      "The subcutaneous injection of isoproterenol (30 mg/kg) into rats twice at an interval of 24 h, for two consecutive days, led to a significant increase in serum lactate dehydrogenase, creatine phosphokinase, alanine transaminase, aspartate transaminase, and angiotensin-converting enzyme activities, total cholesterol, triglycerides, free serum fatty acid, cardiac tissue malondialdehyde (MDA), and nitric oxide levels and a significant decrease in levels of glutathione and superoxide dismutase in cardiac tissue as compared to the normal control group (P < 0.05).",
+      "Pretreatment with S. virgaurea extract for 5 weeks at a dose of 250 mg/kg followed by isoproterenol injection significantly prevented the observed alterations.",
+      "Captopril (50 mg/kg/day, given orally), an inhibitor of angiotensin-converting enzyme used as a standard cardioprotective drug, was used as a positive control in this study.",
+      "The data of the present study suggest that S. virgaurea extract exerts its protective effect by decreasing MDA level and increasing the antioxidant status in isoproterenol-treated rats.",
+      "The study emphasizes the beneficial action of S. virgaurea extract as a cardioprotective agent."
+    ],
+    "text": "Biochemical effects of Solidago virgaurea extract on experimental cardiotoxicity. Cardiovascular diseases (CVDs) are the major health problem of advanced as well as developing countries of the world. The aim of the present study was to investigate the protective effect of the Solidago virgaurea extract on isoproterenol-induced cardiotoxicity in rats. The subcutaneous injection of isoproterenol (30 mg/kg) into rats twice at an interval of 24 h, for two consecutive days, led to a significant increase in serum lactate dehydrogenase, creatine phosphokinase, alanine transaminase, aspartate transaminase, and angiotensin-converting enzyme activities, total cholesterol, triglycerides, free serum fatty acid, cardiac tissue malondialdehyde (MDA), and nitric oxide levels and a significant decrease in levels of glutathione and superoxide dismutase in cardiac tissue as compared to the normal control group (P < 0.05). Pretreatment with S. virgaurea extract for 5 weeks at a dose of 250 mg/kg followed by isoproterenol injection significantly prevented the observed alterations. Captopril (50 mg/kg/day, given orally), an inhibitor of angiotensin-converting enzyme used as a standard cardioprotective drug, was used as a positive control in this study. The data of the present study suggest that S. virgaurea extract exerts its protective effect by decreasing MDA level and increasing the antioxidant status in isoproterenol-treated rats. The study emphasizes the beneficial action of S. virgaurea extract as a cardioprotective agent."
+  },
+  "11": {
+    "entities": [
+      {
+        "text": "lenalidomide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "dexamethasone",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Lenalidomide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "dexamethasone",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "RD",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "thalidomide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bortezomib",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "lenalidomide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "multiple myeloma",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Myeloma",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "relapsed/refractory multiple myeloma",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "RRMM",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "RRMM",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "myelosuppression",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Peripheral neuropathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "deep vein thrombosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "RRMM",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "RD",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "lenalidomide",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Lenalidomide",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "dexamethasone",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "lenalidomide and dexamethasone",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "thalidomide",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "bortezomib",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "RRMM",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Myeloma",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "multiple myeloma",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "relapsed/refractory multiple myeloma",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "myelosuppression",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "Peripheral neuropathy",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "deep vein thrombosis",
+        "id": "4",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "lenalidomide and dexamethasone",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "thalidomide",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "bortezomib",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "relapsed/refractory multiple myeloma",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "myelosuppression",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "Peripheral neuropathy",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "deep vein thrombosis",
+        "id": "4",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "dexamethasone | CID | Peripheral neuropathy\ndexamethasone | CID | myelosuppression\ndexamethasone | CID | deep vein thrombosis\nlenalidomide | CID | myelosuppression\nlenalidomide | CID | Peripheral neuropathy\nlenalidomide | CID | deep vein thrombosis",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 3,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "lenalidomide and dexamethasone",
+        "tail": "relapsed/refractory multiple myeloma",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "lenalidomide and dexamethasone",
+        "tail": "myelosuppression",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "lenalidomide and dexamethasone",
+        "tail": "Peripheral neuropathy",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "lenalidomide and dexamethasone",
+        "tail": "deep vein thrombosis",
+        "head_id": "1",
+        "tail_id": "4"
+      },
+      {
+        "head": "thalidomide",
+        "tail": "relapsed/refractory multiple myeloma",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "thalidomide",
+        "tail": "myelosuppression",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "thalidomide",
+        "tail": "Peripheral neuropathy",
+        "head_id": "2",
+        "tail_id": "3"
+      },
+      {
+        "head": "thalidomide",
+        "tail": "deep vein thrombosis",
+        "head_id": "2",
+        "tail_id": "4"
+      },
+      {
+        "head": "bortezomib",
+        "tail": "relapsed/refractory multiple myeloma",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "bortezomib",
+        "tail": "myelosuppression",
+        "head_id": "3",
+        "tail_id": "2"
+      },
+      {
+        "head": "bortezomib",
+        "tail": "Peripheral neuropathy",
+        "head_id": "3",
+        "tail_id": "3"
+      },
+      {
+        "head": "bortezomib",
+        "tail": "deep vein thrombosis",
+        "head_id": "3",
+        "tail_id": "4"
+      }
+    ],
+    "relations": [
+      "1 | 2",
+      "1 | 3",
+      "1 | 4"
+    ],
+    "sentences": [
+      "\"Real-world\" data on the efficacy and safety of lenalidomide and dexamethasone in patients with relapsed/refractory multiple myeloma who were treated according to the standard clinical practice: a study of the Greek Myeloma Study Group.",
+      "Lenalidomide and dexamethasone (RD) is a standard of care for relapsed/refractory multiple myeloma (RRMM), but there is limited published data on its efficacy and safety in the \"real world\" (RW), according to the International Society of Pharmacoeconomics and Outcomes Research definition.",
+      "We studied 212 RRMM patients who received RD in RW.",
+      "Objective response (>PR (partial response)) rate was 77.4 % (complete response (CR), 20.2 %).",
+      "Median time to first and best response was 2 and 5 months, respectively.",
+      "Median time to CR when RD was given as 2nd or >2(nd)-line treatment at 4 and 11 months, respectively.",
+      "Quality of response was independent of previous lines of therapies or previous exposure to thalidomide or bortezomib.",
+      "Median duration of response was 34.4 months, and it was higher in patients who received RD until progression (not reached versus 19 months, p < 0.001).",
+      "Improvement of humoral immunity occurred in 60 % of responders (p < 0.001) and in the majority of patients who achieved stable disease.",
+      "Adverse events were reported in 68.9 % of patients (myelosuppression in 49.4 %) and 12.7 % of patients needed hospitalization.",
+      "Peripheral neuropathy was observed only in 2.5 % of patients and deep vein thrombosis in 5.7 %.",
+      "Dose reductions were needed in 31 % of patients and permanent discontinuation in 38.9 %.",
+      "Median time to treatment discontinuation was 16.8 months.",
+      "Performance status (PS) and initial lenalidomide dose predicted for treatment discontinuation.",
+      "Extra-medullary relapses occurred in 3.8 % of patients.",
+      "Our study confirms that RD is effective and safe in RRMM in the RW; it produces durable responses especially in patients who continue on treatment till progression and improves humoral immunity even in patients with stable disease."
+    ],
+    "text": "\"Real-world\" data on the efficacy and safety of lenalidomide and dexamethasone in patients with relapsed/refractory multiple myeloma who were treated according to the standard clinical practice: a study of the Greek Myeloma Study Group. Lenalidomide and dexamethasone (RD) is a standard of care for relapsed/refractory multiple myeloma (RRMM), but there is limited published data on its efficacy and safety in the \"real world\" (RW), according to the International Society of Pharmacoeconomics and Outcomes Research definition. We studied 212 RRMM patients who received RD in RW. Objective response (>PR (partial response)) rate was 77.4 % (complete response (CR), 20.2 %). Median time to first and best response was 2 and 5 months, respectively. Median time to CR when RD was given as 2nd or >2(nd)-line treatment at 4 and 11 months, respectively. Quality of response was independent of previous lines of therapies or previous exposure to thalidomide or bortezomib. Median duration of response was 34.4 months, and it was higher in patients who received RD until progression (not reached versus 19 months, p < 0.001). Improvement of humoral immunity occurred in 60 % of responders (p < 0.001) and in the majority of patients who achieved stable disease. Adverse events were reported in 68.9 % of patients (myelosuppression in 49.4 %) and 12.7 % of patients needed hospitalization. Peripheral neuropathy was observed only in 2.5 % of patients and deep vein thrombosis in 5.7 %. Dose reductions were needed in 31 % of patients and permanent discontinuation in 38.9 %. Median time to treatment discontinuation was 16.8 months. Performance status (PS) and initial lenalidomide dose predicted for treatment discontinuation. Extra-medullary relapses occurred in 3.8 % of patients. Our study confirms that RD is effective and safe in RRMM in the RW; it produces durable responses especially in patients who continue on treatment till progression and improves humoral immunity even in patients with stable disease."
+  },
+  "12": {
+    "entities": [
+      {
+        "text": "ifosfamide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "mesna",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Ifosfamide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "IFO",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "alkylating nitrogen mustard",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "IFO",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium 2-sulfanylethanesulfonate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Mesna",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "IFO",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Mesna",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Mesna",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "IFO",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "IFO",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Mesna",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "IFO",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Mesna",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "IFO",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "hemorrhagic cystitis",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "IFO",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "ifosfamide",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Ifosfamide",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "alkylating nitrogen mustard",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "mesna",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Mesna",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "sodium 2-sulfanylethanesulfonate",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "hemorrhagic cystitis",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "alkylating nitrogen mustard",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "sodium 2-sulfanylethanesulfonate",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "hemorrhagic cystitis",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "IFO | CID | D003556\nIFO | CID | D006470",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "rel_precision": 0.0,
+      "rel_recall": 0.0,
+      "rel_f1": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 1,
+      "rel_fn": 2
+    },
+    "pairs": [
+      {
+        "head": "alkylating nitrogen mustard",
+        "tail": "hemorrhagic cystitis",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "sodium 2-sulfanylethanesulfonate",
+        "tail": "hemorrhagic cystitis",
+        "head_id": "2",
+        "tail_id": "1"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "The cytogenetic action of ifosfamide, mesna, and their combination on peripheral rabbit lymphocytes: an in vivo/in vitro cytogenetic study.",
+      "Ifosfamide (IFO) is an alkylating nitrogen mustard, administrated as an antineoplasmic agent.",
+      "It is characterized by its intense urotoxic action, leading to hemorrhagic cystitis.",
+      "This side effect of IFO raises the requirement for the co-administration with sodium 2-sulfanylethanesulfonate (Mesna) aiming to avoid or minimize this effect.",
+      "IFO and Mesna were administrated separately on rabbit's lymphocytes in vivo, which were later developed in vitro.",
+      "Cytogenetic markers for sister chromatid exchanges (SCEs), proliferation rate index (PRI) and Mitotic Index were recorded.",
+      "Mesna's action, in conjunction with IFO reduces the frequency of SCEs, in comparison with the SCEs recordings obtained when IFO is administered alone.",
+      "In addition to this, when high concentrations of Mesna were administered alone significant reductions of the PRI were noted, than with IFO acting at the same concentration on the lymphocytes.",
+      "Mesna significantly reduces IFO's genotoxicity, while when administered in high concentrations it acts in an inhibitory fashion on the cytostatic action of the drug."
+    ],
+    "text": "The cytogenetic action of ifosfamide, mesna, and their combination on peripheral rabbit lymphocytes: an in vivo/in vitro cytogenetic study. Ifosfamide (IFO) is an alkylating nitrogen mustard, administrated as an antineoplasmic agent. It is characterized by its intense urotoxic action, leading to hemorrhagic cystitis. This side effect of IFO raises the requirement for the co-administration with sodium 2-sulfanylethanesulfonate (Mesna) aiming to avoid or minimize this effect. IFO and Mesna were administrated separately on rabbit's lymphocytes in vivo, which were later developed in vitro. Cytogenetic markers for sister chromatid exchanges (SCEs), proliferation rate index (PRI) and Mitotic Index were recorded. Mesna's action, in conjunction with IFO reduces the frequency of SCEs, in comparison with the SCEs recordings obtained when IFO is administered alone. In addition to this, when high concentrations of Mesna were administered alone significant reductions of the PRI were noted, than with IFO acting at the same concentration on the lymphocytes. Mesna significantly reduces IFO's genotoxicity, while when administered in high concentrations it acts in an inhibitory fashion on the cytostatic action of the drug."
+  },
+  "13": {
+    "entities": [
+      {
+        "text": "levodopa-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levodopa",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "dyskinesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Parkinson's disease",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Parkinson's disease",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "PD",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dyskinesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dyskinesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "PD",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "PD",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dyskinesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Dyskinesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dyskinesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dyskinesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dyskinesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dyskinesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dyskinesia",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "levodopa",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "dyskinesia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Dyskinesia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "levodopa-induced dyskinesia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "PD",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "Parkinson's disease",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "levodopa",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "levodopa-induced dyskinesia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Parkinson's disease",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "levodopa | CID | dyskinesia",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "levodopa",
+        "tail": "levodopa-induced dyskinesia",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "levodopa",
+        "tail": "Parkinson's disease",
+        "head_id": "1",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "Risk factors and predictors of levodopa-induced dyskinesia among multiethnic Malaysians with Parkinson's disease.",
+      "Chronic pulsatile levodopa therapy for Parkinson's disease (PD) leads to the development of motor fluctuations and dyskinesia.",
+      "We studied the prevalence and predictors of levodopa-induced dyskinesia among multiethnic Malaysian patients with PD.",
+      "METHODS: This is a cross-sectional study involving 95 patients with PD on uninterrupted levodopa therapy for at least 6 months.",
+      "The instrument used was the UPDRS questionnaires.",
+      "The predictors of dyskinesia were determined using multivariate logistic regression analysis.",
+      "RESULTS: The mean age was 65.6 + 8.5 years.",
+      "The mean onset age was 58.5 + 9.8 years.",
+      "The median disease duration was 6 (7) years.",
+      "Dyskinesia was present in 44% (n = 42) with median levodopa therapy of 3 years.",
+      "There were 64.3% Chinese, 31% Malays, and 3.7% Indians and other ethnic groups.",
+      "Eighty-one percent of patients with dyskinesia had clinical fluctuations.",
+      "Patients with dyskinesia had lower onset age ( p < 0.001), longer duration of levodopa therapy ( p < 0.001), longer disease duration ( p < 0.001), higher total daily levodopa dose ( p < 0.001), and higher total UPDRS scores ( p = 0.005) than patients without dyskinesia.",
+      "The three significant predictors of dyskinesia were duration of levodopa therapy, onset age, and total daily levodopa dose.",
+      "CONCLUSIONS: The prevalence of levodopa-induced dyskinesia in our patients was 44%.",
+      "The most significant predictors were duration of levodopa therapy, total daily levodopa dose, and onset age."
+    ],
+    "text": "Risk factors and predictors of levodopa-induced dyskinesia among multiethnic Malaysians with Parkinson's disease. Chronic pulsatile levodopa therapy for Parkinson's disease (PD) leads to the development of motor fluctuations and dyskinesia. We studied the prevalence and predictors of levodopa-induced dyskinesia among multiethnic Malaysian patients with PD. METHODS: This is a cross-sectional study involving 95 patients with PD on uninterrupted levodopa therapy for at least 6 months. The instrument used was the UPDRS questionnaires. The predictors of dyskinesia were determined using multivariate logistic regression analysis. RESULTS: The mean age was 65.6 + 8.5 years. The mean onset age was 58.5 + 9.8 years. The median disease duration was 6 (7) years. Dyskinesia was present in 44% (n = 42) with median levodopa therapy of 3 years. There were 64.3% Chinese, 31% Malays, and 3.7% Indians and other ethnic groups. Eighty-one percent of patients with dyskinesia had clinical fluctuations. Patients with dyskinesia had lower onset age ( p < 0.001), longer duration of levodopa therapy ( p < 0.001), longer disease duration ( p < 0.001), higher total daily levodopa dose ( p < 0.001), and higher total UPDRS scores ( p = 0.005) than patients without dyskinesia. The three significant predictors of dyskinesia were duration of levodopa therapy, onset age, and total daily levodopa dose. CONCLUSIONS: The prevalence of levodopa-induced dyskinesia in our patients was 44%. The most significant predictors were duration of levodopa therapy, total daily levodopa dose, and onset age."
+  },
+  "14": {
+    "entities": [
+      {
+        "text": "mammalian target of rapamycin inhibitors",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "mTOR-i",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "tacrolimus",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "everolimus",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "proteinuria",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "AL amyloidosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Proteinuria",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "chronic rejection",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "interstitial fibrosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "tubular atrophy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "de novo glomerulopathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "amyloidosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "monoclonal gammapathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "significance",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "proteinuria",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "mTOR-i",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "mammalian target of rapamycin inhibitors",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "tacrolimus",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "everolimus",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "Proteinuria",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "proteinuria",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "amyloidosis",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "AL amyloidosis",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "chronic rejection",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "tubular atrophy",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "interstitial fibrosis",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "interstitial fibrosis and tubular atrophy",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "de novo glomerulopathy",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "significance",
+        "id": "6",
+        "label": "Disease"
+      },
+      {
+        "text": "monoclonal gammapathy",
+        "id": "6",
+        "label": "Disease"
+      },
+      {
+        "text": "monoclonal gammapathy of undetermined significance",
+        "id": "6",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "mammalian target of rapamycin inhibitors",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "tacrolimus",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "everolimus",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "Proteinuria",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "AL amyloidosis",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "chronic rejection",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "interstitial fibrosis and tubular atrophy",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "de novo glomerulopathy",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "monoclonal gammapathy of undetermined significance",
+        "id": "6",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "everolimus | CID | amyloidosis\neverolimus | CID | proteinuria",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1": 0.5,
+      "tp": 1,
+      "fp": 1,
+      "fn": 1,
+      "rel_precision": 0.5,
+      "rel_recall": 0.5,
+      "rel_f1": 0.5,
+      "rel_tp": 1,
+      "rel_fp": 1,
+      "rel_fn": 1
+    },
+    "pairs": [
+      {
+        "head": "mammalian target of rapamycin inhibitors",
+        "tail": "Proteinuria",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "mammalian target of rapamycin inhibitors",
+        "tail": "AL amyloidosis",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "mammalian target of rapamycin inhibitors",
+        "tail": "chronic rejection",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "mammalian target of rapamycin inhibitors",
+        "tail": "interstitial fibrosis and tubular atrophy",
+        "head_id": "1",
+        "tail_id": "4"
+      },
+      {
+        "head": "mammalian target of rapamycin inhibitors",
+        "tail": "de novo glomerulopathy",
+        "head_id": "1",
+        "tail_id": "5"
+      },
+      {
+        "head": "mammalian target of rapamycin inhibitors",
+        "tail": "monoclonal gammapathy of undetermined significance",
+        "head_id": "1",
+        "tail_id": "6"
+      },
+      {
+        "head": "tacrolimus",
+        "tail": "Proteinuria",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "tacrolimus",
+        "tail": "AL amyloidosis",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "tacrolimus",
+        "tail": "chronic rejection",
+        "head_id": "2",
+        "tail_id": "3"
+      },
+      {
+        "head": "tacrolimus",
+        "tail": "interstitial fibrosis and tubular atrophy",
+        "head_id": "2",
+        "tail_id": "4"
+      },
+      {
+        "head": "tacrolimus",
+        "tail": "de novo glomerulopathy",
+        "head_id": "2",
+        "tail_id": "5"
+      },
+      {
+        "head": "tacrolimus",
+        "tail": "monoclonal gammapathy of undetermined significance",
+        "head_id": "2",
+        "tail_id": "6"
+      },
+      {
+        "head": "everolimus",
+        "tail": "Proteinuria",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "everolimus",
+        "tail": "AL amyloidosis",
+        "head_id": "3",
+        "tail_id": "2"
+      },
+      {
+        "head": "everolimus",
+        "tail": "chronic rejection",
+        "head_id": "3",
+        "tail_id": "3"
+      },
+      {
+        "head": "everolimus",
+        "tail": "interstitial fibrosis and tubular atrophy",
+        "head_id": "3",
+        "tail_id": "4"
+      },
+      {
+        "head": "everolimus",
+        "tail": "de novo glomerulopathy",
+        "head_id": "3",
+        "tail_id": "5"
+      },
+      {
+        "head": "everolimus",
+        "tail": "monoclonal gammapathy of undetermined significance",
+        "head_id": "3",
+        "tail_id": "6"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "3 | 1"
+    ],
+    "sentences": [
+      "An unexpected diagnosis in a renal-transplant patient with proteinuria treated with everolimus: AL amyloidosis.",
+      "Proteinuria is an expected complication in transplant patients treated with mammalian target of rapamycin inhibitors (mTOR-i).",
+      "However, clinical suspicion should always be supported by histological evidence in order to investigate potential alternate diagnoses such as acute or chronic rejection, interstitial fibrosis and tubular atrophy, or recurrent or de novo glomerulopathy.",
+      "In this case we report the unexpected diagnosis of amyloidosis in a renal-transplant patient with pre-transplant monoclonal gammapathy of undetermined significance who developed proteinuria after conversion from tacrolimus to everolimus."
+    ],
+    "text": "An unexpected diagnosis in a renal-transplant patient with proteinuria treated with everolimus: AL amyloidosis. Proteinuria is an expected complication in transplant patients treated with mammalian target of rapamycin inhibitors (mTOR-i). However, clinical suspicion should always be supported by histological evidence in order to investigate potential alternate diagnoses such as acute or chronic rejection, interstitial fibrosis and tubular atrophy, or recurrent or de novo glomerulopathy. In this case we report the unexpected diagnosis of amyloidosis in a renal-transplant patient with pre-transplant monoclonal gammapathy of undetermined significance who developed proteinuria after conversion from tacrolimus to everolimus."
+  },
+  "15": {
+    "entities": [
+      {
+        "text": "tenofovir disoproxil fumarate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "tenofovir",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "tenofovir disoproxil fumarate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TDF",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TDF-related",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TDF",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TDF",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TDF",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "kidney injury",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "HIV-positive",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "HIV-positive",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "kidney",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "acute kidney injury",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "kidney tubular dysfunction",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Fanconi syndrome",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "kidney disease",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "kidney tubular dysfunction",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "glomerular dysfunction",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Fanconi syndrome",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Fanconi syndrome",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "kidney syndromes",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "TDF",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "tenofovir",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "TDF-related",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "tenofovir disoproxil fumarate",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "kidney",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "kidney injury",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "kidney disease",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "kidney syndromes",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "acute kidney injury",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "glomerular dysfunction",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "kidney tubular dysfunction",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "HIV-positive",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "Fanconi syndrome",
+        "id": "3",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "tenofovir disoproxil fumarate",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "kidney tubular dysfunction",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "HIV-positive",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "Fanconi syndrome",
+        "id": "3",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "TDF | CID | acute kidney injury\nTDF | CID | Fanconi syndrome",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 2,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "tenofovir disoproxil fumarate",
+        "tail": "kidney tubular dysfunction",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "tenofovir disoproxil fumarate",
+        "tail": "HIV-positive",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "tenofovir disoproxil fumarate",
+        "tail": "Fanconi syndrome",
+        "head_id": "1",
+        "tail_id": "3"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 3"
+    ],
+    "sentences": [
+      "An investigation of the pattern of kidney injury in HIV-positive persons exposed to tenofovir disoproxil fumarate: an examination of a large population database (MHRA database).",
+      "The potential for tenofovir to cause a range of kidney syndromes has been established from mechanistic and randomised clinical trials.",
+      "However, the exact pattern of kidney involvement is still uncertain.",
+      "We undertook a descriptive analysis of Yellow Card records of 407 HIV-positive persons taking tenofovir disoproxil fumarate (TDF) as part of their antiretroviral therapy regimen and submitted to the Medicines and Healthcare Products Regulatory Agency (MHRA) with suspected kidney adverse effects.",
+      "Reports that satisfy defined criteria were classified as acute kidney injury, kidney tubular dysfunction and Fanconi syndrome.",
+      "Of the 407 Yellow Card records analysed, 106 satisfied criteria for TDF-related kidney disease, of which 53 (50%) had features of kidney tubular dysfunction, 35 (33%) were found to have features of glomerular dysfunction and 18 (17%) had Fanconi syndrome.",
+      "The median TDF exposure was 316 days (interquartile range 120-740).",
+      "The incidence of hospitalisation for TDF kidney adverse effects was high, particularly amongst patients with features of Fanconi syndrome.",
+      "The pattern of kidney syndromes in this population series mirrors that reported in randomised clinical trials.",
+      "Cessation of TDF was associated with complete restoration of kidney function in up half of the patients in this report."
+    ],
+    "text": "An investigation of the pattern of kidney injury in HIV-positive persons exposed to tenofovir disoproxil fumarate: an examination of a large population database (MHRA database). The potential for tenofovir to cause a range of kidney syndromes has been established from mechanistic and randomised clinical trials. However, the exact pattern of kidney involvement is still uncertain. We undertook a descriptive analysis of Yellow Card records of 407 HIV-positive persons taking tenofovir disoproxil fumarate (TDF) as part of their antiretroviral therapy regimen and submitted to the Medicines and Healthcare Products Regulatory Agency (MHRA) with suspected kidney adverse effects. Reports that satisfy defined criteria were classified as acute kidney injury, kidney tubular dysfunction and Fanconi syndrome. Of the 407 Yellow Card records analysed, 106 satisfied criteria for TDF-related kidney disease, of which 53 (50%) had features of kidney tubular dysfunction, 35 (33%) were found to have features of glomerular dysfunction and 18 (17%) had Fanconi syndrome. The median TDF exposure was 316 days (interquartile range 120-740). The incidence of hospitalisation for TDF kidney adverse effects was high, particularly amongst patients with features of Fanconi syndrome. The pattern of kidney syndromes in this population series mirrors that reported in randomised clinical trials. Cessation of TDF was associated with complete restoration of kidney function in up half of the patients in this report."
+  },
+  "16": {
+    "entities": [
+      {
+        "text": "thiopentone",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "propofol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Thiopentone",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "postoperative delirium",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Postoperative delirium",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "postoperative delirium",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "delirium",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "neurological dysfunctions",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "postoperative delirium",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "postoperative delirium",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "delirium",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "postoperative delirium",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "Thiopentone",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "thiopentone",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "propofol",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "delirium",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Postoperative delirium",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "postoperative delirium",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "neurological dysfunctions",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Thiopentone",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "propofol",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Postoperative delirium",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "neurological dysfunctions",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "Thiopentone | CID | postoperative delirium\nThiopentone | CID | delirium",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "rel_precision": 0.5,
+      "rel_recall": 1.0,
+      "rel_f1": 0.6666666666666666,
+      "rel_tp": 1,
+      "rel_fp": 1,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Thiopentone",
+        "tail": "Postoperative delirium",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "Thiopentone",
+        "tail": "neurological dysfunctions",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "propofol",
+        "tail": "Postoperative delirium",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "propofol",
+        "tail": "neurological dysfunctions",
+        "head_id": "2",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 2"
+    ],
+    "sentences": [
+      "Incidence of postoperative delirium is high even in a population without known risk factors.",
+      "PURPOSE: Postoperative delirium is a recognized complication in populations at risk.",
+      "The aim of this study is to assess the prevalence of early postoperative delirium in a population without known risk factors admitted to the ICU for postoperative monitoring after elective major surgery.",
+      "The secondary outcome investigated is to identify eventual independent risk factors among demographic data and anesthetic drugs used.",
+      "METHODS: An observational, prospective study was conducted on a consecutive cohort of patients admitted to our ICU within and for at least 24 h after major surgical procedures.",
+      "Exclusion criteria were any preexisting predisposing factor for delirium or other potentially confounding neurological dysfunctions.",
+      "Patients were assessed daily using the confusion assessment method for the ICU scale for 3 days after the surgical procedure.",
+      "Early postoperative delirium incidence risk factors were then assessed through three different multiple regression models.",
+      "RESULTS: According to the confusion assessment method for the ICU scale, 28 % of patients were diagnosed with early postoperative delirium.",
+      "The use of thiopentone was significantly associated with an eight-fold-higher risk for delirium compared to propofol (57.1% vs. 7.1%, RR = 8.0, X2 = 4.256; df = 1; 0.05 < p < 0.02).",
+      "CONCLUSION: In this study early postoperative delirium was found to be a very common complication after major surgery, even in a population without known risk factors.",
+      "Thiopentone was independently associated with an increase in its relative risk."
+    ],
+    "text": "Incidence of postoperative delirium is high even in a population without known risk factors. PURPOSE: Postoperative delirium is a recognized complication in populations at risk. The aim of this study is to assess the prevalence of early postoperative delirium in a population without known risk factors admitted to the ICU for postoperative monitoring after elective major surgery. The secondary outcome investigated is to identify eventual independent risk factors among demographic data and anesthetic drugs used. METHODS: An observational, prospective study was conducted on a consecutive cohort of patients admitted to our ICU within and for at least 24 h after major surgical procedures. Exclusion criteria were any preexisting predisposing factor for delirium or other potentially confounding neurological dysfunctions. Patients were assessed daily using the confusion assessment method for the ICU scale for 3 days after the surgical procedure. Early postoperative delirium incidence risk factors were then assessed through three different multiple regression models. RESULTS: According to the confusion assessment method for the ICU scale, 28 % of patients were diagnosed with early postoperative delirium. The use of thiopentone was significantly associated with an eight-fold-higher risk for delirium compared to propofol (57.1% vs. 7.1%, RR = 8.0, X2 = 4.256; df = 1; 0.05 < p < 0.02). CONCLUSION: In this study early postoperative delirium was found to be a very common complication after major surgery, even in a population without known risk factors. Thiopentone was independently associated with an increase in its relative risk."
+  },
+  "17": {
+    "entities": [
+      {
+        "text": "methamphetamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Methamphetamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "METH",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "METH",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "METH",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "METH",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "METH",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "METH",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "METH",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "dopamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "DOPAC",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "HVA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "serotonin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "METH",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "depressive-like",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "depressive symptoms",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "depressive",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "monoaminergic deficits",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "depressive-like",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "depressive-like",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "depression",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "astroglial dysfunction",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "depressive-like",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "METH",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "methamphetamine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Methamphetamine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "HVA",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "DOPAC",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "dopamine",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "serotonin",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "depression",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "depressive",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "depressive-like",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "depressive symptoms",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "astroglial dysfunction",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "monoaminergic deficits",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "methamphetamine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "dopamine",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "serotonin",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "astroglial dysfunction",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "METH | CID | depressive",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "rel_precision": 0.0,
+      "rel_recall": 0.0,
+      "rel_f1": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 0,
+      "rel_fn": 1
+    },
+    "pairs": [
+      {
+        "head": "methamphetamine",
+        "tail": "astroglial dysfunction",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "dopamine",
+        "tail": "astroglial dysfunction",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "serotonin",
+        "tail": "astroglial dysfunction",
+        "head_id": "3",
+        "tail_id": "1"
+      }
+    ],
+    "sentences": [
+      "A single neurotoxic dose of methamphetamine induces a long-lasting depressive-like behaviour in mice.",
+      "Methamphetamine (METH) triggers a disruption of the monoaminergic system and METH abuse leads to negative emotional states including depressive symptoms during drug withdrawal.",
+      "However, it is currently unknown if the acute toxic dosage of METH also causes a long-lasting depressive phenotype and persistent monoaminergic deficits.",
+      "Thus, we now assessed the depressive-like behaviour in mice at early and long-term periods following a single high METH dose (30 mg/kg, i.p.).",
+      "METH did not alter the motor function and procedural memory of mice as assessed by swimming speed and escape latency to find the platform in a cued version of the water maze task.",
+      "However, METH significantly increased the immobility time in the tail suspension test at 3 and 49 days post-administration.",
+      "This depressive-like profile induced by METH was accompanied by a marked depletion of frontostriatal dopaminergic and serotonergic neurotransmission, indicated by a reduction in the levels of dopamine, DOPAC and HVA, tyrosine hydroxylase and serotonin, observed at both 3 and 49 days post-administration.",
+      "In parallel, another neurochemical feature of depression--astroglial dysfunction--was unaffected in the cortex and the striatal levels of the astrocytic protein marker, glial fibrillary acidic protein, were only transiently increased at 3 days.",
+      "These findings demonstrate for the first time that a single high dose of METH induces long-lasting depressive-like behaviour in mice associated with a persistent disruption of frontostriatal dopaminergic and serotonergic homoeostasis."
+    ],
+    "text": "A single neurotoxic dose of methamphetamine induces a long-lasting depressive-like behaviour in mice. Methamphetamine (METH) triggers a disruption of the monoaminergic system and METH abuse leads to negative emotional states including depressive symptoms during drug withdrawal. However, it is currently unknown if the acute toxic dosage of METH also causes a long-lasting depressive phenotype and persistent monoaminergic deficits. Thus, we now assessed the depressive-like behaviour in mice at early and long-term periods following a single high METH dose (30 mg/kg, i.p.). METH did not alter the motor function and procedural memory of mice as assessed by swimming speed and escape latency to find the platform in a cued version of the water maze task. However, METH significantly increased the immobility time in the tail suspension test at 3 and 49 days post-administration. This depressive-like profile induced by METH was accompanied by a marked depletion of frontostriatal dopaminergic and serotonergic neurotransmission, indicated by a reduction in the levels of dopamine, DOPAC and HVA, tyrosine hydroxylase and serotonin, observed at both 3 and 49 days post-administration. In parallel, another neurochemical feature of depression--astroglial dysfunction--was unaffected in the cortex and the striatal levels of the astrocytic protein marker, glial fibrillary acidic protein, were only transiently increased at 3 days. These findings demonstrate for the first time that a single high dose of METH induces long-lasting depressive-like behaviour in mice associated with a persistent disruption of frontostriatal dopaminergic and serotonergic homoeostasis."
+  },
+  "18": {
+    "entities": [
+      {
+        "text": "Linezolid-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "linezolid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "linezolid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ethambutol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Ethambutol-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ethambutol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ethambutol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "linezolid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "linezolid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "optic neuropathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "loss of vision",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "tuberculosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "loss of vision",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "optic disc edema",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "toxic optic neuropathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Deterioration of vision",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "linezolid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Linezolid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Ethambutol",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "ethambutol",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "loss of vision",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "optic disc edema",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "optic neuropathy",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "toxic optic neuropathy",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Deterioration of vision",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "tuberculosis",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "linezolid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Ethambutol",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Deterioration of vision",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "tuberculosis",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "linezolid | CID | toxic optic neuropathy\nlinezolid | CID | optic disc edema",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "linezolid",
+        "tail": "Deterioration of vision",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "linezolid",
+        "tail": "tuberculosis",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "Ethambutol",
+        "tail": "Deterioration of vision",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "Ethambutol",
+        "tail": "tuberculosis",
+        "head_id": "2",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "Linezolid-induced optic neuropathy.",
+      "Many systemic antimicrobials have been implicated to cause ocular adverse effects.",
+      "This is especially relevant in multidrug therapy where more than one drug can cause a similar ocular adverse effect.",
+      "We describe a case of progressive loss of vision associated with linezolid therapy.",
+      "A 45-year-old male patient who was on treatment with multiple second-line anti-tuberculous drugs including linezolid and ethambutol for extensively drug-resistant tuberculosis (XDR-TB) presented to us with painless progressive loss of vision in both eyes.",
+      "Color vision was defective and fundus examination revealed optic disc edema in both eyes.",
+      "Ethambutol-induced toxic optic neuropathy was suspected and tablet ethambutol was withdrawn.",
+      "Deterioration of vision occurred despite withdrawal of ethambutol.",
+      "Discontinuation of linezolid resulted in marked improvement of vision.",
+      "Our report emphasizes the need for monitoring of visual function in patients on long-term linezolid treatment."
+    ],
+    "text": "Linezolid-induced optic neuropathy. Many systemic antimicrobials have been implicated to cause ocular adverse effects. This is especially relevant in multidrug therapy where more than one drug can cause a similar ocular adverse effect. We describe a case of progressive loss of vision associated with linezolid therapy. A 45-year-old male patient who was on treatment with multiple second-line anti-tuberculous drugs including linezolid and ethambutol for extensively drug-resistant tuberculosis (XDR-TB) presented to us with painless progressive loss of vision in both eyes. Color vision was defective and fundus examination revealed optic disc edema in both eyes. Ethambutol-induced toxic optic neuropathy was suspected and tablet ethambutol was withdrawn. Deterioration of vision occurred despite withdrawal of ethambutol. Discontinuation of linezolid resulted in marked improvement of vision. Our report emphasizes the need for monitoring of visual function in patients on long-term linezolid treatment."
+  },
+  "19": {
+    "entities": [
+      {
+        "text": "lipid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "epinephrine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levobupivacaine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "lipid emulsion",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "epinephrine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "levobupivacaine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "saline",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Intralipid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "epinephrine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Intralipd",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "epinephrine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Intralipid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "epinephrine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "epinephrine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "lipid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Lipid emulsion",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "epinephrine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "epinephrine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Epinephrine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "cardiac toxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "local anaesthetic systemic toxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "ventricular tachycardia, fibrillation",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "QRS prolongation",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "ECG abnormalities",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "ECG abnormalities",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "lipid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Intralipd",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Intralipid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "lipid emulsion",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Lipid emulsion",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "epinephrine",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Epinephrine",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "levobupivacaine",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "saline",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "cardiac toxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "QRS prolongation",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "ECG abnormalities",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "local anaesthetic systemic toxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "ventricular tachycardia, fibrillation",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "lipid emulsion",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "epinephrine",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "levobupivacaine",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "saline",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "ventricular tachycardia, fibrillation",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "levobupivacaine | CID | cardiovascular collapse",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "rel_precision": 0.0,
+      "rel_recall": 0.0,
+      "rel_f1": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 1,
+      "rel_fn": 1
+    },
+    "pairs": [
+      {
+        "head": "lipid emulsion",
+        "tail": "ventricular tachycardia, fibrillation",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "epinephrine",
+        "tail": "ventricular tachycardia, fibrillation",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "levobupivacaine",
+        "tail": "ventricular tachycardia, fibrillation",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "saline",
+        "tail": "ventricular tachycardia, fibrillation",
+        "head_id": "4",
+        "tail_id": "1"
+      }
+    ],
+    "relations": [
+      "3 | 1"
+    ],
+    "sentences": [
+      "Resuscitation with lipid, epinephrine, or both in levobupivacaine-induced cardiac toxicity in newborn piglets.",
+      "BACKGROUND: The optimal dosing regimens of lipid emulsion, epinephrine, or both are not yet determined in neonates in cases of local anaesthetic systemic toxicity (LAST).",
+      "METHODS: Newborn piglets received levobupivacaine until cardiovascular collapse occurred.",
+      "Standard cardiopulmonary resuscitation was started and electrocardiogram (ECG) was monitored for ventricular tachycardia, fibrillation, or QRS prolongation.",
+      "Piglets were then randomly allocated to four groups: control (saline), Intralipid( ) alone, epinephrine alone, or a combination of Intralipd plus epinephrine.",
+      "Resuscitation continued for 30 min or until there was a return of spontaneous circulation (ROSC) accompanied by a mean arterial pressure at or superior to the baseline pressure and normal sinus rhythm for a period of 30 min.",
+      "RESULTS: ROSC was achieved in only one of the control piglets compared with most of the treated piglets.",
+      "Mortality was not significantly different between the three treatment groups, but was significantly lower in all the treatment groups compared with control.",
+      "The number of ECG abnormalities was zero in the Intralipid only group, but 14 and 17, respectively, in the epinephrine and epinephrine plus lipid groups (P<0.05).",
+      "CONCLUSIONS: Lipid emulsion with or without epinephrine, or epinephrine alone were equally effective in achieving a return to spontaneous circulation in this model of LAST.",
+      "Epinephrine alone or in combination with lipid was associated with an increased number of ECG abnormalities compared with lipid emulsion alone."
+    ],
+    "text": "Resuscitation with lipid, epinephrine, or both in levobupivacaine-induced cardiac toxicity in newborn piglets. BACKGROUND: The optimal dosing regimens of lipid emulsion, epinephrine, or both are not yet determined in neonates in cases of local anaesthetic systemic toxicity (LAST). METHODS: Newborn piglets received levobupivacaine until cardiovascular collapse occurred. Standard cardiopulmonary resuscitation was started and electrocardiogram (ECG) was monitored for ventricular tachycardia, fibrillation, or QRS prolongation. Piglets were then randomly allocated to four groups: control (saline), Intralipid( ) alone, epinephrine alone, or a combination of Intralipd plus epinephrine. Resuscitation continued for 30 min or until there was a return of spontaneous circulation (ROSC) accompanied by a mean arterial pressure at or superior to the baseline pressure and normal sinus rhythm for a period of 30 min. RESULTS: ROSC was achieved in only one of the control piglets compared with most of the treated piglets. Mortality was not significantly different between the three treatment groups, but was significantly lower in all the treatment groups compared with control. The number of ECG abnormalities was zero in the Intralipid only group, but 14 and 17, respectively, in the epinephrine and epinephrine plus lipid groups (P<0.05). CONCLUSIONS: Lipid emulsion with or without epinephrine, or epinephrine alone were equally effective in achieving a return to spontaneous circulation in this model of LAST. Epinephrine alone or in combination with lipid was associated with an increased number of ECG abnormalities compared with lipid emulsion alone."
+  },
+  "20": {
+    "entities": [
+      {
+        "text": "thrombopoetin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "heparin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "low-molecular-weight",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "heparin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "heparin-induced thrombocytopenia type II",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Thrombocytopenia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "liver disease",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "portal hypertension",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "endotoxemia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "heparin-induced thrombocytopenia type II",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "HIT type II",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "thrombocytopenia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "thrombocytopenia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "HIT type II",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "malignant liver disease",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "HIT type II",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "thrombocytopenia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Model of End-Stage Liver Disease",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "liver cirrhosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "HIT II",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "HIT type II",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "HIT",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hepatic failure",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "HIT type II",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "thrombopoetin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "heparin",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "heparin",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "low-molecular-weight",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "low-molecular-weight heparin",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "HIT",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "HIT II",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "HIT type II",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "thrombocytopenia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Thrombocytopenia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "heparin-induced thrombocytopenia type II",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Thrombocytopenia",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "thrombocytopenia",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "heparin-induced thrombocytopenia type II",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "liver disease",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "hepatic failure",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "malignant liver disease",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "Model of End-Stage Liver Disease",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "portal hypertension",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "endotoxemia",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "liver disease",
+        "id": "6",
+        "label": "Disease"
+      },
+      {
+        "text": "Model of End-Stage Liver Disease",
+        "id": "6",
+        "label": "Disease"
+      },
+      {
+        "text": "liver cirrhosis",
+        "id": "7",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "thrombopoetin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "heparin",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "low-molecular-weight heparin",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "heparin-induced thrombocytopenia type II",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "heparin-induced thrombocytopenia type II",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "Model of End-Stage Liver Disease",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "portal hypertension",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "endotoxemia",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "Model of End-Stage Liver Disease",
+        "id": "6",
+        "label": "Disease"
+      },
+      {
+        "text": "liver cirrhosis",
+        "id": "7",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "heparin | CID | HIT type II",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 2,
+      "fn": 1,
+      "rel_precision": 0.0,
+      "rel_recall": 0.0,
+      "rel_f1": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 2,
+      "rel_fn": 1
+    },
+    "pairs": [
+      {
+        "head": "thrombopoetin",
+        "tail": "heparin-induced thrombocytopenia type II",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "thrombopoetin",
+        "tail": "heparin-induced thrombocytopenia type II",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "thrombopoetin",
+        "tail": "Model of End-Stage Liver Disease",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "thrombopoetin",
+        "tail": "portal hypertension",
+        "head_id": "1",
+        "tail_id": "4"
+      },
+      {
+        "head": "thrombopoetin",
+        "tail": "endotoxemia",
+        "head_id": "1",
+        "tail_id": "5"
+      },
+      {
+        "head": "thrombopoetin",
+        "tail": "Model of End-Stage Liver Disease",
+        "head_id": "1",
+        "tail_id": "6"
+      },
+      {
+        "head": "thrombopoetin",
+        "tail": "liver cirrhosis",
+        "head_id": "1",
+        "tail_id": "7"
+      },
+      {
+        "head": "heparin",
+        "tail": "heparin-induced thrombocytopenia type II",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "heparin",
+        "tail": "heparin-induced thrombocytopenia type II",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "heparin",
+        "tail": "Model of End-Stage Liver Disease",
+        "head_id": "2",
+        "tail_id": "3"
+      },
+      {
+        "head": "heparin",
+        "tail": "portal hypertension",
+        "head_id": "2",
+        "tail_id": "4"
+      },
+      {
+        "head": "heparin",
+        "tail": "endotoxemia",
+        "head_id": "2",
+        "tail_id": "5"
+      },
+      {
+        "head": "heparin",
+        "tail": "Model of End-Stage Liver Disease",
+        "head_id": "2",
+        "tail_id": "6"
+      },
+      {
+        "head": "heparin",
+        "tail": "liver cirrhosis",
+        "head_id": "2",
+        "tail_id": "7"
+      },
+      {
+        "head": "low-molecular-weight heparin",
+        "tail": "heparin-induced thrombocytopenia type II",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "low-molecular-weight heparin",
+        "tail": "heparin-induced thrombocytopenia type II",
+        "head_id": "3",
+        "tail_id": "2"
+      },
+      {
+        "head": "low-molecular-weight heparin",
+        "tail": "Model of End-Stage Liver Disease",
+        "head_id": "3",
+        "tail_id": "3"
+      },
+      {
+        "head": "low-molecular-weight heparin",
+        "tail": "portal hypertension",
+        "head_id": "3",
+        "tail_id": "4"
+      },
+      {
+        "head": "low-molecular-weight heparin",
+        "tail": "endotoxemia",
+        "head_id": "3",
+        "tail_id": "5"
+      },
+      {
+        "head": "low-molecular-weight heparin",
+        "tail": "Model of End-Stage Liver Disease",
+        "head_id": "3",
+        "tail_id": "6"
+      },
+      {
+        "head": "low-molecular-weight heparin",
+        "tail": "liver cirrhosis",
+        "head_id": "3",
+        "tail_id": "7"
+      }
+    ],
+    "relations": [
+      "2 | 1",
+      "2 | 2"
+    ],
+    "sentences": [
+      "Incidence of heparin-induced thrombocytopenia type II and postoperative recovery of platelet count in liver graft recipients: a retrospective cohort analysis.",
+      "BACKGROUND: Thrombocytopenia in patients with end-stage liver disease is a common disorder caused mainly by portal hypertension, low levels of thrombopoetin, and endotoxemia.",
+      "The impact of immune-mediated heparin-induced thrombocytopenia type II (HIT type II) as a cause of thrombocytopenia after liver transplantation is not yet understood, with few literature citations reporting contradictory results.",
+      "The aim of our study was to demonstrate the perioperative course of thrombocytopenia after liver transplantation and determine the occurrence of clinical HIT type II.",
+      "METHOD: We retrospectively evaluated the medical records of 205 consecutive adult patients who underwent full-size liver transplantation between January 2006 and December 2010 due to end-stage or malignant liver disease.",
+      "Preoperative platelet count, postoperative course of platelets, and clinical signs of HIT type II were analyzed.",
+      "RESULTS: A total of 155 (75.6%) of 205 patients had thrombocytopenia before transplantation, significantly influenced by Model of End-Stage Liver Disease score and liver cirrhosis.",
+      "The platelet count exceeded 100,000/uL in most of the patients (n = 193) at a medium of 7 d.",
+      "Regarding HIT II, there were four (1.95%) patients with a background of HIT type II.",
+      "CONCLUSIONS: The incidence of HIT in patients with end-stage hepatic failure is, with about 1.95%, rare.",
+      "For further reduction of HIT type II, the use of intravenous heparin should be avoided and the prophylactic anticoagulation should be performed with low-molecular-weight heparin after normalization of platelet count."
+    ],
+    "text": "Incidence of heparin-induced thrombocytopenia type II and postoperative recovery of platelet count in liver graft recipients: a retrospective cohort analysis. BACKGROUND: Thrombocytopenia in patients with end-stage liver disease is a common disorder caused mainly by portal hypertension, low levels of thrombopoetin, and endotoxemia. The impact of immune-mediated heparin-induced thrombocytopenia type II (HIT type II) as a cause of thrombocytopenia after liver transplantation is not yet understood, with few literature citations reporting contradictory results. The aim of our study was to demonstrate the perioperative course of thrombocytopenia after liver transplantation and determine the occurrence of clinical HIT type II. METHOD: We retrospectively evaluated the medical records of 205 consecutive adult patients who underwent full-size liver transplantation between January 2006 and December 2010 due to end-stage or malignant liver disease. Preoperative platelet count, postoperative course of platelets, and clinical signs of HIT type II were analyzed. RESULTS: A total of 155 (75.6%) of 205 patients had thrombocytopenia before transplantation, significantly influenced by Model of End-Stage Liver Disease score and liver cirrhosis. The platelet count exceeded 100,000/uL in most of the patients (n = 193) at a medium of 7 d. Regarding HIT II, there were four (1.95%) patients with a background of HIT type II. CONCLUSIONS: The incidence of HIT in patients with end-stage hepatic failure is, with about 1.95%, rare. For further reduction of HIT type II, the use of intravenous heparin should be avoided and the prophylactic anticoagulation should be performed with low-molecular-weight heparin after normalization of platelet count."
+  }
+}

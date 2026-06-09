@@ -48,7 +48,7 @@ A four-step **experiment wizard** (Fig. 1D) separates **test** and **tuning** da
 
 1. **Configure.** Select a workflow (or single-agent runner), assign test and tuning CSV files from `tests/<runner_id>/` (or generate splits via stratified auto-split), and preview samples to confirm columns and gold fields.
 2. **Baseline test and report.** Batch-run the workflow on the **test** split; persist per-sample `result/<exp_id>/states.json`. A reporting agent (`report_experiment` / `report_experiment_tool`) reads these artifacts and experiment metadata and writes a structured **Markdown** baseline report (micro/macro metric tables, FN/FP examples, suggested agent edits) using a configurable local or cloud LLM.
-3. **Tuning and optimize.** Batch-run on the **tuning** split and generate a tuning-set diagnostic report. The wizard’s optimize step passes that report to `agent_refiner`, which returns structured per-agent modification plans (prompt or PGM process text). For each plan, the platform copies the parent workflow to a new id (`wf_*_opt_*`), applies the edit, re-runs the **tuning** split, and **keeps the round only when tuning F1 increases**.
+3. **Tuning and optimize.** Batch-run on the **tuning** split and generate a tuning-set diagnostic report. The wizard’s optimize step passes that report to `agent_refiner`, which returns structured per-agent modification plans (**biomedical semantic** prompt edits to the LLM verifier; PGM/process proximity guards are filtered out). For each plan, the platform applies the edit, re-runs the **tuning** split, and **keeps the round only when tuning macro-F1 increases**.
 4. **Optimized test.** Re-run the selected workflow on the **test** split; the UI compares baseline versus optimized precision, recall, and F1 and can display an optimized test report.
 
 Built-in **micro-** and **macro-averaged** metrics (Feature 5) are logged throughout; relation tasks use article-level aggregation where appropriate.
@@ -274,7 +274,7 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 | Split                  | Source         | # Articles      | Role                                       | Batch CSV                              |
 | ---------------------- | -------------- | --------------- | ------------------------------------------ | -------------------------------------- |
 | Test (primary)         | CDR `test.txt` | 500             | Final micro/macro metrics (Tables S16–S18) | `cdr_test_500.csv`                     |
-| Dev — tuning (50)      | CDR `dev.txt`  | 50 (stratified) | Task B tuning + refiner (Table S16b)     | `cid_dev_tuning_stratified_50.csv`     |
+| Dev — tuning (50)      | CDR `dev.txt`  | 50 (stratified) | Task B tuning + refiner (Tables S15B, S16b) | `cid_dev_tuning_stratified_50.csv`     |
 | Dev — tuning (20)      | CDR `dev.txt`  | 20 (stratified) | Legacy wizard example (section 3.3)      | `cid_dev_tuning_stratified.csv`        |
 | Dev — tuning remain    | CDR `dev.txt`  | 480             | Internal validation; optional              | `cid_dev_test_remain.csv`              |
 | Dev — small held-out   | CDR `dev.txt`  | 5 (seed 42)     | Optimization smoke test (Table S11)        | `cid_dev_test_custom_sample_5_s42.csv` |
@@ -296,11 +296,20 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 | ---- | ----------------------------------------- | ----------------------------------------------------------- | -------------------------------------- |
 | A    | NeuraGraph Flair NER                      | `wf_doc_ner_flair_sent_eval`                                | `064f47ac-2d08-4e9a-85e3-2ca2e564c7da` |
 | A    | NeuraGraph LLM NER                        | `wf_doc_ner_llm_eval`                                       | `aba808f2-46ad-4585-984f-633955729315` |
-| B    | NeuraGraph RE (dev50 tuning baseline)      | `wf_cid_re_llm_linear`                                      | `opt_base_tune_81781d50`                 |
-| B    | NeuraGraph RE (dev50 tuned graph)          | `wf_cid_re_llm_linear_opt_20260605_085217`                  | (phase 3 test500 pending)              |
-| B    | NeuraGraph RE (baseline, test 500)         | `wf_cid_re_llm_linear`                                      | `678a855f-1f8a-492e-9d39-be37df122795` |
+| B    | NeuraGraph RE (test 500 + dev50 wizard)    | `wf_cid_re_llm_linear`                                      | `678a855f-1f8a-492e-9d39-be37df122795` |
 | B    | NeuraGraph RE (optimized, test 500)        | `wf_cid_re_llm_linear_opt_20260604`                         | `f860e6d3-51fd-4b24-aa51-3d0fb9c88907` |
 | C    | NeuraGraph E2E (Flair NER → optimized RE) | `wf_e2e_flair_opt_re`                                       | `bffea244-c3dd-4b97-98f2-9ed4d7bb895a` |
+
+
+**Table S15B.** Dev50 tuning sub-experiments under test-500 parent `678a855f` (oracle entities, n=50). In the UI, open **http://127.0.0.1:5001/exp/678a855f-1f8a-492e-9d39-be37df122795** → wizard **Tab 3 (Tuning & Optimize)** to view tuning baseline report, accepted refinement metrics, and optimize-loop summary; sub-run ids are linked from that page.
+
+
+| Stage | Parent / sub-exp | Workflow / agent pin | Effective agents | Experiment id |
+| ----- | ---------------- | -------------------- | ---------------- | ------------- |
+| Test-500 baseline (wizard parent) | parent | `wf_cid_re_llm_linear` | `relation_verify_llm` v0010; `relation_result_to_id_pair` v0003 | `678a855f-1f8a-492e-9d39-be37df122795` |
+| Tuning baseline (phase 1) | sub | `wf_cid_re_llm_linear` | v0010; v0003 | `opt_base_tune_81781d50` |
+| Accepted refinement | sub | `wf_cid_re_llm_linear` | `relation_verify_llm` **v0013** (Condition 2 DDI only) | `opt_cand_ddi_c2_8cb2b66e` |
+| Frozen tuned graph *(export pending)* | — | `wf_cid_re_llm_linear_opt_20260609` | v0013; v0003 | test-500 re-run pending (Table S17) |
 
 
 **Table S16.** NER on BC5CDR test (n=500). Entity-level metrics; gold = `gold_entities` in CSV.
@@ -318,23 +327,22 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 
 **RE tuning on dev50 (Task B).** Pharmacovigilance CID–RE was tuned on a **stratified 50-article** subset of CDR `dev.txt` (`cid_dev_tuning_stratified_50.csv`; same builder as §3.3). Oracle **gold entities** in CSV include multiple surface strings per MeSH id (synonyms); evaluation maps predicted and gold relation endpoints to **head MeSH id | tail MeSH id** via `normalize_cid_lines` and the per-article entity list. The baseline workflow `wf_cid_re_llm_linear` was updated before tuning: **llmre** `RE.induce` verifier prompt (`prompt_templates.json`, induce block), PGM **`cid_entities_dedupe_mesh`** (one row per MeSH id before hypernym filter), and hypernym-filter instructions to collapse synonym rows.
 
-**Protocol (phases 1–2 only).** (1) **Tuning baseline** — optimization wizard baseline-tuning step on `cid_dev_tuning_stratified_50.csv` (exp `opt_base_tune_81781d50`; same frozen workflow as test-500 baseline `678a855f`, `relation_verify_llm` v0010 + `relation_result_to_id_pair` v0003). (2) **Tuning report** — LLM report on FP/FN exemplars (`result/opt_base_tune_81781d50/report_tuning_baseline.md`). (3) **agent_refiner** — two modifications; each applied alone and re-run on the same 50 articles; kept only if **macro-averaged** tuning F1 rose (`scripts/opt_refine_and_rounds.py`). A separate **phase-3** full re-run of the frozen optimized graph on dev50 was **not** performed; accepted versions are saved in `wf_cid_re_llm_linear_opt_20260605_085217` for downstream **test-500** evaluation (Table S17).
+**Protocol (phases 1–3).** All steps are launched from the test-500 parent experiment **`678a855f-1f8a-492e-9d39-be37df122795`** (wizard Tab 1: baseline test on `cdr_test_500.csv`; Tab 3: tuning on `cid_dev_tuning_stratified_50.csv`). (1) **Tuning baseline** — sub-exp `opt_base_tune_81781d50` (`relation_verify_llm` v0010 + `relation_result_to_id_pair` v0003). (2) **Tuning report** — LLM report on FP/FN exemplars (`result/opt_base_tune_81781d50/report_tuning_baseline.md`). (3) **`agent_refiner`** — biomedical semantic edits to the LLM verifier; kept only if macro-averaged tuning F1 rose. Accepted change: refine **Condition 2** with drug–drug interaction clinical phrasing → `relation_verify_llm` **v0013** (sub-exp `opt_cand_ddi_c2_8cb2b66e`). Frozen graph `wf_cid_re_llm_linear_opt_20260609` and test-500 re-evaluation are pending (Table S17).
 
-**Table S16b.** Dev50 tuning — baseline and accepted refinement rounds (oracle entities, n=50). **Micro** = corpus-level P/R/F1 from summed TP/FP/FN; **macro** = mean of per-article P/R/F1 (same protocol as Tables S16–S17). Accept/reject in the tuning loop used **macro-F1** only.
-
-
-| Stage | Workflow / agent | Micro-P | Micro-R | Micro-F1 | Macro-P | Macro-R | Macro-F1 | TP | FP | FN |
-| ----- | ---------------- | ------- | ------- | -------- | ------- | ------- | -------- | -- | -- | -- |
-| Baseline (phase 1) | `wf_cid_re_llm_linear` | 0.583 | 0.750 | 0.656 | 0.610 | 0.757 | 0.642 | 141 | 101 | 47 |
-| After round 1 (accepted) | `relation_verify_llm` → **v0009** | 0.598 | 0.617 | 0.607 | 0.625 | 0.678 | 0.615 | 116 | 78 | 72 |
-| After round 2 (accepted) | `relation_result_to_id_pair` → **v0003** | 0.601 | 0.617 | 0.609 | 0.630 | 0.669 | 0.617 | 116 | 77 | 72 |
+**Table S16b.** Dev50 tuning — baseline and accepted refinement (oracle entities, n=50). **Micro** = corpus-level P/R/F1 from summed TP/FP/FN; **macro** = mean of per-article P/R/F1. Sub-experiments are nested under parent `678a855f` (Table S15B).
 
 
-*Phase 1: `opt_base_tune_81781d50` (completed 2026-06-09; effective `relation_verify_llm` v0010, `relation_result_to_id_pair` v0003). Round 1–2 rows below are from the prior 2026-06-05 tuning pass on induce-style baseline (`c422b97c-be21-4b6a-968c-c4994229d702`, macro-F1 0.603). Frozen graph from that pass: `wf_cid_re_llm_linear_opt_20260605_085217`. Rounds 1–2 raise macro-F1 (+0.011, +0.002) but lower micro-recall (fewer TP, more FN) because edits trim FP-heavy articles; the wizard keeps a change when macro-F1 improves.*
+| Stage | Workflow / agent | Micro-P | Micro-R | Micro-F1 | Macro-P | Macro-R | Macro-F1 | TP | FP | FN | ΔMacro-F1 |
+| ----- | ---------------- | ------- | ------- | -------- | ------- | ------- | -------- | -- | -- | -- | --------- |
+| Tuning baseline (v0010) | `opt_base_tune_81781d50` | 0.583 | 0.750 | 0.656 | 0.610 | 0.757 | 0.642 | 141 | 101 | 47 | — |
+| Accepted refinement (v0013) | `opt_cand_ddi_c2_8cb2b66e` | 0.603 | 0.761 | 0.673 | 0.626 | 0.791 | 0.666 | 143 | 94 | 45 | **+0.024** |
 
-**Tuning report (macro-F1 0.603).** Main **FN** drivers: (i) verifier returns `~` despite treatment-emergent or explicit causal wording (e.g. sample 42, amlodipine → diarrhea); (ii) **`relation_result_to_id_pair`** associative guard (30-character window on *may* / *could* / *possible*) drops valid `$` verdicts (samples 12, 45, 6). Main **FP** drivers: (i) Cartesian **Chemical×Disease** pairs including lab markers and non-drugs (creatinine, phosphate, alanine); (ii) incomplete **negation** phrases (*no evidence of*); (iii) verifier **condition 2** applied to adverse-event lists without clear causation.
 
-**agent_refiner suggestions (2 applied).** **Round 1 — `relation_verify_llm`:** replaced induce-style human prompt with five explicit conditions (explicit *{head}-induced {tail}* / interaction / percentage-with-causation vs mediating vs no relation). Macro-F1 **0.603 → 0.615**; micro-F1 **0.609 → 0.607** (TP 138→116, FP 127→78, FN 50→72). **Round 2 — `relation_result_to_id_pair`:** expanded negation list (*no evidence of*, *without*, …); reduced associative proximity **30 → 15** characters; added causal-pattern override before associative filter. Macro-F1 **0.615 → 0.617**; micro-F1 **0.607 → 0.609** (FP 78→77). Suggestions to filter lab-marker chemicals in `cid_pair_generate` were **not** applied (refiner output contained two edits only). Artifacts: `result/c422b97c-…/report.md`, `refiner_suggestions.json`.
+*Tuning baseline sub-exp `opt_base_tune_81781d50` (completed 2026-06-09). Accepted candidate `opt_cand_ddi_c2_8cb2b66e` (`relation_verify_llm` v0013). View reports and optimize summary in the UI at `/exp/678a855f-1f8a-492e-9d39-be37df122795` (wizard Tab 3).*
+
+**Tuning report (macro-F1 0.642).** On the v0010 verifier, **47 FNs** cluster where the LLM returns `~` despite true CID: **sample 12** (cisapride–diltiazem interaction → QT prolongation / torsades; Condition 2 not matched), **sample 24** (ifosfamide toxicity list), **sample 6** (`ifosfamide-induced emesis`). **101 FPs** cluster where `$` is returned for non-causal pairs: **sample 33** (serotonin-syndrome article — diazepam treatment, endogenous mediators), **sample 15** (angiotensin as physiological substance), **sample 7** (creatinine as lab marker).
+
+**Accepted refinement.** `agent_refiner` was rewritten to propose **biomedical semantic** edits to the LLM verifier only (no PGM/process patches). Offline ablation on dev50 identified one positive change: refine **Condition 2** with drug–drug interaction clinical phrasing (`{head}-{other drug} interaction`, `{other drug}-{head} interaction`, `co-administration of {head}`). Sub-exp `opt_cand_ddi_c2_8cb2b66e` → macro-F1 **0.666** (Δ **+0.024**), micro-F1 **0.673** (Δ **+0.017**); TP +2, FP −7, FN −2. Saved as `relation_verify_llm` **v0013**. Artifact: `result/opt_base_tune_81781d50/surgical_variant_test.json`.
 
 **Table S17.** CID relation extraction on BC5CDR test (n=500) — **oracle entities** (gold entities in CSV). Relation type: Chemical-induces-Disease (MeSH id pairs).
 
@@ -345,7 +353,7 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 | NeuraGraph RE (optimized, `wf_cid_re_llm_linear_opt_20260604`, dev-tuned) | 0.505   | 0.668   | 0.575    | 0.575   | 0.766   | 0.608    | 712 | 698   | 354 |
 
 
-*Table S17 (test 500): Baseline oracle-RE batch on `cdr_test_500.csv` (exp `678a855f`, `wf_cid_re_llm_linear`; micro-F1 0.622, macro-F1 0.647). Effective agents: `relation_verify_llm` v0010, `relation_result_to_id_pair` v0003; includes MeSH-deduplication (`cid_entities_dedupe_mesh`), synonym-filtered hypernyms, and five-condition `relation_verify_llm` prompt. Optimized row: `wf_cid_re_llm_linear_opt_20260604` (exp `f860e6d3`, micro-F1 0.575, macro-F1 0.608). Test-500 re-run with `wf_cid_re_llm_linear_opt_20260605_085217` (v0009 + v0003) is pending.*
+*Table S17 (test 500): Baseline oracle-RE batch on `cdr_test_500.csv` (exp `678a855f`, `wf_cid_re_llm_linear`; micro-F1 0.622, macro-F1 0.647; run failed at sample 191/500 — partial n=190). Effective agents: `relation_verify_llm` v0010, `relation_result_to_id_pair` v0003. Optimized row: `wf_cid_re_llm_linear_opt_20260604` (exp `f860e6d3`, micro-F1 0.575, macro-F1 0.608). Test-500 re-run with dev50-tuned verifier **v0013** (`wf_cid_re_llm_linear_opt_20260609`, Table S15B) is pending.*
 
 **Table S18.** CID relation extraction on BC5CDR test (n=500) — **end-to-end** (Flair NER predictions from Task A → frozen optimized RE).
 
@@ -541,7 +549,7 @@ Built-in loaders are selected automatically from dataset folder layout (`data/da
 - Fix **Fig. 4** → **Fig. S4** for RE workflow.
 - Add §3.3 with Tables S11–S13 (tuning).
 - Update §1 inventory (47 agents, 9 sg, 19 wf).
-- Add §3.4 performance evaluation (Tables S14–S18; S18 E2E test-500 merged `bffea244`, micro-F1 0.635).
+- Add §3.4 performance evaluation (Tables S14–S18; S15B dev50 tuning registry; S16b v0013 DDI refinement; S18 E2E test-500 merged `bffea244`, micro-F1 0.635).
 - Add §4 pre-built component inventory (Tables S19–S24: No., ID, Name, Description).
 - Replace Algorithm 2 table with Algorithm S2 loop version.
 

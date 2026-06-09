@@ -233,6 +233,18 @@
   line-height: 1.35;
 }
 
+.opt-flow-detail-links {
+  display: inline;
+}
+
+.opt-flow-detail-links .opt-flow-exp-link {
+  margin-left: .35rem;
+}
+
+.opt-flow-detail-links .opt-flow-exp-link:first-child {
+  margin-left: 0;
+}
+
 .opt-flow-run-btn {
   flex-shrink: 0;
   font-size: .75rem;

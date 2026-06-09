@@ -52,9 +52,15 @@ logs/
 # Session files
 session-*.zip
 
-# Results (keep directory but not files)
+# Results: ignore by default; track curated SUPPLEMENTARY evaluation artifacts
+# (see scripts/cleanup_supplementary_artifacts.py)
 result/*
 !result/.gitkeep
+!result/*/
+!result/*/**
+
+# Local backups (not version-controlled)
+_backup/
 
 # Data (keep directory but not files)
 data/*
