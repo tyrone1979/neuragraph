@@ -232,10 +232,11 @@ function refreshWizardTabContent(tabId) {
         updateTuningTabPanels(window._lastFlowSteps, window._lastOptimizationSummary || window._lastPreflightResp);
     }
     if (tabId === 'final') {
-        const ctx = window._lastOptimizationSummary;
+        const ctx = window._lastOptimizationSummary
+            || (window._lastPreflightResp && window._lastPreflightResp.optimization_summary);
         if (ctx) {
             renderOptimizationCompare(ctx);
-            loadOptimizedReportMarkdown(ctx.optimized_test_exp_id || ctx.final_best_exp_id);
+            loadOptimizedReportMarkdown(resolveOptimizationCompareView(ctx).optimizedExpId);
         } else {
             loadSavedReportMarkdown(id, '#optimizedReportMarkdown', 'report_optimized_test.md');
         }
@@ -1598,6 +1599,12 @@ function runFinalTestStream(finalExpId) {
             return;
         }
         window._finalStreamExpId = finalExpId;
+        if (window._lastOptimizationSummary) {
+            renderOptimizationCompare({
+                ...window._lastOptimizationSummary,
+                optimized_test_exp_id: finalExpId,
+            });
+        }
         $('#finalTestProgress')
             .css('width', '0%')
             .text('0%')
@@ -1652,6 +1659,12 @@ function runFinalTestStep(expIdVal, datasets, force) {
         }
         if (resp.needs_stream && resp.stream_exp_id) {
             _setLocalFlowStep('final_test', 'running', `Streaming ${resp.stream_exp_id}`);
+            if (window._lastOptimizationSummary) {
+                renderOptimizationCompare({
+                    ...window._lastOptimizationSummary,
+                    optimized_test_exp_id: resp.stream_exp_id,
+                });
+            }
             return runFinalTestStream(resp.stream_exp_id).then(() => $.ajax({
                 url: `/exp/api/${encodeURIComponent(expIdVal)}/optimization-step/final_test`,
                 type: 'POST',
@@ -1947,6 +1960,9 @@ function applyOptimizationSummary(summary) {
     if (!summary) return;
     window._lastOptimizationSummary = summary;
     updateTuningTabPanels(window._lastFlowSteps, summary);
+    if (WIZARD_TABS[window._wizardTabIndex || 0] === 'final') {
+        renderOptimizationCompare(summary);
+    }
 }
 
 function runAsyncOptimizationStep(expIdVal, stepId, datasets, force) {
@@ -2266,16 +2282,44 @@ function enhanceReportMarkupIn($root) {
     colorSuggestionPlusMinus($root);
 }
 
+function _hasCompareMetrics(metrics) {
+    const m = metrics || {};
+    return Number(m.precision || 0) > 0 || Number(m.recall || 0) > 0 || Number(m.f1 || 0) > 0;
+}
+
+function resolveOptimizationCompareView(summary) {
+    const src = summary || {};
+    const pre = window._lastPreflightResp || {};
+    const parentExpId = src.source_exp_id || src.baseline_exp_id || pre.exp_id || getExpId() || '';
+    const optimizedExpId = src.optimized_test_exp_id || window._finalStreamExpId || '';
+    const baselineMetrics = _hasCompareMetrics(pre.baseline_test_metrics)
+        ? pre.baseline_test_metrics
+        : (src.baseline_test_metrics || {});
+    const optimizedMetrics = _hasCompareMetrics(src.final_test_metrics)
+        ? src.final_test_metrics
+        : {};
+    return {
+        parentExpId,
+        optimizedExpId,
+        baselineMetrics,
+        optimizedMetrics,
+    };
+}
+
 function renderOptimizationCompare(summary) {
     if (!summary) {
         $('#optimizationCompare').html('<p class="text-muted p-3">Comparison not available yet.</p>');
         return;
     }
     window._lastOptimizationSummary = summary;
-    const b = summary.baseline_test_metrics || {};
-    const f = summary.final_test_metrics || summary.final_best_metrics || {};
-    const bExp = summary.baseline_exp_id || '';
-    const oExp = summary.optimized_test_exp_id || summary.final_best_exp_id || '';
+    const view = resolveOptimizationCompareView(summary);
+    const b = view.baselineMetrics;
+    const f = view.optimizedMetrics;
+    const bExp = view.parentExpId;
+    const oExp = view.optimizedExpId;
+    const optimizedExpCell = oExp
+        ? `<a href="/exp/${encodeURIComponent(oExp)}"><code>${escHtml(oExp)}</code></a>`
+        : '<span class="text-muted">Pending</span>';
     $('#optimizationCompare').html(`
       <div class="card">
         <div class="card-header"><strong>Test Set Comparison (Baseline vs Optimized)</strong></div>
@@ -2296,7 +2340,7 @@ function renderOptimizationCompare(summary) {
                   <td>${Number(f.precision || 0).toFixed(4)}</td>
                   <td>${Number(f.recall || 0).toFixed(4)}</td>
                   <td>${Number(f.f1 || 0).toFixed(4)}</td>
-                  <td>${oExp ? `<a href="/exp/${encodeURIComponent(oExp)}"><code>${escHtml(oExp)}</code></a>` : '<span class="text-muted">—</span>'}</td>
+                  <td>${optimizedExpCell}</td>
                 </tr>
               </tbody>
             </table>
@@ -2304,8 +2348,9 @@ function renderOptimizationCompare(summary) {
         </div>
       </div>
     `);
-    loadSavedReportMarkdown(bExp, '#baselineReportMarkdown', 'report_baseline_test.md');
-    loadOptimizedReportMarkdown(oExp);
+    if (oExp) {
+        loadOptimizedReportMarkdown(oExp);
+    }
 }
 
 function disposeOptimizeSummaryCharts() {
