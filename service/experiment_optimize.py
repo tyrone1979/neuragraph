@@ -492,7 +492,8 @@ def _score_report_quality(
     }
 
 
-def _avg_metrics(exp_id: str) -> dict[str, float]:
+def _macro_avg_metrics(exp_id: str) -> dict[str, float]:
+    """Mean of per-article precision/recall/f1 (macro-averaged in paper tables)."""
     states = ResultLoader.load(exp_id) or {}
     keys = iter_sample_indices(states)
     if not keys:
@@ -512,6 +513,31 @@ def _avg_metrics(exp_id: str) -> dict[str, float]:
     if n == 0:
         return {}
     return {k: v / n for k, v in totals.items()}
+
+
+def _avg_metrics(exp_id: str) -> dict[str, float]:
+    return _macro_avg_metrics(exp_id)
+
+
+def _micro_metrics(exp_id: str) -> dict[str, float]:
+    """Corpus-level P/R/F1 from summed TP/FP/FN across articles."""
+    states = ResultLoader.load(exp_id) or {}
+    keys = iter_sample_indices(states)
+    tp = fp = fn = 0
+    for k in keys:
+        item = states.get(k) or {}
+        m = item.get("metrics") if isinstance(item, dict) else None
+        if not isinstance(m, dict):
+            continue
+        tp += int(m.get("rel_tp") or m.get("tp") or 0)
+        fp += int(m.get("rel_fp") or m.get("fp") or 0)
+        fn += int(m.get("rel_fn") or m.get("fn") or 0)
+    if tp + fp + fn == 0:
+        return {}
+    prec = tp / (tp + fp) if tp + fp else 0.0
+    rec = tp / (tp + fn) if tp + fn else 0.0
+    f1 = 2 * prec * rec / (prec + rec) if prec + rec else 0.0
+    return {"precision": prec, "recall": rec, "f1": f1, "rel_tp": tp, "rel_fp": fp, "rel_fn": fn}
 
 
 def _agent_prompt_excerpts(agents_cfg: dict[str, Any]) -> dict[str, dict[str, str]]:
