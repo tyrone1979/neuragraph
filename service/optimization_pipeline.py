@@ -901,6 +901,38 @@ def run_optimization_step(
             ctx["optimized_test_exp_id"] = ""
             save_opt_context(exp_id, ctx)
             return {"step_id": step_id, "flow_steps": flow_steps, "skipped": True}
+        if force:
+            ctx.pop("optimized_test_exp_id", None)
+            ctx.pop("optimized_test_report_path", None)
+            ctx.pop("final_graph_id", None)
+            save_opt_context(exp_id, ctx)
+        final_exp_id = str(ctx.get("optimized_test_exp_id") or "")
+        if final_exp_id and not force:
+            final_cfg = MetaLoader.load("exps", final_exp_id) or {}
+            final_status = str(final_cfg.get("status") or "").lower()
+            if final_status == "completed":
+                _set_flow_step(flow_steps, "final_test", "done", f"Completed {final_exp_id}")
+                return {
+                    "step_id": step_id,
+                    "flow_steps": flow_steps,
+                    "optimized_test_exp_id": final_exp_id,
+                }
+            _set_flow_step(flow_steps, "final_test", "running", f"Streaming {final_exp_id}")
+            emit(
+                0,
+                "final_test",
+                "Ready to stream optimized test",
+                flow_step="final_test",
+                flow_status="running",
+                flow_detail=f"Streaming {final_exp_id}",
+            )
+            return {
+                "step_id": step_id,
+                "needs_stream": True,
+                "stream_exp_id": final_exp_id,
+                "flow_steps": flow_steps,
+                "optimized_test_exp_id": final_exp_id,
+            }
         base_runner = str(baseline_cfg.get("runner_id") or "")
         tag = str(ctx.get("tag") or _now_tag())
         final_graph_id = _create_candidate_graph(
@@ -919,33 +951,25 @@ def run_optimization_step(
             runner_type=str(baseline_cfg.get("runner_type") or "graph"),
         )
         MetaLoader.dump("exps", final_exp_id, final_cfg)
-        emit(5, "final_test", "Running optimized workflow on test dataset", flow_step="final_test", flow_status="running")
-
-        def _final_test_progress(evt: dict[str, Any]) -> None:
-            emit(
-                min(95, int(evt.get("progress") or 5)),
-                "final_test",
-                evt.get("message") or "Running optimized test",
-                flow_step="final_test",
-                flow_status="running",
-                flow_detail=evt.get("message") or "Running optimized test",
-                sample_index=evt.get("sample_index"),
-                sample_total=evt.get("sample_total"),
-            )
-
-        _run_experiment_with_progress(
-            final_cfg,
-            progress_cb=_final_test_progress,
-            progress_base=5,
-            progress_span=90,
-            meta={"stage": "final_test", "phase": "Optimized test"},
-        )
         ctx["final_graph_id"] = final_graph_id
         ctx["optimized_test_exp_id"] = final_exp_id
         save_opt_context(exp_id, ctx)
-        _set_flow_step(flow_steps, "final_test", "done", f"Completed {final_exp_id}")
-        emit(100, "final_test_done", "Optimized test done", flow_step="final_test", flow_status="done")
-        return {"step_id": step_id, "flow_steps": flow_steps, "optimized_test_exp_id": final_exp_id}
+        _set_flow_step(flow_steps, "final_test", "running", f"Streaming {final_exp_id}")
+        emit(
+            0,
+            "final_test",
+            "Ready to stream optimized test",
+            flow_step="final_test",
+            flow_status="running",
+            flow_detail=f"Streaming {final_exp_id}",
+        )
+        return {
+            "step_id": step_id,
+            "needs_stream": True,
+            "stream_exp_id": final_exp_id,
+            "flow_steps": flow_steps,
+            "optimized_test_exp_id": final_exp_id,
+        }
 
     if step_id == "final_test_report":
         final_exp_id = str(ctx.get("optimized_test_exp_id") or "")
