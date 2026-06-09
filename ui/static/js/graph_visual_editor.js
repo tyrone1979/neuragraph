@@ -793,6 +793,46 @@ function syncCurrentGraphFromCanvas() {
     if (topo.edges && topo.edges.length) currentGraph.edges = topo.edges;
 }
 
+/** Snapshot every element position from the live canvas (for save + layout restore). */
+function collectCanvasLayoutPositions() {
+    var positions = {};
+    if (!graph) return positions;
+    graph.getElements().forEach(function(el) {
+        var p = el.position();
+        positions[el.id] = { x: p.x, y: p.y };
+    });
+    return positions;
+}
+
+/** Restore a previously saved manual layout; returns true when any node was placed. */
+function applyCanvasLayoutPositions(positions) {
+    if (!positions || !graph) return false;
+    var applied = false;
+    Object.keys(positions).forEach(function(id) {
+        var pos = positions[id];
+        var el = graph.getCell(id);
+        if (!el || !pos || typeof pos.x !== 'number' || typeof pos.y !== 'number') return;
+        el.position(pos.x, pos.y);
+        applied = true;
+    });
+    if (applied) {
+        reattachLinkPorts();
+        updateSubgraphContainerPositions();
+    }
+    return applied;
+}
+
+function persistCanvasLayoutToGraph(wf) {
+    wf = wf || currentGraph || {};
+    getRootLoopIds(wf).forEach(function(lid) {
+        if (hasLoopInners(lid) && graph.getCell(lid)) layoutLoopRegion(lid);
+    });
+    wf.visualData = wf.visualData || {};
+    wf.visualData.layout = collectCanvasLayoutPositions();
+    if (currentGraph) currentGraph.visualData = wf.visualData;
+    return wf.visualData.layout;
+}
+
 let availableLLMs = [];
 let agentVersionCache = {};
 
@@ -2204,20 +2244,35 @@ function renderWorkflow(wf) {
                 linkCells.push(createLink(e[0], e[1]));
     });
     graph.resetCells(nodeCells.concat(linkCells));
-    var layoutRankSep = nestedLoopOrder.length ? 240 : 160;
-    joint.layout.DirectedGraph.layout(graph, {
-        rankDir: 'LR', nodeSep: 100, rankSep: layoutRankSep, edgeSep: 50, marginX: 48, marginY: 48
-    });
-    reattachLinkPorts();
-    drawSubgraphContainers();
-    getRootLoopIds(wf).forEach(function(lid) { layoutLoopRegion(lid); });
-    finalizeLoopLayout(wf);
-    syncNestedLoopShellPositions();
-    resolveLoopTopLevelOverlaps();
-    finalizeLoopLayout(wf);
-    syncNestedLoopShellPositions();
-    reattachLinkPorts();
-    updateSubgraphContainerPositions();
+    var savedLayout = wf.visualData && wf.visualData.layout;
+    var hasSavedLayout = savedLayout && Object.keys(savedLayout).length > 0;
+    if (!hasSavedLayout) {
+        var layoutRankSep = nestedLoopOrder.length ? 240 : 160;
+        joint.layout.DirectedGraph.layout(graph, {
+            rankDir: 'LR', nodeSep: 100, rankSep: layoutRankSep, edgeSep: 50, marginX: 48, marginY: 48
+        });
+        reattachLinkPorts();
+        drawSubgraphContainers();
+        getRootLoopIds(wf).forEach(function(lid) { layoutLoopRegion(lid); });
+        finalizeLoopLayout(wf);
+        syncNestedLoopShellPositions();
+        resolveLoopTopLevelOverlaps();
+        finalizeLoopLayout(wf);
+        syncNestedLoopShellPositions();
+        reattachLinkPorts();
+        updateSubgraphContainerPositions();
+    } else {
+        // Saved layout: still materialize loop inner nodes, then restore coordinates.
+        getRootLoopIds(wf).forEach(function(lid) { layoutLoopRegion(lid); });
+        drawSubgraphContainers();
+        applyCanvasLayoutPositions(savedLayout);
+        getRootLoopIds(wf).forEach(function(lid) {
+            fitLoopShellToContent(lid, { anchor: true, skipReposition: true });
+        });
+        syncNestedLoopShellPositions();
+        reattachLinkPorts();
+        updateSubgraphContainerPositions();
+    }
     fitToContent(); saveToHistory();
     syncCurrentGraphFromCanvas();
 }
@@ -2941,93 +2996,409 @@ function showLinkContextMenu(x, y, link) {
     ]);
 }
 
-// ─── Export ─────────────────────────────────────────
-/** Inject computed node CSS into a cloned SVG so foreignObjects render correctly in standalone viewers. */
-function _injectNodeCss(svg) {
-    var s = document.createElementNS('http://www.w3.org/2000/svg', 'style');
-    s.textContent = [
-        '.wf-node{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:12px;line-height:1.35;color:#374151;overflow:visible;border-radius:12px;background:#fff;border:1.5px solid #e5e7eb}',
-        '.wf-node-header{display:flex;align-items:center;gap:8px;padding:0 12px;height:40px;width:100%;color:#fff;border-radius:10px 10px 0 0;overflow:visible}',
-        '.wf-node-icon{flex:0 0 auto;width:22px;height:22px;border-radius:6px;background:rgba(255,255,255,0.25);border:1.5px solid rgba(255,255,255,0.7);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}',
-        '.wf-node-title{flex:1 1 auto;min-width:60px;font-size:13px;font-weight:600;color:#fff;display:inline-block;white-space:nowrap;overflow:visible}',
-        '.wf-node-type{flex:0 0 auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.5);color:#fff;display:inline-block;white-space:nowrap}',
-        '.wf-node-body{padding:10px 12px 12px;overflow:visible;width:100%;color:#374151}',
-        '.wf-node-meta,.wf-node-id{font-size:11px;color:#6b7280;margin-bottom:8px;display:block;overflow:visible}',
-        '.wf-io-block{margin-bottom:6px;display:block}',
-        '.wf-io-label{font-size:10px;font-weight:700;letter-spacing:0.06em;color:#9ca3af;margin-bottom:4px;display:block}',
-        '.wf-io-row{display:flex;align-items:center;gap:6px;min-height:22px;padding:2px 0;width:100%}',
-        '.wf-io-dot{flex:0 0 auto;width:6px;height:6px;border-radius:50%}',
-        '.wf-io-dot--in{background:#3b82f6}.wf-io-dot--out{background:#10b981}',
-        '.wf-io-name{flex:1 1 auto;min-width:40px;font-size:12px;color:#1f2937;display:inline-block;overflow:visible}',
-        '.wf-io-type{flex:0 0 auto;font-size:10px;color:#9ca3af;display:inline-block}',
-        '.wf-io-empty{font-size:11px;color:#d1d5db;font-style:italic;padding:2px 0 2px 12px;display:block}'
-    ].join('\n');
-    svg.insertBefore(s, svg.firstChild);
+// ─── Export (pure SVG nodes — foreignObject HTML does not rasterize) ───
+var SVG_NS = 'http://www.w3.org/2000/svg';
+var _EXPORT_FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
+
+function _svgEl(tag, attrs, text) {
+    var el = document.createElementNS(SVG_NS, tag);
+    if (attrs) {
+        Object.keys(attrs).forEach(function(k) {
+            el.setAttribute(k, attrs[k]);
+        });
+    }
+    if (text != null) el.textContent = text;
+    return el;
+}
+
+function _svgText(x, y, text, opts) {
+    opts = opts || {};
+    var t = _svgEl('text', {
+        x: String(x),
+        y: String(y),
+        'font-family': _EXPORT_FONT,
+        'font-size': String(opts.fontSize || 12),
+        'font-weight': String(opts.fontWeight || 400),
+        fill: opts.fill || '#374151',
+        'text-anchor': opts.anchor || 'start'
+    }, text);
+    if (opts.fontStyle) t.setAttribute('font-style', opts.fontStyle);
+    return t;
+}
+
+function _svgBadge(g, x, y, label, fill, stroke) {
+    var w = Math.max(36, label.length * 6.2 + 14);
+    g.appendChild(_svgEl('rect', {
+        x: String(x), y: String(y), width: String(w), height: '18',
+        rx: '4', ry: '4', fill: fill || 'rgba(255,255,255,0.22)',
+        stroke: stroke || 'rgba(255,255,255,0.5)', 'stroke-width': '1'
+    }));
+    g.appendChild(_svgText(x + 7, y + 13, label, {
+        fill: '#fff', fontSize: 10, fontWeight: 600
+    }));
+    return w;
+}
+
+function _exportNodeHeader(g, w, stroke, iconLetter, title, typeLabel) {
+    g.appendChild(_svgEl('rect', {
+        x: '0', y: '0', width: String(w), height: String(WF_HEADER_H),
+        rx: '12', ry: '12', fill: stroke, stroke: 'none'
+    }));
+    g.appendChild(_svgEl('rect', {
+        x: '0', y: String(WF_HEADER_H - 12), width: String(w), height: '12',
+        fill: stroke, stroke: 'none'
+    }));
+    g.appendChild(_svgEl('rect', {
+        x: '12', y: '9', width: '22', height: '22', rx: '6', ry: '6',
+        fill: 'rgba(255,255,255,0.25)', stroke: 'rgba(255,255,255,0.7)', 'stroke-width': '1.5'
+    }));
+    g.appendChild(_svgText(23, 24, iconLetter, {
+        fill: '#fff', fontSize: 11, fontWeight: 700, anchor: 'middle'
+    }));
+    g.appendChild(_svgText(42, 26, title, { fill: '#fff', fontSize: 13, fontWeight: 600 }));
+    _svgBadge(g, w - 12 - Math.max(36, typeLabel.length * 6.2 + 14), 11, typeLabel);
+}
+
+function _exportIoSection(g, x, y, w, title, rows, dotColor) {
+    g.appendChild(_svgText(x, y + 11, title, {
+        fill: '#9ca3af', fontSize: 10, fontWeight: 700
+    }));
+    y += WF_IO_LABEL_H;
+    if (!rows.length) {
+        g.appendChild(_svgText(x + 12, y + 14, '—', {
+            fill: '#d1d5db', fontSize: 11, fontStyle: 'italic'
+        }));
+        return y + WF_ROW_H;
+    }
+    rows.forEach(function(row) {
+        g.appendChild(_svgEl('circle', {
+            cx: String(x + 3), cy: String(y + 12), r: '3', fill: dotColor
+        }));
+        g.appendChild(_svgText(x + 12, y + 16, row.name, { fill: '#1f2937', fontSize: 12 }));
+        if (row.type) {
+            g.appendChild(_svgText(w - 12, y + 16, row.type, {
+                fill: '#9ca3af', fontSize: 10, anchor: 'end'
+            }));
+        }
+        y += WF_ROW_H;
+    });
+    return y;
+}
+
+/** Draw compound loop node (empty shell with inner list) as pure SVG. */
+function _buildExportCompoundLoopSvg(cell, layout, agent) {
+    var id = cell.id;
+    var g = _svgEl('g', { class: 'export-node' });
+    var w = layout.width;
+    var h = layout.height;
+    var stroke = layout.stroke;
+    var name = truncateText((agent && agent.name) || id, 32);
+    var lc = (agent && agent.loopConfig) || {};
+    var loopType = lc.loopType || 'foreach';
+    var inputs = normalizeInputs(agent);
+    var outName = (agent && agent.outputs && agent.outputs.name) ? String(agent.outputs.name) : 'output';
+
+    g.appendChild(_svgEl('rect', {
+        x: '0', y: '0', width: String(w), height: String(h),
+        rx: '12', ry: '12', fill: '#ffffff', stroke: '#e5e7eb', 'stroke-width': '1.5'
+    }));
+    _exportNodeHeader(g, w, stroke, '↻', name, 'Loop');
+    var y = WF_HEADER_H + 8;
+    g.appendChild(_svgText(12, y + 11, 'Loop: ' + loopType, {
+        fill: '#3b82f6', fontSize: 10, fontWeight: 600
+    }));
+    y += 18;
+    var children = getLoopInnerDisplayNodes(id);
+    if (!children.length) {
+        g.appendChild(_svgEl('rect', {
+            x: '12', y: String(y), width: String(w - 24), height: '40',
+            rx: '8', ry: '8', fill: '#f8fafc', stroke: '#e2e8f0', 'stroke-width': '1'
+        }));
+        g.appendChild(_svgText(w / 2, y + 24, 'Drop agents or subgraphs here', {
+            fill: '#94a3b8', fontSize: 11, anchor: 'middle'
+        }));
+        y += 48;
+    } else {
+        g.appendChild(_svgEl('rect', {
+            x: '12', y: String(y), width: String(w - 24), height: String(children.length * 48 + 16),
+            rx: '8', ry: '8', fill: '#f8fafc', stroke: '#e2e8f0', 'stroke-width': '1'
+        }));
+        children.forEach(function(ch, i) {
+            var dt = ch.type === 'loop' ? 'loop' : ch.type;
+            var chStroke = getNodeStroke(dt, false);
+            var letter = typeIconLetters[dt] || ch.type.charAt(0) || '?';
+            var cy = y + 12 + i * 48;
+            g.appendChild(_svgEl('rect', {
+                x: '20', y: String(cy + 6), width: '22', height: '22', rx: '6', ry: '6', fill: chStroke
+            }));
+            g.appendChild(_svgText(31, cy + 21, letter, {
+                fill: '#fff', fontSize: 11, fontWeight: 700, anchor: 'middle'
+            }));
+            g.appendChild(_svgText(50, cy + 18, truncateText(ch.name, 28), {
+                fill: '#1f2937', fontSize: 12, fontWeight: 600
+            }));
+            g.appendChild(_svgText(50, cy + 32, typeLabels[dt] || ch.type, {
+                fill: '#9ca3af', fontSize: 10
+            }));
+        });
+        y += children.length * 48 + 16 + 8;
+    }
+    y = _exportIoSection(g, 12, y, w, 'INPUT', inputs.map(function(inp) {
+        return { name: truncateText(inp, 22) };
+    }), '#3b82f6');
+    y += WF_IO_BLOCK_GAP;
+    _exportIoSection(g, 12, y, w, 'OUTPUT', [{ name: truncateText(outName, 20) }], '#10b981');
+    return g;
+}
+
+/** Build a pure-SVG node group from the same layout data as the canvas HTML nodes. */
+function buildExportNodeSvgGroup(cell) {
+    var id = cell.id;
+    if (id === 'START' || id === 'END' || id.endsWith('_container')) return null;
+    if (cell.get('isLoopShell') || cell.get('subgraph')) return null;
+
+    var agent = agentsData[id] || cell.get('config');
+    if (!agent) return null;
+    var layout = buildNodeLayout(id, agent);
+    var rawType = (agent && agent.type) || 'LLM';
+    var flowKind = (agent && agent.flowKind) || getNodeFlowKind(id) || '';
+    if (!flowKind && (rawType === 'loop' || rawType === 'branch')) flowKind = rawType;
+    var displayType = flowKind || rawType;
+    if (displayType === 'loop' && !hasLoopInners(id)) {
+        return _buildExportCompoundLoopSvg(cell, layout, agent);
+    }
+
+    var g = _svgEl('g', { class: 'export-node' });
+    var w = layout.width;
+    var h = layout.height;
+    var stroke = layout.stroke;
+    var type = (flowKind === 'loop' || flowKind === 'branch') ? flowKind : rawType;
+    var name = truncateText((agent && agent.name) || id, 28);
+    var inputs = normalizeInputs(agent);
+    var outName = (agent && agent.outputs && agent.outputs.name) ? String(agent.outputs.name) : '';
+    var outType = (agent && agent.outputs && agent.outputs.type) ? String(agent.outputs.type) : '';
+    var model = (agent && agent.model) ? truncateText(agent.model, 32) : '';
+    var tools = (agent && agent.tools) || [];
+    var pinnedVersion = getPinnedAgentVersion(id) || '';
+    var branchConds = (displayType === 'branch')
+        ? ((agent && agent.conditions) || [{ label: 'True' }, { label: 'False' }])
+        : [];
+    var showIdRow = agent && agent.id && agent.name && agent.id !== agent.name;
+    var iconLetter = typeIconLetters[displayType] || typeIconLetters[type] || type.charAt(0) || '?';
+    var typeLabel = typeLabels[displayType] || typeLabels[type] || type;
+
+    g.appendChild(_svgEl('rect', {
+        x: '0', y: '0', width: String(w), height: String(h),
+        rx: '12', ry: '12', fill: '#ffffff', stroke: '#e5e7eb', 'stroke-width': '1.5'
+    }));
+    _exportNodeHeader(g, w, stroke, iconLetter, name, typeLabel);
+
+    var y = WF_HEADER_H + WF_BODY_PAD_TOP;
+    if (showIdRow) {
+        g.appendChild(_svgText(12, y + 11, truncateText(agent.id, 36), {
+            fill: '#9ca3af', fontSize: 10
+        }));
+        y += WF_ID_ROW_H;
+    }
+    if (type === 'LLM' && model) {
+        g.appendChild(_svgText(12, y + 11, 'Model: ' + model, { fill: '#6b7280', fontSize: 11 }));
+        y += WF_META_LINE_H;
+    } else if (type === 'PGM') {
+        g.appendChild(_svgText(12, y + 11, 'Rule-based / Python', { fill: '#6b7280', fontSize: 11 }));
+        y += WF_META_LINE_H;
+    } else if (type === 'SUB') {
+        g.appendChild(_svgText(12, y + 11, 'Iterates over list input', { fill: '#6b7280', fontSize: 11 }));
+        y += WF_META_LINE_H;
+    } else if (displayType === 'branch') {
+        g.appendChild(_svgText(12, y + 11, 'Conditional routing (graph flow)', { fill: '#6b7280', fontSize: 11 }));
+        y += WF_META_LINE_H;
+    } else if (displayType === 'loop') {
+        g.appendChild(_svgText(12, y + 11, 'Loop container (graph flow)', { fill: '#6b7280', fontSize: 11 }));
+        y += WF_META_LINE_H;
+    }
+    if (pinnedVersion) {
+        g.appendChild(_svgText(12, y + 11, 'Version: ' + pinnedVersion, {
+            fill: '#1d4ed8', fontSize: 11, fontWeight: 600
+        }));
+        y += WF_META_LINE_H;
+    }
+    if (tools.length) {
+        g.appendChild(_svgText(12, y + 11, 'Tools: ' + truncateText(tools.join(', '), 40), {
+            fill: '#6b7280', fontSize: 11
+        }));
+        y += WF_META_LINE_H;
+    }
+
+    y = _exportIoSection(g, 12, y, w, 'INPUT', inputs.map(function(inp) {
+        return { name: truncateText(inp, 22) };
+    }), '#3b82f6');
+    y += WF_IO_BLOCK_GAP;
+
+    var outRows = [];
+    if (displayType === 'branch' && branchConds.length) {
+        branchConds.forEach(function(c) {
+            outRows.push({ name: truncateText(c.label, 20), type: 'out' });
+        });
+    } else if (outName) {
+        outRows.push({ name: truncateText(outName, 20), type: outType ? truncateText(outType, 8) : '' });
+    }
+    _exportIoSection(g, 12, y, w, 'OUTPUT', outRows, '#10b981');
+    return g;
+}
+
+function _findExportElementRoot(svgRoot, cellId) {
+    var hit = svgRoot.querySelector('.joint-element[model-id="' + cellId + '"]');
+    if (hit) return hit;
+    var all = svgRoot.querySelectorAll('.joint-element');
+    for (var i = 0; i < all.length; i++) {
+        if (all[i].getAttribute('model-id') === cellId) return all[i];
+    }
+    return null;
+}
+
+/** Replace foreignObject HTML nodes with pure SVG (works in canvg, Word, TIFF). */
+function _replaceForeignObjectsWithPureSvg(svgRoot) {
+    graph.getElements().forEach(function(cell) {
+        var nodeG = buildExportNodeSvgGroup(cell);
+        if (!nodeG) return;
+        var elRoot = _findExportElementRoot(svgRoot, cell.id);
+        if (!elRoot) return;
+        elRoot.querySelectorAll('foreignObject').forEach(function(fo) { fo.remove(); });
+        elRoot.querySelectorAll('[joint-selector="body"]').forEach(function(body) {
+            body.setAttribute('visibility', 'hidden');
+        });
+        elRoot.insertBefore(nodeG, elRoot.firstChild);
+    });
+}
+
+/** Bounding box of all graph content in model coordinates (respects manual drag layout). */
+function _computeExportBBox(padding) {
+    padding = padding == null ? 24 : padding;
+    var bb = graph.getBBox();
+    if (!bb) return { x: -padding, y: -padding, width: 400 + padding * 2, height: 300 + padding * 2 };
+    graph.getElements().forEach(function(el) {
+        var eb = el.getBBox();
+        if (eb && eb.width && eb.height) bb = bb.union(eb);
+    });
+    return {
+        x: bb.x - padding,
+        y: bb.y - padding,
+        width: bb.width + padding * 2,
+        height: bb.height + padding * 2
+    };
+}
+
+function _cleanExportSvg(svg) {
+    svg.querySelectorAll('rect[fill]').forEach(function(r) {
+        var fill = r.getAttribute('fill') || '';
+        if (fill.indexOf('url(#') === 0 && fill.toLowerCase().indexOf('grid') >= 0) {
+            r.setAttribute('fill', '#ffffff');
+        }
+    });
+}
+
+function _prepareExportSvg(bb) {
+    var svg = paper.svg.cloneNode(true);
+    _cleanExportSvg(svg);
+    _replaceForeignObjectsWithPureSvg(svg);
+    svg.setAttribute('viewBox', bb.x + ' ' + bb.y + ' ' + bb.width + ' ' + bb.height);
+    svg.setAttribute('width', bb.width);
+    svg.setAttribute('height', bb.height);
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    return svg;
+}
+
+function _serializeExportSvg(svg) {
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg);
+}
+
+function _downloadBlob(blob, filename) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 500);
+}
+
+async function _renderExportCanvas(scale) {
+    var bb = _computeExportBBox();
+    var svg = _prepareExportSvg(bb);
+    var svgStr = _serializeExportSvg(svg);
+    var w = Math.max(1, Math.round(bb.width * scale));
+    var h = Math.max(1, Math.round(bb.height * scale));
+    var canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.scale(scale, scale);
+    if (typeof canvg !== 'undefined' && canvg.Canvg && canvg.Canvg.fromString) {
+        var v = await canvg.Canvg.fromString(ctx, svgStr, { ignoreMouse: true, ignoreAnimation: true });
+        await v.render();
+    } else {
+        await new Promise(function(resolve, reject) {
+            var img = new Image();
+            var url = URL.createObjectURL(new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' }));
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, bb.width, bb.height);
+                URL.revokeObjectURL(url);
+                resolve();
+            };
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+    return canvas;
+}
+
+function _withExportContext(fn) {
+    var prev = selectedCell;
+    deselectAll();
+    return Promise.resolve(fn()).finally(function() {
+        if (prev && prev.isElement && prev.isElement()) selectNode(prev);
+        else if (prev && prev.isLink && prev.isLink()) selectLink(prev);
+    });
 }
 
 function downloadSVG() {
-    var bb = graph.getBBox(), p = 20;
-    var svg = paper.svg.cloneNode(true);
-    _injectNodeCss(svg);
-    svg.setAttribute('viewBox', (bb.x-p)+' '+(bb.y-p)+' '+(bb.width+p*2)+' '+(bb.height+p*2));
-    svg.setAttribute('width', bb.width+p*2);
-    svg.setAttribute('height', bb.height+p*2);
-    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    var b = new Blob([new XMLSerializer().serializeToString(svg)], {type:'image/svg+xml'});
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(b); a.download = (current||'workflow')+'.svg'; a.click();
+    _withExportContext(function() {
+        var bb = _computeExportBBox();
+        var svg = _prepareExportSvg(bb);
+        _downloadBlob(new Blob([_serializeExportSvg(svg)], { type: 'image/svg+xml;charset=utf-8' }),
+            (current || 'workflow') + '.svg');
+    });
 }
 
 function downloadPNG() {
-    var bb = graph.getBBox(), p = 20, s = 2;
-    var svg = paper.svg.cloneNode(true);
-    _injectNodeCss(svg);
-    svg.setAttribute('viewBox', (bb.x-p)+' '+(bb.y-p)+' '+(bb.width+p*2)+' '+(bb.height+p*2));
-    svg.setAttribute('width', (bb.width+p*2)*s);
-    svg.setAttribute('height', (bb.height+p*2)*s);
-    var c = document.createElement('canvas');
-    c.width = (bb.width+p*2)*s; c.height = (bb.height+p*2)*s;
-    var ctx = c.getContext('2d');
-    ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.scale(s,s);
-    var img = new Image(), url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'}));
-    img.onload = function() {
-        ctx.drawImage(img,0,0); URL.revokeObjectURL(url);
-        c.toBlob(function(b) {
-            var a = document.createElement('a');
-            a.href = URL.createObjectURL(b); a.download = (current||'workflow')+'.png'; a.click();
+    _withExportContext(async function() {
+        var canvas = await _renderExportCanvas(2);
+        canvas.toBlob(function(blob) {
+            if (blob) _downloadBlob(blob, (current || 'workflow') + '.png');
         }, 'image/png');
-    };
-    img.src = url;
+    });
 }
 
 function downloadTIFF() {
-    var bb = graph.getBBox(), p = 20, dpi = 300, s = dpi / 96;
-    var svg = paper.svg.cloneNode(true);
-    _injectNodeCss(svg);
-    svg.setAttribute('viewBox', (bb.x-p)+' '+(bb.y-p)+' '+(bb.width+p*2)+' '+(bb.height+p*2));
-    svg.setAttribute('width', (bb.width+p*2)*s);
-    svg.setAttribute('height', (bb.height+p*2)*s);
-    var c = document.createElement('canvas');
-    c.width = (bb.width+p*2)*s; c.height = (bb.height+p*2)*s;
-    var ctx = c.getContext('2d');
-    ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.scale(s,s);
-    var img = new Image(), url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'}));
-    img.onload = function() {
-        ctx.drawImage(img,0,0); URL.revokeObjectURL(url);
-        var idata = ctx.getImageData(0,0,c.width,c.height);
+    _withExportContext(async function() {
+        var dpi = 300;
+        var scale = dpi / 96;
+        var canvas = await _renderExportCanvas(scale);
         if (typeof UTIF !== 'undefined' && UTIF.encodeImage) {
-            var tiff = UTIF.encodeImage(idata.data, c.width, c.height);
-            var b = new Blob([tiff], {type:'image/tiff'});
-            var a = document.createElement('a');
-            a.href = URL.createObjectURL(b); a.download = (current||'workflow')+'_300dpi.tiff'; a.click();
+            var ctx = canvas.getContext('2d');
+            var idata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var tiff = UTIF.encodeImage(idata.data, canvas.width, canvas.height);
+            _downloadBlob(new Blob([tiff], { type: 'image/tiff' }), (current || 'workflow') + '_300dpi.tiff');
         } else {
-            c.toBlob(function(b) {
-                var a = document.createElement('a');
-                a.href = URL.createObjectURL(b); a.download = (current||'workflow')+'_300dpi.png'; a.click();
+            canvas.toBlob(function(blob) {
+                if (blob) _downloadBlob(blob, (current || 'workflow') + '_300dpi.png');
             }, 'image/png');
         }
-    };
-    img.src = url;
+    });
 }
 
 // ─── Save / serialize ──────────────────────────────
@@ -3060,6 +3431,7 @@ function serializeGraph() {
     if (!wf.edges || !wf.edges.length) {
         wf.edges = [['START', 'END']];
     }
+    persistCanvasLayoutToGraph(wf);
     return wf;
 }
 
