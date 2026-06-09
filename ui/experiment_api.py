@@ -764,6 +764,8 @@ def api_experiment_detail(exp_id):
             'prompt_template': exp_cfg.get('prompt_template', {}),
             'created_at': exp_cfg.get('created_at', ''),
             'updated_at': exp_cfg.get('updated_at', ''),
+            'last_error': exp_cfg.get('last_error', ''),
+            'failed_at_sample': exp_cfg.get('failed_at_sample'),
             'history': exp_cfg.get('history', [])
         })
     except Exception as e:

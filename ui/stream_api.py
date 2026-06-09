@@ -13,16 +13,22 @@ from service.result.loader import (
 from service.entity.runner import _apply_plugin_metrics
 from service.entity.runner import RunnerLoader
 from plugin.plugin_loader import get_plugin
+from service.experiment_batch_meta import batch_progress_pct, finalize_batch_exp_meta
 from utils.graphutils import collect_loop_stream_fields, is_loop_flow_node
 import json
+import logging
 from datetime import datetime
 import asyncio
 import threading
+
+logger = logging.getLogger(__name__)
+
 sse_bp = Blueprint('sse', __name__, url_prefix='/stream')
 
 # Global batch run state for pause/resume support
 _batch_run_state: dict[str, str] = {}  # exp_id -> "running" | "paused" | "stopped"
 _batch_run_lock = threading.Lock()
+
 
 def process(chunk, graph_id: str | None = None):
     if isinstance(chunk, str):
@@ -284,13 +290,22 @@ def stream_exp_batch(exp_id):
     def generate():
         runner = RunnerLoader.load(runner_id)
         if runner is None:
+            err = f"runner not found: {runner_id}"
+            finalize_batch_exp_meta(
+                exp_id,
+                status="failed",
+                completed=len(completed_indices),
+                total=total,
+                error=err,
+            )
             with _batch_run_lock:
                 _batch_run_state.pop(exp_id, None)
-            yield f'data: {json.dumps({"status": "failed", "error": f"runner not found: {runner_id}"})}\n\n'
+            yield f'data: {json.dumps({"status": "failed", "error": err})}\n\n'
             yield "data: [DONE]\n\n"
             return
 
         completed = len(completed_indices)
+        batch_failed = False
         # Send initial progress for resume case
         if completed > 0:
             resume_msg = {
@@ -377,8 +392,21 @@ def stream_exp_batch(exp_id):
                         },
                     )
                 except Exception as persist_ex:
-                    err = {"status": "failed", "error": f"persistence: {persist_ex}"}
+                    err_str = f"persistence: {persist_ex}"
+                    logger.exception("Batch persistence failed for %s sample %s", exp_id, idx)
+                    finalize_batch_exp_meta(
+                        exp_id,
+                        status="failed",
+                        completed=completed,
+                        total=total,
+                        error=err_str,
+                        failed_at_sample=idx,
+                        record_history=True,
+                    )
+                    batch_failed = True
+                    err = {"status": "failed", "error": err_str, "current_index": idx}
                     yield f"data: {json.dumps(err)}\n\n"
+                    break
 
                 done_msg = {
                     "status": "completed",
@@ -390,22 +418,39 @@ def stream_exp_batch(exp_id):
                 }
                 yield f"data: {json.dumps(done_msg)}\n\n"
             except Exception as e:
+                err_str = str(e)
+                logger.exception(
+                    "Batch sample failed for %s at index %s", exp_id, idx
+                )
+                finalize_batch_exp_meta(
+                    exp_id,
+                    status="failed",
+                    completed=completed,
+                    total=total,
+                    error=err_str,
+                    failed_at_sample=idx,
+                    record_history=True,
+                )
+                batch_failed = True
                 msg = {
                     "status": "failed",
-                    "percent": int(completed / total * 100) if total else 0,
+                    "percent": batch_progress_pct(completed, total),
                     "completed": completed,
                     "total": total,
                     "current_index": idx,
-                    "error": str(e),
+                    "error": err_str,
                 }
                 yield f"data: {json.dumps(msg)}\n\n"
                 break
 
-        # Final status
-        MetaLoader.update("exps", exp_id, {
-            "progress": 100,
-            "status": "completed",
-        })
+        if not batch_failed:
+            final_status = "completed" if completed >= total else "running"
+            finalize_batch_exp_meta(
+                exp_id,
+                status=final_status,
+                completed=completed,
+                total=total,
+            )
         with _batch_run_lock:
             _batch_run_state.pop(exp_id, None)
         yield "data: [DONE]\n\n"

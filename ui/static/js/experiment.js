@@ -171,6 +171,15 @@ function hydrateExpFormFromServer() {
                 if (split.ratio != null) $('#splitRatioInput').val(split.ratio);
                 if (split.seed != null) $('#splitSeedInput').val(split.seed);
             }
+            if (cfg.progress != null && cfg.progress !== undefined) {
+                updateProgress(Number(cfg.progress) || 0);
+            }
+            const errText = cfg.last_error || '';
+            if (errText) {
+                $('#error_message').text(errText);
+            } else if (String(cfg.status || '').toLowerCase() === 'failed') {
+                $('#error_message').text('Batch run failed. Resume or check logs.');
+            }
         });
 }
 
@@ -975,8 +984,12 @@ function stream(exp_id, options = {}) {
             try {
                 const msg = JSON.parse(e.data);
                 if (msg.status === 'failed') {
-                    $('#error_message').text(msg.error);
+                    $('#error_message').text(msg.error || 'Batch run failed');
                     current_status = 'failed';
+                    if (msg.percent != null) {
+                        current_process = msg.percent;
+                        updateProgress(current_process, progressSelector);
+                    }
                     updateTableRow(msg.current_index, { status: 'failed' });
                     _hideAllBatchControls(progressSelector);
                 } else if (msg.status === 'paused') {
