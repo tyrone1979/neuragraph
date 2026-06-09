@@ -37,6 +37,7 @@ from service.experiment_optimize import (
     init_optimization_flow_steps,
 )
 from service.meta.loader import MetaLoader
+from service.meta.agent_version import AgentVersionStore
 from service.result.loader import ResultLoader
 
 
@@ -67,6 +68,266 @@ def load_opt_context(exp_id: str) -> dict[str, Any]:
 
 def save_opt_context(exp_id: str, ctx: dict[str, Any]) -> None:
     _write_text(_ctx_path(exp_id), json.dumps(ctx, ensure_ascii=False, indent=2))
+
+
+def _exp_id_of(meta: dict[str, Any]) -> str:
+    return str(meta.get("exp_id") or meta.get("id") or "").strip()
+
+
+def _linked_tuning_experiments(
+    runner_id: str, tuning_dataset: str
+) -> tuple[str, list[str]]:
+    """Find latest completed opt_base_tune_* and opt_cand_* for the same runner/tuning split."""
+    tune_id = ""
+    tune_ts = ""
+    cands: list[str] = []
+    for meta in MetaLoader.loads("exps") or []:
+        eid = _exp_id_of(meta)
+        if not eid or str(meta.get("runner_id") or "") != runner_id:
+            continue
+        ds = str(meta.get("tuning_dataset") or meta.get("dataset") or "").strip()
+        if ds != tuning_dataset:
+            continue
+        if str(meta.get("status") or "").lower() != "completed":
+            continue
+        created = str(meta.get("created_at") or meta.get("updated_at") or "")
+        if eid.startswith("opt_base_tune_"):
+            if not tune_id or created >= tune_ts:
+                tune_id = eid
+                tune_ts = created
+        elif eid.startswith("opt_cand_"):
+            cands.append(eid)
+    return tune_id, cands
+
+
+def _candidates_after_tune(tune_id: str, candidate_ids: list[str]) -> list[str]:
+    """Keep candidates run after the tuning baseline (same optimization session)."""
+    if not tune_id or not candidate_ids:
+        return candidate_ids
+    tune_meta = MetaLoader.load("exps", tune_id) or {}
+    tune_ts = str(tune_meta.get("created_at") or tune_meta.get("updated_at") or "")
+    if not tune_ts:
+        return candidate_ids
+    scoped: list[str] = []
+    for cid in candidate_ids:
+        meta = MetaLoader.load("exps", cid) or {}
+        created = str(meta.get("created_at") or meta.get("updated_at") or "")
+        if created >= tune_ts:
+            scoped.append(cid)
+    return scoped or candidate_ids
+
+
+def _needs_opt_context_recovery(ctx: dict[str, Any]) -> bool:
+    if not ctx.get("baseline_tune_exp_id"):
+        return True
+    if ctx.get("optimize_rounds_done"):
+        return False
+    return not ctx.get("rounds")
+
+
+def _best_candidate_for_tuning(tune_id: str, candidate_ids: list[str]) -> str:
+    if not tune_id or not candidate_ids:
+        return ""
+    candidate_ids = _candidates_after_tune(tune_id, candidate_ids)
+    baseline = _avg_metrics(tune_id)
+    if not baseline:
+        return candidate_ids[0]
+    best_id = ""
+    best_delta = -999.0
+    for cid in candidate_ids:
+        metrics = _avg_metrics(cid)
+        if not metrics:
+            continue
+        delta = float(metrics.get("f1") or 0) - float(baseline.get("f1") or 0)
+        if delta > best_delta:
+            best_delta = delta
+            best_id = cid
+    return best_id or candidate_ids[0]
+
+
+def _needs_version_backfill(ctx: dict[str, Any]) -> bool:
+    if not ctx.get("rounds"):
+        return False
+    if ctx.get("cumulative_version_map"):
+        return False
+    return any(r.get("accepted") for r in (ctx.get("rounds") or []) if isinstance(r, dict))
+
+
+def _infer_accepted_version_map(
+    tune_exp_id: str,
+    candidate_exp_id: str,
+    target_agent_ids: list[str],
+) -> dict[str, str]:
+    """Infer accepted agent versions when orphan candidate runs lack snapshots."""
+    tune_meta = MetaLoader.load("exps", tune_exp_id) or {}
+    cand_meta = MetaLoader.load("exps", candidate_exp_id) or {}
+    tune_ts = str(tune_meta.get("updated_at") or tune_meta.get("created_at") or "")
+    cand_ts = str(cand_meta.get("updated_at") or cand_meta.get("created_at") or "")
+    store = AgentVersionStore()
+    accepted: dict[str, str] = {}
+    for agent_id in target_agent_ids:
+        agent_id = str(agent_id or "").strip()
+        if not agent_id:
+            continue
+        baseline_ver = store.version_at_time(agent_id, tune_ts)
+        baseline_hash = ""
+        if baseline_ver:
+            baseline_payload = store.load_version(agent_id, baseline_ver) or {}
+            baseline_hash = str(baseline_payload.get("content_hash") or "")
+
+        post_run = [
+            v
+            for v in store.list_versions(agent_id)
+            if cand_ts and str(v.get("created_at") or "") >= cand_ts
+            and str(v.get("version") or "") != baseline_ver
+            and str(v.get("content_hash") or "") != baseline_hash
+        ]
+        if post_run:
+            post_run.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+            accepted[agent_id] = str(post_run[0].get("version") or "")
+            continue
+
+        current_ver = store.find_version_by_content(agent_id, MetaLoader.load("agents", agent_id) or {})
+        if current_ver and current_ver != baseline_ver:
+            accepted[agent_id] = current_ver
+    return accepted
+
+
+def _backfill_accepted_versions(ctx: dict[str, Any]) -> dict[str, Any]:
+    tune_id = str(ctx.get("baseline_tune_exp_id") or "")
+    if not tune_id:
+        return ctx
+    rounds = list(ctx.get("rounds") or [])
+    target_agents = [
+        str(r.get("target_agent_id") or "").strip()
+        for r in rounds
+        if isinstance(r, dict) and r.get("accepted") and r.get("target_agent_id")
+    ]
+    if not target_agents:
+        return ctx
+    cand_id = str(ctx.get("current_best_exp_id") or "")
+    for r in reversed(rounds):
+        if not isinstance(r, dict) or not r.get("accepted"):
+            continue
+        eid = str(r.get("display_exp_id") or r.get("candidate_exp_id") or "")
+        if eid:
+            cand_id = eid
+            break
+    if not cand_id or cand_id == tune_id:
+        return ctx
+    version_map = _infer_accepted_version_map(tune_id, cand_id, target_agents)
+    if not version_map:
+        return ctx
+    ctx = {**ctx, "cumulative_version_map": version_map}
+    updated_rounds: list[dict[str, Any]] = []
+    for r in rounds:
+        if not isinstance(r, dict):
+            updated_rounds.append(r)
+            continue
+        row = dict(r)
+        if row.get("accepted"):
+            agent_id = str(row.get("target_agent_id") or "")
+            if agent_id in version_map:
+                row["version_map"] = {agent_id: version_map[agent_id]}
+        updated_rounds.append(row)
+    ctx["rounds"] = updated_rounds
+    return ctx
+
+
+def _recover_opt_context(
+    parent_exp_id: str,
+    exp_cfg: dict[str, Any],
+    tuning_dataset: str,
+) -> dict[str, Any]:
+    """Link orphan tuning/candidate runs to a parent wizard experiment."""
+    ctx = load_opt_context(parent_exp_id)
+    if ctx.get("baseline_tune_exp_id") and ctx.get("rounds") and ctx.get("cumulative_version_map"):
+        return ctx
+    if ctx.get("baseline_tune_exp_id") and ctx.get("rounds"):
+        ctx = _backfill_accepted_versions(ctx)
+        save_opt_context(parent_exp_id, ctx)
+        return ctx
+    runner_id = str(exp_cfg.get("runner_id") or "")
+    tune_id, cand_ids = _linked_tuning_experiments(runner_id, tuning_dataset)
+    if not tune_id:
+        return ctx
+    cand_id = str(ctx.get("current_best_exp_id") or "")
+    if cand_id not in cand_ids:
+        cand_id = _best_candidate_for_tuning(tune_id, cand_ids)
+    tune_metrics = _avg_metrics(tune_id)
+    report_path = ROOT / "result" / tune_id / "report_tuning_baseline.md"
+    ctx = {
+        **ctx,
+        "baseline_tune_exp_id": tune_id,
+        "baseline_tuning_report_path": str(report_path) if report_path.is_file() else "",
+        "current_best_exp_id": cand_id or tune_id,
+        "current_best_metrics": _avg_metrics(cand_id) if cand_id else tune_metrics,
+        "optimize_rounds_done": bool(cand_id and cand_id != tune_id),
+    }
+    if cand_id and cand_id != tune_id:
+        cand_metrics = _avg_metrics(cand_id)
+        delta = {
+            k: float(cand_metrics.get(k) or 0) - float(tune_metrics.get(k) or 0)
+            for k in ("precision", "recall", "f1")
+            if k in tune_metrics and k in cand_metrics
+        }
+        accepted = delta.get("f1", 0) > 0
+        target_agent = "relation_verify_llm"
+        for mod in ctx.get("modifications") or []:
+            if isinstance(mod, dict) and str(mod.get("target_agent_id") or "").strip():
+                target_agent = str(mod.get("target_agent_id") or target_agent)
+                break
+        version_map: dict[str, str] = {}
+        if accepted:
+            version_map = _infer_accepted_version_map(tune_id, cand_id, [target_agent])
+        ctx["rounds"] = [
+            {
+                "round": 1,
+                "target_agent_id": target_agent,
+                "candidate_exp_id": cand_id,
+                "display_exp_id": cand_id,
+                "baseline_metrics": tune_metrics,
+                "candidate_metrics": cand_metrics,
+                "metrics_delta": delta,
+                "accepted": accepted,
+                "reason": "f1 improved" if accepted else "f1 did not improve",
+                "version_map": version_map,
+            }
+        ]
+        if accepted and version_map:
+            ctx["cumulative_version_map"] = dict(version_map)
+    else:
+        ctx.setdefault("rounds", [])
+    save_opt_context(parent_exp_id, ctx)
+    return ctx
+
+
+def _attach_flow_exp_links(flow_steps: list[dict[str, Any]], ctx: dict[str, Any]) -> None:
+    tune_id = str(ctx.get("baseline_tune_exp_id") or "")
+    for step in flow_steps:
+        links: list[dict[str, str]] = []
+        if step.get("id") == "baseline_tuning" and tune_id:
+            links.append({"label": "Tuning baseline", "exp_id": tune_id})
+        elif step.get("id") == "baseline_tuning_report" and tune_id:
+            links.append({"label": "Tuning report", "exp_id": tune_id})
+        elif step.get("id") == "optimize_rounds":
+            for r in ctx.get("rounds") or []:
+                eid = str(r.get("display_exp_id") or r.get("candidate_exp_id") or "")
+                if not eid:
+                    continue
+                rnd = r.get("round")
+                agent = str(r.get("target_agent_id") or "")
+                links.append(
+                    {
+                        "label": f"R{rnd} {agent}".strip(),
+                        "exp_id": eid,
+                    }
+                )
+            best = str(ctx.get("current_best_exp_id") or "")
+            if best and best != tune_id and not any(x.get("exp_id") == best for x in links):
+                links.insert(0, {"label": "Optimized best", "exp_id": best})
+        if links:
+            step["exp_links"] = links
 
 
 def _step_index(step_id: str) -> int:
@@ -149,20 +410,25 @@ def _flow_from_context(exp_id: str, exp_cfg: dict[str, Any], tuning: str, test: 
     if _baseline_report_ready(exp_id):
         _set_flow_step(flow_steps, "baseline_test_report", "done", "Baseline test report ready")
     ctx = load_opt_context(exp_id)
+    if _needs_opt_context_recovery(ctx):
+        ctx = _recover_opt_context(exp_id, exp_cfg, tuning)
+    elif _needs_version_backfill(ctx):
+        ctx = _backfill_accepted_versions(ctx)
+        save_opt_context(exp_id, ctx)
     tune_id = str(ctx.get("baseline_tune_exp_id") or "")
     if tune_id:
         tune_cfg = MetaLoader.load("exps", tune_id) or {}
         if str(tune_cfg.get("status") or "").lower() == "completed":
             _set_flow_step(flow_steps, "baseline_tuning", "done", f"Tuning baseline on {tuning}")
-    if ctx.get("modifications") is not None and ctx.get("baseline_tuning_report_path"):
-        _set_flow_step(
-            flow_steps,
-            "baseline_tuning_report",
-            "done",
-            f"{len(ctx.get('modifications') or [])} suggestion(s)",
+        report_path = ctx.get("baseline_tuning_report_path") or str(
+            ROOT / "result" / tune_id / "report_tuning_baseline.md"
         )
+        if Path(str(report_path)).is_file() or ctx.get("modifications") is not None:
+            mod_count = len(ctx.get("modifications") or [])
+            detail = f"{mod_count} suggestion(s)" if mod_count else "Tuning report ready"
+            _set_flow_step(flow_steps, "baseline_tuning_report", "done", detail)
     rounds = ctx.get("rounds") or []
-    if rounds is not None and ctx.get("optimize_rounds_done"):
+    if rounds:
         accepted = sum(1 for r in rounds if r.get("accepted"))
         _set_flow_step(
             flow_steps,
@@ -174,6 +440,7 @@ def _flow_from_context(exp_id: str, exp_cfg: dict[str, Any], tuning: str, test: 
         _set_flow_step(flow_steps, "final_test", "done", "Optimized test completed")
     if ctx.get("optimized_test_report_path"):
         _set_flow_step(flow_steps, "final_test_report", "done", "Compare reports ready")
+    _attach_flow_exp_links(flow_steps, ctx)
     return flow_steps
 
 
@@ -185,8 +452,13 @@ def optimization_flow_state(exp_id: str) -> dict[str, Any]:
     ready = _baseline_test_ready(exp_cfg, test)
     report_ready = _baseline_report_ready(exp_id)
     ctx = load_opt_context(exp_id)
+    if _needs_opt_context_recovery(ctx):
+        ctx = _recover_opt_context(exp_id, exp_cfg, tuning)
+    elif _needs_version_backfill(ctx):
+        ctx = _backfill_accepted_versions(ctx)
+        save_opt_context(exp_id, ctx)
     optimization_summary = None
-    if ctx.get("optimize_rounds_done"):
+    if ctx.get("optimize_rounds_done") or ctx.get("rounds"):
         optimization_summary = _build_summary(exp_id, exp_cfg, tuning, test, ctx, flow_steps)
     tune_id = str(ctx.get("baseline_tune_exp_id") or "")
     return {
@@ -329,8 +601,12 @@ def run_optimization_step(
             baseline_payload,
             max_updates=max(10, max_agent_updates),
         )
+        agents_cfg = baseline_payload.get("agents") if isinstance(baseline_payload, dict) else {}
+        if not isinstance(agents_cfg, dict):
+            agents_cfg = {}
         modifications, filtered_modifications = filter_disallowed_modifications(
-            [m for m in raw_modifications if isinstance(m, dict) and str(m.get("target_agent_id") or "").strip()]
+            [m for m in raw_modifications if isinstance(m, dict) and str(m.get("target_agent_id") or "").strip()],
+            agents_cfg=agents_cfg,
         )
         ctx["baseline_tuning_report_path"] = str(report_path)
         ctx["modifications"] = modifications

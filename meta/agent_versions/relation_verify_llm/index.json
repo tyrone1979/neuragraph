@@ -1,61 +1,7 @@
 {
   "agent_id": "relation_verify_llm",
-  "latest": "v0010",
+  "latest": "v0013",
   "versions": [
-    {
-      "version": "v0001",
-      "parent_version": null,
-      "created_at": "2026-05-28T09:08:09.086767",
-      "created_by": "optimize_loop",
-      "change_note": "opt_loop 20260528_090754: The baseline report shows 6 false positives (FP) caused by the LLM returning '$' for non-causal associations. Strengthening the prompt with explicit negative examples and stricter causation language is expected to reduce FP by 50-70%.",
-      "source": "optimize_loop",
-      "content_hash": "e75acefd181aa24e1033b578a8c57c5a1221aa8964b26aaadcd69d4419f6b4ae"
-    },
-    {
-      "version": "v0002",
-      "parent_version": "v0001",
-      "created_at": "2026-05-28T10:26:52.388336",
-      "created_by": "optimize_loop",
-      "change_note": "opt_loop 20260528_102452: High FP count (16) due to permissive causation detection. Report shows LLM returns '$' for co-occurrence, speculative language, pre-existing conditions, and general conditions. Adding explicit negative examples and stricter rules will reduce FPs by ~60-70%.",
-      "source": "optimize_loop",
-      "content_hash": "1e4c51e67f10bf95106d469cee9b6333c5bc39616e8dd888480446d03ccdd5b1"
-    },
-    {
-      "version": "v0003",
-      "parent_version": "v0002",
-      "created_at": "2026-05-28T10:41:53.391629",
-      "created_by": "optimize_loop",
-      "change_note": "opt_loop 20260528_103939 r1: High FP rate (16) due to LLM returning '$' for co-occurrence, pre-existing conditions, and speculative language. Replace flat rules with step-by-step reasoning to enforce strict causation.",
-      "source": "optimize_loop",
-      "content_hash": "32ca3a815c98c18b45e21e06bb520ca354925620e834946e83f4005c1ee1d21d"
-    },
-    {
-      "version": "v0004",
-      "parent_version": "v0003",
-      "created_at": "2026-05-28T15:33:22.212515",
-      "created_by": "optimize_loop",
-      "change_note": "opt_loop 20260528_153052 r1: LLM is too permissive, returning '$' for co-occurrence pairs (toxicity, neurologically-impaired, seizures). Adding a mandatory Step 0 co-occurrence check before existing steps forces explicit rejection of non-causal mentions, directly addressing 7/7 FPs.",
-      "source": "optimize_loop",
-      "content_hash": "f29c1a5ddfb018f21f07956ad0b2d9f1200433c14702c7a27b19772bf42ff018"
-    },
-    {
-      "version": "v0005",
-      "parent_version": "v0004",
-      "created_at": "2026-05-28T15:57:35.034925",
-      "created_by": "optimize_loop",
-      "change_note": "opt_loop 20260528_155454 r1: The multi-step reasoning prompt causes the LLM to skip intermediate checks and return '$' for speculative/co-occurrence pairs. Replacing with a single unambiguous causal criterion reduces FP rate directly.",
-      "source": "optimize_loop",
-      "content_hash": "842458e40a3ce8bfcfd1cc8de83b3e03169b3b6b20c59221c87290d558301d7a"
-    },
-    {
-      "version": "v0006",
-      "parent_version": "v0005",
-      "created_at": "2026-05-28T16:11:53.143948",
-      "created_by": "optimize_loop",
-      "change_note": "opt_loop 20260528_160935 r1: LLM verifier too permissive: returns '$' for pre-existing conditions (samples 2,4) and co-occurrences (samples 1,3,5). Replace human prompt with explicit instructions to reject pre-existing conditions and co-occurrences, reducing ~5-6 of 7 FPs.",
-      "source": "optimize_loop",
-      "content_hash": "6365561cb9a5f40b01abac2efd48ce50f0300bebe16ec3a5f50ec19395c223f1"
-    },
     {
       "version": "v0007",
       "parent_version": "v0006",
@@ -75,15 +21,6 @@
       "content_hash": "fb4d2488885fcb68bda345e8687958d2d8efab683873d4114bff844da294001f"
     },
     {
-      "version": "v0009",
-      "parent_version": "v0008",
-      "created_at": "2026-06-05T09:03:08.072553",
-      "created_by": "optimize_loop",
-      "change_note": "opt_loop 20260605_085217 r1: FN sample 42: LLM returns ~ for amlodipine->diarrhea despite text stating incidences were similar (treatment-emergent AE). FP samples 15,33,44: LLM over-applies condition 2 to mere adverse event listings without causation. Clarify condition 2 to require explicit causal l",
-      "source": "optimize_loop",
-      "content_hash": "2faebee6b016edaf0a35bffb2ddd48c04de3454f9c09633d5e1bc5cacf416f7c"
-    },
-    {
       "version": "v0010",
       "parent_version": "v0009",
       "created_at": "2026-06-08T13:49:36.842644",
@@ -91,6 +28,15 @@
       "change_note": "Assumptions before Conditions; rescue/resuscitation/antidote for tail/LAST -> ~ (1.5).",
       "source": "save",
       "content_hash": "4b86418c6f7022c2f2495c6dcf058f7b17608aaf7fc5d6e483eb1c6e7f45af77"
+    },
+    {
+      "version": "v0013",
+      "parent_version": "v0012",
+      "created_at": "2026-06-09T12:04:21.574964",
+      "created_by": "refiner_opt",
+      "change_note": "Condition 2 DDI + reversed order pattern; tuning delta_f1 +0.024",
+      "source": "refiner_opt",
+      "content_hash": "47d06599e2afe24e63c8fafd49feb2ed8ffe18e16a5cd66a3e5c5c24b513d955"
     }
   ]
 }

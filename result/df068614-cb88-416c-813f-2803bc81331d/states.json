@@ -1,0 +1,517 @@
+{
+  "1": {
+    "entities": "[{\"text\": \"UMB24\", \"id\": \"C519696\", \"label\": \"Chemical\"}, {\"text\": \"SM 21\", \"id\": \"C107044\", \"label\": \"Chemical\"}, {\"text\": \"cocaine\", \"id\": \"D003042\", \"label\": \"Chemical\"}, {\"text\": \"convulsive\", \"id\": \"D012640\", \"label\": \"Disease\"}, {\"text\": \"cocaine\", \"id\": \"D003042\", \"label\": \"Chemical\"}, {\"text\": \"UMB24\", \"id\": \"C519696\", \"label\": \"Chemical\"}, {\"text\": \"1-(2-phenethyl)-4-(2-pyridyl)-piperazine\", \"id\": \"C519696\", \"label\": \"Chemical\"}, {\"text\": \"SM 21\", \"id\": \"C107044\", \"label\": \"Chemical\"}, {\"text\": \"3alpha-tropanyl-2-(4-chorophenoxy)butyrate\", \"id\": \"C107044\", \"label\": \"Chemical\"}, {\"text\": \"UMB24\", \"id\": \"C519696\", \"label\": \"Chemical\"}, {\"text\": \"SM 21\", \"id\": \"C107044\", \"label\": \"Chemical\"}, {\"text\": \"UMB24\", \"id\": \"C519696\", \"label\": \"Chemical\"}, {\"text\": \"SM 21\", \"id\": \"C107044\", \"label\": \"Chemical\"}, {\"text\": \"cocaine\", \"id\": \"D003042\", \"label\": \"Chemical\"}, {\"text\": \"convulsions\", \"id\": \"D012640\", \"label\": \"Disease\"}, {\"text\": \"SM 21\", \"id\": \"C107044\", \"label\": \"Chemical\"}, {\"text\": \"UMB24\", \"id\": \"C519696\", \"label\": \"Chemical\"}, {\"text\": \"cocaine\", \"id\": \"D003042\", \"label\": \"Chemical\"}]",
+    "filtered_entities": [
+      {
+        "text": "UMB24",
+        "id": "C519696",
+        "label": "Chemical"
+      },
+      {
+        "text": "1-(2-phenethyl)-4-(2-pyridyl)-piperazine",
+        "id": "C519696",
+        "label": "Chemical"
+      },
+      {
+        "text": "SM 21",
+        "id": "C107044",
+        "label": "Chemical"
+      },
+      {
+        "text": "3alpha-tropanyl-2-(4-chorophenoxy)butyrate",
+        "id": "C107044",
+        "label": "Chemical"
+      },
+      {
+        "text": "cocaine",
+        "id": "D003042",
+        "label": "Chemical"
+      },
+      {
+        "text": "convulsive",
+        "id": "D012640",
+        "label": "Disease"
+      },
+      {
+        "text": "convulsions",
+        "id": "D012640",
+        "label": "Disease"
+      }
+    ],
+    "head": "cocaine",
+    "head_id": "D003042",
+    "pairs": [
+      {
+        "head": "UMB24",
+        "tail": "convulsive",
+        "head_id": "C519696",
+        "tail_id": "D012640"
+      },
+      {
+        "head": "SM 21",
+        "tail": "convulsive",
+        "head_id": "C107044",
+        "tail_id": "D012640"
+      },
+      {
+        "head": "cocaine",
+        "tail": "convulsive",
+        "head_id": "D003042",
+        "tail_id": "D012640"
+      }
+    ],
+    "relations": [
+      "D003042 | D012640"
+    ],
+    "result": "$",
+    "tail": "convulsive",
+    "tail_id": "D012640",
+    "text": "Effects of UMB24 and (+/-)-SM 21, putative sigma2-preferring antagonists, on behavioral toxic and stimulant effects of cocaine in mice. Earlier studies have demonstrated that antagonism of sigma1 receptors attenuates the convulsive, lethal, locomotor stimulatory and rewarding actions of cocaine in mice. In contrast, the contribution of sigma2 receptors is unclear because experimental tools to selectively target this subtype are unavailable. To begin addressing this need, we characterized UMB24 (1-(2-phenethyl)-4-(2-pyridyl)-piperazine) and (+/-)-SM 21 (3alpha-tropanyl-2-(4-chorophenoxy)butyrate) in receptor binding and behavioral studies. Receptor binding studies confirmed that UMB24 and (+/-)-SM 21 display preferential affinity for sigma2 over sigma1 receptors. In behavioral studies, pretreatment of Swiss Webster mice with UMB24 or (+/-)-SM 21 significantly attenuated cocaine-induced convulsions and locomotor activity, but not lethality. When administered alone, (+/-)-SM 21 produced no significant effects compared to control injections of saline, but UMB24 had locomotor depressant actions. Together, the data suggest that sigma2 receptor antagonists have the potential to attenuate some of the behavioral effects of cocaine, and further development of more selective, high affinity ligands are warranted.",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0,
+      "rel_f1": 1.0
+    }
+  },
+  "2": {
+    "entities": "[{\"text\": \"decreased renal function\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"heart failure\", \"id\": \"D006333\", \"label\": \"Disease\"}, {\"text\": \"angiotensin\", \"id\": \"D000809\", \"label\": \"Chemical\"}, {\"text\": \"left ventricular dysfunction\", \"id\": \"D018487\", \"label\": \"Disease\"}, {\"text\": \"angiotensin\", \"id\": \"D000809\", \"label\": \"Chemical\"}, {\"text\": \"congestive heart failure\", \"id\": \"D006333\", \"label\": \"Disease\"}, {\"text\": \"CHF\", \"id\": \"D006333\", \"label\": \"Disease\"}, {\"text\": \"decreased renal function\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"reduction in renal function\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"CHF\", \"id\": \"D006333\", \"label\": \"Disease\"}, {\"text\": \"angiotensin\", \"id\": \"D000809\", \"label\": \"Chemical\"}, {\"text\": \"Left Ventricular Dysfunction\", \"id\": \"D018487\", \"label\": \"Disease\"}, {\"text\": \"enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}, {\"text\": \"CHF\", \"id\": \"D006333\", \"label\": \"Disease\"}, {\"text\": \"enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}, {\"text\": \"Decreased renal function\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"creatinine\", \"id\": \"D003404\", \"label\": \"Chemical\"}, {\"text\": \"creatinine\", \"id\": \"D003404\", \"label\": \"Chemical\"}, {\"text\": \"hypertension\", \"id\": \"D006973\", \"label\": \"Disease\"}, {\"text\": \"diabetes\", \"id\": \"D003920\", \"label\": \"Disease\"}, {\"text\": \"diuretic\", \"id\": \"D004232\", \"label\": \"Chemical\"}, {\"text\": \"enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}, {\"text\": \"decreased renal function\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}, {\"text\": \"diuretic\", \"id\": \"D004232\", \"label\": \"Chemical\"}, {\"text\": \"diabetes\", \"id\": \"D003920\", \"label\": \"Disease\"}, {\"text\": \"decreased renal function\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"decreased renal function\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}, {\"text\": \"enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}, {\"text\": \"enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}, {\"text\": \"Diuretic\", \"id\": \"D004232\", \"label\": \"Chemical\"}, {\"text\": \"decreased renal function\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}, {\"text\": \"enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}, {\"text\": \"diabetes\", \"id\": \"D003920\", \"label\": \"Disease\"}, {\"text\": \"renal impairment\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"Enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}, {\"text\": \"decreased renal function\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"CHF\", \"id\": \"D006333\", \"label\": \"Disease\"}, {\"text\": \"Diuretic\", \"id\": \"D004232\", \"label\": \"Chemical\"}, {\"text\": \"Diabetes\", \"id\": \"D003920\", \"label\": \"Disease\"}, {\"text\": \"renal impairment\", \"id\": \"D051437\", \"label\": \"Disease\"}, {\"text\": \"CHF\", \"id\": \"D006333\", \"label\": \"Disease\"}, {\"text\": \"enalapril\", \"id\": \"D004656\", \"label\": \"Chemical\"}]",
+    "filtered_entities": [
+      {
+        "text": "angiotensin",
+        "id": "D000809",
+        "label": "Chemical"
+      },
+      {
+        "text": "enalapril",
+        "id": "D004656",
+        "label": "Chemical"
+      },
+      {
+        "text": "creatinine",
+        "id": "D003404",
+        "label": "Chemical"
+      },
+      {
+        "text": "diuretic",
+        "id": "D004232",
+        "label": "Chemical"
+      },
+      {
+        "text": "decreased renal function",
+        "id": "D051437",
+        "label": "Disease"
+      },
+      {
+        "text": "heart failure",
+        "id": "D006333",
+        "label": "Disease"
+      },
+      {
+        "text": "left ventricular dysfunction",
+        "id": "D018487",
+        "label": "Disease"
+      },
+      {
+        "text": "hypertension",
+        "id": "D006973",
+        "label": "Disease"
+      },
+      {
+        "text": "diabetes",
+        "id": "D003920",
+        "label": "Disease"
+      }
+    ],
+    "head": "diuretic",
+    "head_id": "D004232",
+    "pairs": [
+      {
+        "head": "angiotensin",
+        "tail": "decreased renal function",
+        "head_id": "D000809",
+        "tail_id": "D051437"
+      },
+      {
+        "head": "angiotensin",
+        "tail": "heart failure",
+        "head_id": "D000809",
+        "tail_id": "D006333"
+      },
+      {
+        "head": "angiotensin",
+        "tail": "left ventricular dysfunction",
+        "head_id": "D000809",
+        "tail_id": "D018487"
+      },
+      {
+        "head": "angiotensin",
+        "tail": "hypertension",
+        "head_id": "D000809",
+        "tail_id": "D006973"
+      },
+      {
+        "head": "angiotensin",
+        "tail": "diabetes",
+        "head_id": "D000809",
+        "tail_id": "D003920"
+      },
+      {
+        "head": "enalapril",
+        "tail": "decreased renal function",
+        "head_id": "D004656",
+        "tail_id": "D051437"
+      },
+      {
+        "head": "enalapril",
+        "tail": "heart failure",
+        "head_id": "D004656",
+        "tail_id": "D006333"
+      },
+      {
+        "head": "enalapril",
+        "tail": "left ventricular dysfunction",
+        "head_id": "D004656",
+        "tail_id": "D018487"
+      },
+      {
+        "head": "enalapril",
+        "tail": "hypertension",
+        "head_id": "D004656",
+        "tail_id": "D006973"
+      },
+      {
+        "head": "enalapril",
+        "tail": "diabetes",
+        "head_id": "D004656",
+        "tail_id": "D003920"
+      },
+      {
+        "head": "creatinine",
+        "tail": "decreased renal function",
+        "head_id": "D003404",
+        "tail_id": "D051437"
+      },
+      {
+        "head": "creatinine",
+        "tail": "heart failure",
+        "head_id": "D003404",
+        "tail_id": "D006333"
+      },
+      {
+        "head": "creatinine",
+        "tail": "left ventricular dysfunction",
+        "head_id": "D003404",
+        "tail_id": "D018487"
+      },
+      {
+        "head": "creatinine",
+        "tail": "hypertension",
+        "head_id": "D003404",
+        "tail_id": "D006973"
+      },
+      {
+        "head": "creatinine",
+        "tail": "diabetes",
+        "head_id": "D003404",
+        "tail_id": "D003920"
+      },
+      {
+        "head": "diuretic",
+        "tail": "decreased renal function",
+        "head_id": "D004232",
+        "tail_id": "D051437"
+      },
+      {
+        "head": "diuretic",
+        "tail": "heart failure",
+        "head_id": "D004232",
+        "tail_id": "D006333"
+      },
+      {
+        "head": "diuretic",
+        "tail": "left ventricular dysfunction",
+        "head_id": "D004232",
+        "tail_id": "D018487"
+      },
+      {
+        "head": "diuretic",
+        "tail": "hypertension",
+        "head_id": "D004232",
+        "tail_id": "D006973"
+      },
+      {
+        "head": "diuretic",
+        "tail": "diabetes",
+        "head_id": "D004232",
+        "tail_id": "D003920"
+      }
+    ],
+    "relations": [
+      "D000809 | D051437",
+      "D004656 | D051437",
+      "D004232 | D051437"
+    ],
+    "result": "~",
+    "tail": "diabetes",
+    "tail_id": "D003920",
+    "text": "Predictors of decreased renal function in patients with heart failure during angiotensin-converting enzyme inhibitor therapy: results from the studies of left ventricular dysfunction (SOLVD) BACKGROUND: Although angiotensin-converting enzyme inhibitor therapy reduces mortality rates in patients with congestive heart failure (CHF), it may also cause decreased renal function. Little information is available to predict which patients are at highest risk for this complication. OBJECTIVE: To quantify specific clinical predictors of reduction in renal function in patients with CHF who are prescribed angiotensin-converting enzyme inhibitor therapy. METHOD: We analyzed data from the Studies of Left Ventricular Dysfunction (SOLVD), a randomized, double-blind, placebo-controlled trial of enalapril for the treatment of CHF. There were 3379 patients randomly assigned to enalapril with a median follow-up of 974 days and 3379 patients randomly assigned to placebo with a mean follow-up of 967 days. Decreased renal function was defined as a rise in serum creatinine >/=0.5 mg/dL (44 micromol/L) from baseline. We used time-to-event analysis to identify potential predictors of decrease in renal function including age, baseline ejection fraction, baseline creatinine, low systolic blood pressure (<100 mm Hg), history of hypertension, diabetes, and use of antiplatelet, diuretic, and beta-blocker therapy. RESULTS: Patients randomly assigned to enalapril had a 33% greater likelihood of decreased renal function than controls (P =.003). By multivariate analysis, in both the placebo and enalapril groups older age, diuretic therapy, and diabetes were associated with decreased renal function, whereas beta-blocker therapy and higher ejection fraction were renoprotective. Older age was associated with a greater risk of developing decreased renal function in both groups, but significantly more so in the enalapril group (enalapril: risk ratio [RR] 1.42 per 10 years, 95% confidence interval [CI] 1.32-1.52 with enalapril; placebo: RR 1.18, 95% CI 1.12-1.25). Diuretic therapy was likewise associated with a greater risk of decreased renal function in the enalapril group (RR 1.89, 95% CI 1.70-2.08) than in the placebo group (RR 1.35, 95% CI 1.09-1.66). Conversely, enalapril had a relative renoprotective effect (RR 1.33, 95% CI 1.13-1.53) compared with placebo (RR 1.96, 95% CI 1.57-2.44) in patients with diabetes. A lower risk of renal impairment was seen in both groups with beta-blocker therapy (RR 0.70, 95% CI 0.57-0.85) and higher baseline ejection fraction (RR 0.93 per 5% increment, 95% CI 0.91-0. 96). CONCLUSIONS: Enalapril use caused a 33% increase in the risk of decreased renal function in patients with CHF. Diuretic use and advanced age increased this risk. Diabetes was associated with an increased risk of renal impairment in all patients with CHF, but this risk was reduced in the enalapril group compared with the placebo group. beta-Blocker therapy and higher ejection fraction were renoprotective in all patients regardless of therapy.",
+    "metrics": {
+      "precision": 0.6666666666666666,
+      "recall": 1.0,
+      "f1": 0.8,
+      "rel_tp": 2,
+      "rel_fp": 1,
+      "rel_fn": 0,
+      "rel_f1": 0.8
+    }
+  },
+  "3": {
+    "entities": "[{\"text\": \"adenomas\", \"id\": \"D000236\", \"label\": \"Disease\"}, {\"text\": \"focal nodular hyperplasia\", \"id\": \"D020518\", \"label\": \"Disease\"}, {\"text\": \"oral contraceptives\", \"id\": \"D003276\", \"label\": \"Chemical\"}, {\"text\": \"adenoma\", \"id\": \"D000236\", \"label\": \"Disease\"}, {\"text\": \"focal nodular hyperplasia\", \"id\": \"D020518\", \"label\": \"Disease\"}, {\"text\": \"oral contraceptives\", \"id\": \"D003276\", \"label\": \"Chemical\"}, {\"text\": \"adenoma\", \"id\": \"D000236\", \"label\": \"Disease\"}, {\"text\": \"focal nodular hyperplasia\", \"id\": \"D020518\", \"label\": \"Disease\"}]",
+    "filtered_entities": [
+      {
+        "text": "oral contraceptives",
+        "id": "D003276",
+        "label": "Chemical"
+      },
+      {
+        "text": "adenoma",
+        "id": "D000236",
+        "label": "Disease"
+      },
+      {
+        "text": "focal nodular hyperplasia",
+        "id": "D020518",
+        "label": "Disease"
+      }
+    ],
+    "head": "oral contraceptives",
+    "head_id": "D003276",
+    "pairs": [
+      {
+        "head": "oral contraceptives",
+        "tail": "adenoma",
+        "head_id": "D003276",
+        "tail_id": "D000236"
+      },
+      {
+        "head": "oral contraceptives",
+        "tail": "focal nodular hyperplasia",
+        "head_id": "D003276",
+        "tail_id": "D020518"
+      }
+    ],
+    "relations": null,
+    "result": "~",
+    "tail": "focal nodular hyperplasia",
+    "tail_id": "D020518",
+    "text": "Hepatic adenomas and focal nodular hyperplasia of the liver in young women on oral contraceptives: case reports. Two cases of hepatic adenoma and one of focal nodular hyperplasia presumably associated with the use of oral contraceptives, are reported. Special reference is made to their clinical presentation, which may be totally asymptomatic. Liver-function tests are of little diagnostic value, but valuable information may be obtained from both liver scanning and hepatic angiography. Histologic differences and clinical similarities between hepatic adenoma and focal nodular hyperplasia of the liver are discussed.",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 0,
+      "rel_fn": 2,
+      "rel_f1": 0.0
+    }
+  },
+  "4": {
+    "entities": "[{\"text\": \"Methylphenidate\", \"id\": \"D008774\", \"label\": \"Chemical\"}, {\"text\": \"obsessive-compulsive symptoms\", \"id\": \"D009771\", \"label\": \"Disease\"}, {\"text\": \"treatment-resistant depression\", \"id\": \"D061218\", \"label\": \"Disease\"}, {\"text\": \"Alzheimer's disease\", \"id\": \"D000544\", \"label\": \"Disease\"}, {\"text\": \"methylphenidate\", \"id\": \"D008774\", \"label\": \"Chemical\"}, {\"text\": \"obsessive-compulsive behavior\", \"id\": \"D009771\", \"label\": \"Disease\"}, {\"text\": \"methylphenidate\", \"id\": \"D008774\", \"label\": \"Chemical\"}, {\"text\": \"fluvoxamine\", \"id\": \"D016666\", \"label\": \"Chemical\"}, {\"text\": \"psychiatric\", \"id\": \"D001523\", \"label\": \"Disease\"}, {\"text\": \"obsessive-compulsive disorder\", \"id\": \"D009771\", \"label\": \"Disease\"}, {\"text\": \"methylphenidate\", \"id\": \"D008774\", \"label\": \"Chemical\"}]",
+    "filtered_entities": [
+      {
+        "text": "Methylphenidate",
+        "id": "D008774",
+        "label": "Chemical"
+      },
+      {
+        "text": "fluvoxamine",
+        "id": "D016666",
+        "label": "Chemical"
+      },
+      {
+        "text": "obsessive-compulsive disorder",
+        "id": "D009771",
+        "label": "Disease"
+      },
+      {
+        "text": "treatment-resistant depression",
+        "id": "D061218",
+        "label": "Disease"
+      },
+      {
+        "text": "Alzheimer's disease",
+        "id": "D000544",
+        "label": "Disease"
+      }
+    ],
+    "head": "fluvoxamine",
+    "head_id": "D016666",
+    "pairs": [
+      {
+        "head": "Methylphenidate",
+        "tail": "obsessive-compulsive disorder",
+        "head_id": "D008774",
+        "tail_id": "D009771"
+      },
+      {
+        "head": "Methylphenidate",
+        "tail": "treatment-resistant depression",
+        "head_id": "D008774",
+        "tail_id": "D061218"
+      },
+      {
+        "head": "Methylphenidate",
+        "tail": "Alzheimer's disease",
+        "head_id": "D008774",
+        "tail_id": "D000544"
+      },
+      {
+        "head": "fluvoxamine",
+        "tail": "obsessive-compulsive disorder",
+        "head_id": "D016666",
+        "tail_id": "D009771"
+      },
+      {
+        "head": "fluvoxamine",
+        "tail": "treatment-resistant depression",
+        "head_id": "D016666",
+        "tail_id": "D061218"
+      },
+      {
+        "head": "fluvoxamine",
+        "tail": "Alzheimer's disease",
+        "head_id": "D016666",
+        "tail_id": "D000544"
+      }
+    ],
+    "relations": [
+      "D008774 | D009771"
+    ],
+    "result": "~",
+    "tail": "Alzheimer's disease",
+    "tail_id": "D000544",
+    "text": "Methylphenidate-induced obsessive-compulsive symptoms in an elderly man. An 82-year-old man with treatment-resistant depression and early Alzheimer's disease was started on methylphenidate. Significant obsessive-compulsive behavior ensued but diminished over several weeks when methylphenidate was replaced by fluvoxamine. The patient had no prior psychiatric history, but he had a sister with obsessive-compulsive disorder. It appears that methylphenidate precipitated the patient's pathological behavior.",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0,
+      "rel_f1": 1.0
+    }
+  },
+  "5": {
+    "entities": "[{\"text\": \"norepinephrine\", \"id\": \"D009638\", \"label\": \"Chemical\"}, {\"text\": \"desipramine\", \"id\": \"D003891\", \"label\": \"Chemical\"}, {\"text\": \"convulsions\", \"id\": \"D012640\", \"label\": \"Disease\"}, {\"text\": \"norepinephrine\", \"id\": \"D009638\", \"label\": \"Chemical\"}, {\"text\": \"seizures\", \"id\": \"D012640\", \"label\": \"Disease\"}, {\"text\": \"cocaine\", \"id\": \"D003042\", \"label\": \"Chemical\"}, {\"text\": \"desipramine\", \"id\": \"D003891\", \"label\": \"Chemical\"}, {\"text\": \"norepinephrine\", \"id\": \"D009638\", \"label\": \"Chemical\"}, {\"text\": \"lidocaine\", \"id\": \"D008012\", \"label\": \"Chemical\"}, {\"text\": \"bupivacaine\", \"id\": \"D002045\", \"label\": \"Chemical\"}, {\"text\": \"tricaine\", \"id\": \"C003636\", \"label\": \"Chemical\"}, {\"text\": \"desipramine\", \"id\": \"D003891\", \"label\": \"Chemical\"}, {\"text\": \"cocaine\", \"id\": \"D003042\", \"label\": \"Chemical\"}, {\"text\": \"norepinephrine\", \"id\": \"D009638\", \"label\": \"Chemical\"}, {\"text\": \"desipramine\", \"id\": \"D003891\", \"label\": \"Chemical\"}, {\"text\": \"lidocaine\", \"id\": \"D008012\", \"label\": \"Chemical\"}, {\"text\": \"convulsions\", \"id\": \"D012640\", \"label\": \"Disease\"}, {\"text\": \"cocaine\", \"id\": \"D003042\", \"label\": \"Chemical\"}, {\"text\": \"convulsions\", \"id\": \"D012640\", \"label\": \"Disease\"}, {\"text\": \"lidocaine\", \"id\": \"D008012\", \"label\": \"Chemical\"}, {\"text\": \"desipramine\", \"id\": \"D003891\", \"label\": \"Chemical\"}, {\"text\": \"convulsive\", \"id\": \"D012640\", \"label\": \"Disease\"}, {\"text\": \"lidocaine\", \"id\": \"D008012\", \"label\": \"Chemical\"}, {\"text\": \"cocaine\", \"id\": \"D003042\", \"label\": \"Chemical\"}, {\"text\": \"desipramine\", \"id\": \"D003891\", \"label\": \"Chemical\"}, {\"text\": \"desipramine\", \"id\": \"D003891\", \"label\": \"Chemical\"}, {\"text\": \"desipramine\", \"id\": \"D003891\", \"label\": \"Chemical\"}, {\"text\": \"lidocaine\", \"id\": \"D008012\", \"label\": \"Chemical\"}, {\"text\": \"convulsions\", \"id\": \"D012640\", \"label\": \"Disease\"}, {\"text\": \"Na\", \"id\": \"D012964\", \"label\": \"Chemical\"}, {\"text\": \"desipramine\", \"id\": \"D003891\", \"label\": \"Chemical\"}, {\"text\": \"cocaine\", \"id\": \"D003042\", \"label\": \"Chemical\"}, {\"text\": \"Desipramine\", \"id\": \"D003891\", \"label\": \"Chemical\"}, {\"text\": \"lidocaine\", \"id\": \"D008012\", \"label\": \"Chemical\"}, {\"text\": \"seizures\", \"id\": \"D012640\", \"label\": \"Disease\"}, {\"text\": \"cocaine\", \"id\": \"D003042\", \"label\": \"Chemical\"}]",
+    "filtered_entities": [
+      {
+        "text": "norepinephrine",
+        "id": "D009638",
+        "label": "Chemical"
+      },
+      {
+        "text": "desipramine",
+        "id": "D003891",
+        "label": "Chemical"
+      },
+      {
+        "text": "cocaine",
+        "id": "D003042",
+        "label": "Chemical"
+      },
+      {
+        "text": "lidocaine",
+        "id": "D008012",
+        "label": "Chemical"
+      },
+      {
+        "text": "bupivacaine",
+        "id": "D002045",
+        "label": "Chemical"
+      },
+      {
+        "text": "tricaine",
+        "id": "C003636",
+        "label": "Chemical"
+      },
+      {
+        "text": "Na",
+        "id": "D012964",
+        "label": "Chemical"
+      },
+      {
+        "text": "convulsions",
+        "id": "D012640",
+        "label": "Disease"
+      }
+    ],
+    "head": "Na",
+    "head_id": "D012964",
+    "pairs": [
+      {
+        "head": "norepinephrine",
+        "tail": "convulsions",
+        "head_id": "D009638",
+        "tail_id": "D012640"
+      },
+      {
+        "head": "desipramine",
+        "tail": "convulsions",
+        "head_id": "D003891",
+        "tail_id": "D012640"
+      },
+      {
+        "head": "cocaine",
+        "tail": "convulsions",
+        "head_id": "D003042",
+        "tail_id": "D012640"
+      },
+      {
+        "head": "lidocaine",
+        "tail": "convulsions",
+        "head_id": "D008012",
+        "tail_id": "D012640"
+      },
+      {
+        "head": "bupivacaine",
+        "tail": "convulsions",
+        "head_id": "D002045",
+        "tail_id": "D012640"
+      },
+      {
+        "head": "tricaine",
+        "tail": "convulsions",
+        "head_id": "C003636",
+        "tail_id": "D012640"
+      },
+      {
+        "head": "Na",
+        "tail": "convulsions",
+        "head_id": "D012964",
+        "tail_id": "D012640"
+      }
+    ],
+    "relations": [
+      "D003891 | D012640",
+      "D003042 | D012640",
+      "D008012 | D012640"
+    ],
+    "result": "$",
+    "tail": "convulsions",
+    "tail_id": "D012640",
+    "text": "Down-regulation of norepinephrine transporter function induced by chronic administration of desipramine linking to the alteration of sensitivity of local-anesthetics-induced convulsions and the counteraction by co-administration with local anesthetics. Alterations of norepinephrine transporter (NET) function by chronic inhibition of NET in relation to sensitization to seizures induce by cocaine and local anesthetics were studied in mice. Daily administration of desipramine, an inhibitor of the NET, for 5 days decreased [(3)H]norepinephrine uptake in the P2 fractions of hippocampus but not cortex, striatum or amygdalae. Co-administration of lidocaine, bupivacaine or tricaine with desipramine reversed this effect. Daily treatment of cocaine increased [(3)H]norepinephrine uptake into the hippocampus. Daily administration of desipramine increased the incidence of appearance of lidocaine-induced convulsions and decreased that of cocaine-induced convulsions. Co-administration of lidocaine with desipramine reversed the changes of convulsive activity of lidocaine and cocaine induced by repeated administration of desipramine. These results suggest that down-regulation of hippocampal NET induced by chronic administration of desipramine may be relevant to desipramine-induced sensitization of lidocaine convulsions. Inhibition of Na(+) channels by local anesthetics may regulate desipramine-induced down-regulation of NET function. Repeated administration of cocaine induces up-regulation of hippocampal NET function. Desipramine-induced sensitization of lidocaine seizures may have a mechanism distinct from kindling resulting from repeated administration of cocaine.",
+    "metrics": {
+      "precision": 0.6666666666666666,
+      "recall": 1.0,
+      "f1": 0.8,
+      "rel_tp": 2,
+      "rel_fp": 1,
+      "rel_fn": 0,
+      "rel_f1": 0.8
+    }
+  }
+}

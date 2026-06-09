@@ -7,9 +7,12 @@
   "dataset": "cid_dev_tuning_stratified_50.csv",
   "tuning_dataset": "cid_dev_tuning_stratified_50.csv",
   "test_dataset": "cdr_test_500.csv",
-  "samples": 50,
+  "samples": 0,
   "status": "completed",
   "progress": 100,
-  "created_at": "2026-06-09T09:49:10.000000",
-  "updated_at": "2026-06-09T09:49:10.000000"
+  "created_at": "2026-06-09T09:49:10.164142",
+  "id": "opt_base_tune_81781d50",
+  "updated_at": "2026-06-09T10:02:39.561470",
+  "last_error": "",
+  "failed_at_sample": null
 }

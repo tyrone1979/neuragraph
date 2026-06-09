@@ -1,0 +1,5236 @@
+{
+  "31": {
+    "entities": [
+      {
+        "text": "Tacrolimus-related",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bilirubin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TAC",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TAC",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "anti-epileptic drugs",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TAC",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Tbil",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TAC-related",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "seizure",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "tonic-clonic seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizure-free",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "TAC",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Tacrolimus",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "TAC-related",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Tacrolimus-related",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Tbil",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "bilirubin",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "anti-epileptic drugs",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "seizure",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "seizures",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Seizures",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "seizure-free",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "tonic-clonic seizures",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Tacrolimus-related",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "bilirubin",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "anti-epileptic drugs",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "tonic-clonic seizures",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "TAC | CID | seizures",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Tacrolimus-related",
+        "tail": "tonic-clonic seizures",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "bilirubin",
+        "tail": "tonic-clonic seizures",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "anti-epileptic drugs",
+        "tail": "tonic-clonic seizures",
+        "head_id": "3",
+        "tail_id": "1"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "Tacrolimus-related seizure after pediatric liver transplantation--a single-center experience.",
+      "To identify the risk factors for new-onset seizures after pediatric LT and to assess their clinical implications and long-term prognosis.",
+      "The clinical and laboratory data of 27 consecutive children who underwent LT from January 2007 to December 2010 in our center were analyzed retrospectively.",
+      "Patients were divided into seizures group and a non-seizures group.",
+      "Pre-operative, intra-operative, and post-operative data were collected.",
+      "Seizures occurred in four children, an incidence of 14.8%.",
+      "All exhibited generalized tonic-clonic seizures within the first two wk after LT.",
+      "Univariate analysis showed that the risk factors associated with seizures after pediatric LT included gender, pediatric end-stage liver disease score before surgery, Child-Pugh score before surgery, serum total bilirubin after surgery, and trough TAC level.",
+      "Multivariate analysis showed that trough TAC level was the only independent risk factor associated with the seizures.",
+      "All children who experienced seizures survived with good graft function and remained seizure-free without anti-epileptic drugs over a mean follow-up period of 33.7 + 14.6 months.",
+      "High trough TAC level was the predominant factor that contributed to seizures in the early post-operative period after pediatric LT.",
+      "High PELD and Child-Pugh scores before LT and high post-operative serum Tbil may be contributory risk factors for TAC-related seizures."
+    ],
+    "text": "Tacrolimus-related seizure after pediatric liver transplantation--a single-center experience. To identify the risk factors for new-onset seizures after pediatric LT and to assess their clinical implications and long-term prognosis. The clinical and laboratory data of 27 consecutive children who underwent LT from January 2007 to December 2010 in our center were analyzed retrospectively. Patients were divided into seizures group and a non-seizures group. Pre-operative, intra-operative, and post-operative data were collected. Seizures occurred in four children, an incidence of 14.8%. All exhibited generalized tonic-clonic seizures within the first two wk after LT. Univariate analysis showed that the risk factors associated with seizures after pediatric LT included gender, pediatric end-stage liver disease score before surgery, Child-Pugh score before surgery, serum total bilirubin after surgery, and trough TAC level. Multivariate analysis showed that trough TAC level was the only independent risk factor associated with the seizures. All children who experienced seizures survived with good graft function and remained seizure-free without anti-epileptic drugs over a mean follow-up period of 33.7 + 14.6 months. High trough TAC level was the predominant factor that contributed to seizures in the early post-operative period after pediatric LT. High PELD and Child-Pugh scores before LT and high post-operative serum Tbil may be contributory risk factors for TAC-related seizures."
+  },
+  "32": {
+    "entities": [
+      {
+        "text": "flavonoid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "apigenin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "flavonoid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "apigenin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "saline",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "apigenin-treated",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "apigenin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "scopolamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "saline",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "apigenin-treated",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "apigenin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "apigenin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "apigenin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "amnesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "memory loss",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "apigenin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "flavonoid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "apigenin-treated",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "saline",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "scopolamine",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "amnesia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "memory loss",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "apigenin-treated",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "saline",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "scopolamine",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "memory loss",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "scopolamine | CID | amnesia",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "rel_precision": 0.0,
+      "rel_recall": 0.0,
+      "rel_f1": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 0,
+      "rel_fn": 1
+    },
+    "pairs": [
+      {
+        "head": "apigenin-treated",
+        "tail": "memory loss",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "saline",
+        "tail": "memory loss",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "scopolamine",
+        "tail": "memory loss",
+        "head_id": "3",
+        "tail_id": "1"
+      }
+    ],
+    "sentences": [
+      "The flavonoid apigenin delays forgetting of passive avoidance conditioning in rats.",
+      "The present experiments were performed to study the effect of the flavonoid apigenin (20 mg/kg intraperitoneally (i.p.), 1 h before acquisition), on 24 h retention performance and forgetting of a step-through passive avoidance task, in young male Wistar rats.",
+      "There were no differences between saline- and apigenin-treated groups in the 24 h retention trial.",
+      "Furthermore, apigenin did not prevent the amnesia induced by scopolamine (1mg/kg, i.p., 30 min before the acquisition).",
+      "The saline- and apigenin-treated rats that did not step through into the dark compartment during the cut-off time (540 s) were retested weekly for up to eight weeks.",
+      "In the saline treated group, the first significant decline in passive avoidance response was observed at four weeks, and complete memory loss was found five weeks after the acquisition of the passive avoidance task.",
+      "At the end of the experimental period, 60% of the animals treated with apigenin still did not step through.",
+      "These data suggest that 1) apigenin delays the long-term forgetting but did not modulate the 24 h retention of fear memory and 2) the obtained beneficial effect of apigenin on the passive avoidance conditioning is mediated by mechanisms that do not implicate its action on the muscarinic cholinergic system."
+    ],
+    "text": "The flavonoid apigenin delays forgetting of passive avoidance conditioning in rats. The present experiments were performed to study the effect of the flavonoid apigenin (20 mg/kg intraperitoneally (i.p.), 1 h before acquisition), on 24 h retention performance and forgetting of a step-through passive avoidance task, in young male Wistar rats. There were no differences between saline- and apigenin-treated groups in the 24 h retention trial. Furthermore, apigenin did not prevent the amnesia induced by scopolamine (1mg/kg, i.p., 30 min before the acquisition). The saline- and apigenin-treated rats that did not step through into the dark compartment during the cut-off time (540 s) were retested weekly for up to eight weeks. In the saline treated group, the first significant decline in passive avoidance response was observed at four weeks, and complete memory loss was found five weeks after the acquisition of the passive avoidance task. At the end of the experimental period, 60% of the animals treated with apigenin still did not step through. These data suggest that 1) apigenin delays the long-term forgetting but did not modulate the 24 h retention of fear memory and 2) the obtained beneficial effect of apigenin on the passive avoidance conditioning is mediated by mechanisms that do not implicate its action on the muscarinic cholinergic system."
+  },
+  "33": {
+    "entities": [
+      {
+        "text": "Cholecystokinin-octapeptide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "morphine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Cholecystokinin-octapeptide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CCK-8",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CCK-8",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "morphine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "morphine-treated",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CCK-8",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "morphine-treated",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "morphine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CCK-8",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "morphine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CCK-8",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "L-365,260",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CCK-8",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "L-364,718",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CCK-8",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "morphine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "CCK-8",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "morphine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "amnesia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "memory impairment",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "CCK-8",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Cholecystokinin-octapeptide",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "morphine",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "morphine-treated",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "L-365,260",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "L-364,718",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "amnesia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "memory impairment",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Cholecystokinin-octapeptide",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "morphine-treated",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "L-365,260",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "L-364,718",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "memory impairment",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "morphine | CID | amnesia",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Cholecystokinin-octapeptide",
+        "tail": "memory impairment",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "morphine-treated",
+        "tail": "memory impairment",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "L-365,260",
+        "tail": "memory impairment",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "L-364,718",
+        "tail": "memory impairment",
+        "head_id": "4",
+        "tail_id": "1"
+      }
+    ],
+    "relations": [
+      "2 | 1"
+    ],
+    "sentences": [
+      "Cholecystokinin-octapeptide restored morphine-induced hippocampal long-term potentiation impairment in rats.",
+      "Cholecystokinin-octapeptide (CCK-8), which is a typical brain-gut peptide, exerts a wide range of biological activities on the central nervous system.",
+      "We have previously reported that CCK-8 significantly alleviated morphine-induced amnesia and reversed spine density decreases in the CA1 region of the hippocampus in morphine-treated animals.",
+      "Here, we investigated the effects of CCK-8 on long-term potentiation (LTP) in the lateral perforant path (LPP)-granule cell synapse of rat dentate gyrus (DG) in acute saline or morphine-treated rats.",
+      "Population spikes (PS), which were evoked by stimulation of the LPP, were recorded in the DG region.",
+      "Acute morphine (30mg/kg, s.c.) treatment significantly attenuated hippocampal LTP and CCK-8 (1ug, i.c.v.) restored the amplitude of PS that was attenuated by morphine injection.",
+      "Furthermore, microinjection of CCK-8 (0.1 and 1ug, i.c.v.) also significantly augmented hippocampal LTP in saline-treated (1ml/kg, s.c.) rats.",
+      "Pre-treatment of the CCK2 receptor antagonist L-365,260 (10ug, i.c.v) reversed the effects of CCK-8, but the CCK1 receptor antagonist L-364,718 (10ug, i.c.v) did not.",
+      "The present results demonstrate that CCK-8 attenuates the effect of morphine on hippocampal LTP through CCK2 receptors and suggest an ameliorative function of CCK-8 on morphine-induced memory impairment."
+    ],
+    "text": "Cholecystokinin-octapeptide restored morphine-induced hippocampal long-term potentiation impairment in rats. Cholecystokinin-octapeptide (CCK-8), which is a typical brain-gut peptide, exerts a wide range of biological activities on the central nervous system. We have previously reported that CCK-8 significantly alleviated morphine-induced amnesia and reversed spine density decreases in the CA1 region of the hippocampus in morphine-treated animals. Here, we investigated the effects of CCK-8 on long-term potentiation (LTP) in the lateral perforant path (LPP)-granule cell synapse of rat dentate gyrus (DG) in acute saline or morphine-treated rats. Population spikes (PS), which were evoked by stimulation of the LPP, were recorded in the DG region. Acute morphine (30mg/kg, s.c.) treatment significantly attenuated hippocampal LTP and CCK-8 (1ug, i.c.v.) restored the amplitude of PS that was attenuated by morphine injection. Furthermore, microinjection of CCK-8 (0.1 and 1ug, i.c.v.) also significantly augmented hippocampal LTP in saline-treated (1ml/kg, s.c.) rats. Pre-treatment of the CCK2 receptor antagonist L-365,260 (10ug, i.c.v) reversed the effects of CCK-8, but the CCK1 receptor antagonist L-364,718 (10ug, i.c.v) did not. The present results demonstrate that CCK-8 attenuates the effect of morphine on hippocampal LTP through CCK2 receptors and suggest an ameliorative function of CCK-8 on morphine-induced memory impairment."
+  },
+  "34": {
+    "entities": [
+      {
+        "text": "Streptozotocin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Streptozotocin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "STZ",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "STZ",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "STZ",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "STZ",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ROS",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "nitrite",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Ca(2+)",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "free radical",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "STZ",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "STZ",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Memantine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Ibuprofen",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "STZ",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "STZ",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ROS",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "nitrite",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Ca(2+)",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "STZ",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "neurotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "memory impairment",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "memory impaired",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Memory deficit",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "neuroinflammation",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "excitotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "neurotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "neurotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "neuroinflammatory",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "neurotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "memory impairment",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "neuronal cell death",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "STZ",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Streptozotocin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "ROS",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "free radical",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "nitrite",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "Ca(2+)",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "Memantine",
+        "id": "5",
+        "label": "Chemical"
+      },
+      {
+        "text": "Ibuprofen",
+        "id": "6",
+        "label": "Chemical"
+      },
+      {
+        "text": "neurotoxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Memory deficit",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "memory impaired",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "memory impairment",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "neuroinflammation",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "neuroinflammatory",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "excitotoxicity",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "neuronal cell death",
+        "id": "5",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Streptozotocin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "free radical",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "nitrite",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "Ca(2+)",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "Memantine",
+        "id": "5",
+        "label": "Chemical"
+      },
+      {
+        "text": "Ibuprofen",
+        "id": "6",
+        "label": "Chemical"
+      },
+      {
+        "text": "neurotoxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "memory impairment",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "neuroinflammation",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "excitotoxicity",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "neuronal cell death",
+        "id": "5",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "STZ | CID | neuroinflammatory\nSTZ | CID | memory impairment",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.25,
+      "recall": 1.0,
+      "f1": 0.4,
+      "tp": 2,
+      "fp": 6,
+      "fn": 0,
+      "rel_precision": 0.25,
+      "rel_recall": 1.0,
+      "rel_f1": 0.4,
+      "rel_tp": 2,
+      "rel_fp": 6,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Streptozotocin",
+        "tail": "neurotoxicity",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "Streptozotocin",
+        "tail": "memory impairment",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "Streptozotocin",
+        "tail": "neuroinflammation",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "Streptozotocin",
+        "tail": "excitotoxicity",
+        "head_id": "1",
+        "tail_id": "4"
+      },
+      {
+        "head": "Streptozotocin",
+        "tail": "neuronal cell death",
+        "head_id": "1",
+        "tail_id": "5"
+      },
+      {
+        "head": "free radical",
+        "tail": "neurotoxicity",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "free radical",
+        "tail": "memory impairment",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "free radical",
+        "tail": "neuroinflammation",
+        "head_id": "2",
+        "tail_id": "3"
+      },
+      {
+        "head": "free radical",
+        "tail": "excitotoxicity",
+        "head_id": "2",
+        "tail_id": "4"
+      },
+      {
+        "head": "free radical",
+        "tail": "neuronal cell death",
+        "head_id": "2",
+        "tail_id": "5"
+      },
+      {
+        "head": "nitrite",
+        "tail": "neurotoxicity",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "nitrite",
+        "tail": "memory impairment",
+        "head_id": "3",
+        "tail_id": "2"
+      },
+      {
+        "head": "nitrite",
+        "tail": "neuroinflammation",
+        "head_id": "3",
+        "tail_id": "3"
+      },
+      {
+        "head": "nitrite",
+        "tail": "excitotoxicity",
+        "head_id": "3",
+        "tail_id": "4"
+      },
+      {
+        "head": "nitrite",
+        "tail": "neuronal cell death",
+        "head_id": "3",
+        "tail_id": "5"
+      },
+      {
+        "head": "Ca(2+)",
+        "tail": "neurotoxicity",
+        "head_id": "4",
+        "tail_id": "1"
+      },
+      {
+        "head": "Ca(2+)",
+        "tail": "memory impairment",
+        "head_id": "4",
+        "tail_id": "2"
+      },
+      {
+        "head": "Ca(2+)",
+        "tail": "neuroinflammation",
+        "head_id": "4",
+        "tail_id": "3"
+      },
+      {
+        "head": "Ca(2+)",
+        "tail": "excitotoxicity",
+        "head_id": "4",
+        "tail_id": "4"
+      },
+      {
+        "head": "Ca(2+)",
+        "tail": "neuronal cell death",
+        "head_id": "4",
+        "tail_id": "5"
+      },
+      {
+        "head": "Memantine",
+        "tail": "neurotoxicity",
+        "head_id": "5",
+        "tail_id": "1"
+      },
+      {
+        "head": "Memantine",
+        "tail": "memory impairment",
+        "head_id": "5",
+        "tail_id": "2"
+      },
+      {
+        "head": "Memantine",
+        "tail": "neuroinflammation",
+        "head_id": "5",
+        "tail_id": "3"
+      },
+      {
+        "head": "Memantine",
+        "tail": "excitotoxicity",
+        "head_id": "5",
+        "tail_id": "4"
+      },
+      {
+        "head": "Memantine",
+        "tail": "neuronal cell death",
+        "head_id": "5",
+        "tail_id": "5"
+      },
+      {
+        "head": "Ibuprofen",
+        "tail": "neurotoxicity",
+        "head_id": "6",
+        "tail_id": "1"
+      },
+      {
+        "head": "Ibuprofen",
+        "tail": "memory impairment",
+        "head_id": "6",
+        "tail_id": "2"
+      },
+      {
+        "head": "Ibuprofen",
+        "tail": "neuroinflammation",
+        "head_id": "6",
+        "tail_id": "3"
+      },
+      {
+        "head": "Ibuprofen",
+        "tail": "excitotoxicity",
+        "head_id": "6",
+        "tail_id": "4"
+      },
+      {
+        "head": "Ibuprofen",
+        "tail": "neuronal cell death",
+        "head_id": "6",
+        "tail_id": "5"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 2",
+      "1 | 3",
+      "1 | 4",
+      "1 | 5",
+      "2 | 1",
+      "2 | 4",
+      "2 | 5"
+    ],
+    "sentences": [
+      "Glial activation and post-synaptic neurotoxicity: the key events in Streptozotocin (ICV) induced memory impairment in rats.",
+      "In the present study the role of glial activation and post synaptic toxicity in ICV Streptozotocin (STZ) induced memory impaired rats was explored.",
+      "In experiment set up 1: Memory deficit was found in Morris water maze test on 14-16 days after STZ (ICV; 3mg/Kg) administration.",
+      "STZ causes increased expression of GFAP, CD11b and TNF-a indicating glial activation and neuroinflammation.",
+      "STZ also significantly increased the level of ROS, nitrite, Ca(2+) and reduced the mitochondrial activity in synaptosomal preparation illustrating free radical generation and excitotoxicity.",
+      "Increased expression and activity of Caspase-3 was also observed in STZ treated rat which specify apoptotic cell death in hippocampus and cortex.",
+      "STZ treatment showed decrease expression of post synaptic markers CaMKIIa and PSD-95, while, expression of pre synaptic markers (synaptophysin and SNAP-25) remains unaltered indicating selective post synaptic neurotoxicity.",
+      "Oral treatment with Memantine (10mg/kg) and Ibuprofen (50 mg/kg) daily for 13 days attenuated STZ induced glial activation, apoptotic cell death and post synaptic neurotoxicity in rat brain.",
+      "Further, in experiment set up 2: where memory function was not affected i.e. 7-9 days after STZ treatment.",
+      "The level of GFAP, CD11b, TNF-a, ROS and nitrite levels were increased.",
+      "On the other hand, apoptotic marker, synaptic markers, mitochondrial activity and Ca(2+) levels remained unaffected.",
+      "Collective data indicates that neuroinflammatory process and oxidative stress occurs earlier to apoptosis and does not affect memory function.",
+      "Present study clearly suggests that glial activation and post synaptic neurotoxicity are the key factors in STZ induced memory impairment and neuronal cell death."
+    ],
+    "text": "Glial activation and post-synaptic neurotoxicity: the key events in Streptozotocin (ICV) induced memory impairment in rats. In the present study the role of glial activation and post synaptic toxicity in ICV Streptozotocin (STZ) induced memory impaired rats was explored. In experiment set up 1: Memory deficit was found in Morris water maze test on 14-16 days after STZ (ICV; 3mg/Kg) administration. STZ causes increased expression of GFAP, CD11b and TNF-a indicating glial activation and neuroinflammation. STZ also significantly increased the level of ROS, nitrite, Ca(2+) and reduced the mitochondrial activity in synaptosomal preparation illustrating free radical generation and excitotoxicity. Increased expression and activity of Caspase-3 was also observed in STZ treated rat which specify apoptotic cell death in hippocampus and cortex. STZ treatment showed decrease expression of post synaptic markers CaMKIIa and PSD-95, while, expression of pre synaptic markers (synaptophysin and SNAP-25) remains unaltered indicating selective post synaptic neurotoxicity. Oral treatment with Memantine (10mg/kg) and Ibuprofen (50 mg/kg) daily for 13 days attenuated STZ induced glial activation, apoptotic cell death and post synaptic neurotoxicity in rat brain. Further, in experiment set up 2: where memory function was not affected i.e. 7-9 days after STZ treatment. The level of GFAP, CD11b, TNF-a, ROS and nitrite levels were increased. On the other hand, apoptotic marker, synaptic markers, mitochondrial activity and Ca(2+) levels remained unaffected. Collective data indicates that neuroinflammatory process and oxidative stress occurs earlier to apoptosis and does not affect memory function. Present study clearly suggests that glial activation and post synaptic neurotoxicity are the key factors in STZ induced memory impairment and neuronal cell death."
+  },
+  "35": {
+    "entities": [
+      {
+        "text": "sodium chloride",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "diltiazem",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "contrast-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Contrast-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium chloride",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium bicarbonate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium chloride",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "diltiazem",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "calcium",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "contrast",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "creatinine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium chloride",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "dextrose",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium bicarbonate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium chloride",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "contrast",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "diltiazem",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "contrast",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "blood urea nitrogen",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "BUN",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "creatinine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "contrast",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "creatinine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "contrast",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium chloride",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium bicarbonate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sodium chloride",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "diltiazem",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "nephropathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "nephropathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "CIN",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "CIN",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "acute renal failure",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "ARF",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "ARF",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "CIN",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "sodium chloride",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "diltiazem",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Contrast",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "contrast",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "sodium bicarbonate",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "calcium",
+        "id": "5",
+        "label": "Chemical"
+      },
+      {
+        "text": "creatinine",
+        "id": "6",
+        "label": "Chemical"
+      },
+      {
+        "text": "dextrose",
+        "id": "7",
+        "label": "Chemical"
+      },
+      {
+        "text": "BUN",
+        "id": "8",
+        "label": "Chemical"
+      },
+      {
+        "text": "blood urea nitrogen",
+        "id": "8",
+        "label": "Chemical"
+      },
+      {
+        "text": "ARF",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "CIN",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "nephropathy",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "acute renal failure",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "contrast-induced nephropathy",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "sodium chloride",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "diltiazem",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Contrast",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "sodium bicarbonate",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "calcium",
+        "id": "5",
+        "label": "Chemical"
+      },
+      {
+        "text": "creatinine",
+        "id": "6",
+        "label": "Chemical"
+      },
+      {
+        "text": "dextrose",
+        "id": "7",
+        "label": "Chemical"
+      },
+      {
+        "text": "blood urea nitrogen",
+        "id": "8",
+        "label": "Chemical"
+      },
+      {
+        "text": "contrast-induced nephropathy",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "contrast | CID | ARF",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "sodium chloride",
+        "tail": "contrast-induced nephropathy",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "diltiazem",
+        "tail": "contrast-induced nephropathy",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "Contrast",
+        "tail": "contrast-induced nephropathy",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "sodium bicarbonate",
+        "tail": "contrast-induced nephropathy",
+        "head_id": "4",
+        "tail_id": "1"
+      },
+      {
+        "head": "calcium",
+        "tail": "contrast-induced nephropathy",
+        "head_id": "5",
+        "tail_id": "1"
+      },
+      {
+        "head": "creatinine",
+        "tail": "contrast-induced nephropathy",
+        "head_id": "6",
+        "tail_id": "1"
+      },
+      {
+        "head": "dextrose",
+        "tail": "contrast-induced nephropathy",
+        "head_id": "7",
+        "tail_id": "1"
+      },
+      {
+        "head": "blood urea nitrogen",
+        "tail": "contrast-induced nephropathy",
+        "head_id": "8",
+        "tail_id": "1"
+      }
+    ],
+    "relations": [
+      "3 | 1"
+    ],
+    "sentences": [
+      "Comparison of effects of isotonic sodium chloride with diltiazem in prevention of contrast-induced nephropathy.",
+      "INTRODUCTION AND OBJECTIVE: Contrast-induced nephropathy (CIN) significantly increases the morbidity and mortality of patients.",
+      "The aim of this study is to investigate and compare the protective effects of isotonic sodium chloride with sodium bicarbonate infusion and isotonic sodium chloride infusion with diltiazem, a calcium channel blocker, in preventing CIN.",
+      "MATERIALS AND METHODS: Our study included patients who were administered 30-60 mL of iodinated contrast agent for percutaneous coronary angiography (PCAG), all with creatinine values between 1.1 and 3.1 mg/dL.",
+      "Patients were divided into three groups and each group had 20 patients.",
+      "The first group of patients was administered isotonic sodium chloride; the second group was administered a solution that of 5% dextrose and sodium bicarbonate, while the third group was administered isotonic sodium chloride before and after the contrast injection.",
+      "The third group received an additional injection of diltiazem the day before and first 2 days after the contrast injection.",
+      "All of the patients' plasma blood urea nitrogen (BUN) and creatinine levels were measured on the second and seventh day after the administration of intravenous contrast material.",
+      "RESULTS: The basal creatinine levels were similar for all three groups (p > 0.05).",
+      "Among a total of 60 patients included in the study, 16 patients developed acute renal failure (ARF) on the second day after contrast material was injected (26.6%).",
+      "The number of patients who developed ARF on the second day after the injection in the first group was five (25%), in the second group was six (30%) and the third group was five (25%) (p > 0.05).",
+      "CONCLUSION: There was no significant difference between isotonic sodium chloride, sodium bicarbonate and isotonic sodium chloride with diltiazem application in prevention of CIN."
+    ],
+    "text": "Comparison of effects of isotonic sodium chloride with diltiazem in prevention of contrast-induced nephropathy. INTRODUCTION AND OBJECTIVE: Contrast-induced nephropathy (CIN) significantly increases the morbidity and mortality of patients. The aim of this study is to investigate and compare the protective effects of isotonic sodium chloride with sodium bicarbonate infusion and isotonic sodium chloride infusion with diltiazem, a calcium channel blocker, in preventing CIN. MATERIALS AND METHODS: Our study included patients who were administered 30-60 mL of iodinated contrast agent for percutaneous coronary angiography (PCAG), all with creatinine values between 1.1 and 3.1 mg/dL. Patients were divided into three groups and each group had 20 patients. The first group of patients was administered isotonic sodium chloride; the second group was administered a solution that of 5% dextrose and sodium bicarbonate, while the third group was administered isotonic sodium chloride before and after the contrast injection. The third group received an additional injection of diltiazem the day before and first 2 days after the contrast injection. All of the patients' plasma blood urea nitrogen (BUN) and creatinine levels were measured on the second and seventh day after the administration of intravenous contrast material. RESULTS: The basal creatinine levels were similar for all three groups (p > 0.05). Among a total of 60 patients included in the study, 16 patients developed acute renal failure (ARF) on the second day after contrast material was injected (26.6%). The number of patients who developed ARF on the second day after the injection in the first group was five (25%), in the second group was six (30%) and the third group was five (25%) (p > 0.05). CONCLUSION: There was no significant difference between isotonic sodium chloride, sodium bicarbonate and isotonic sodium chloride with diltiazem application in prevention of CIN."
+  },
+  "36": {
+    "entities": [
+      {
+        "text": "methotrexate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "methotrexate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "MTX",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "leucovorin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "MTX",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "MTX",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "acute lymphoblastic leukemia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "neurotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "acute lymphoblastic leukemia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "leukoencephalopathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "acute lymphoblastic leukemia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "CNS leukemia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "leukoencephalopathy",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "MTX",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "methotrexate",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "leucovorin",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "CNS leukemia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "acute lymphoblastic leukemia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "neurotoxicity",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "leukoencephalopathy",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "methotrexate",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "leucovorin",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "acute lymphoblastic leukemia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "leukoencephalopathy",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "MTX | CID | attention problems\nMTX | CID | leukoencephalopathy",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 0,
+      "fn": 1,
+      "rel_precision": 1.0,
+      "rel_recall": 0.5,
+      "rel_f1": 0.6666666666666666,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 1
+    },
+    "pairs": [
+      {
+        "head": "methotrexate",
+        "tail": "acute lymphoblastic leukemia",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "methotrexate",
+        "tail": "leukoencephalopathy",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "leucovorin",
+        "tail": "acute lymphoblastic leukemia",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "leucovorin",
+        "tail": "leukoencephalopathy",
+        "head_id": "2",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 2"
+    ],
+    "sentences": [
+      "Neurocognitive and neuroradiologic central nervous system late effects in children treated on Pediatric Oncology Group (POG) P9605 (standard risk) and P9201 (lesser risk) acute lymphoblastic leukemia protocols (ACCL0131): a methotrexate consequence?",
+      "A report from the Children's Oncology Group.",
+      "Concerns about long-term methotrexate (MTX) neurotoxicity in the 1990s led to modifications in intrathecal (IT) therapy, leucovorin rescue, and frequency of systemic MTX administration in children with acute lymphoblastic leukemia.",
+      "In this study, neurocognitive outcomes and neuroradiologic evidence of leukoencephalopathy were compared in children treated with intense central nervous system (CNS)-directed therapy (P9605) versus those receiving fewer CNS-directed treatment days during intensive consolidation (P9201).",
+      "A total of 66 children from 16 Pediatric Oncology Group institutions with \"standard-risk\" acute lymphoblastic leukemia, 1.00 to 9.99 years at diagnosis, without evidence of CNS leukemia at diagnosis were enrolled on ACCL0131: 28 from P9201 and 38 from P9605.",
+      "Magnetic resonance imaging scans and standard neuropsychological tests were performed >2.6 years after the end of treatment.",
+      "Significantly more P9605 patients developed leukoencephalopathy compared with P9201 patients (68%, 95% confidence interval 49%-83% vs. 22%, 95% confidence interval 5%-44%; P=0.001) identified as late as 7.7 years after the end of treatment.",
+      "Overall, 40% of patients scored <85 on either Verbal or Performance IQ.",
+      "Children on both studies had significant attention problems, but P9605 children scored below average on more neurocognitive measures than those treated on P9201 (82%, 14/17 measures vs. 24%, 4/17 measures).",
+      "This supports ongoing concerns about intensive MTX exposure as a major contributor to CNS late effects."
+    ],
+    "text": "Neurocognitive and neuroradiologic central nervous system late effects in children treated on Pediatric Oncology Group (POG) P9605 (standard risk) and P9201 (lesser risk) acute lymphoblastic leukemia protocols (ACCL0131): a methotrexate consequence? A report from the Children's Oncology Group. Concerns about long-term methotrexate (MTX) neurotoxicity in the 1990s led to modifications in intrathecal (IT) therapy, leucovorin rescue, and frequency of systemic MTX administration in children with acute lymphoblastic leukemia. In this study, neurocognitive outcomes and neuroradiologic evidence of leukoencephalopathy were compared in children treated with intense central nervous system (CNS)-directed therapy (P9605) versus those receiving fewer CNS-directed treatment days during intensive consolidation (P9201). A total of 66 children from 16 Pediatric Oncology Group institutions with \"standard-risk\" acute lymphoblastic leukemia, 1.00 to 9.99 years at diagnosis, without evidence of CNS leukemia at diagnosis were enrolled on ACCL0131: 28 from P9201 and 38 from P9605. Magnetic resonance imaging scans and standard neuropsychological tests were performed >2.6 years after the end of treatment. Significantly more P9605 patients developed leukoencephalopathy compared with P9201 patients (68%, 95% confidence interval 49%-83% vs. 22%, 95% confidence interval 5%-44%; P=0.001) identified as late as 7.7 years after the end of treatment. Overall, 40% of patients scored <85 on either Verbal or Performance IQ. Children on both studies had significant attention problems, but P9605 children scored below average on more neurocognitive measures than those treated on P9201 (82%, 14/17 measures vs. 24%, 4/17 measures). This supports ongoing concerns about intensive MTX exposure as a major contributor to CNS late effects."
+  },
+  "37": {
+    "entities": [
+      {
+        "text": "Tranexamic acid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Tranexamic acid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TNA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TNA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TNA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "TNA",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "seizure",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "renal failure",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "chronic kidney disease",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "chronic tubulointerstial disease",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "anemia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "menorrhagia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "deterioration of renal function",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "bleeding per vaginum",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "tonic clonic convulsions",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "central nervous system abnormalities",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "convulsions",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "convulsion",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "convulsions",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "TNA",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Tranexamic acid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "seizure",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "convulsion",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "convulsions",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "tonic clonic convulsions",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "central nervous system abnormalities",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "renal failure",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "chronic kidney disease",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "deterioration of renal function",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "chronic tubulointerstial disease",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "anemia",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "menorrhagia",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "bleeding per vaginum",
+        "id": "4",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Tranexamic acid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "central nervous system abnormalities",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "chronic tubulointerstial disease",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "anemia",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "bleeding per vaginum",
+        "id": "4",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "TNA | CID | tonic clonic convulsions",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Tranexamic acid",
+        "tail": "central nervous system abnormalities",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "Tranexamic acid",
+        "tail": "chronic tubulointerstial disease",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "Tranexamic acid",
+        "tail": "anemia",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "Tranexamic acid",
+        "tail": "bleeding per vaginum",
+        "head_id": "1",
+        "tail_id": "4"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "Tranexamic acid overdosage-induced generalized seizure in renal failure.",
+      "We report a 45-year-old lady with chronic kidney disease stage 4 due to chronic tubulointerstial disease.",
+      "She was admitted to our center for severe anemia due to menorrhagia and deterioration of renal function.",
+      "She was infused three units of packed cells during a session of hemodialysis.",
+      "Tranexamic acid (TNA) 1 g 8-hourly was administered to her to control bleeding per vaginum.",
+      "Two hours after the sixth dose of TNA, she had an episode of generalized tonic clonic convulsions.",
+      "TNA was discontinued.",
+      "Investigations of the patient revealed no biochemical or structural central nervous system abnormalities that could have provoked the convulsions.",
+      "She did not require any further dialytic support.",
+      "She had no further episodes of convulsion till dis-charge and during the two months of follow-up.",
+      "Thus, the precipitating cause of convulsions was believed to be an overdose of TNA."
+    ],
+    "text": "Tranexamic acid overdosage-induced generalized seizure in renal failure. We report a 45-year-old lady with chronic kidney disease stage 4 due to chronic tubulointerstial disease. She was admitted to our center for severe anemia due to menorrhagia and deterioration of renal function. She was infused three units of packed cells during a session of hemodialysis. Tranexamic acid (TNA) 1 g 8-hourly was administered to her to control bleeding per vaginum. Two hours after the sixth dose of TNA, she had an episode of generalized tonic clonic convulsions. TNA was discontinued. Investigations of the patient revealed no biochemical or structural central nervous system abnormalities that could have provoked the convulsions. She did not require any further dialytic support. She had no further episodes of convulsion till dis-charge and during the two months of follow-up. Thus, the precipitating cause of convulsions was believed to be an overdose of TNA."
+  },
+  "38": {
+    "entities": [
+      {
+        "text": "bupivacaine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "propofol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bupivacaine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "propofol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bupivacaine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "propofol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bupivacaine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ketamine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "propofol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "propofol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bupivacaine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bupivacaine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bupivacaine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bupivacaine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Bupivacaine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "propofol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "propofol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bupivacaine-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bupivacaine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "bupivacaine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "propofol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "cardiovascular depression",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cardiotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cardiotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "asystole",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "asystole",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cardiotoxic effects",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "bupivacaine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Bupivacaine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "propofol",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "ketamine",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "cardiotoxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "cardiotoxic effects",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "cardiovascular depression",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "bupivacaine-induced cardiotoxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "asystole",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "bupivacaine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "propofol",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "ketamine",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "bupivacaine-induced cardiotoxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "asystole",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "bupivacaine | CID | asystole\nbupivacaine | CID | cardiotoxic",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 2,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "bupivacaine",
+        "tail": "bupivacaine-induced cardiotoxicity",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "bupivacaine",
+        "tail": "asystole",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "propofol",
+        "tail": "bupivacaine-induced cardiotoxicity",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "propofol",
+        "tail": "asystole",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "ketamine",
+        "tail": "bupivacaine-induced cardiotoxicity",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "ketamine",
+        "tail": "asystole",
+        "head_id": "3",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 2"
+    ],
+    "sentences": [
+      "Pre-treatment of bupivacaine-induced cardiovascular depression using different lipid formulations of propofol.",
+      "BACKGROUND: Pre-treatment with lipid emulsions has been shown to increase lethal doses of bupivacaine, and the lipid content of propofol may alleviate bupivacaine-induced cardiotoxicity.",
+      "The aim of this study is to investigate the effects of propofol in intralipid or medialipid emulsions on bupivacaine-induced cardiotoxicity.",
+      "METHODS: Rats were anaesthetised with ketamine and were given 0.5 mg/kg/min propofol in intralipid (Group P), propofol in medialipid (Group L), or saline (Group C) over 20 min.",
+      "Thereafter, 2 mg/kg/min bupivacaine 0.5% was infused.",
+      "We recorded time to first dysrhythmia occurrence, respective times to 25% and 50% reduction of the heart rate (HR) and mean arterial pressure, and time to asystole and total amount of bupivacaine consumption.",
+      "Blood and tissue samples were collected following asystole.",
+      "RESULTS: The time to first dysrhythmia occurrence, time to 25% and 50% reductions in HR, and time to asystole were longer in Group P than the other groups.",
+      "The cumulative bupivacaine dose given at those time points was higher in Group P.",
+      "Plasma bupivacaine levels were significantly lower in Group P than in Group C.",
+      "Bupivacaine levels in the brain and heart were significantly lower in Group P and Group L than in Group C.",
+      "CONCLUSION: We conclude that pre-treatment with propofol in intralipid, compared with propofol in medialipid or saline, delayed the onset of bupivacaine-induced cardiotoxic effects as well as reduced plasma bupivacaine levels.",
+      "Further studies are needed to explore tissue bupivacaine levels of propofol in medialipid and adapt these results to clinical practice."
+    ],
+    "text": "Pre-treatment of bupivacaine-induced cardiovascular depression using different lipid formulations of propofol. BACKGROUND: Pre-treatment with lipid emulsions has been shown to increase lethal doses of bupivacaine, and the lipid content of propofol may alleviate bupivacaine-induced cardiotoxicity. The aim of this study is to investigate the effects of propofol in intralipid or medialipid emulsions on bupivacaine-induced cardiotoxicity. METHODS: Rats were anaesthetised with ketamine and were given 0.5 mg/kg/min propofol in intralipid (Group P), propofol in medialipid (Group L), or saline (Group C) over 20 min. Thereafter, 2 mg/kg/min bupivacaine 0.5% was infused. We recorded time to first dysrhythmia occurrence, respective times to 25% and 50% reduction of the heart rate (HR) and mean arterial pressure, and time to asystole and total amount of bupivacaine consumption. Blood and tissue samples were collected following asystole. RESULTS: The time to first dysrhythmia occurrence, time to 25% and 50% reductions in HR, and time to asystole were longer in Group P than the other groups. The cumulative bupivacaine dose given at those time points was higher in Group P. Plasma bupivacaine levels were significantly lower in Group P than in Group C. Bupivacaine levels in the brain and heart were significantly lower in Group P and Group L than in Group C. CONCLUSION: We conclude that pre-treatment with propofol in intralipid, compared with propofol in medialipid or saline, delayed the onset of bupivacaine-induced cardiotoxic effects as well as reduced plasma bupivacaine levels. Further studies are needed to explore tissue bupivacaine levels of propofol in medialipid and adapt these results to clinical practice."
+  },
+  "39": {
+    "entities": [
+      {
+        "text": "Fluvastatin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "statins",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fluvastatin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "creatine kinase",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "transaminases",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fluvastatin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "statins",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Acute Liver Injury",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "liver injury",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "liver damage",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "nausea",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "anorexia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "upper abdominal pain",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hepatic damage",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "statins",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "fluvastatin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Fluvastatin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "creatine kinase",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "transaminases",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "liver damage",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "liver injury",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "hepatic damage",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Acute Liver Injury",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "nausea",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "anorexia",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "upper abdominal pain",
+        "id": "4",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "fluvastatin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "creatine kinase",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "transaminases",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "Acute Liver Injury",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "nausea",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "anorexia",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "upper abdominal pain",
+        "id": "4",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "fluvastatin | CID | abdominal pain\nfluvastatin | CID | hepatic damage\nfluvastatin | CID | anorexia\nfluvastatin | CID | nausea",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 4,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "fluvastatin",
+        "tail": "Acute Liver Injury",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "fluvastatin",
+        "tail": "nausea",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "fluvastatin",
+        "tail": "anorexia",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "fluvastatin",
+        "tail": "upper abdominal pain",
+        "head_id": "1",
+        "tail_id": "4"
+      },
+      {
+        "head": "creatine kinase",
+        "tail": "Acute Liver Injury",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "creatine kinase",
+        "tail": "nausea",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "creatine kinase",
+        "tail": "anorexia",
+        "head_id": "2",
+        "tail_id": "3"
+      },
+      {
+        "head": "creatine kinase",
+        "tail": "upper abdominal pain",
+        "head_id": "2",
+        "tail_id": "4"
+      },
+      {
+        "head": "transaminases",
+        "tail": "Acute Liver Injury",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "transaminases",
+        "tail": "nausea",
+        "head_id": "3",
+        "tail_id": "2"
+      },
+      {
+        "head": "transaminases",
+        "tail": "anorexia",
+        "head_id": "3",
+        "tail_id": "3"
+      },
+      {
+        "head": "transaminases",
+        "tail": "upper abdominal pain",
+        "head_id": "3",
+        "tail_id": "4"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 2",
+      "1 | 3",
+      "1 | 4"
+    ],
+    "sentences": [
+      "Drug-Induced Acute Liver Injury Within 12 Hours After Fluvastatin Therapy.",
+      "Although statins are generally well-tolerated drugs, recent cases of drug-induced liver injury associated with their use have been reported.",
+      "A 52-year-old Chinese man reported with liver damage, which appeared 12 hours after beginning treatment with fluvastatin.",
+      "Patient presented with complaints of increasing nausea, anorexia, and upper abdominal pain.",
+      "His laboratory values showed elevated creatine kinase and transaminases.",
+      "Testing for autoantibodies was also negative.",
+      "The liver biochemistries eventually normalized within 3 weeks of stopping the fluvastatin.",
+      "Therefore, when prescribing statins, the possibility of hepatic damage should be taken into account."
+    ],
+    "text": "Drug-Induced Acute Liver Injury Within 12 Hours After Fluvastatin Therapy. Although statins are generally well-tolerated drugs, recent cases of drug-induced liver injury associated with their use have been reported. A 52-year-old Chinese man reported with liver damage, which appeared 12 hours after beginning treatment with fluvastatin. Patient presented with complaints of increasing nausea, anorexia, and upper abdominal pain. His laboratory values showed elevated creatine kinase and transaminases. Testing for autoantibodies was also negative. The liver biochemistries eventually normalized within 3 weeks of stopping the fluvastatin. Therefore, when prescribing statins, the possibility of hepatic damage should be taken into account."
+  },
+  "40": {
+    "entities": [
+      {
+        "text": "Fluconazole",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fluconazole",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fluconazole",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fluconazole",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fluconazole",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "agranulocytosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "thrombocytopenia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "agranulocytosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "thrombocytopenia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "blood dyscrasias",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "agranulocytosis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "thrombocytopenia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "bone marrow suppression",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "Fluconazole",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "fluconazole",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "agranulocytosis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "blood dyscrasias",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "thrombocytopenia",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "bone marrow suppression",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "agranulocytosis and thrombocytopenia",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Fluconazole",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "agranulocytosis and thrombocytopenia",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "fluconazole | CID | agranulocytosis\nfluconazole | CID | thrombocytopenia",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Fluconazole",
+        "tail": "agranulocytosis and thrombocytopenia",
+        "head_id": "1",
+        "tail_id": "1"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "Fluconazole associated agranulocytosis and thrombocytopenia.",
+      "CASE: We describe a second case of fluconazole associated agranulocytosis with thrombocytopenia and recovery upon discontinuation of therapy.",
+      "The patient began to have changes in white blood cells and platelets within 48 h of administration of fluconazole and began to recover with 48 h of discontinuation.",
+      "This case highlights that drug-induced blood dyscrasias can occur unexpectedly as a result of treatment with a commonly used drug thought to be \"safe\".",
+      "CONCLUSION: According to Naranjo's algorithm the likelihood that our patient's agranulocytosis and thrombocytopenia occurred as a result of therapy with fluconazole is probable, with a total of six points.",
+      "We feel that the weight of the overall evidence of this evidence is strong.",
+      "In particular the temporal relationship of bone marrow suppression to the initiation of fluconazole and the abatement of symptoms that rapidly reversed immediately following discontinuation."
+    ],
+    "text": "Fluconazole associated agranulocytosis and thrombocytopenia. CASE: We describe a second case of fluconazole associated agranulocytosis with thrombocytopenia and recovery upon discontinuation of therapy. The patient began to have changes in white blood cells and platelets within 48 h of administration of fluconazole and began to recover with 48 h of discontinuation. This case highlights that drug-induced blood dyscrasias can occur unexpectedly as a result of treatment with a commonly used drug thought to be \"safe\". CONCLUSION: According to Naranjo's algorithm the likelihood that our patient's agranulocytosis and thrombocytopenia occurred as a result of therapy with fluconazole is probable, with a total of six points. We feel that the weight of the overall evidence of this evidence is strong. In particular the temporal relationship of bone marrow suppression to the initiation of fluconazole and the abatement of symptoms that rapidly reversed immediately following discontinuation."
+  },
+  "41": {
+    "entities": [
+      {
+        "text": "epirubicine-based",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "epirubicin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "epirubicin",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "anthracycline-based",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "cardiotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cardiac dysfunction",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "non-Hodgkin lymphoma",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "heart failure",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cardiotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cardiotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cardiotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cardiac dysfunction",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "epirubicin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "epirubicine-based",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "anthracycline-based",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "heart failure",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "cardiotoxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "cardiac dysfunction",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "non-Hodgkin lymphoma",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "anthracycline-based",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "cardiac dysfunction",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "non-Hodgkin lymphoma",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "epirubicin | CID | cardiotoxicity\nepirubicin | CID | heart failure",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "anthracycline-based",
+        "tail": "cardiac dysfunction",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "anthracycline-based",
+        "tail": "non-Hodgkin lymphoma",
+        "head_id": "1",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "Two-dimensional speckle tracking echocardiography combined with high-sensitive cardiac troponin T in early detection and prediction of cardiotoxicity during epirubicine-based chemotherapy.",
+      "AIMS: To investigate whether alterations of myocardial strain and high-sensitive cardiac troponin T (cTnT) could predict future cardiac dysfunction in patients after epirubicin exposure.",
+      "METHODS: Seventy-five patients with non-Hodgkin lymphoma treated with epirubicin were studied.",
+      "Blood collection and echocardiography were performed at baseline, 1 day after the third cycle, and 1 day after completion of chemotherapy.",
+      "Patients were studied using echocardiography during follow-up.",
+      "Global longitudinal (GLS), circumferential (GCS), and radial strain (GRS) were calculated using speckle tracking echocardiography.",
+      "Left ventricular ejection fraction was analysed by real-time 3D echocardiography.",
+      "Cardiotoxicity was defined as a reduction of the LVEF of >5% to <55% with symptoms of heart failure or an asymptomatic reduction of the LVEF of >10% to <55%.",
+      "RESULTS: Fourteen patients (18.67%) developed cardiotoxicity after treatment.",
+      "GLS (-18.48 + 1.72% vs. -15.96 + 1.6%), GCS (-20.93 + 2.86% vs. -19.20 + 3.21%), and GRS (39.23 + 6.44% vs. 34.98 + 6.2%) were markedly reduced and cTnT was elevated from 0.0010 + 0.0020 to 0.0073 + 0.0038 ng/mL (P all < 0.01) at the completion of chemotherapy compared with baseline values.",
+      "A >15.9% decrease in GLS [sensitivity, 86%; specificity, 75%; area under the curve (AUC) = 0.815; P = 0.001] and a >0.004 ng/mL elevation in cTnT (sensitivity, 79%; specificity, 64%; AUC = 0.757; P = 0.005) from baseline to the third cycle of chemotherapy predicted later cardiotoxicity.",
+      "The decrease in GLS remained the only independent predictor of cardiotoxicity (P = 0.000).",
+      "CONCLUSIONS: GLS combined with cTnT may provide a reliable and non-invasive method to predict cardiac dysfunction in patients receiving anthracycline-based chemotherapy."
+    ],
+    "text": "Two-dimensional speckle tracking echocardiography combined with high-sensitive cardiac troponin T in early detection and prediction of cardiotoxicity during epirubicine-based chemotherapy. AIMS: To investigate whether alterations of myocardial strain and high-sensitive cardiac troponin T (cTnT) could predict future cardiac dysfunction in patients after epirubicin exposure. METHODS: Seventy-five patients with non-Hodgkin lymphoma treated with epirubicin were studied. Blood collection and echocardiography were performed at baseline, 1 day after the third cycle, and 1 day after completion of chemotherapy. Patients were studied using echocardiography during follow-up. Global longitudinal (GLS), circumferential (GCS), and radial strain (GRS) were calculated using speckle tracking echocardiography. Left ventricular ejection fraction was analysed by real-time 3D echocardiography. Cardiotoxicity was defined as a reduction of the LVEF of >5% to <55% with symptoms of heart failure or an asymptomatic reduction of the LVEF of >10% to <55%. RESULTS: Fourteen patients (18.67%) developed cardiotoxicity after treatment. GLS (-18.48 + 1.72% vs. -15.96 + 1.6%), GCS (-20.93 + 2.86% vs. -19.20 + 3.21%), and GRS (39.23 + 6.44% vs. 34.98 + 6.2%) were markedly reduced and cTnT was elevated from 0.0010 + 0.0020 to 0.0073 + 0.0038 ng/mL (P all < 0.01) at the completion of chemotherapy compared with baseline values. A >15.9% decrease in GLS [sensitivity, 86%; specificity, 75%; area under the curve (AUC) = 0.815; P = 0.001] and a >0.004 ng/mL elevation in cTnT (sensitivity, 79%; specificity, 64%; AUC = 0.757; P = 0.005) from baseline to the third cycle of chemotherapy predicted later cardiotoxicity. The decrease in GLS remained the only independent predictor of cardiotoxicity (P = 0.000). CONCLUSIONS: GLS combined with cTnT may provide a reliable and non-invasive method to predict cardiac dysfunction in patients receiving anthracycline-based chemotherapy."
+  },
+  "42": {
+    "entities": [
+      {
+        "text": "etomidate-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Fentanyl",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "midazolam",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fentanyl",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "midazolam",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fentanyl",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "midazolam",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "etomidate-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "etomidate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fentanyl",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "midazolam",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "midazolam",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fentanyl",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "etomidate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "etomidate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "etomidate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fentanyl",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "fentanyl",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "midazolam",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "etomidate-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "myoclonus",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "myoclonus",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Myoclonic movements",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "pain",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "myoclonus",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "myoclonus",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "etomidate",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Fentanyl",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "fentanyl",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "midazolam",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "myoclonus",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Myoclonic movements",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "etomidate-induced myoclonus",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "pain",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "etomidate",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Fentanyl",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "midazolam",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "etomidate-induced myoclonus",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "pain",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "etomidate | CID | myoclonus",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "rel_precision": 0.5,
+      "rel_recall": 1.0,
+      "rel_f1": 0.6666666666666666,
+      "rel_tp": 1,
+      "rel_fp": 1,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "etomidate",
+        "tail": "etomidate-induced myoclonus",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "etomidate",
+        "tail": "pain",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "Fentanyl",
+        "tail": "etomidate-induced myoclonus",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "Fentanyl",
+        "tail": "pain",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "midazolam",
+        "tail": "etomidate-induced myoclonus",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "midazolam",
+        "tail": "pain",
+        "head_id": "3",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 2"
+    ],
+    "sentences": [
+      "Prevention of etomidate-induced myoclonus: which is superior: Fentanyl, midazolam, or a combination?",
+      "A Retrospective comparative study.",
+      "BACKGROUND: In this retrospective comparative study, we aimed to compare the effectiveness of fentanyl, midazolam, and a combination of fentanyl and midazolam to prevent etomidate-induced myoclonus.",
+      "MATERIAL AND METHODS: This study was performed based on anesthesia records.",
+      "Depending on the drugs that would be given before the induction of anesthesia with etomidate, the patients were separated into 4 groups: no pretreatment (Group NP), fentanyl 1 ug.kg-1 (Group F), midazolam 0.03 mg.kg-1 (Group M), and midazolam 0.015 mg.kg-1 + fentanyl 0.5 ug.kg-1 (Group FM).",
+      "Patients who received the same anesthetic procedure were selected: 2 minutes after intravenous injections of the pretreatment drugs, anesthesia is induced with 0.3 mg.kg-1 etomidate injected intravenously over a period of 20-30 seconds.",
+      "Myoclonic movements are evaluated, which were observed and graded according to clinical severity during the 2 minutes after etomidate injection.",
+      "The severity of pain due to etomidate injection, mean arterial pressure, heart rate, and adverse effects were also evaluated.",
+      "RESULTS: Study results showed that myoclonus incidence was 85%, 40%, 70%, and 25% in Group NP, Group F, Group M, and Group FM, respectively, and were significantly lower in Group F and Group FM.",
+      "CONCLUSIONS: We conclude that pretreatment with fentanyl or combination of fentanyl and midazolam was effective in preventing etomidate-induced myoclonus."
+    ],
+    "text": "Prevention of etomidate-induced myoclonus: which is superior: Fentanyl, midazolam, or a combination? A Retrospective comparative study. BACKGROUND: In this retrospective comparative study, we aimed to compare the effectiveness of fentanyl, midazolam, and a combination of fentanyl and midazolam to prevent etomidate-induced myoclonus. MATERIAL AND METHODS: This study was performed based on anesthesia records. Depending on the drugs that would be given before the induction of anesthesia with etomidate, the patients were separated into 4 groups: no pretreatment (Group NP), fentanyl 1 ug.kg-1 (Group F), midazolam 0.03 mg.kg-1 (Group M), and midazolam 0.015 mg.kg-1 + fentanyl 0.5 ug.kg-1 (Group FM). Patients who received the same anesthetic procedure were selected: 2 minutes after intravenous injections of the pretreatment drugs, anesthesia is induced with 0.3 mg.kg-1 etomidate injected intravenously over a period of 20-30 seconds. Myoclonic movements are evaluated, which were observed and graded according to clinical severity during the 2 minutes after etomidate injection. The severity of pain due to etomidate injection, mean arterial pressure, heart rate, and adverse effects were also evaluated. RESULTS: Study results showed that myoclonus incidence was 85%, 40%, 70%, and 25% in Group NP, Group F, Group M, and Group FM, respectively, and were significantly lower in Group F and Group FM. CONCLUSIONS: We conclude that pretreatment with fentanyl or combination of fentanyl and midazolam was effective in preventing etomidate-induced myoclonus."
+  },
+  "43": {
+    "entities": [
+      {
+        "text": "yellow phosphorus",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Yellow phosphorus",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "phosphorus",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "yellow phosphorus",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "yellow phosphorus",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "hepatotoxicity",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hepatitis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "acute liver failure",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "poisoning",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cholestasis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "cholestasis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hepatotoxicity",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "phosphorus",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Yellow phosphorus",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "yellow phosphorus",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "hepatitis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "hepatotoxicity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "acute liver failure",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "poisoning",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "yellow phosphorus poisoning",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "cholestasis",
+        "id": "3",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Yellow phosphorus",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "acute liver failure",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "yellow phosphorus poisoning",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "cholestasis",
+        "id": "3",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "phosphorus | CID | acute hepatitis\nphosphorus | CID | cholestasis\nphosphorus | CID | acute liver failure",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.6666666666666666,
+      "recall": 1.0,
+      "f1": 0.8,
+      "tp": 2,
+      "fp": 1,
+      "fn": 0,
+      "rel_precision": 0.6666666666666666,
+      "rel_recall": 1.0,
+      "rel_f1": 0.8,
+      "rel_tp": 2,
+      "rel_fp": 1,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Yellow phosphorus",
+        "tail": "acute liver failure",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "Yellow phosphorus",
+        "tail": "yellow phosphorus poisoning",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "Yellow phosphorus",
+        "tail": "cholestasis",
+        "head_id": "1",
+        "tail_id": "3"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 2",
+      "1 | 3"
+    ],
+    "sentences": [
+      "Cholestatic presentation of yellow phosphorus poisoning.",
+      "Yellow phosphorus, a component of certain pesticide pastes and fireworks, is well known to cause hepatotoxicity.",
+      "Poisoning with yellow phosphorus classically manifests with acute hepatitis leading to acute liver failure which may need liver transplantation.",
+      "We present a case of yellow phosphorus poisoning in which a patient presented with florid clinical features of cholestasis highlighting the fact that cholestasis can rarely be a presenting feature of yellow phosphorus hepatotoxicity."
+    ],
+    "text": "Cholestatic presentation of yellow phosphorus poisoning. Yellow phosphorus, a component of certain pesticide pastes and fireworks, is well known to cause hepatotoxicity. Poisoning with yellow phosphorus classically manifests with acute hepatitis leading to acute liver failure which may need liver transplantation. We present a case of yellow phosphorus poisoning in which a patient presented with florid clinical features of cholestasis highlighting the fact that cholestasis can rarely be a presenting feature of yellow phosphorus hepatotoxicity."
+  },
+  "44": {
+    "entities": [
+      {
+        "text": "dexmedetomidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "dexmedetomidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Vasovagal syncope",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "bradycardia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "syncope",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "bradycardia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "persistent bradycardia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "bradycardia",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "dexmedetomidine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "syncope",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Vasovagal syncope",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "bradycardia",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "persistent bradycardia",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "dexmedetomidine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Vasovagal syncope",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "persistent bradycardia",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "dexmedetomidine | CID | bradycardia\ndexmedetomidine | CID | Vasovagal syncope",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 2,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "dexmedetomidine",
+        "tail": "Vasovagal syncope",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "dexmedetomidine",
+        "tail": "persistent bradycardia",
+        "head_id": "1",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 2"
+    ],
+    "sentences": [
+      "Vasovagal syncope and severe bradycardia following intranasal dexmedetomidine for pediatric procedural sedation.",
+      "We report syncope and bradycardia in an 11-year-old girl following administration of intranasal dexmedetomidine for sedation for a voiding cystourethrogram.",
+      "Following successful completion of VCUG and a 60-min recovery period, the patient's level of consciousness and vital signs returned to presedation levels.",
+      "Upon leaving the sedation area, the patient collapsed, with no apparent inciting event.",
+      "The patient quickly regained consciousness and no injury occurred.",
+      "The primary abnormality found was persistent bradycardia, and she was admitted to the hospital for telemetric observation.",
+      "The bradycardia lasted ~2 h, and further cardiac workup revealed no underlying abnormality.",
+      "Unanticipated and previously unreported outcomes may be witnessed as we expand the use of certain sedatives to alternative routes of administration."
+    ],
+    "text": "Vasovagal syncope and severe bradycardia following intranasal dexmedetomidine for pediatric procedural sedation. We report syncope and bradycardia in an 11-year-old girl following administration of intranasal dexmedetomidine for sedation for a voiding cystourethrogram. Following successful completion of VCUG and a 60-min recovery period, the patient's level of consciousness and vital signs returned to presedation levels. Upon leaving the sedation area, the patient collapsed, with no apparent inciting event. The patient quickly regained consciousness and no injury occurred. The primary abnormality found was persistent bradycardia, and she was admitted to the hospital for telemetric observation. The bradycardia lasted ~2 h, and further cardiac workup revealed no underlying abnormality. Unanticipated and previously unreported outcomes may be witnessed as we expand the use of certain sedatives to alternative routes of administration."
+  },
+  "45": {
+    "entities": [
+      {
+        "text": "quetiapine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "antipsychotics",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "zuclopenthixol",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "lithium",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "lithium",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "quetiapine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "quetiapine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "quetiapine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "agitation",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "schizo-affective disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "schizo-affective disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "personality disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "antisocial disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "substance abuse disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "agitation",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "aggressiveness",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "personality disorder",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "manic shift",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "akathisia",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "agitation",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "agitation",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "quetiapine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "antipsychotics",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "zuclopenthixol",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "lithium",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "agitation",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "aggressiveness",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "schizo-affective disorder",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "antisocial disorder",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "personality disorder",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "substance abuse disorder",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "manic shift",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "akathisia",
+        "id": "6",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "quetiapine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "antipsychotics",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "zuclopenthixol",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "lithium",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "aggressiveness",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "schizo-affective disorder",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "personality disorder",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "substance abuse disorder",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "manic shift",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "akathisia",
+        "id": "6",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "quetiapine | CID | agitation",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "rel_precision": 0.5,
+      "rel_recall": 1.0,
+      "rel_f1": 0.6666666666666666,
+      "rel_tp": 1,
+      "rel_fp": 1,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "quetiapine",
+        "tail": "aggressiveness",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "quetiapine",
+        "tail": "schizo-affective disorder",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "quetiapine",
+        "tail": "personality disorder",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "quetiapine",
+        "tail": "substance abuse disorder",
+        "head_id": "1",
+        "tail_id": "4"
+      },
+      {
+        "head": "quetiapine",
+        "tail": "manic shift",
+        "head_id": "1",
+        "tail_id": "5"
+      },
+      {
+        "head": "quetiapine",
+        "tail": "akathisia",
+        "head_id": "1",
+        "tail_id": "6"
+      },
+      {
+        "head": "antipsychotics",
+        "tail": "aggressiveness",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "antipsychotics",
+        "tail": "schizo-affective disorder",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "antipsychotics",
+        "tail": "personality disorder",
+        "head_id": "2",
+        "tail_id": "3"
+      },
+      {
+        "head": "antipsychotics",
+        "tail": "substance abuse disorder",
+        "head_id": "2",
+        "tail_id": "4"
+      },
+      {
+        "head": "antipsychotics",
+        "tail": "manic shift",
+        "head_id": "2",
+        "tail_id": "5"
+      },
+      {
+        "head": "antipsychotics",
+        "tail": "akathisia",
+        "head_id": "2",
+        "tail_id": "6"
+      },
+      {
+        "head": "zuclopenthixol",
+        "tail": "aggressiveness",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "zuclopenthixol",
+        "tail": "schizo-affective disorder",
+        "head_id": "3",
+        "tail_id": "2"
+      },
+      {
+        "head": "zuclopenthixol",
+        "tail": "personality disorder",
+        "head_id": "3",
+        "tail_id": "3"
+      },
+      {
+        "head": "zuclopenthixol",
+        "tail": "substance abuse disorder",
+        "head_id": "3",
+        "tail_id": "4"
+      },
+      {
+        "head": "zuclopenthixol",
+        "tail": "manic shift",
+        "head_id": "3",
+        "tail_id": "5"
+      },
+      {
+        "head": "zuclopenthixol",
+        "tail": "akathisia",
+        "head_id": "3",
+        "tail_id": "6"
+      },
+      {
+        "head": "lithium",
+        "tail": "aggressiveness",
+        "head_id": "4",
+        "tail_id": "1"
+      },
+      {
+        "head": "lithium",
+        "tail": "schizo-affective disorder",
+        "head_id": "4",
+        "tail_id": "2"
+      },
+      {
+        "head": "lithium",
+        "tail": "personality disorder",
+        "head_id": "4",
+        "tail_id": "3"
+      },
+      {
+        "head": "lithium",
+        "tail": "substance abuse disorder",
+        "head_id": "4",
+        "tail_id": "4"
+      },
+      {
+        "head": "lithium",
+        "tail": "manic shift",
+        "head_id": "4",
+        "tail_id": "5"
+      },
+      {
+        "head": "lithium",
+        "tail": "akathisia",
+        "head_id": "4",
+        "tail_id": "6"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "2 | 1"
+    ],
+    "sentences": [
+      "Paradoxical severe agitation induced by add-on high-doses quetiapine in schizo-affective disorder.",
+      "We report the case of a 35-year-old patient suffering from schizo-affective disorder since the age of 19 years, treated by a combination of first-generation antipsychotics, zuclopenthixol (100 mg/day) and lithium (1200 mg/day) (serum lithium=0.85 mEq/l).",
+      "This patient had no associated personality disorder (particularly no antisocial disorder) and no substance abuse disorder.",
+      "Within the 48 h following the gradual introduction of quetiapine (up to 600 mg/day), the patient presented severe agitation without an environmental explanation, contrasting with the absence of a history of aggressiveness or personality disorder.",
+      "The diagnoses of manic shift and akathisia were dismissed.",
+      "The withdrawal and the gradual reintroduction of quetiapine 2 weeks later, which led to another severe agitation, enabled us to attribute the agitation specifically to quetiapine."
+    ],
+    "text": "Paradoxical severe agitation induced by add-on high-doses quetiapine in schizo-affective disorder. We report the case of a 35-year-old patient suffering from schizo-affective disorder since the age of 19 years, treated by a combination of first-generation antipsychotics, zuclopenthixol (100 mg/day) and lithium (1200 mg/day) (serum lithium=0.85 mEq/l). This patient had no associated personality disorder (particularly no antisocial disorder) and no substance abuse disorder. Within the 48 h following the gradual introduction of quetiapine (up to 600 mg/day), the patient presented severe agitation without an environmental explanation, contrasting with the absence of a history of aggressiveness or personality disorder. The diagnoses of manic shift and akathisia were dismissed. The withdrawal and the gradual reintroduction of quetiapine 2 weeks later, which led to another severe agitation, enabled us to attribute the agitation specifically to quetiapine."
+  },
+  "46": {
+    "entities": [
+      {
+        "text": "dexamethasone-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Dexamethasone",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Dex",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "iron-binding",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Dex",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Dex",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Dex",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "glucocorticoid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "hydrogen peroxide",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "H2O2",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ferric",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Dexamethasone",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "H2O2",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Dex-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "H2O2",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ROS",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Dex-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "hypertension",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hypertension",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hypertension",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hypertension",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "weight loss",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hypertension",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "Dex",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Dexamethasone",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "dexamethasone",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "iron-binding",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "glucocorticoid",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "H2O2",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "hydrogen peroxide",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "ferric",
+        "id": "5",
+        "label": "Chemical"
+      },
+      {
+        "text": "ROS",
+        "id": "6",
+        "label": "Chemical"
+      },
+      {
+        "text": "hypertension",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "weight loss",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Dexamethasone",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "iron-binding",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "glucocorticoid",
+        "id": "3",
+        "label": "Chemical"
+      },
+      {
+        "text": "hydrogen peroxide",
+        "id": "4",
+        "label": "Chemical"
+      },
+      {
+        "text": "ferric",
+        "id": "5",
+        "label": "Chemical"
+      },
+      {
+        "text": "ROS",
+        "id": "6",
+        "label": "Chemical"
+      },
+      {
+        "text": "hypertension",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "weight loss",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "Dex | CID | hypertension\nDex | CID | weight loss",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 2,
+      "fp": 2,
+      "fn": 0,
+      "rel_precision": 0.5,
+      "rel_recall": 1.0,
+      "rel_f1": 0.6666666666666666,
+      "rel_tp": 2,
+      "rel_fp": 2,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Dexamethasone",
+        "tail": "hypertension",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "Dexamethasone",
+        "tail": "weight loss",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "iron-binding",
+        "tail": "hypertension",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "iron-binding",
+        "tail": "weight loss",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "glucocorticoid",
+        "tail": "hypertension",
+        "head_id": "3",
+        "tail_id": "1"
+      },
+      {
+        "head": "glucocorticoid",
+        "tail": "weight loss",
+        "head_id": "3",
+        "tail_id": "2"
+      },
+      {
+        "head": "hydrogen peroxide",
+        "tail": "hypertension",
+        "head_id": "4",
+        "tail_id": "1"
+      },
+      {
+        "head": "hydrogen peroxide",
+        "tail": "weight loss",
+        "head_id": "4",
+        "tail_id": "2"
+      },
+      {
+        "head": "ferric",
+        "tail": "hypertension",
+        "head_id": "5",
+        "tail_id": "1"
+      },
+      {
+        "head": "ferric",
+        "tail": "weight loss",
+        "head_id": "5",
+        "tail_id": "2"
+      },
+      {
+        "head": "ROS",
+        "tail": "hypertension",
+        "head_id": "6",
+        "tail_id": "1"
+      },
+      {
+        "head": "ROS",
+        "tail": "weight loss",
+        "head_id": "6",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 2",
+      "3 | 1",
+      "3 | 2"
+    ],
+    "sentences": [
+      "Antioxidant effects of bovine lactoferrin on dexamethasone-induced hypertension in rat.",
+      "Dexamethasone- (Dex-) induced hypertension is associated with enhanced oxidative stress.",
+      "Lactoferrin (LF) is an iron-binding glycoprotein with antihypertensive properties.",
+      "In this study, we investigated the effect of chronic administration of LF on oxidative stress and hypertension upon Dex administration.",
+      "Male Wistar rats were treated by Dex (30  u g/kg/day subcutaneously) or saline for 14 days.",
+      "Oral bovine LF (30, 100, 300 mg/kg) was given from day 8 to 14 in a reversal study.",
+      "In a prevention study, rats received 4 days of LF treatment followed by Dex and continued during the test period.",
+      "Systolic blood pressure (SBP) was measured using tail-cuff method.",
+      "Thymus weight was used as a marker of glucocorticoid activity.",
+      "Plasma hydrogen peroxide (H2O2) concentration and ferric reducing antioxidant power (FRAP) value were determined.",
+      "Dexamethasone significantly increased SBP and plasma H2O2 level and decreased thymus and body weights.",
+      "LF lowered (P < 0.01) and dose dependently prevented (P < 0.001) Dex-induced hypertension.",
+      "LF prevented body weight loss and significantly reduced the elevated plasma H2O2 and increased FRAP values.",
+      "Chronic administration of LF strongly reduced the blood pressure and production of ROS and improved antioxidant capacity in Dex-induced hypertension, suggesting the role of inhibition of oxidative stress as another mechanism of antihypertensive action of LF."
+    ],
+    "text": "Antioxidant effects of bovine lactoferrin on dexamethasone-induced hypertension in rat. Dexamethasone- (Dex-) induced hypertension is associated with enhanced oxidative stress. Lactoferrin (LF) is an iron-binding glycoprotein with antihypertensive properties. In this study, we investigated the effect of chronic administration of LF on oxidative stress and hypertension upon Dex administration. Male Wistar rats were treated by Dex (30  u g/kg/day subcutaneously) or saline for 14 days. Oral bovine LF (30, 100, 300 mg/kg) was given from day 8 to 14 in a reversal study. In a prevention study, rats received 4 days of LF treatment followed by Dex and continued during the test period. Systolic blood pressure (SBP) was measured using tail-cuff method. Thymus weight was used as a marker of glucocorticoid activity. Plasma hydrogen peroxide (H2O2) concentration and ferric reducing antioxidant power (FRAP) value were determined. Dexamethasone significantly increased SBP and plasma H2O2 level and decreased thymus and body weights. LF lowered (P < 0.01) and dose dependently prevented (P < 0.001) Dex-induced hypertension. LF prevented body weight loss and significantly reduced the elevated plasma H2O2 and increased FRAP values. Chronic administration of LF strongly reduced the blood pressure and production of ROS and improved antioxidant capacity in Dex-induced hypertension, suggesting the role of inhibition of oxidative stress as another mechanism of antihypertensive action of LF."
+  },
+  "47": {
+    "entities": [
+      {
+        "text": "tranexamic acid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "tranexamic acid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "tranexamic acid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "tranexamic acid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "convulsive seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "convulsive seizure",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "abnormal involuntary motor movements",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "convulsive seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Generalised and focal seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizure",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "calcification of ascending aorta",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "congestive heart failure",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hypothermic",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "convulsive seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "convulsive seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "convulsive seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "Convulsive seizures",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "postoperative",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizures",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "tranexamic acid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "seizure",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "seizures",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "convulsive seizure",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Convulsive seizures",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "convulsive seizures",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Generalised and focal seizures",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "abnormal involuntary motor movements",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "calcification of ascending aorta",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "congestive heart failure",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "hypothermic",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "deep hypothermic circulatory arrest",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "seizure",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "seizures",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "postoperative",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "postoperative seizures",
+        "id": "5",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "tranexamic acid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "abnormal involuntary motor movements",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "calcification of ascending aorta",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "congestive heart failure",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "deep hypothermic circulatory arrest",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "postoperative seizures",
+        "id": "5",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "tranexamic acid | CID | seizures",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "rel_precision": 0.5,
+      "rel_recall": 1.0,
+      "rel_f1": 0.6666666666666666,
+      "rel_tp": 1,
+      "rel_fp": 1,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "tranexamic acid",
+        "tail": "abnormal involuntary motor movements",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "tranexamic acid",
+        "tail": "calcification of ascending aorta",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "tranexamic acid",
+        "tail": "congestive heart failure",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "tranexamic acid",
+        "tail": "deep hypothermic circulatory arrest",
+        "head_id": "1",
+        "tail_id": "4"
+      },
+      {
+        "head": "tranexamic acid",
+        "tail": "postoperative seizures",
+        "head_id": "1",
+        "tail_id": "5"
+      }
+    ],
+    "relations": [
+      "1 | 1",
+      "1 | 5"
+    ],
+    "sentences": [
+      "The association between tranexamic acid and convulsive seizures after cardiac surgery: a multivariate analysis in 11 529 patients.",
+      "Because of a lack of contemporary data regarding seizures after cardiac surgery, we undertook a retrospective analysis of prospectively collected data from 11 529 patients in whom cardiopulmonary bypass was used from January 2004 to December 2010.",
+      "A convulsive seizure was defined as a transient episode of disturbed brain function characterised by abnormal involuntary motor movements.",
+      "Multivariate regression analysis was performed to identify independent predictors of postoperative seizures.",
+      "A total of 100 (0.9%) patients developed postoperative convulsive seizures.",
+      "Generalised and focal seizures were identified in 68 and 32 patients, respectively.",
+      "The median (IQR [range]) time after surgery when the seizure occurred was 7 (6-12 [1-216]) h and 8 (6-11 [4-18]) h, respectively.",
+      "Epileptiform findings on electroencephalography were seen in 19 patients.",
+      "Independent predictors of postoperative seizures included age, female sex, redo cardiac surgery, calcification of ascending aorta, congestive heart failure, deep hypothermic circulatory arrest, duration of aortic cross-clamp and tranexamic acid.",
+      "When tested in a multivariate regression analysis, tranexamic acid was a strong independent predictor of seizures (OR 14.3, 95% CI 5.5-36.7; p < 0.001).",
+      "Patients with convulsive seizures had 2.5 times higher in-hospital mortality rates and twice the length of hospital stay compared with patients without convulsive seizures.",
+      "Mean (IQR [range]) length of stay in the intensive care unit was 115 (49-228 [32-481]) h in patients with convulsive seizures compared with 26 (22-69 [14-1080]) h in patients without seizures (p < 0.001).",
+      "Convulsive seizures are a serious postoperative complication after cardiac surgery.",
+      "As tranexamic acid is the only modifiable factor, its administration, particularly in doses exceeding 80 mg.kg(-1), should be weighed against the risk of postoperative seizures."
+    ],
+    "text": "The association between tranexamic acid and convulsive seizures after cardiac surgery: a multivariate analysis in 11 529 patients. Because of a lack of contemporary data regarding seizures after cardiac surgery, we undertook a retrospective analysis of prospectively collected data from 11 529 patients in whom cardiopulmonary bypass was used from January 2004 to December 2010. A convulsive seizure was defined as a transient episode of disturbed brain function characterised by abnormal involuntary motor movements. Multivariate regression analysis was performed to identify independent predictors of postoperative seizures. A total of 100 (0.9%) patients developed postoperative convulsive seizures. Generalised and focal seizures were identified in 68 and 32 patients, respectively. The median (IQR [range]) time after surgery when the seizure occurred was 7 (6-12 [1-216]) h and 8 (6-11 [4-18]) h, respectively. Epileptiform findings on electroencephalography were seen in 19 patients. Independent predictors of postoperative seizures included age, female sex, redo cardiac surgery, calcification of ascending aorta, congestive heart failure, deep hypothermic circulatory arrest, duration of aortic cross-clamp and tranexamic acid. When tested in a multivariate regression analysis, tranexamic acid was a strong independent predictor of seizures (OR 14.3, 95% CI 5.5-36.7; p < 0.001). Patients with convulsive seizures had 2.5 times higher in-hospital mortality rates and twice the length of hospital stay compared with patients without convulsive seizures. Mean (IQR [range]) length of stay in the intensive care unit was 115 (49-228 [32-481]) h in patients with convulsive seizures compared with 26 (22-69 [14-1080]) h in patients without seizures (p < 0.001). Convulsive seizures are a serious postoperative complication after cardiac surgery. As tranexamic acid is the only modifiable factor, its administration, particularly in doses exceeding 80 mg.kg(-1), should be weighed against the risk of postoperative seizures."
+  },
+  "48": {
+    "entities": [
+      {
+        "text": "ecstasy",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ecstasy",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ecstasy",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Ecstasy",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ecstasy",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ecstasy-associated",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "ecstasy",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "sleep-related impairments",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "memory impairments",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "Ecstasy",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "ecstasy",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "ecstasy-associated",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "sleep-related impairments",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "memory impairments",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "ecstasy-associated",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "sleep-related impairments",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "memory impairments",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "ecstasy | CID | sleep-related impairments\necstasy | CID | memory impairments",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "rel_precision": 0.0,
+      "rel_recall": 0.0,
+      "rel_f1": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 0,
+      "rel_fn": 2
+    },
+    "pairs": [
+      {
+        "head": "ecstasy-associated",
+        "tail": "sleep-related impairments",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "ecstasy-associated",
+        "tail": "memory impairments",
+        "head_id": "1",
+        "tail_id": "2"
+      }
+    ],
+    "sentences": [
+      "Dysfunctional overnight memory consolidation in ecstasy users.",
+      "Sleep plays an important role in the consolidation and integration of memory in a process called overnight memory consolidation.",
+      "Previous studies indicate that ecstasy users have marked and persistent neurocognitive and sleep-related impairments.",
+      "We extend past research by examining overnight memory consolidation among regular ecstasy users (n=12) and drug naive healthy controls (n=26).",
+      "Memory recall of word pairs was evaluated before and after a period of sleep, with and without interference prior to testing.",
+      "In addition, we assessed neurocognitive performances across tasks of learning, memory and executive functioning.",
+      "Ecstasy users demonstrated impaired overnight memory consolidation, a finding that was more pronounced following associative interference.",
+      "Additionally, ecstasy users demonstrated impairments on tasks recruiting frontostriatal and hippocampal neural circuitry, in the domains of proactive interference memory, long-term memory, encoding, working memory and complex planning.",
+      "We suggest that ecstasy-associated dysfunction in fronto-temporal circuitry may underlie overnight consolidation memory impairments in regular ecstasy users."
+    ],
+    "text": "Dysfunctional overnight memory consolidation in ecstasy users. Sleep plays an important role in the consolidation and integration of memory in a process called overnight memory consolidation. Previous studies indicate that ecstasy users have marked and persistent neurocognitive and sleep-related impairments. We extend past research by examining overnight memory consolidation among regular ecstasy users (n=12) and drug naive healthy controls (n=26). Memory recall of word pairs was evaluated before and after a period of sleep, with and without interference prior to testing. In addition, we assessed neurocognitive performances across tasks of learning, memory and executive functioning. Ecstasy users demonstrated impaired overnight memory consolidation, a finding that was more pronounced following associative interference. Additionally, ecstasy users demonstrated impairments on tasks recruiting frontostriatal and hippocampal neural circuitry, in the domains of proactive interference memory, long-term memory, encoding, working memory and complex planning. We suggest that ecstasy-associated dysfunction in fronto-temporal circuitry may underlie overnight consolidation memory impairments in regular ecstasy users."
+  },
+  "49": {
+    "entities": [
+      {
+        "text": "valproate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "valproate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Valproate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Valproate",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "valproate-induced",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Normoammonemic encephalopathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "confusion",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "aggression",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "auditory hallucinations",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "delusions",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "unilateral hemiparesis",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "facial droop",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hemiplegic migraine",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "encephalopathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "encephalopathy",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "encephalitis",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "Valproate",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "valproate",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "confusion",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "delusions",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "aggression",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "encephalitis",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "encephalopathy",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "auditory hallucinations",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Normoammonemic encephalopathy",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "facial droop",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "hemiplegic migraine",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "unilateral hemiparesis",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Valproate",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Normoammonemic encephalopathy",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "unilateral hemiparesis",
+        "id": "2",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "valproate | CID | delusions\nvalproate | CID | confusion\nvalproate | CID | auditory hallucinations",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "rel_precision": 1.0,
+      "rel_recall": 1.0,
+      "rel_f1": 1.0,
+      "rel_tp": 1,
+      "rel_fp": 0,
+      "rel_fn": 0
+    },
+    "pairs": [
+      {
+        "head": "Valproate",
+        "tail": "Normoammonemic encephalopathy",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "Valproate",
+        "tail": "unilateral hemiparesis",
+        "head_id": "1",
+        "tail_id": "2"
+      }
+    ],
+    "relations": [
+      "1 | 1"
+    ],
+    "sentences": [
+      "Normoammonemic encephalopathy: solely valproate induced or multiple mechanisms?",
+      "A 77-year-old woman presented with subacute onset progressive confusion, aggression, auditory hallucinations and delusions.",
+      "In the preceding months, the patient had a number of admissions with transient unilateral hemiparesis with facial droop, and had been started on valproate for presumed hemiplegic migraine.",
+      "Valproate was withdrawn soon after admission and her cognitive abilities have gradually improved over 3 months of follow-up.",
+      "Valproate levels taken prior to withdrawal were subtherapeutic and the patient was normoammonaemic.",
+      "EEG undertaken during inpatient stay showed changes consistent with encephalopathy, and low titre N-methyl-D-aspartate (NMDA) receptor antibodies were present in this patient.",
+      "The possible aetiologies of valproate-induced encephalopathy and NMDA receptor-associated encephalitis present a diagnostic dilemma.",
+      "We present a putative combinatorial hypothesis to explain this patient's symptoms."
+    ],
+    "text": "Normoammonemic encephalopathy: solely valproate induced or multiple mechanisms? A 77-year-old woman presented with subacute onset progressive confusion, aggression, auditory hallucinations and delusions. In the preceding months, the patient had a number of admissions with transient unilateral hemiparesis with facial droop, and had been started on valproate for presumed hemiplegic migraine. Valproate was withdrawn soon after admission and her cognitive abilities have gradually improved over 3 months of follow-up. Valproate levels taken prior to withdrawal were subtherapeutic and the patient was normoammonaemic. EEG undertaken during inpatient stay showed changes consistent with encephalopathy, and low titre N-methyl-D-aspartate (NMDA) receptor antibodies were present in this patient. The possible aetiologies of valproate-induced encephalopathy and NMDA receptor-associated encephalitis present a diagnostic dilemma. We present a putative combinatorial hypothesis to explain this patient's symptoms."
+  },
+  "50": {
+    "entities": [
+      {
+        "text": "pethidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Pethidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "opioid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "pethidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "norpethidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "pethidine",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "opioid",
+        "label": "Chemical",
+        "id": ""
+      },
+      {
+        "text": "Cerebellar and oculomotor dysfunction",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "pain",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "pain",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "nausea",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "vomiting",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "hypotension",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "impaired renal and liver function",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "pain",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "irritability",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "seizure attack",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dysmetria",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "dysarthria",
+        "label": "Disease",
+        "id": ""
+      },
+      {
+        "text": "decreased saccadic velocity",
+        "label": "Disease",
+        "id": ""
+      }
+    ],
+    "entity_aliases": [
+      {
+        "text": "opioid",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "pethidine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "Pethidine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "norpethidine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "pethidine",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Pethidine",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "norpethidine",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "dysmetria",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "dysarthria",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "decreased saccadic velocity",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "Cerebellar and oculomotor dysfunction",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "pain",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "nausea",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "vomiting",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "hypotension",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "impaired renal and liver function",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "irritability",
+        "id": "6",
+        "label": "Disease"
+      },
+      {
+        "text": "seizure attack",
+        "id": "7",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "norpethidine",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "norpethidine",
+        "id": "2",
+        "label": "Chemical"
+      },
+      {
+        "text": "Cerebellar and oculomotor dysfunction",
+        "id": "1",
+        "label": "Disease"
+      },
+      {
+        "text": "pain",
+        "id": "2",
+        "label": "Disease"
+      },
+      {
+        "text": "vomiting",
+        "id": "3",
+        "label": "Disease"
+      },
+      {
+        "text": "hypotension",
+        "id": "4",
+        "label": "Disease"
+      },
+      {
+        "text": "impaired renal and liver function",
+        "id": "5",
+        "label": "Disease"
+      },
+      {
+        "text": "irritability",
+        "id": "6",
+        "label": "Disease"
+      },
+      {
+        "text": "seizure attack",
+        "id": "7",
+        "label": "Disease"
+      }
+    ],
+    "gold_relations": "pethidine | CID | dysmetria\npethidine | CID | nausea\nnorpethidine | CID | seizure\npethidine | CID | dysarthria\npethidine | CID | vomiting\npethidine | CID | hypotension",
+    "labels": "Chemical,Disease",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 4,
+      "rel_precision": 0.0,
+      "rel_recall": 0.0,
+      "rel_f1": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 0,
+      "rel_fn": 4
+    },
+    "pairs": [
+      {
+        "head": "norpethidine",
+        "tail": "Cerebellar and oculomotor dysfunction",
+        "head_id": "1",
+        "tail_id": "1"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "pain",
+        "head_id": "1",
+        "tail_id": "2"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "vomiting",
+        "head_id": "1",
+        "tail_id": "3"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "hypotension",
+        "head_id": "1",
+        "tail_id": "4"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "impaired renal and liver function",
+        "head_id": "1",
+        "tail_id": "5"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "irritability",
+        "head_id": "1",
+        "tail_id": "6"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "seizure attack",
+        "head_id": "1",
+        "tail_id": "7"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "Cerebellar and oculomotor dysfunction",
+        "head_id": "2",
+        "tail_id": "1"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "pain",
+        "head_id": "2",
+        "tail_id": "2"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "vomiting",
+        "head_id": "2",
+        "tail_id": "3"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "hypotension",
+        "head_id": "2",
+        "tail_id": "4"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "impaired renal and liver function",
+        "head_id": "2",
+        "tail_id": "5"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "irritability",
+        "head_id": "2",
+        "tail_id": "6"
+      },
+      {
+        "head": "norpethidine",
+        "tail": "seizure attack",
+        "head_id": "2",
+        "tail_id": "7"
+      }
+    ],
+    "sentences": [
+      "Cerebellar and oculomotor dysfunction induced by rapid infusion of pethidine.",
+      "Pethidine is an opioid that gains its popularity for the effective pain control through acting on the opioid-receptors.",
+      "However, rapid pain relief sometimes brings about unfavourable side effects that largely limit its clinical utility.",
+      "Common side effects include nausea, vomiting and hypotension.",
+      "In patients with impaired renal and liver function, and those who need long-term pain control, pethidine may cause excitatory central nervous system (CNS) effects through its neurotoxic metabolite, norpethidine, resulting in irritability and seizure attack.",
+      "On the contrary, though not clinically apparent, pethidine potentially causes inhibitory impacts on the CNS and impairs normal cerebellar and oculomotor function in the short term.",
+      "In this case report, we highlight opioid's inhibitory side effects on the cerebellar structure that causes dysmetria, dysarthria, reduced smooth pursuit gain and decreased saccadic velocity."
+    ],
+    "text": "Cerebellar and oculomotor dysfunction induced by rapid infusion of pethidine. Pethidine is an opioid that gains its popularity for the effective pain control through acting on the opioid-receptors. However, rapid pain relief sometimes brings about unfavourable side effects that largely limit its clinical utility. Common side effects include nausea, vomiting and hypotension. In patients with impaired renal and liver function, and those who need long-term pain control, pethidine may cause excitatory central nervous system (CNS) effects through its neurotoxic metabolite, norpethidine, resulting in irritability and seizure attack. On the contrary, though not clinically apparent, pethidine potentially causes inhibitory impacts on the CNS and impairs normal cerebellar and oculomotor function in the short term. In this case report, we highlight opioid's inhibitory side effects on the cerebellar structure that causes dysmetria, dysarthria, reduced smooth pursuit gain and decreased saccadic velocity."
+  }
+}

@@ -514,16 +514,37 @@ def _avg_metrics(exp_id: str) -> dict[str, float]:
     return {k: v / n for k, v in totals.items()}
 
 
+def _agent_prompt_excerpts(agents_cfg: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """Compact prompt/process excerpts for refiner diffing."""
+    out: dict[str, dict[str, str]] = {}
+    if not isinstance(agents_cfg, dict):
+        return out
+    for agent_id, meta in agents_cfg.items():
+        if not isinstance(meta, dict):
+            continue
+        pt = meta.get("prompt_template") or {}
+        out[str(agent_id)] = {
+            "system": str(pt.get("system") or "")[:800],
+            "human": str(pt.get("human") or "")[:1600],
+            "process": str(meta.get("process") or "")[:1200],
+        }
+    return out
+
+
 def _run_refiner(
     baseline_report: str, baseline_payload: dict[str, Any], max_updates: int
 ) -> list[dict[str, Any]]:
     agent = AgentLoader.load("agent_refiner")
     if agent is None:
         raise RuntimeError("Agent 'agent_refiner' not found")
+    agents_cfg = baseline_payload.get("agents") if isinstance(baseline_payload, dict) else {}
+    if not isinstance(agents_cfg, dict):
+        agents_cfg = {}
     text = json.dumps(
         {
             "baseline_report": baseline_report,
             "baseline_payload": baseline_payload,
+            "agent_prompt_excerpts": _agent_prompt_excerpts(agents_cfg),
             "constraints": {"max_updates": max_updates},
         },
         ensure_ascii=False,
@@ -536,7 +557,7 @@ def _run_refiner(
     if not isinstance(parsed, list):
         return []
     mods = [x for x in parsed if isinstance(x, dict)]
-    kept, _rejected = filter_disallowed_modifications(mods)
+    kept, _rejected = filter_disallowed_modifications(mods, agents_cfg=agents_cfg)
     return kept
 
 
@@ -977,12 +998,16 @@ def run_optimize_loop_by_exp_with_progress(
         baseline_payload,
         max_updates=max(10, max_agent_updates),
     )
+    agents_cfg = baseline_payload.get("agents") if isinstance(baseline_payload, dict) else {}
+    if not isinstance(agents_cfg, dict):
+        agents_cfg = {}
     modifications, filtered_modifications = filter_disallowed_modifications(
         [
             m
             for m in raw_modifications
             if isinstance(m, dict) and str(m.get("target_agent_id") or "").strip()
-        ]
+        ],
+        agents_cfg=agents_cfg,
     )
     emit(
         38,

@@ -63,6 +63,30 @@ class AgentVersionStore:
         versions.sort(key=lambda x: x.get("created_at", ""), reverse=True)
         return versions
 
+    def content_hash(self, content: Dict[str, Any]) -> str:
+        return self._content_hash(self._normalize_content(content))
+
+    def find_version_by_content(self, agent_id: str, content: Dict[str, Any]) -> str:
+        target = self.content_hash(content)
+        for item in self.list_versions(agent_id):
+            if item.get("content_hash") == target:
+                return str(item.get("version") or "")
+        return ""
+
+    def version_at_time(self, agent_id: str, timestamp: str) -> str:
+        ts = str(timestamp or "").strip()
+        if not ts:
+            index = self._load_index(agent_id)
+            return str(index.get("latest") or "")
+        eligible = [
+            v for v in self.list_versions(agent_id)
+            if str(v.get("created_at") or "") <= ts
+        ]
+        if not eligible:
+            return ""
+        eligible.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+        return str(eligible[0].get("version") or "")
+
     def load_version(self, agent_id: str, version: str) -> Optional[Dict[str, Any]]:
         p = self._agent_dir(agent_id) / f"{version}.json"
         if not p.exists():

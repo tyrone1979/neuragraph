@@ -288,6 +288,16 @@ function _flowDetailText(detail) {
     return String(detail);
 }
 
+function _renderFlowExpLinks(links) {
+    if (!Array.isArray(links) || !links.length) return '';
+    return links.map((link) => {
+        const eid = String(link.exp_id || '').trim();
+        if (!eid) return '';
+        const label = String(link.label || eid);
+        return `<a href="/exp/${encodeURIComponent(eid)}" target="_blank" rel="noopener" class="opt-flow-exp-link"><code>${escHtml(label)}</code></a>`;
+    }).filter(Boolean).join(' · ');
+}
+
 function _asErrorMessage(err) {
     if (!err) return 'Unknown error';
     if (typeof err === 'string') return err;
@@ -885,10 +895,15 @@ function updateTuningTabPanels(flowSteps, preflightOrSummary) {
         $('#tuningBaselineReportMarkdown').html('<p class="text-muted p-3">Run tuning baseline report (step 4) to generate.</p>');
     }
 
-    const hasSummary = optimizeDone && !!window._lastOptimizationSummary;
+    const hasSummary = optimizeDone && (
+        !!window._lastOptimizationSummary
+        || !!(preflightOrSummary && preflightOrSummary.optimization_summary)
+    );
     $('#optimizationSummaryPanel').toggleClass('d-none', !hasSummary);
     if (hasSummary) {
-        renderStoredOptimizationSummary(window._lastOptimizationSummary);
+        const summary = window._lastOptimizationSummary
+            || (preflightOrSummary && preflightOrSummary.optimization_summary);
+        renderStoredOptimizationSummary(summary);
     } else if (!optimizeDone) {
         $('#optimizationResult').html('');
     }
@@ -1700,8 +1715,12 @@ function renderOptimizationFlow(flowSteps) {
             $step.find('.opt-flow-label').first().text(s.label || s.id);
         const $detail = $step.find('.opt-flow-detail').first();
         const detailText = _flowDetailText(s.detail);
-        if (detailText) {
-            $detail.text(detailText).show();
+        const linkHtml = _renderFlowExpLinks(s.exp_links);
+        if (detailText || linkHtml) {
+            const parts = [];
+            if (detailText) parts.push(`<span class="opt-flow-detail-text">${escHtml(detailText)}</span>`);
+            if (linkHtml) parts.push(`<span class="opt-flow-detail-links">${linkHtml}</span>`);
+            $detail.html(parts.join(' ')).show();
         } else {
             $detail.text('').hide();
         }
