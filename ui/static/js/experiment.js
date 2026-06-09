@@ -597,6 +597,52 @@ $(document).ready(function () {
             .fail(function () { alert('Failed to stop'); });
     });
 
+    // Optimized test batch controls (step 6)
+    $(document).on('click', '#finalBatchPauseBtn', function () {
+        const expIdVal = window._finalStreamExpId || getExpId();
+        if (!expIdVal) return;
+        $.post(`/stream/pause/${encodeURIComponent(expIdVal)}`)
+            .done(function (resp) {
+                if (resp.success) {
+                    $('#finalBatchPauseBtn').prop('disabled', true).text('Pausing...');
+                }
+            })
+            .fail(function () { alert('Failed to pause'); });
+    });
+
+    $(document).on('click', '#finalBatchResumeBtn', function () {
+        const expIdVal = window._finalStreamExpId || getExpId();
+        if (!expIdVal) return;
+        const progressSelector = '#finalTestProgress';
+        $('#finalBatchResumeBtn').prop('disabled', true).text('Resuming...');
+        $.ajax({
+            url: '/exp/api/update',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ exp_id: expIdVal, status: 'running' }),
+            success: function () {
+                stream(expIdVal, { progressSelector });
+            },
+            error: function () {
+                alert('Failed to resume');
+                $('#finalBatchResumeBtn').prop('disabled', false).html('<i class="fas fa-play"></i>');
+            },
+        });
+    });
+
+    $(document).on('click', '#finalBatchStopBtn', function () {
+        const expIdVal = window._finalStreamExpId || getExpId();
+        if (!expIdVal) return;
+        if (!confirm('Stop the current batch run? Completed samples will be saved.')) return;
+        $.post(`/stream/stop/${encodeURIComponent(expIdVal)}`)
+            .done(function (resp) {
+                if (resp.success) {
+                    $('#finalBatchStopBtn').prop('disabled', true).text('Stopping...');
+                }
+            })
+            .fail(function () { alert('Failed to stop'); });
+    });
+
     $('#wizardPrevBtn').on('click', function () {
         if (window._wizardTabIndex > 0) {
             showWizardTab(window._wizardTabIndex - 1);
@@ -735,6 +781,14 @@ function complete_task(exp_id, progress, status, options = {}) {
             }
             updateProgress(progress, progressSelector);
             if (status === 'completed') {
+                if (window._finalTestStreamResolve) {
+                    const resolve = window._finalTestStreamResolve;
+                    window._finalTestStreamResolve = null;
+                    window._finalTestStreamReject = null;
+                    onFinalTestFinished(exp_id);
+                    resolve();
+                    return;
+                }
                 if (window._baselineTuningStreamResolve) {
                     const resolve = window._baselineTuningStreamResolve;
                     window._baselineTuningStreamResolve = null;
@@ -753,10 +807,19 @@ function complete_task(exp_id, progress, status, options = {}) {
                 }
                 if (progressSelector === '#baselineTuningProgress') {
                     onBaselineTuningFinished(exp_id);
+                } else if (progressSelector === '#finalTestProgress') {
+                    onFinalTestFinished(exp_id);
                 } else {
                     onBaselineTestFinished(exp_id);
                 }
             } else {
+                if (window._finalTestStreamReject) {
+                    const reject = window._finalTestStreamReject;
+                    window._finalTestStreamResolve = null;
+                    window._finalTestStreamReject = null;
+                    reject(new Error('Optimized test failed'));
+                    return;
+                }
                 if (window._baselineTuningStreamReject) {
                     const reject = window._baselineTuningStreamReject;
                     window._baselineTuningStreamResolve = null;
@@ -939,6 +1002,7 @@ function unfreezeInputs() {
 const _batchControlMap = {
     '#overallProgress': { pause: '#batchPauseBtn', resume: '#batchResumeBtn', stop: '#batchStopBtn' },
     '#baselineTuningProgress': { pause: '#tuningBatchPauseBtn', resume: '#tuningBatchResumeBtn', stop: '#tuningBatchStopBtn' },
+    '#finalTestProgress': { pause: '#finalBatchPauseBtn', resume: '#finalBatchResumeBtn', stop: '#finalBatchStopBtn' },
 };
 
 function _showBatchControls(progressSelector, show) {
@@ -978,6 +1042,8 @@ function stream(exp_id, options = {}) {
         _setLocalFlowStep('baseline_test', 'running', 'Running baseline test...');
     } else if (progressSelector === '#baselineTuningProgress') {
         _setLocalFlowStep('baseline_tuning', 'running', 'Running tuning baseline...');
+    } else if (progressSelector === '#finalTestProgress') {
+        _setLocalFlowStep('final_test', 'running', 'Running optimized test...');
     }
     _showBatchControls(progressSelector, true);
     window.agentEventSource?.close();
@@ -1018,6 +1084,8 @@ function stream(exp_id, options = {}) {
                         updateTableRow(msg.current_index, { status: 'paused' });
                     } else if (progressSelector === '#baselineTuningProgress') {
                         _setLocalFlowStep('baseline_tuning', 'paused', `Paused at ${msg.completed}/${msg.total}`);
+                    } else if (progressSelector === '#finalTestProgress') {
+                        _setLocalFlowStep('final_test', 'paused', `Paused at ${msg.completed}/${msg.total}`);
                     }
                     unfreezeInputs();
                 } else if (msg.status === 'stopped') {
@@ -1027,6 +1095,8 @@ function stream(exp_id, options = {}) {
                     _hideAllBatchControls(progressSelector);
                     if (progressSelector === '#overallProgress') {
                         _setLocalFlowStep('baseline_test', 'done', `Stopped at ${msg.completed}/${msg.total}`);
+                    } else if (progressSelector === '#finalTestProgress') {
+                        _setLocalFlowStep('final_test', 'done', `Stopped at ${msg.completed}/${msg.total}`);
                     }
                     unfreezeInputs();
                 } else if (msg.status === 'resumed') {
@@ -1037,6 +1107,8 @@ function stream(exp_id, options = {}) {
                     if (progressSelector === '#overallProgress') {
                         freezeInputAndLink();
                         _setLocalFlowStep('baseline_test', 'running', `Resumed from ${msg.completed}/${msg.total}`);
+                    } else if (progressSelector === '#finalTestProgress') {
+                        _setLocalFlowStep('final_test', 'running', `Resumed from ${msg.completed}/${msg.total}`);
                     }
                 } else {
                     current_status = msg.batch_status || msg.status;
@@ -1432,6 +1504,10 @@ function onBaselineTuningFinished(tuneExpId) {
     _setLocalFlowStep('baseline_tuning', 'done', `Completed ${tuneExpId}`);
 }
 
+function onFinalTestFinished(finalExpId) {
+    _setLocalFlowStep('final_test', 'done', `Completed ${finalExpId}`);
+}
+
 function runBaselineTuningStream(tuneExpId) {
     return new Promise((resolve, reject) => {
         if (!tuneExpId) {
@@ -1515,6 +1591,95 @@ function runBaselineTuningStep(expIdVal, datasets, force) {
     });
 }
 
+function runFinalTestStream(finalExpId) {
+    return new Promise((resolve, reject) => {
+        if (!finalExpId) {
+            reject(new Error('Missing optimized test experiment id'));
+            return;
+        }
+        window._finalStreamExpId = finalExpId;
+        $('#finalTestProgress')
+            .css('width', '0%')
+            .text('0%')
+            .addClass('progress-bar-animated progress-bar-striped');
+        window._finalTestStreamResolve = resolve;
+        window._finalTestStreamReject = reject;
+        $.ajax({
+            url: '/exp/api/update',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ exp_id: finalExpId, status: 'running', progress: 0 }),
+            success(resp) {
+                if (!resp.success) {
+                    window._finalTestStreamResolve = null;
+                    window._finalTestStreamReject = null;
+                    reject(new Error(resp.error || 'Failed to start optimized test stream'));
+                    return;
+                }
+                stream(finalExpId, { progressSelector: '#finalTestProgress' });
+            },
+            error(xhr) {
+                window._finalTestStreamResolve = null;
+                window._finalTestStreamReject = null;
+                reject(new Error((xhr.responseJSON && xhr.responseJSON.error) || 'Failed to start optimized test stream'));
+            },
+        });
+    });
+}
+
+function runFinalTestStep(expIdVal, datasets, force) {
+    return $.ajax({
+        url: `/exp/api/${encodeURIComponent(expIdVal)}/optimization-step/final_test`,
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            force: !!force,
+            tuning_dataset: datasets.tuning_dataset,
+            test_dataset: datasets.test_dataset,
+        }),
+    }).then((resp) => {
+        if (!resp.success) {
+            throw new Error(_flowDetailText(resp.error) || 'Optimized test prepare failed');
+        }
+        if (resp.skipped) {
+            if (resp.flow_steps) {
+                renderOptimizationFlow(resp.flow_steps);
+            }
+            return resp;
+        }
+        if (resp.flow_steps) {
+            renderOptimizationFlow(resp.flow_steps);
+        }
+        if (resp.needs_stream && resp.stream_exp_id) {
+            _setLocalFlowStep('final_test', 'running', `Streaming ${resp.stream_exp_id}`);
+            return runFinalTestStream(resp.stream_exp_id).then(() => $.ajax({
+                url: `/exp/api/${encodeURIComponent(expIdVal)}/optimization-step/final_test`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    force: false,
+                    tuning_dataset: datasets.tuning_dataset,
+                    test_dataset: datasets.test_dataset,
+                }),
+            })).then((finalizeResp) => {
+                if (!finalizeResp.success) {
+                    throw new Error(_flowDetailText(finalizeResp.error) || 'Optimized test finalize failed');
+                }
+                if (finalizeResp.flow_steps) {
+                    renderOptimizationFlow(finalizeResp.flow_steps);
+                } else {
+                    onFinalTestFinished(resp.stream_exp_id);
+                }
+                return finalizeResp;
+            });
+        }
+        if (resp.optimized_test_exp_id) {
+            onFinalTestFinished(resp.optimized_test_exp_id);
+        }
+        return resp;
+    });
+}
+
 function _setLocalFlowStep(stepId, status, detail) {
     const steps = (window._lastFlowSteps || DEFAULT_OPT_FLOW).map((s) => ({ ...s }));
     const target = steps.find((s) => s.id === stepId);
@@ -1571,7 +1736,6 @@ const STEP_RUN_LABELS = {
 const ASYNC_PIPELINE_STEPS = new Set([
     'baseline_tuning_report',
     'optimize_rounds',
-    'final_test',
     'final_test_report',
 ]);
 
@@ -1606,8 +1770,13 @@ function _flowProgressHtml(stepId) {
     }
     if (stepId === 'final_test') {
         return `
-        <div class="progress exp-progress-step w-100">
-          <div id="finalTestProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Optimized test progress">0%</div>
+        <div class="d-flex align-items-center gap-2 w-100">
+          <div class="progress exp-progress-step flex-grow-1">
+            <div id="finalTestProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" title="Optimized test progress">0%</div>
+          </div>
+          <button type="button" class="btn btn-sm btn-warning batch-pause-btn d-none" id="finalBatchPauseBtn" title="Pause"><i class="fas fa-pause"></i></button>
+          <button type="button" class="btn btn-sm btn-success batch-resume-btn d-none" id="finalBatchResumeBtn" title="Resume"><i class="fas fa-play"></i></button>
+          <button type="button" class="btn btn-sm btn-danger batch-stop-btn d-none" id="finalBatchStopBtn" title="Stop"><i class="fas fa-stop"></i></button>
         </div>`;
     }
     return '';
@@ -1789,7 +1958,6 @@ function runAsyncOptimizationStep(expIdVal, stepId, datasets, force) {
         _setLocalFlowStep(stepId, 'running', 'Running...');
         const progressBarByStep = {
             optimize_rounds: '#optimizationProgress',
-            final_test: '#finalTestProgress',
         };
         const progressSel = progressBarByStep[stepId];
         if (progressSel) {
@@ -1832,7 +2000,7 @@ function runAsyncOptimizationStep(expIdVal, stepId, datasets, force) {
                     } catch (_err) {
                         return;
                     }
-                    if (stepId === 'optimize_rounds' || stepId === 'final_test') {
+                    if (stepId === 'optimize_rounds') {
                         updateFlowStepProgress(msg, stepId);
                     }
                     if (msg.flow_steps) {
@@ -1935,6 +2103,21 @@ function runPipelineStep(stepId, options = {}) {
                 _setLocalFlowStep('baseline_tuning', 'failed', err.message || 'Failed');
                 if (manageBusy) setPipelineRunning(false);
                 alert(err.message || 'Tuning baseline failed');
+            });
+    }
+
+    if (stepId === 'final_test') {
+        if (!expIdVal || expIdVal === 'Not saved yet') {
+            if (manageBusy) setPipelineRunning(false);
+            alert('Save experiment first.');
+            return Promise.resolve();
+        }
+        return runFinalTestStep(expIdVal, datasets, force)
+            .then(done)
+            .catch((err) => {
+                _setLocalFlowStep('final_test', 'failed', err.message || 'Failed');
+                if (manageBusy) setPipelineRunning(false);
+                alert(err.message || 'Optimized test failed');
             });
     }
 
