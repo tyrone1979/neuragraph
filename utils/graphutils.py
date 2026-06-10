@@ -428,6 +428,49 @@ def parse_workflow_family(graph_id: str) -> dict[str, Any]:
     }
 
 
+_WORKFLOW_VARIANT_KINDS = frozenset({"opt", "opt_round", "copy"})
+_WORKFLOW_STRUCTURE_FIELDS = (
+    "description",
+    "nodes",
+    "edges",
+    "bindings",
+    "flowNodes",
+    "metrics",
+    "visualData",
+)
+
+
+def rebase_workflow_variant_from_baseline(graph_id: str, graph: dict[str, Any]) -> dict[str, Any]:
+    """
+    Keep opt/copy workflow variants aligned with their family baseline topology.
+
+    Variant snapshots only pin agentVersions; when the baseline graph is edited later,
+    stale variant JSON can still list removed nodes (e.g. ontology_hypernym_filter).
+    """
+    fam = parse_workflow_family(graph_id)
+    if fam.get("variant_kind") not in _WORKFLOW_VARIANT_KINDS:
+        return graph
+
+    baseline_id = str(fam.get("family_id") or "").strip()
+    if not baseline_id or baseline_id == graph_id:
+        return graph
+
+    baseline = MetaLoader.load("graphs", baseline_id)
+    if not baseline:
+        return graph
+
+    rebased = dict(graph)
+    for field in _WORKFLOW_STRUCTURE_FIELDS:
+        if field in baseline:
+            rebased[field] = deepcopy(baseline[field])
+
+    rebased["agentVersions"] = dict(graph.get("agentVersions") or {})
+    rebased["name"] = graph.get("name") or baseline.get("name") or graph_id
+    rebased["created_at"] = graph.get("created_at") or baseline.get("created_at") or ""
+    rebased["id"] = graph_id
+    return rebased
+
+
 def _clean_workflow_display_name(name: str, *, fallback: str = "") -> str:
     text = str(name or fallback or "").strip()
     text = re.sub(r"\s*\[optimized\]\s*", "", text, flags=re.I)
@@ -547,6 +590,8 @@ def compare_workflow_graphs(left_id: str, right_id: str) -> dict[str, Any] | Non
     if not left or not right:
         return None
 
+    left = rebase_workflow_variant_from_baseline(left_id, dict(left))
+    right = rebase_workflow_variant_from_baseline(right_id, dict(right))
     left_doc = _graph_compare_document(left_id, left)
     right_doc = _graph_compare_document(right_id, right)
     diff = difflib.unified_diff(

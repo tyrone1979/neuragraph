@@ -88,6 +88,9 @@ class GraphLoader(EntityLoader):
         checkpointer: Checkpointer = extra_params.get("checkpointer")
         meta=MetaLoader.load("graphs",id)
         if meta:
+            from utils.graphutils import rebase_workflow_variant_from_baseline
+
+            meta = rebase_workflow_variant_from_baseline(id, dict(meta))
             return GraphEntity(meta, checkpointer=checkpointer)
         return None
 

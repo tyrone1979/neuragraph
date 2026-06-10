@@ -106,6 +106,10 @@ class GraphMetaLoader:
             cfg = MetaLoader.load("graphs", gid)
             if not cfg:
                 return
+            if gid == graph_id:
+                from utils.graphutils import rebase_workflow_variant_from_baseline
+
+                cfg = rebase_workflow_variant_from_baseline(gid, dict(cfg))
             graphs_cfg[gid] = dict(cfg)
             graphs_cfg[gid]["id"] = gid
             for node in cfg.get("nodes", []):

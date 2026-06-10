@@ -1,7 +1,12 @@
 """Unit tests for workflow family representative selection."""
 import unittest
 
-from utils.graphutils import parse_workflow_family, redundant_graph_ids, select_representative_graph_ids
+from utils.graphutils import (
+    parse_workflow_family,
+    redundant_graph_ids,
+    rebase_workflow_variant_from_baseline,
+    select_representative_graph_ids,
+)
 
 
 class WorkflowFamilySelectionTest(unittest.TestCase):
@@ -48,6 +53,52 @@ class WorkflowFamilySelectionTest(unittest.TestCase):
         parent = parse_workflow_family("wf_x_opt_20260529_143039")
         r2 = parse_workflow_family("wf_x_opt_20260529_143039_r2")
         self.assertLess(parent["sort_key"], r2["sort_key"])
+
+    def test_opt_variant_inherits_baseline_topology(self):
+        baseline = {
+            "nodes": ["START", "e2e_entities_dedup_by_id", "cid_pair_generate", "END"],
+            "edges": [["START", "e2e_entities_dedup_by_id"], ["e2e_entities_dedup_by_id", "cid_pair_generate"], ["cid_pair_generate", "END"]],
+            "bindings": {"e2e_entities_dedup_by_id": {"entities": "{{ START.entities }}"}},
+            "description": "baseline topology",
+        }
+        stale = {
+            "nodes": ["START", "ontology_hypernym_filter", "cid_pair_generate", "END"],
+            "edges": [["START", "ontology_hypernym_filter"], ["ontology_hypernym_filter", "cid_pair_generate"], ["cid_pair_generate", "END"]],
+            "bindings": {"ontology_hypernym_filter": {"entities": "{{ START.entities }}"}},
+            "description": "stale topology",
+            "agentVersions": {"relation_verify_llm": "v0007"},
+            "name": "CID RE Pipeline (linear) [optimized]",
+            "created_at": "2026-05-29T14:52:48.202178",
+        }
+        graph_id = "wf_cid_re_llm_linear_opt_20260529_143039_r2"
+
+        class _FakeMetaLoader:
+            @staticmethod
+            def load(kind, gid):
+                if kind != "graphs":
+                    return None
+                if gid == "wf_cid_re_llm_linear":
+                    return dict(baseline)
+                if gid == graph_id:
+                    return dict(stale)
+                return None
+
+        import utils.graphutils as graphutils
+
+        original = graphutils.MetaLoader
+        try:
+            graphutils.MetaLoader = _FakeMetaLoader
+            rebased = rebase_workflow_variant_from_baseline(graph_id, dict(stale))
+        finally:
+            graphutils.MetaLoader = original
+
+        self.assertEqual(rebased["nodes"], baseline["nodes"])
+        self.assertEqual(rebased["edges"], baseline["edges"])
+        self.assertEqual(rebased["bindings"], baseline["bindings"])
+        self.assertEqual(rebased["description"], baseline["description"])
+        self.assertEqual(rebased["agentVersions"], {"relation_verify_llm": "v0007"})
+        self.assertEqual(rebased["name"], stale["name"])
+        self.assertEqual(rebased["created_at"], stale["created_at"])
 
 
 if __name__ == "__main__":
