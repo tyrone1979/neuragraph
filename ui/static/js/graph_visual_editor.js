@@ -3702,10 +3702,33 @@ function _cleanExportSvg(svg) {
     });
 }
 
+/** Remove editor zoom/pan — otherwise canvg misaligns nodes vs viewBox. */
+function _stripExportViewportTransforms(svg) {
+    svg.querySelectorAll('.joint-layers, .joint-viewport').forEach(function(g) {
+        g.removeAttribute('transform');
+    });
+}
+
+/** Paint links before nodes so edge wrappers do not cover node headers. */
+function _reorderExportCells(svg) {
+    var layer = svg.querySelector('.joint-cells-layer');
+    if (!layer) return;
+    var cells = Array.from(layer.querySelectorAll(':scope > g'));
+    var links = cells.filter(function(c) {
+        return (c.getAttribute('class') || '').indexOf('joint-link') >= 0;
+    });
+    var elements = cells.filter(function(c) {
+        return (c.getAttribute('class') || '').indexOf('joint-element') >= 0;
+    });
+    links.concat(elements).forEach(function(c) { layer.appendChild(c); });
+}
+
 function _prepareExportSvg(bb) {
     var svg = paper.svg.cloneNode(true);
     _cleanExportSvg(svg);
+    _stripExportViewportTransforms(svg);
     _replaceForeignObjectsWithPureSvg(svg);
+    _reorderExportCells(svg);
     svg.setAttribute('viewBox', bb.x + ' ' + bb.y + ' ' + bb.width + ' ' + bb.height);
     svg.setAttribute('width', bb.width);
     svg.setAttribute('height', bb.height);
@@ -3730,27 +3753,26 @@ function _downloadBlob(blob, filename) {
 }
 
 async function _renderExportCanvas(scale) {
+    scale = scale == null ? 1 : scale;
     var bb = _computeExportBBox();
     var svg = _prepareExportSvg(bb);
     var svgStr = _serializeExportSvg(svg);
-    var w = Math.max(1, Math.round(bb.width * scale));
-    var h = Math.max(1, Math.round(bb.height * scale));
     var canvas = document.createElement('canvas');
-    canvas.width = w;
-    canvas.height = h;
     var ctx = canvas.getContext('2d');
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, w, h);
-    ctx.scale(scale, scale);
     if (typeof canvg !== 'undefined' && canvg.Canvg && canvg.Canvg.fromString) {
+        // Render 1:1 first; canvg resets canvas dimensions from SVG width/height.
         var v = await canvg.Canvg.fromString(ctx, svgStr, { ignoreMouse: true, ignoreAnimation: true });
         await v.render();
     } else {
+        canvas.width = Math.max(1, Math.round(bb.width));
+        canvas.height = Math.max(1, Math.round(bb.height));
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         await new Promise(function(resolve, reject) {
             var img = new Image();
             var url = URL.createObjectURL(new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' }));
             img.onload = function() {
-                ctx.drawImage(img, 0, 0, bb.width, bb.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 URL.revokeObjectURL(url);
                 resolve();
             };
@@ -3758,7 +3780,17 @@ async function _renderExportCanvas(scale) {
             img.src = url;
         });
     }
-    return canvas;
+    if (scale === 1) return canvas;
+    var out = document.createElement('canvas');
+    out.width = Math.max(1, Math.round(canvas.width * scale));
+    out.height = Math.max(1, Math.round(canvas.height * scale));
+    var octx = out.getContext('2d');
+    octx.fillStyle = '#ffffff';
+    octx.fillRect(0, 0, out.width, out.height);
+    octx.imageSmoothingEnabled = true;
+    if (octx.imageSmoothingQuality) octx.imageSmoothingQuality = 'high';
+    octx.drawImage(canvas, 0, 0, out.width, out.height);
+    return out;
 }
 
 function _withExportContext(fn) {
