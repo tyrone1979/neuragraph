@@ -115,7 +115,10 @@ def api_list_graphs():
             'name': g.get('name', g.get('id', '')),
             'description': g.get('description', ''),
             'nodes': g.get('nodes', []),
-            'edges': g.get('edges', [])
+            'edges': g.get('edges', []),
+            'flowNodes': g.get('flowNodes') or {},
+            'bindings': g.get('bindings') or {},
+            'agentVersions': g.get('agentVersions') or {},
         })
     return jsonify(result)
 

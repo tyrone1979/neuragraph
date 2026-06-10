@@ -55,6 +55,22 @@ class WorkflowMetricsSuite(unittest.TestCase):
         self.assertAlmostEqual(out["f1"], 1.0)
         self.assertAlmostEqual(out.get("rel_tp", out.get("tp")), 1.0)
 
+    def test_cdr_txt_rows_include_gold_relations(self):
+        from service.entity.test import TestLoader
+
+        _fields, rows = TestLoader.load_by_id_file("wf_e2e_pubtator_re", "test.txt")
+        self.assertTrue(rows)
+        self.assertIn("gold_relations", rows[0])
+        self.assertIn("CID", rows[0]["gold_relations"])
+
+    def test_empty_relation_sets_do_not_crash_metrics(self):
+        from plugin.plugin_loader import get_plugin
+
+        calc = get_plugin("MetricsCalculation")
+        out = calc.calculate([], [])
+        self.assertEqual(out["tp"], 0)
+        self.assertEqual(out["fn"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

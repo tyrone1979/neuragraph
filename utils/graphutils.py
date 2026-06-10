@@ -69,6 +69,7 @@ def compute_states(graph_id):
                 state.add(outputs["name"])
         elif MetaLoader.load("graphs", node):
             state.update(collect_subgraph_output_fields(node))
+            state.update(collect_subgraph_agent_inputs(node))
 
     for _node, binds in (g.get("bindings") or {}).items():
         for field in binds:

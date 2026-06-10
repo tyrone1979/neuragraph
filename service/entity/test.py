@@ -12,6 +12,34 @@ TEST_DIR = Path(__file__).resolve().parent.parent.parent  / "tests"
 logger = getLogger(__name__)
 
 
+def _enrich_cdr_txt_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Add CSV-style gold_* aliases when loading CDR PubTator .txt rows."""
+    out = dict(row)
+    entities = out.get("entities") or []
+    mesh_to_text: dict[str, str] = {}
+    for ent in entities:
+        if not isinstance(ent, dict):
+            continue
+        mesh = str(ent.get("mesh") or ent.get("id") or ent.get("identifier") or "").strip()
+        text = str(ent.get("text") or ent.get("name") or "").strip()
+        if mesh:
+            mesh_to_text[mesh] = text or mesh
+
+    if not out.get("gold_relations"):
+        rel_lines: list[str] = []
+        for pair in out.get("expected_relations") or []:
+            if isinstance(pair, (list, tuple)) and len(pair) >= 2:
+                head_mesh, tail_mesh = str(pair[0]), str(pair[1])
+                head = mesh_to_text.get(head_mesh, head_mesh)
+                tail = mesh_to_text.get(tail_mesh, tail_mesh)
+                rel_lines.append(f"{head} | CID | {tail}")
+        out["gold_relations"] = "\n".join(rel_lines)
+
+    if not out.get("gold_entities") and out.get("expected_entities") is not None:
+        out["gold_entities"] = json.dumps(out["expected_entities"], ensure_ascii=False)
+    return out
+
+
 class TestLoader(EntityLoader):
 
     @staticmethod
@@ -132,7 +160,9 @@ class TestLoader(EntityLoader):
             parser=CIDParser(test_file.read_text(encoding='utf-8'))
             articles = parser.get_articles()
             field_names = list(articles[0].__dataclass_fields__.keys()) if articles else []
-            articles = [asdict(art) for art in articles]
+            articles = [_enrich_cdr_txt_row(asdict(art)) for art in articles]
+            if articles and "gold_relations" not in field_names:
+                field_names = list(field_names) + ["gold_relations"]
             return field_names, articles
         return [], []
 

@@ -57,11 +57,13 @@ def build_entity_id_lookup(entities: Any, *, label: str | None = None) -> dict[s
     lookup: dict[str, str] = {}
     by_mesh: dict[str, list[str]] = {}
     for ent in parse_entities_raw(entities):
-        ent_label = str(ent.get("label") or ent.get("type") or "").strip()
+        ent_label = str(ent.get("label") or ent.get("type") or ent.get("etype") or "").strip()
         if label and ent_label and ent_label != label:
             continue
         text = str(ent.get("text") or ent.get("name") or "").strip()
-        ent_id = canonical_mesh_id(str(ent.get("id") or ent.get("identifier") or ""))
+        ent_id = canonical_mesh_id(
+            str(ent.get("id") or ent.get("identifier") or ent.get("mesh") or "")
+        )
         if not text:
             continue
         if ent_id:
@@ -149,6 +151,11 @@ def normalize_cid_relation_lines(
         for item in relations:
             if isinstance(item, str):
                 lines.extend(ln.strip() for ln in item.splitlines() if ln.strip())
+            elif isinstance(item, (list, tuple)) and len(item) >= 2:
+                head = str(item[0]).strip()
+                tail = str(item[-1]).strip()
+                if head and tail:
+                    lines.append(f"{head} | CID | {tail}")
     else:
         return []
 

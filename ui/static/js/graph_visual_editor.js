@@ -18,6 +18,21 @@ function getGraphAgentVersions(wf) {
     return wf.agentVersions || {};
 }
 
+/** Subgraphs referenced via workflow bindings (sg_*) but not as SUB nodes in wf.nodes. */
+function isSubgraphContainerId(id) {
+    if (!id || id === 'START' || id === 'END') return false;
+    if (!/^sg_/.test(id)) return false;
+    var g = graphsById && graphsById[id];
+    return !!(g && g.nodes && g.edges);
+}
+
+function walkBindingSubgraphs(wf, fn) {
+    wf = wf || currentGraph || {};
+    Object.keys(getGraphBindings(wf)).forEach(function(key) {
+        if (isSubgraphContainerId(key)) fn(key);
+    });
+}
+
 function getPinnedAgentVersion(agentId, wf) {
     return getGraphAgentVersions(wf)[agentId] || '';
 }
@@ -82,6 +97,7 @@ function mergeFlowNodesFromGraph(wf) {
         if (agentsData[nid] && agentsData[nid].type === 'SUB') mergeSubgraphMeta(nid, seen);
         if (graphsById && graphsById[nid]) mergeSubgraphMeta(nid, seen);
     });
+    walkBindingSubgraphs(wf, function(subId) { mergeSubgraphMeta(subId, seen); });
 }
 
 function getNodeFlowKind(nid, wf) {
@@ -141,6 +157,7 @@ function discoverNestedLoops(wf) {
         if (fn && fn.kind === 'loop') return;
         if (graphsById && graphsById[nid]) walkSub(nid);
     });
+    walkBindingSubgraphs(wf, walkSub);
     return ordered;
 }
 
@@ -708,8 +725,10 @@ function layoutLoopRegion(loopId) {
     graph.getLinks().forEach(function(l) {
         if (l.get('parentLoop') === loopId) l.set('z', 8);
     });
-    reattachLinkPorts();
-    rerouteAllLinks();
+    if (!isBatchLayoutActive()) {
+        reattachLinkPorts();
+        rerouteAllLinks();
+    }
 }
 
 function isLoopShellInsideParent(loopId) {
@@ -740,9 +759,11 @@ function syncNestedLoopShellPositions() {
     });
 }
 
-function finalizeLoopLayout(wf) {
+function finalizeLoopLayout(wf, opts) {
+    opts = opts || {};
+    var anchor = opts.anchor !== false;
     getRootLoopIds(wf || currentGraph || {}).forEach(function(lid) {
-        fitLoopShellToContent(lid, { anchor: false, skipReposition: true });
+        fitLoopShellToContent(lid, { anchor: anchor, skipReposition: true });
         repositionLoopChildren(lid);
     });
 }
@@ -806,7 +827,8 @@ function collectCanvasLayoutPositions() {
 }
 
 /** Restore a previously saved manual layout; returns true when any node was placed. */
-function applyCanvasLayoutPositions(positions) {
+function applyCanvasLayoutPositions(positions, opts) {
+    opts = opts || {};
     if (!positions || !graph) return false;
     var applied = false;
     Object.keys(positions).forEach(function(id) {
@@ -816,7 +838,7 @@ function applyCanvasLayoutPositions(positions) {
         el.position(pos.x, pos.y);
         applied = true;
     });
-    if (applied) {
+    if (applied && !opts.skipContainerSync) {
         reattachLinkPorts();
         updateSubgraphContainerPositions();
     }
@@ -825,9 +847,6 @@ function applyCanvasLayoutPositions(positions) {
 
 function persistCanvasLayoutToGraph(wf) {
     wf = wf || currentGraph || {};
-    getRootLoopIds(wf).forEach(function(lid) {
-        if (hasLoopInners(lid) && graph.getCell(lid)) layoutLoopRegion(lid);
-    });
     wf.visualData = wf.visualData || {};
     wf.visualData.layout = collectCanvasLayoutPositions();
     if (currentGraph) currentGraph.visualData = wf.visualData;
@@ -1082,7 +1101,26 @@ const LINK_PORT_OFFSET = 0;
 const LINK_BOUNDARY_OFFSET = 5;
 var _routeObstacleElements = null;
 var _obstacleBBoxCache = null;
+var _subgraphShellCache = null;
 var _rerouteScheduled = null;
+var _batchLayoutDepth = 0;
+
+function beginBatchLayout() {
+    _batchLayoutDepth++;
+}
+
+function endBatchLayout() {
+    if (_batchLayoutDepth <= 0) return;
+    _batchLayoutDepth--;
+    if (_batchLayoutDepth === 0) {
+        updateSubgraphContainerPositions();
+        rerouteAllLinks();
+    }
+}
+
+function isBatchLayoutActive() {
+    return _batchLayoutDepth > 0;
+}
 
 function expandRect(bb, pad) {
     return {
@@ -1314,6 +1352,15 @@ function isLinkRouteObstacle(link, point) {
     return false;
 }
 
+function getSubgraphShellElements() {
+    if (_subgraphShellCache) return _subgraphShellCache;
+    _subgraphShellCache = graph.getElements().filter(function(e) { return e.get('subgraph'); });
+    _subgraphShellCache.sort(function(a, b) {
+        return getSubgraphDepth(a.get('subgraph')) - getSubgraphDepth(b.get('subgraph'));
+    });
+    return _subgraphShellCache;
+}
+
 function applySubgraphCrossingVertices(link) {
     if (!graph) return;
     var src = link.get('source'), tgt = link.get('target');
@@ -1327,9 +1374,7 @@ function applySubgraphCrossingVertices(link) {
     var tgtY = tgtEl.getBBox().y + tgtEl.size().height / 2;
     var curY = srcY;
     var exitVerts = [], enterVerts = [];
-    var shells = graph.getElements().filter(function(e) { return e.get('subgraph'); }).sort(function(a, b) {
-        return getSubgraphDepth(a.get('subgraph')) - getSubgraphDepth(b.get('subgraph'));
-    });
+    var shells = getSubgraphShellElements();
     shells.forEach(function(shell) {
         var subId = shell.get('subgraph');
         if (!linkCrossesSubgraphBoundary(link, subId)) return;
@@ -1366,8 +1411,10 @@ function applySubgraphCrossingVertices(link) {
     if (verts.length) link.vertices(verts);
 }
 
-function configureLinkRouting(link) {
+function configureLinkRouting(link, opts) {
+    opts = opts || {};
     if (!link || typeof link.router !== 'function') return;
+    if (isBatchLayoutActive() && !opts.force) return;
     refreshLinkEndpointGeometry(link);
     link.vertices([]);
     applySubgraphCrossingVertices(link);
@@ -1378,7 +1425,7 @@ function configureLinkRouting(link) {
         link.router('manhattan', {
             step: 10,
             padding: LINK_ROUTE_PAD,
-            maximumLoops: 5000,
+            maximumLoops: 4000,
             startDirections: ['right'],
             endDirections: ['left'],
             isPointObstacle: function(point) { return isLinkRouteObstacle(link, point); }
@@ -1392,9 +1439,27 @@ function rerouteAllLinks() {
     if (!graph) return;
     _routeObstacleElements = null;
     _obstacleBBoxCache = {};
-    graph.getLinks().forEach(configureLinkRouting);
+    _subgraphShellCache = null;
+    graph.getLinks().forEach(function(link) {
+        configureLinkRouting(link, { force: true });
+    });
     _routeObstacleElements = null;
     _obstacleBBoxCache = null;
+    _subgraphShellCache = null;
+}
+
+function rerouteLinks(linkIds) {
+    if (!graph || !linkIds || !linkIds.length) return;
+    _routeObstacleElements = null;
+    _obstacleBBoxCache = {};
+    _subgraphShellCache = null;
+    linkIds.forEach(function(linkId) {
+        var link = graph.getCell(linkId);
+        if (link && link.isLink && link.isLink()) configureLinkRouting(link, { force: true });
+    });
+    _routeObstacleElements = null;
+    _obstacleBBoxCache = null;
+    _subgraphShellCache = null;
 }
 
 function scheduleRerouteAllLinks() {
@@ -1403,6 +1468,48 @@ function scheduleRerouteAllLinks() {
         _rerouteScheduled = null;
         rerouteAllLinks();
     }, 60);
+}
+
+var _containerSyncScheduled = null;
+
+function scheduleSubgraphContainerSync() {
+    if (_containerSyncScheduled) clearTimeout(_containerSyncScheduled);
+    _containerSyncScheduled = setTimeout(function() {
+        _containerSyncScheduled = null;
+        updateSubgraphContainerPositions();
+        scheduleRerouteAllLinks();
+    }, 32);
+}
+
+function isPointInsideBindingSubgraphContainer(sgId, x, y) {
+    var cnt = graph.getCell(sgId + '_container');
+    if (!cnt) return false;
+    var bb = cnt.getBBox();
+    return x >= bb.x && x <= bb.x + bb.width && y >= bb.y && y <= bb.y + bb.height;
+}
+
+/** Keep bridge/top-level nodes out of binding sg boxes; members out of foreign sg boxes. */
+function enforceNodeSubgraphMembership(nid, dragState) {
+    var wf = currentGraph || {};
+    if (!hasBindingSubgraphs(wf) || !dragState || !nid) return;
+    var el = graph.getCell(nid);
+    if (!el) return;
+    var memberMap = getBindingSubgraphMemberMap(wf);
+    var homeSg = memberMap[nid];
+    var cx = el.position().x + el.size().width / 2;
+    var cy = el.position().y + el.size().height / 2;
+    var revert = false;
+
+    if (!homeSg) {
+        walkBindingSubgraphs(wf, function(sgId) {
+            if (isPointInsideBindingSubgraphContainer(sgId, cx, cy)) revert = true;
+        });
+    } else {
+        walkBindingSubgraphs(wf, function(sgId) {
+            if (sgId !== homeSg && isPointInsideBindingSubgraphContainer(sgId, cx, cy)) revert = true;
+        });
+    }
+    if (revert) el.position(dragState.ox, dragState.oy);
 }
 
 function linkEndpointGeometry(side) {
@@ -1932,6 +2039,7 @@ function initJointJS() {
     });
     var loopDragState = null;
     var sgDragState = null;
+    var nodeDragState = null;
     paper.on('element:pointerclick', function(ev) {
         var m = ev.model;
         if (m.get('subgraph')) return;
@@ -2000,6 +2108,11 @@ function initJointJS() {
         if (isLoopNode(m.id) && m.get('isLoopShell')) {
             loopDragState = { loopId: m.id, ox: m.position().x, oy: m.position().y, inners: {} };
             collectLoopMemberPositions(m.id, loopDragState.inners);
+            return;
+        }
+        if (!m.get('parentLoop') && m.id !== 'START' && m.id !== 'END') {
+            var np = m.position();
+            nodeDragState = { id: m.id, ox: np.x, oy: np.y };
         }
     });
     paper.on('element:pointermove', function(ev) {
@@ -2007,25 +2120,41 @@ function initJointJS() {
             var dx = ev.model.position().x - sgDragState.ox;
             var dy = ev.model.position().y - sgDragState.oy;
             applySubgraphDragDelta(sgDragState, dx, dy);
+            scheduleSubgraphContainerSync();
             return;
         }
-        if (!loopDragState || ev.model.id !== loopDragState.loopId) return;
-        var m = ev.model;
-        var dx = m.position().x - loopDragState.ox;
-        var dy = m.position().y - loopDragState.oy;
-        Object.keys(loopDragState.inners).forEach(function(nid) {
-            var el = graph.getCell(nid);
-            var p0 = loopDragState.inners[nid];
-            if (el && p0) el.position(p0.x + dx, p0.y + dy);
-        });
+        if (loopDragState && ev.model.id === loopDragState.loopId) {
+            var m = ev.model;
+            var ldx = m.position().x - loopDragState.ox;
+            var ldy = m.position().y - loopDragState.oy;
+            Object.keys(loopDragState.inners).forEach(function(nid) {
+                var el = graph.getCell(nid);
+                var p0 = loopDragState.inners[nid];
+                if (el && p0) el.position(p0.x + ldx, p0.y + ldy);
+            });
+            scheduleSubgraphContainerSync();
+            return;
+        }
+        if (nodeDragState && ev.model.id === nodeDragState.id) {
+            scheduleSubgraphContainerSync();
+        }
     });
-    paper.on('element:pointerup', function() {
+    paper.on('element:pointerup', function(ev) {
+        if (nodeDragState && ev.model && ev.model.id === nodeDragState.id) {
+            enforceNodeSubgraphMembership(nodeDragState.id, nodeDragState);
+        }
+        nodeDragState = null;
         loopDragState = null;
         sgDragState = null;
+        if (_containerSyncScheduled) {
+            clearTimeout(_containerSyncScheduled);
+            _containerSyncScheduled = null;
+        }
         updateSubgraphContainerPositions();
         scheduleRerouteAllLinks();
     });
     graph.on('add', function(cell) {
+        if (isBatchLayoutActive()) return;
         if (!cell.isLink || !cell.isLink()) return;
         if (cell.get('parentLoop')) return;
         var pl = getLinkParentLoop(cell);
@@ -2156,6 +2285,69 @@ function initCanvasPan() {
 }
 
 // ─── Load components ────────────────────────────────
+function mergeGraphListEntry(prev, g) {
+    if (!g || !g.id) return prev;
+    if (!prev) return g;
+    var prevFn = prev.flowNodes || {};
+    var nextFn = g.flowNodes || {};
+    var flowNodes = Object.assign({}, nextFn, prevFn);
+    if (!Object.keys(flowNodes).length) {
+        flowNodes = Object.keys(nextFn).length ? nextFn : prevFn;
+    }
+    return Object.assign({}, prev, g, {
+        nodes: prev.nodes || g.nodes,
+        edges: prev.edges || g.edges,
+        flowNodes: flowNodes,
+        bindings: Object.assign({}, g.bindings || {}, prev.bindings || {}),
+        agentVersions: Object.assign({}, g.agentVersions || {}, prev.agentVersions || {}),
+        visualData: (prev.visualData && Object.keys(prev.visualData).length)
+            ? prev.visualData
+            : (g.visualData || prev.visualData)
+    });
+}
+
+/** Collect sg_* graph ids referenced by one workflow (bindings + nested loop bodies). */
+function collectWorkflowGraphIds(wf) {
+    if (!wf) return [];
+    var ids = {}, queue = [wf.id];
+    walkBindingSubgraphs(wf, function(key) { queue.push(key); });
+    while (queue.length) {
+        var id = queue.shift();
+        if (!id || id === 'START' || id === 'END' || ids[id]) continue;
+        ids[id] = true;
+        var g = graphsById[id];
+        Object.keys((g && g.flowNodes) || {}).forEach(function(nid) {
+            var fn = g.flowNodes[nid];
+            if (fn && fn.subgraphId) queue.push(fn.subgraphId);
+        });
+    }
+    return Object.keys(ids);
+}
+
+function graphRecordNeedsHydration(id) {
+    var g = graphsById[id];
+    if (!g || !g.nodes || !g.nodes.length) return true;
+    if (/^sg_/.test(id) && !(g.flowNodes && Object.keys(g.flowNodes).length)) return true;
+    return false;
+}
+
+/** Hydrate loop metadata only for graphs referenced by the open workflow. */
+async function enrichSparseGraphRecords(wf) {
+    if (!wf || typeof graphsById !== 'object' || graphsById === null) return;
+    for (var pass = 0; pass < 3; pass++) {
+        var todo = collectWorkflowGraphIds(wf).filter(graphRecordNeedsHydration);
+        if (!todo.length) break;
+        await Promise.all(todo.map(async function(id) {
+            try {
+                var resp = await fetch('/graph/api/' + encodeURIComponent(id));
+                if (!resp.ok) return;
+                var full = await resp.json();
+                graphsById[id] = mergeGraphListEntry(graphsById[id], full);
+            } catch (e) { /* ignore */ }
+        }));
+    }
+}
+
 async function loadComponents() {
     try {
         const [ar, gr, tr, lr] = await Promise.all([
@@ -2172,18 +2364,11 @@ async function loadComponents() {
             if (typeof graphsById !== 'object' || graphsById === null) graphsById = {};
             (allGraphs || []).forEach(function(g) {
                 if (!g || !g.id) return;
-                var prev = graphsById[g.id];
-                if (!prev) {
-                    graphsById[g.id] = g;
-                    return;
-                }
-                graphsById[g.id] = Object.assign({}, prev, g, {
-                    nodes: prev.nodes || g.nodes,
-                    edges: prev.edges || g.edges,
-                    flowNodes: prev.flowNodes || g.flowNodes,
-                    bindings: prev.bindings || g.bindings
-                });
+                graphsById[g.id] = mergeGraphListEntry(graphsById[g.id], g);
             });
+            var openWf = (typeof current !== 'undefined' && current && graphsById[current])
+                ? graphsById[current] : null;
+            if (openWf) await enrichSparseGraphRecords(openWf);
         }
         if (tr.ok) allTools = await tr.json();
         if (lr.ok) availableLLMs = await lr.json();
@@ -2500,6 +2685,7 @@ function createLink(sourceId, targetId, opts) {
 }
 
 function reattachLinkPorts() {
+    if (isBatchLayoutActive()) return;
     graph.getLinks().forEach(function(link) {
         configureLinkRouting(link);
     });
@@ -2590,6 +2776,8 @@ function collectSubgraphInnerNodes() {
 
 function renderWorkflow(wf) {
     if (!wf || !wf.nodes || !wf.edges) { createDefaultWorkflow(); return; }
+    beginBatchLayout();
+    try {
     graph.clear();
     subgraphRanges = {};
     mergeFlowNodesFromGraph(wf);
@@ -2615,13 +2803,30 @@ function renderWorkflow(wf) {
     });
     graph.resetCells(nodeCells.concat(linkCells));
     var savedLayout = wf.visualData && wf.visualData.layout;
+    var useBindingLayout = hasBindingSubgraphs(wf);
     var hasSavedLayout = savedLayout && Object.keys(savedLayout).length > 0;
-    if (!hasSavedLayout) {
+    if (useBindingLayout && !hasSavedLayout) {
+        layoutBindingSubgraphWorkflow(wf);
+        layoutBindingSubgraphTopLevel(wf);
+        syncNestedLoopShellPositions();
+        finalizeLoopLayout(wf, { anchor: true });
+        orderBindingSubgraphsByFlow(wf).forEach(function(sgId) { _drawSubgraphContainer(sgId); });
+        updateSubgraphContainerPositions();
+    } else if (useBindingLayout && hasSavedLayout) {
+        getRootLoopIds(wf).forEach(function(lid) { layoutLoopRegion(lid); });
+        orderBindingSubgraphsByFlow(wf).forEach(function(sgId) { _drawSubgraphContainer(sgId); });
+        applyCanvasLayoutPositions(savedLayout, { skipContainerSync: true });
+        getRootLoopIds(wf).forEach(function(lid) {
+            fitLoopShellToContent(lid, { anchor: true, skipReposition: true });
+            repositionLoopChildren(lid);
+        });
+        syncNestedLoopShellPositions();
+        updateSubgraphContainerPositions();
+    } else if (!hasSavedLayout) {
         var layoutRankSep = nestedLoopOrder.length ? 240 : 160;
         joint.layout.DirectedGraph.layout(graph, {
             rankDir: 'LR', nodeSep: 100, rankSep: layoutRankSep, edgeSep: 50, marginX: 48, marginY: 48
         });
-        reattachLinkPorts();
         drawSubgraphContainers();
         getRootLoopIds(wf).forEach(function(lid) { layoutLoopRegion(lid); });
         finalizeLoopLayout(wf);
@@ -2629,23 +2834,24 @@ function renderWorkflow(wf) {
         resolveLoopTopLevelOverlaps();
         finalizeLoopLayout(wf);
         syncNestedLoopShellPositions();
-        reattachLinkPorts();
         updateSubgraphContainerPositions();
-        rerouteAllLinks();
     } else {
         // Saved layout: still materialize loop inner nodes, then restore coordinates.
         getRootLoopIds(wf).forEach(function(lid) { layoutLoopRegion(lid); });
         drawSubgraphContainers();
-        applyCanvasLayoutPositions(savedLayout);
+        applyCanvasLayoutPositions(savedLayout, { skipContainerSync: true });
         getRootLoopIds(wf).forEach(function(lid) {
             fitLoopShellToContent(lid, { anchor: true, skipReposition: true });
         });
         syncNestedLoopShellPositions();
         updateSubgraphContainerPositions();
-        rerouteAllLinks();
     }
-    fitToContent(); saveToHistory();
+    fitToContent();
+    saveToHistory();
     syncCurrentGraphFromCanvas();
+    } finally {
+        endBatchLayout();
+    }
 }
 
 // ─── Subgraph expand ────────────────────────────────
@@ -2706,21 +2912,18 @@ function expandSubgraph(wf) {
     return { nodes: uniq, edges: edges.filter(function(e) { return ns.has(e[0]) && ns.has(e[1]); }) };
 }
 
-/** Subgraphs referenced via workflow bindings (sg_*) but not as SUB nodes in wf.nodes. */
-function isSubgraphContainerId(id) {
-    if (!id || id === 'START' || id === 'END') return false;
-    if (!/^sg_/.test(id)) return false;
-    var g = graphsById && graphsById[id];
-    return !!(g && g.nodes && g.edges);
-}
-
 function mergeSubgraphRangeFromGraph(subId, sub, visited) {
     if (!subId || !sub || visited[subId]) return;
     visited[subId] = true;
     if (!subgraphRanges[subId]) subgraphRanges[subId] = { nodes: [], subgraphs: [], edges: [] };
     var info = subgraphRanges[subId];
+    var subFn = sub.flowNodes || {};
     (sub.nodes || []).forEach(function(n) {
         if (n === 'START' || n === 'END') return;
+        var childFn = subFn[n];
+        if (childFn && childFn.kind === 'loop') {
+            _applyFlowNodeMeta(n, childFn);
+        }
         if (isSubgraphContainerId(n)) {
             if (info.subgraphs.indexOf(n) < 0) info.subgraphs.push(n);
             mergeSubgraphRangeFromGraph(n, graphsById[n], visited);
@@ -2738,6 +2941,161 @@ function buildSubgraphRangesFromBindings(wf) {
         if (!isSubgraphContainerId(key)) return;
         mergeSubgraphRangeFromGraph(key, graphsById[key], visited);
     });
+}
+
+function hasBindingSubgraphs(wf) {
+    var found = false;
+    walkBindingSubgraphs(wf, function() { found = true; });
+    return found;
+}
+
+function getBindingSubgraphMemberMap(wf) {
+    var map = {};
+    walkBindingSubgraphs(wf, function(sgId) {
+        var info = subgraphRanges[sgId];
+        if (!info) return;
+        (info.nodes || []).forEach(function(nid) { map[nid] = sgId; });
+    });
+    return map;
+}
+
+function getSubgraphLayoutEdges(sgId) {
+    var info = subgraphRanges[sgId];
+    if (!info) return [];
+    var sub = resolveSubgraphGraph(sgId) || {};
+    var members = {};
+    (info.nodes || []).forEach(function(nid) { members[nid] = true; });
+    return filterInnerEdges(sub.edges || info.edges || []).filter(function(e) {
+        return members[e[0]] && members[e[1]];
+    });
+}
+
+/** Order binding sg containers by cross-sg workflow edges (flair before cid, etc.). */
+function orderBindingSubgraphsByFlow(wf) {
+    var sgIds = [];
+    walkBindingSubgraphs(wf, function(sgId) { sgIds.push(sgId); });
+    if (sgIds.length <= 1) return sgIds;
+    var memberMap = getBindingSubgraphMemberMap(wf);
+    var indeg = {};
+    sgIds.forEach(function(id) { indeg[id] = 0; });
+    (wf.edges || []).forEach(function(e) {
+        var ss = memberMap[e[0]], ts = memberMap[e[1]];
+        if (ss && ts && ss !== ts) indeg[ts] = (indeg[ts] || 0) + 1;
+    });
+    var queue = sgIds.filter(function(id) { return !indeg[id]; });
+    var order = [];
+    while (queue.length) {
+        var id = queue.shift();
+        order.push(id);
+        (wf.edges || []).forEach(function(e) {
+            if (memberMap[e[0]] !== id) return;
+            var ts = memberMap[e[1]];
+            if (!ts || ts === id) return;
+            indeg[ts]--;
+            if (indeg[ts] === 0) queue.push(ts);
+        });
+    }
+    sgIds.forEach(function(id) {
+        if (order.indexOf(id) < 0) order.push(id);
+    });
+    return order;
+}
+
+/** Lay out member nodes (and nested loops) in LR order inside one binding sg band. */
+function layoutBindingSubgraphMembers(sgId, originX, originY) {
+    var info = subgraphRanges[sgId];
+    if (!info || !graph) return;
+    var memberIds = (info.nodes || []).filter(function(nid) {
+        return graph.getCell(nid) && !isLoopInnerNode(nid);
+    });
+    if (!memberIds.length) return;
+    var edges = getSubgraphLayoutEdges(sgId);
+    var ordered = orderNodesHorizontal(memberIds, edges);
+    var gap = 56;
+    var x = originX + 52;
+    var y = originY + 52 + 20;
+    ordered.forEach(function(nid) {
+        if (isLoopNode(nid) && hasLoopInners(nid)) {
+            prepareLoopInnerContent(nid);
+            var shell = graph.getCell(nid);
+            if (!shell) return;
+            shell.position(x, y);
+            repositionLoopChildren(nid);
+            fitLoopShellToContent(nid, { anchor: true, skipReposition: true });
+            var bb = shell.getBBox();
+            getLoopInnerIds(nid).forEach(function(innerId) {
+                var inner = graph.getCell(innerId);
+                if (inner) bb = bb.union(inner.getBBox());
+            });
+            x = bb.x + bb.width + gap;
+        } else {
+            var el = graph.getCell(nid);
+            if (!el) return;
+            el.position(x, y);
+            x += el.size().width + gap;
+        }
+    });
+}
+
+/** Stack binding sg regions vertically; members + loops stay inside each purple box. */
+function layoutBindingSubgraphWorkflow(wf) {
+    wf = wf || currentGraph || {};
+    if (!hasBindingSubgraphs(wf)) return;
+    var sgOrder = orderBindingSubgraphsByFlow(wf);
+    var curY = 48;
+    var leftX = 48;
+    sgOrder.forEach(function(sgId) {
+        layoutBindingSubgraphMembers(sgId, leftX, curY);
+        _drawSubgraphContainer(sgId);
+        var cnt = graph.getCell(sgId + '_container');
+        if (cnt) {
+            var bb = cnt.getBBox();
+            curY = bb.y + bb.height + 72;
+        }
+    });
+}
+
+/** Place START / bridge agents / END relative to binding sg containers. */
+function layoutBindingSubgraphTopLevel(wf) {
+    wf = wf || currentGraph || {};
+    if (!graph || !hasBindingSubgraphs(wf)) return;
+    var gap = 56;
+    var memberMap = getBindingSubgraphMemberMap(wf);
+    var sgOrder = orderBindingSubgraphsByFlow(wf);
+    var firstCnt = sgOrder.length ? graph.getCell(sgOrder[0] + '_container') : null;
+    var lastCnt = sgOrder.length ? graph.getCell(sgOrder[sgOrder.length - 1] + '_container') : null;
+    var startEl = graph.getCell('START');
+    if (startEl && firstCnt) {
+        var fb = firstCnt.getBBox();
+        startEl.position(
+            fb.x - startEl.size().width - gap,
+            fb.y + fb.height / 2 - startEl.size().height / 2
+        );
+    }
+    var bridgeIds = (wf.nodes || []).filter(function(nid) {
+        return nid !== 'START' && nid !== 'END' && !memberMap[nid] && !isLoopInnerNode(nid);
+    });
+    var anchor = lastCnt ? lastCnt.getBBox() : (firstCnt ? firstCnt.getBBox() : null);
+    if (anchor && bridgeIds.length) {
+        var bx = anchor.x + anchor.width + gap;
+        var by = anchor.y + anchor.height / 2;
+        bridgeIds.forEach(function(nid) {
+            var el = graph.getCell(nid);
+            if (!el) return;
+            el.position(bx, by - el.size().height / 2);
+            bx += el.size().width + gap;
+        });
+        var endEl = graph.getCell('END');
+        if (endEl) {
+            endEl.position(bx, by - endEl.size().height / 2);
+        }
+    } else {
+        var endEl = graph.getCell('END');
+        if (endEl && lastCnt) {
+            var lb = lastCnt.getBBox();
+            endEl.position(lb.x + lb.width + gap, lb.y + lb.height / 2 - endEl.size().height / 2);
+        }
+    }
 }
 
 function expandLoopInner(loopNid, wf) {
@@ -2873,13 +3231,16 @@ function _drawSubgraphContainer(subId) {
 
 // ─── Update container positions when elements move ──
 function updateSubgraphContainerPositions() {
+    if (!graph) return;
     var ordered = Object.keys(subgraphRanges).sort(function(a, b) {
         return getSubgraphDepth(b) - getSubgraphDepth(a);
     });
     ordered.forEach(function(subId) {
-        var bbox = _containerBBox(subId);
+        if (isLoopNode(subId)) return;
         var cnt = graph.getCell(subId + '_container');
-        if (!cnt || !bbox) return;
+        if (!cnt || !cnt.get('subgraph')) return;
+        var bbox = _containerBBox(subId);
+        if (!bbox) return;
         var pad = 52;
         cnt.position(bbox.x - pad, bbox.y - pad);
         cnt.resize(bbox.width + pad * 2, bbox.height + pad * 2);

@@ -2,6 +2,7 @@
 import unittest
 
 from utils.graphutils import (
+    compute_states,
     parse_workflow_family,
     redundant_graph_ids,
     rebase_workflow_variant_from_baseline,
@@ -99,6 +100,12 @@ class WorkflowFamilySelectionTest(unittest.TestCase):
         self.assertEqual(rebased["agentVersions"], {"relation_verify_llm": "v0007"})
         self.assertEqual(rebased["name"], stale["name"])
         self.assertEqual(rebased["created_at"], stale["created_at"])
+
+    def test_compute_states_includes_nested_subgraph_inputs(self):
+        fields = compute_states("wf_e2e_pubtator_re")
+        self.assertIn("text", fields)
+        self.assertIn("pmid", fields)
+        self.assertIn("relations", fields)
 
 
 if __name__ == "__main__":

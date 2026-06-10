@@ -497,6 +497,16 @@ class Metrics(Plugin):
                     gold_set = set(expected_pairs)
                     pred_set = set(predicted_pairs)
 
+                    if not gold_set and not pred_set:
+                        return {
+                            "precision": 0.0,
+                            "recall": 0.0,
+                            "f1": 0.0,
+                            "tp": 0,
+                            "fp": 0,
+                            "fn": 0,
+                        }
+
                     # 计算 TP/FP/FN（集合运算）
                     tp = len(gold_set & pred_set)
                     fp = len(pred_set - gold_set)

@@ -117,6 +117,11 @@ class GraphMetaLoader:
                     continue
                 if MetaLoader.load("graphs", node):
                     _load(node)
+            for bind_key in (cfg.get("bindings") or {}):
+                if bind_key in ("START", "END"):
+                    continue
+                if MetaLoader.load("graphs", bind_key):
+                    _load(bind_key)
             for fn in (cfg.get("flowNodes") or {}).values():
                 if not isinstance(fn, dict):
                     continue
