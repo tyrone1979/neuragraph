@@ -1,0 +1,17 @@
+{
+  "dataset": "dev.txt",
+  "test_dataset": "dev.txt",
+  "tuning_dataset": "dev.txt",
+  "runner_type": "graph",
+  "runner_id": "wf_e2e_pubtator_re",
+  "runner_display": "E2E PubTator3 RE (wf_e2e_pubtator_re) - Workflow",
+  "samples": 500,
+  "exp_id": "5c3bad58-a7ea-4236-ae95-e8956b736e7e",
+  "name": "wf_e2e_pubtator_re_dev.txt_20260610162620",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-10T16:26:20.184072",
+  "updated_at": "2026-06-10T16:42:31.269626",
+  "last_error": "",
+  "failed_at_sample": null
+}

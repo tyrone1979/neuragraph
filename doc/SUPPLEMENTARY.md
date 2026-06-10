@@ -30,7 +30,7 @@ Local biomedical models (e.g. Flair/HunFlair2) are integrated through a unified 
 
 ### Feature 4 — Batch experiments and reproducibility
 
-Each batch experiment persists workflow JSON (optional **fixed agent definitions** recorded in `agentVersions`), experiment metadata (`meta/exps/<id>.json`), and per-sample `**result/<exp_id>/states.json`** (inputs, per-node traces, predictions, metrics). Agent and tool definitions are archived on save (`meta/agent_versions/`, `meta/tool_versions/`) with content hashes so a past configuration can be reloaded; re-runs use the stored workflow and agent files rather than silently using the latest editable definitions (**configuration-level reproducibility**; LLM stochasticity depends on fixed model endpoints and sampling settings).
+Batch experiments are designed so a completed run can be audited and repeated under the same configuration. The platform stores the workflow that was executed, a snapshot of each agent and tool definition as it stood when the workflow was saved (so later edits in the visual editor do not change what an old experiment actually ran), and per-article logs of inputs, intermediate outputs, predictions, and evaluation metrics. Re-running or reviewing an experiment therefore uses the stored workflow and agent snapshots rather than whatever happens to be loaded in the editor at review time. LLM-based steps are inherently stochastic; repeats are comparable only when the same model, endpoint, and sampling settings are kept and recorded alongside the run.
 
 ### Feature 5 — Evaluation metrics
 
@@ -72,55 +72,71 @@ Built-in **micro-** and **macro-averaged** metrics (Feature 5) are logged throug
 
 ## 3. Illustrative examples
 
-### 3.1 An end-to-end workflow for NER
+To address end-to-end system assessment on a realistic pharmacological task, we evaluate NeuraGraph on the **BioCreative V Chemical–Disease Relation (CDR)** corpus under a **pharmacovigilance-oriented use case**: mining **chemical-induced disease (CID)** assertions from biomedical abstracts. Sections 3.2–3.3 define NER and oracle-RE workflows (i.e., RE using gold-standard pre-annotated entities rather than predicted entities); section 3.4 describes the NER to RE chain. Section 3.5 reports frozen-workflow performance on the 500-article test split: Task A (NER), Task B (oracle RE, gold entities from CSV), Task C (E2E, predicted entities → RE). The experiment registry is listed in **Table S10**.
 
-**Dataset.** BioCreative V CDR corpus; NER evaluation uses the **500-article** test split (**Table S1**) for publication metrics (Table S16) and the same split for the illustrative run in Fig. S3.
+### 3.1 Dataset Preparation
 
-**Table S1.** Benchmark dataset (NER).
+The workflow was evaluated using the BioCreative V Chemical–Disease Relations (CDR) corpus, a benchmark dataset for biomedical named entity recognition. The relevant dataset statistics are summarized in **Table S1**.
 
-
-| Dataset | # Test articles | Entity labels     |
-| ------- | --------------- | ----------------- |
-| CDR     | 500             | Chemical, Disease |
+**Table S1.** Statistics of the benchmark datasets used for evaluation.
 
 
-**Agent design.** Two shipped document-level NER workflows share the same metric agent `eval_metrics` (PGM) but differ in the tagging backend (Fig. S2, **Table S2**).
-
-- **Hybrid (Flair) — `wf_doc_ner_flair_sent_eval`:** LLM sentence splitting (`text_sentence_split`) → compound loop `ner_sentence_loop` (subgraph `sg_ner_flair_sent`; body: HunFlair2 `ner_flair_sent` via Flair sandbox) → document-level entity merge → `eval_metrics` against `expected_entities` from CSV.
-- **LLM document NER — `wf_doc_ner_llm_eval`:** `text_sentence_split` → `ner_llm` (single document-level JSON entity dict) → `eval_metrics`.
-
-Gold labels are read from the CDR CSV into workflow **START** as `expected_entities` (and `labels` = Chemical, Disease). The Flair path merges per-sentence `predicted` dicts into document-level `entities` via loop `mergeAliases`.
-
-**Table S2.** Agent and flow-node specifications for sentence-level NER (`wf_doc_ner_flair_sent_eval`; LLM variant replaces loop with `ner_llm`).
+| Dataset Name | # Test set | # Dev set | Entity Labels     | Relations                |
+| ------------ | ---------- | --------- | ----------------- | ------------------------ |
+| CDR          | 500        | 50        | Chemical, Disease | Chemical-Induce-Disease |
 
 
-| Name (agent / node id) | Type            | Description                                                                                                                                  | Inputs                                                     | Outputs                             |
-| ---------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------- |
-| `text_sentence_split`  | LLM             | Split abstract into JSON sentence array (see **Prompt S1**)                                                                                  | `text`                                                     | `sentences`                         |
-| `ner_sentence_loop`    | Loop            | `foreach` over `sentences`; body subgraph `sg_ner_flair_sent` → `ner_flair_sent`; merge `predicted` → `entities`                           | `sentences`, `labels`                                      | `entities` (merged label dict)    |
-| `ner_flair_sent`       | PGM (loop body) | HunFlair2 NER via Flair plugin (`flair` sandbox); one sentence per iteration                                                                 | `sentence`, `labels`                                       | `predicted` (label → mention lists) |
-| `ner_llm`              | LLM (alt path)  | Document-level Chemical/Disease JSON extraction (see **Prompt S2**); used in `wf_doc_ner_llm_eval` only                                       | `text`, `labels`                                           | `entities` (label dict)             |
-| `eval_metrics`         | PGM             | Entity-level precision, recall, F1 (micro/macro via metrics plugin)                                                                          | `predicted` / `entities`, `expected` / `expected_entities` | `metrics`                           |
+### 3.2 An End-to-End Workflow for NER
+
+Three top-level agents and one compound loop implement sentence-level NER (Fig. S4, **Table S2**): LLM sentence splitting (`text_sentence_split`), a loop node (`ner_sentence_loop`) that iterates over sentences and runs HunFlair2 tagging on each sentence via the nested PGM agent `ner_flair_sent`, then PGM metric calculation (`eval_metrics`) on document-level merged entities. Gold labels are read from the CDR test CSV into workflow **START** as `expected_entities` (one-line map in Table S3).
+
+**Fig. S4.** Agent and flow-node specifications for the sentence-level NER workflow.
+
+**Table S2.** Agent and flow-node specifications for the sentence-level NER workflow.
 
 
-**Workflow.** Fig. S2 / runner id **`wf_doc_ner_flair_sent_eval`**: `START` → `text_sentence_split` → `ner_sentence_loop` (`sg_ner_flair_sent`) → `eval_metrics` → `END`. Alternative: **`wf_doc_ner_llm_eval`** replaces the loop with `ner_llm`.
-
-**Prompt S1 (`text_sentence_split`).** System: *You are an English-text sentence splitter.* User template: split the biomedical abstract into a JSON array of complete sentences; preserve all content; output only the JSON array (no prose).
-
-**Prompt S2 (`ner_llm`).** System: biomedical NER expert; return **only** a JSON object `{label: [mentions]}`. User template: extract all entities of types `{labels}` from `{text}`; empty lists for missing types.
-
-**Implementation effort.** **Table S3** details NeuraGraph source lines per node (Flair path). **Table S4** compares Custom Python. Line counts exclude blank lines.
-
-**Table S3.** Source code lines of NeuraGraph for NER task (Flair path).
+| Name (agent / node id) | Type            | Description                                                                                              | Inputs                                                     | Outputs                          |
+| ---------------------- | --------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------- |
+| `text_sentence_split`  | LLM             | Split document text into a JSON array of sentences.                                                      | article text                                               | `sentences`                      |
+| `ner_sentence_loop`    | Loop            | Foreach element of `sentences`; invoke subgraph `sg_ner_flair_sent`; merge per-sentence entity lists     | `sentences`, `labels`                                      | `entities`                       |
+| `ner_flair_sent`       | PGM (loop body) | HunFlair2 NER via Flair plugin (`flair` sandbox); one sentence per iteration                             | `sentence`, `labels`                                       | `predicted` / `entities`         |
+| `eval_metrics`         | PGM             | Entity-level precision, recall, and F1 (micro/macro via metrics plugin)                                  | `predicted` / `entities`, `expected` / `expected_entities` | `metrics`                        |
 
 
-| Node                            | Lines  |
-| ------------------------------- | ------ |
-| Sentence split (`text_sentence_split`) | 0 (LLM prompt) |
-| Flair NER (`ner_flair_sent`)    | 24     |
-| Performance metrics (`eval_metrics`) | 11     |
-| **Total (PGM only)**            | **35** |
+**Prompt S1 (`text_sentence_split`).**
 
+System:
+```
+You are an English-text sentence splitter.
+```
+
+User:
+```
+Task: split the following biomedical abstract into complete sentences according to English grammar and punctuation.
+Rules:
+- Keep all content, including braces, do not remove or alter them.
+- Output **only** a JSON array of strings, one sentence per element.
+- Do **not** add any explanations or extra text.
+- **Do not add any introductory sentences like "Here is the output..."
+
+Biomedical abstract:
+{text}
+```
+
+**Table S3** details the source code line counts of each node in the NER task implemented by NeuraGraph.
+
+**Table S3.** Source code lines of NeuraGraph for NER task.
+
+
+| Node                | Lines            |
+| ------------------- | ---------------- |
+| text_sentence_split | 0                |
+| ner_flair_sent      | 24               |
+| eval_metrics        | 11               |
+| **Total**           | **35**           |
+
+
+**Table S4** presents the source code line counts of the Custom Python implementation for the same NER task, with a total of 361 lines of code.
 
 **Table S4.** Source lines of Custom Python for NER task.
 
@@ -134,82 +150,41 @@ Gold labels are read from the CDR CSV into workflow **START** as `expected_entit
 | **Total**                       | **361** |
 
 
-**Execution and report.** Batch runs on `cdr_test_500.csv` yield micro-F1 **0.779** (Flair) and **0.656** (LLM NER) in **Table S16**. Fig. S3 shows an auto-generated wizard report (micro/macro tables, per-sample F1 chart when *n* > 20, FN/FP exemplars).
+### 3.3 A Workflow for Chemical–Induced–Disease Relation Extraction
 
-**Persistence.** Each instance is stored in `states.json` with `text`, `sentences`, `expected` / `predicted` entities, and per-instance `metrics`.
+Three top-level agents and one compound loop implement oracle-entity CID–RE (Fig. S5, **Table S5**): MeSH-id deduplication, LLM hypernym filtering, Cartesian pair generation, and per-pair LLM verification in compound loop **`sg_cid_re_verify`**. Relation-level P/R/F1 are computed from workflow graph metrics—no separate metrics node. Gold relations are read from CSV as `gold_relations`.
 
-### 3.2 A workflow for chemical-induced-disease relation extraction
+**Fig. S5.** Agent and flow-node specifications for the CID–RE workflow.
 
-**Dataset.** BioCreative V CDR corpus; CID relation evaluation uses a **20-article** dev subset for per-instance reporting (**Table S5**, **Table S10**). Test-500 oracle-entity runs use **Table S17** (§3.5).
-
-**Table S5.** Benchmark subset (CID relation extraction).
+**Table S5.** Agent specifications for the relation‑extraction workflow.
 
 
-| Dataset | # Test articles | Relation type            |
-| ------- | --------------- | ------------------------ |
-| CDR     | 20              | Chemical-induces-Disease |
+| Name (agent / node id)       | Type            | Description                                                                                            | Inputs                                                 | Outputs                     |
+| ---------------------------- | --------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------ | --------------------------- |
+| `e2e_entities_dedup_by_id`   | PGM             | Deduplicate oracle entities by MeSH id; keep shortest synonym per id                                   | `entities` (from CSV)                                  | `filtered_entities`         |
+| `e2e_hypernym_filter`        | LLM             | Contextual hypernym/modifier filter (Prompt S2)                                                      | `entities`, `text`                                     | `filtered_entities`         |
+| `cid_pair_generate`          | PGM             | Enumerate chemical–disease candidate pairs from filtered entities                                 | `filtered_entities`                                    | `pairs`                     |
+| `cid_re_verify_loop`         | Loop            | `foreach` over `pairs`; subgraph `sg_cid_re_verify`; merge `relations`                               | `pairs`, `text`                                        | `relations` (MeSH id lines) |
+| `relation_verify_llm`        | LLM (loop body) | Binary verdict `$` = induces / `~` = does not induce (Prompt S3)                                 | `text`, `head`, `tail`                                 | `result`                    |
+| `relation_result_to_id_pair` | PGM (loop body) | Emit `head_id | tail_id` when `$`; negation + associative guards (50-char negation window)          | `result`, `head_id`, `tail_id`, `text`, `head`, `tail` | `relations` (per iteration) |
 
 
-**Agent design.** Shipped workflow **`wf_cid_re_llm_linear`** (Fig. S4, **Table S6**) implements oracle-entity CID–RE: MeSH-id deduplication, context-aware hypernym filtering, Cartesian pair generation, and per-pair LLM verification in subgraph **`sg_cid_re_verify`**. Relation-level P/R/F1 are computed from workflow graph metrics (`relation_pairs` in the workflow JSON)—no separate metrics node.
+**Table S6** details the source code line counts of each node in the RE task implemented by NeuraGraph. **Table S7** and **Table S8** compare Custom Python and Dify tool implementations for the same task.
 
-**Pipeline (current graph).** `START` → **`e2e_entities_dedup_by_id`** (PGM: one row per MeSH id, shortest surface form) → **`e2e_hypernym_filter`** (LLM: drop hypernyms/modifiers using full abstract; **Prompt S3**) → **`cid_pair_generate`** (PGM: Chemical×Disease pairs with ids) → **`cid_re_verify_loop`** (foreach `pairs`; body **`sg_cid_re_verify`**: `relation_verify_llm` → `relation_result_to_id_pair`) → `END`.
-
-Pinned versions in `sg_cid_re_verify`: `relation_verify_llm` **v0010**, `relation_result_to_id_pair` **v0003**.
-
-**Table S6.** Agent and flow-node specifications for `wf_cid_re_llm_linear`.
+**Table S6.** Source code lines of NeuraGraph for RE task.
 
 
-| Name (agent / node id)       | Type            | Description                                                                                     | Inputs                                                 | Outputs                     |
-| ---------------------------- | --------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------- |
-| `e2e_entities_dedup_by_id`   | PGM             | Deduplicate oracle entities by MeSH id; keep shortest synonym per id                            | `entities` (from CSV)                                  | `filtered_entities`         |
-| `e2e_hypernym_filter`        | LLM             | Contextual hypernym/modifier filter (**Prompt S3**)                                           | `entities`, `text`                                     | `filtered_entities`         |
-| `cid_pair_generate`          | PGM             | Enumerate chemical–disease candidate pairs from filtered entities                               | `filtered_entities`                                    | `pairs`                     |
-| `cid_re_verify_loop`         | Loop            | `foreach` over `pairs`; subgraph `sg_cid_re_verify`; merge `relations`                          | `pairs`, `text`                                        | `relations` (MeSH id lines) |
-| `relation_verify_llm`        | LLM (loop body) | Binary verdict `$` = induces / `~` = does not induce (**Prompt S4**)                            | `text`, `head`, `tail`                                 | `result`                    |
-| `relation_result_to_id_pair` | PGM (loop body) | Emit `head_id \| tail_id` when `$`; negation + associative guards (50-char negation window)   | `result`, `head_id`, `tail_id`, `text`, `head`, `tail` | `relations` (per iteration) |
-| Graph metrics                | Workflow config | Compare predicted `relations` to `gold_relations`                                               | `gold_relations`, `relations`                          | `rel_*` in `states.json`    |
+| Node                       | Lines             |
+| -------------------------- | ----------------- |
+| e2e_entities_dedup_by_id   | 20                |
+| e2e_hypernym_filter        | 0 (LLM prompt)    |
+| cid_pair_generate          | 24                |
+| relation_verify_llm        | 0 (LLM prompt)    |
+| relation_result_to_id_pair | 91                |
+| **Total (PGM)**            | **135**           |
 
 
-**Prompt S3 (`e2e_hypernym_filter`, abridged).** System: biomedical entity normalization; reply with **only** a JSON array. User: given `{text}` and entity JSON, (1) drop standalone disease modifiers, (2) never compare entities with the **same** MeSH id, (3) remove hypernyms only when pairwise comparison returns `$` as head against a **different** id; preserve all ids from input.
-
-**Prompt S4 (`relation_verify_llm` v0010).** System: *Answer with `$` or `~` only.*
-
-User template (structure):
-
-```
-{text}
-Apply Assumptions first; if any applies, answer '~' immediately.
-Assumptions 1.1–1.5: skip treatment-day confounds; non-significant stats; physiological/grouping heads;
-  inhibition-by-other-drug attributions; rescue/antidote/treatment-for-{tail} uses of {head}.
-Conditions:
-  1. explicit {head}-induced/caused/led-to {tail} → '$'
-  2. drug–drug interaction involving {head} causing {tail} → '$'
-  3. {head} in combination regimen; {tail} reported as adverse event/toxicity → '$' for {head}
-  4. {tail} reported as % because of {head} with explicit causation → '$'
-  5. '{head} mediating/attenuating {tail}' → '~'
-  6. no relationship → '~'
-```
-
-Full template is stored in `meta/agents/relation_verify_llm.json` (v0010).
-
-**Workflow.** Fig. S4 / runner id **`wf_cid_re_llm_linear`**: linear chain above; verification loop body = **`sg_cid_re_verify`**.
-
-**Implementation effort.** **Table S7** — NeuraGraph PGM/LLM line counts. **Tables S8–S9** — Custom Python and Dify baselines.
-
-**Table S7.** Source code lines of NeuraGraph for RE task (PGM nodes; LLM = 0 lines).
-
-
-| Node                       | Lines  |
-| -------------------------- | ------ |
-| Entity dedup by id         | 14     |
-| Hypernym filter            | 0 (LLM prompt) |
-| Create entity pairs        | 24     |
-| Relationship verification  | 0 (LLM prompt) |
-| Relation result to ID pair | 61     |
-| **Total (PGM)**            | **99** |
-
-
-**Table S8.** Source lines of Custom Python for RE task.
+**Table S7.** Source code lines of Custom Python for RE task.
 
 
 | File                            | Lines   |
@@ -221,190 +196,177 @@ Full template is stored in `meta/agents/relation_verify_llm.json` (v0010).
 | **Total**                       | **366** |
 
 
-**Table S9.** Source code lines of Dify tools for RE task.
+**Table S8** provides the source code line counts of the Dify Tool for both NER and RE tasks, serving as an additional comparison benchmark.
+
+**Table S8.** Source lines of Dify Tool for RE.
 
 
-| Component     | Lines |
+| File          | Lines |
 | ------------- | ----- |
-| Dify_tools_re | 197   |
+| Dify_tools_re | 232   |
 
 
-**Results (20-article dev subset).** **Table S10** lists per-article P/R/F1. **Micro:** P=0.595, R=0.962, F1=0.735. **Macro:** P=0.727, R=0.975, F1=0.798. Dominant errors: FP disease associations on high-recall articles.
+**Prompt S2 (`e2e_hypernym_filter`).**
 
-**Table S10.** Per-instance metrics (CID–RE, 20-article subset).
+System:
+```
+You are a biomedical entity normalization expert. Do not call tools. Your reply must be ONLY the final JSON array — no reasoning, markdown, or prose.
+```
 
+User:
+```
+{text}
+You are an expert of biomedical domain, above article is a biomedical paper.
 
-| Article   | P         | R         | F1        | TP     | FP     | FN    |
-| --------- | --------- | --------- | --------- | ------ | ------ | ----- |
-| 1         | 0.333     | 1.000     | 0.500     | 1      | 2      | 0     |
-| 2         | 1.000     | 1.000     | 1.000     | 2      | 0      | 0     |
-| 3         | 0.500     | 0.500     | 0.500     | 1      | 1      | 1     |
-| 4         | 0.667     | 1.000     | 0.800     | 2      | 1      | 0     |
-| 5         | 1.000     | 1.000     | 1.000     | 1      | 0      | 0     |
-| 6         | 1.000     | 1.000     | 1.000     | 1      | 0      | 0     |
-| 7         | 1.000     | 1.000     | 1.000     | 2      | 0      | 0     |
-| 8         | 1.000     | 1.000     | 1.000     | 2      | 0      | 0     |
-| 9         | 0.333     | 1.000     | 0.500     | 2      | 4      | 0     |
-| 10        | 0.200     | 1.000     | 0.333     | 1      | 4      | 0     |
-| 11        | 1.000     | 1.000     | 1.000     | 1      | 0      | 0     |
-| 12        | 0.500     | 1.000     | 0.667     | 1      | 1      | 0     |
-| 13        | 1.000     | 1.000     | 1.000     | 1      | 0      | 0     |
-| 14        | 1.000     | 1.000     | 1.000     | 1      | 0      | 0     |
-| 15        | 0.500     | 1.000     | 0.667     | 1      | 1      | 0     |
-| 16        | 0.500     | 1.000     | 0.667     | 1      | 1      | 0     |
-| 17        | 1.000     | 1.000     | 1.000     | 1      | 0      | 0     |
-| 18        | 1.000     | 1.000     | 1.000     | 1      | 0      | 0     |
-| 19        | 0.500     | 1.000     | 0.667     | 1      | 1      | 0     |
-| 20        | 0.500     | 1.000     | 0.667     | 1      | 1      | 0     |
-| **Micro** | **0.595** | **0.962** | **0.735** | **25** | **17** | **1** |
-| **Macro** | **0.727** | **0.975** | **0.798** | —      | —      | —     |
+Entities (JSON array of {{"text", "id", "label"}}):
+{entities}
 
+Step 1 — Drop standalone modifiers (before any pairwise comparison):
+- Remove Disease rows whose text is ONLY a modifier token (temporal course, severity, stage, or similar qualifying adjective) with no disease head noun.
+- Keep multi-word disease phrases even when they begin with such a modifier.
+- Do not remove Chemical entities in this step.
 
-**NOTE (Table S10).** TP: correct chemical–induces–disease pairs; FP: predicted relation not in gold; FN: missed gold relation.
+Step 2 — Rules BEFORE pairwise hypernym removal:
+1. Same id = same synonym cluster (upstream grouping). NEVER remove an entity based on comparison with another entity that has the SAME id.
+2. Only compare pairs with DIFFERENT ids (same label).
+3. Clinical near-synonyms or same disease event in this article: if two entities with different ids name the same condition/process, treat as '~' in BOTH orderings and KEEP both — do not remove either as a hypernym.
+4. Do not remove a specific disease mention in favor of a bare modifier-only token.
 
-### 3.3 Tuning-driven refinement (reporting evaluation)
+Step 3 — For each pair (A,B) with the SAME label and DIFFERENT ids, substitute head and tail with the two entity texts:
+1. different type → '~'
+2. same type, head narrower than tail → '~'
+3. same type, head broader than tail → '$'
 
-We evaluate the **experiment wizard** (Feature 6) on CID–RE using both a **legacy 20+5 dev split** (Tables S11–S13) and the **current 50-article stratified dev50 + 500-article test** protocol (Tables S15B, S16b; full metrics in §3.5).
+Evaluate both (A,B) and (B,A). Remove an entity only if it receives '$' as head in comparison with another entity with a DIFFERENT id.
 
-**Wizard layout (release v2.x).** Four tabs—**Configure**, **Baseline**, **Tuning & Optimize**, **Final**—each with an inline step tracker and result panel (Feature 6; **Fig. S6**, **Algorithm S3**):
+CRITICAL: Do NOT change or invent ids. Keep exact ids from input.
 
-| Tab | Steps | Report artifact | UI panel |
-| --- | ----- | --------------- | -------- |
-| Baseline | (1) test batch → (2) `report_experiment` | `result/<exp_id>/report_baseline_test.md` | `#baselineReportMarkdown` |
-| Tuning | (3) tuning baseline → (4) tuning report + `agent_refiner` → (5) optimize rounds | `result/<tune_exp_id>/report_tuning_baseline.md` | `#tuningBaselineReportMarkdown` |
-| Final | (6) optimized test → (7) compare reports | `report_optimized_test.md` + `opt_compare_*.json` | `#optimizationCompare` |
+Output ONLY a JSON array:
+[{{"text": "...", "id": "...", "label": "Chemical"|"Disease"}}]
+```
 
-**Report structure (`report_experiment`).** All wizard reports follow the same three-section Markdown layout enforced by the reporting agent (**Prompt S5**). In the browser, the panel stacks **Markdown blocks (LLM)** and **ECharts blocks (UI)** top-to-bottom as in **Fig. S7**.
+**Prompt S3 (`relation_verify_llm` v0010).**
 
-| Block | Source | Content |
-| ----- | ------ | ------- |
-| **A · Metrics** | Markdown `## 1) Metrics` | Micro/macro P/R/F1 table; F1 distribution; TP/FP/FN totals; **Agent Version Mapping**; per-sample table when *n* ≤ 20 |
-| **B · F1 trend chart** | UI (`renderReportCharts`) | Per-sample F1 / P / R line chart when *n* > 20 (`report_mode: charts`) |
-| **C · FN/FP analysis** | Markdown `## 2) FN and FP Analysis` | Narrative on top FP/FN articles from `examples_detail` |
-| **D · Error chart** | UI | FN/FP composition (TP/FP/FN buckets) |
-| **E · Suggestions** | Markdown `## 3) Agent Modification Suggestions` | Numbered prompt/PGM edits per agent |
+System:
+```
+You are a biomedical expert. Answer with '$' or '~' only. Do not output any other message.
+```
 
-**Fig. S7.** Wizard report panel — vertical layout (blocks A–E). Source: `doc/images/fig_report_layout.png`.
-
-**Report styling in the UI.** Markdown is rendered with `marked.js` into `.report-markdown-wrap` panels (scrollable, max-height ~480px in wizard tabs). Tables are wrapped in `.report-table-wrap` with Bootstrap `table-striped`. Chart cards (`.report-inline-chart-card`, 260px canvas height) are inserted **immediately after** the matching `h2` heading (`Metrics` → F1 trend; `FN/FP` → error chart). Suggestion section highlights standalone `+` / `-` tokens in green/amber. Chart instances are **scoped per panel** (`#baselineReportMarkdown` vs `#tuningBaselineReportMarkdown`) so a 50-article tuning chart cannot reuse a 500-article baseline canvas.
-
-**Prompt S5 (`report_experiment`, abridged).** System: senior NeuraGraph analyst; output concise actionable Markdown. User: emit exactly sections 1–3; for `report_mode: charts` use aggregate metrics + `examples_detail` only; include effective agent version table; suggestions must be prompt/PGM edits implementable in-repo (no external ontologies).
-
-**Legacy wizard example (20-article tuning / 5-article test).** **Table S11** — held-out test after two refinement rounds on `wf_cid_re_llm_linear_opt_20260529_143039_r2`.
-
-**Table S11.** Tuning-loop evaluation (5-article test, legacy split).
-
-
-| Stage          | Precision | Recall | F1    |
-| -------------- | --------- | ------ | ----- |
-| Baseline test  | 0.667     | 0.800  | 0.720 |
-| Optimized test | 0.813     | 1.000  | 0.874 |
-
-
-**Baseline tuning report (F1 0.435 on 20-article tuning set).** Verifier too strict on associative wording; 100-char associative PGM window too aggressive. **Round 1:** relax verifier prompts (**Table S12**, tuning F1 0.435 → 0.529). **Round 2:** tighten negation/associative guards in `relation_result_to_id_pair` (**Table S13**, 0.529 → 0.612). Held-out test F1 **0.720 → 0.874** (**Table S11**).
-
-**Table S12.** Optimization round 1: relation verifier prompts (legacy).
-
-
-| Aspect    | Summary                                                                                                                                                                                                                                                      |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Problem   | Verifier required explicit “X caused Y” wording; missed valid CID relations with softer causal language.                                                                                                                                                     |
-| Change    | Rewrote prompts to accept implied causation (*associated with*, *may cause*, *side effect of*, …) while rejecting pre-existing disease and clear negation.                                                                                                    |
-| Tuning F1 | **0.435 → 0.529**                                                                                                                                                                                                                                            |
-
-
-**Table S13.** Optimization round 2: relation post-processing (legacy).
-
-
-| Aspect    | Summary                                                                                                                                                                                                                         |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Problem   | 100-character associative window blocked true relations; negation not always caught after false `$` verdicts.                                                                                                                    |
-| Change    | Negation phrases within 50 characters of head/tail override `$`; associative filter reduced to **30** characters (later **15** in v0003).                                                                                        |
-| Tuning F1 | **0.529 → 0.612**                                                                                                                                                                                                               |
-
-
-**Current dev50 protocol (2026-06).** Parent experiment **`678a855f`** runs test-500 baseline; sub-exp **`opt_base_tune_81781d50`** runs dev50 tuning baseline (macro-F1 **0.642**); accepted verifier edit **`relation_verify_llm` v0013** (Condition 2 DDI phrasing) → macro-F1 **0.666** on dev50 (**Table S16b**, §3.5). Artifacts: `result/opt_base_tune_81781d50/report_tuning_baseline.md`, `result/678a855f/report_baseline_test.md`.
-
-*Legacy source: `result/opt_compare_20260529_143039.json`; dev50: Table S15B.*
+User:
+```
+{text}
+You are biomedical expert, refer to above biomedical article, please give answer '$' or '~' only
+based on below rules. Apply all Assumptions first; if any assumption applies, answer '~' immediately and do not use Conditions.
+Assumptions:
+1.1 if 'patient had/exhibited {tail} on the Xth day of {head} treatment', please do not use it and find other reason.
+1.2 if 'difference did not reach statistical significance compared to groups' appeared, please do not use it and find other reason.
+1.3 if {head} appears only as a physiological/dietary state or experimental grouping (e.g. 'sodium depletion/repletion', 'volume depleted', 'fasted', 'control group') and not as a chemical administered to subjects, answer '~'.
+1.4 if the only link between {head} and {tail} is inhibition/blockade/suppression of {head} or '{head} synthesis' by another drug (e.g. 'inhibition of {head} synthesis', 'another drug inhibits {head}'), and {tail} is attributed to that other drug or the inhibition mechanism—not to {head} itself as the causative agent—answer '~'.
+1.5 if {head} is used as resuscitation, rescue therapy, antidote, or treatment for {tail} (or for local anaesthetic systemic toxicity / LAST) and {tail} is the condition being treated rather than caused by {head}, answer '~'.
+Conditions:
+1. if the article explicitly states that {head} caused or induced {tail} (e.g., '{head}-induced {tail}', '{head} caused {tail}', '{head} resulted in {tail}', '{head} led to {tail}'), answer '$'
+2. else if the article states that the interaction between {head} and another chemical induces {tail}, answer '$'
+3. else if {head} is administered together with other chemical(s) as a combination/co-treatment regimen and {tail} is reported as an adverse event, toxicity, or complication (including incidence or percentage) in patients receiving that regimen, answer '$' for {head} as a component of the regimen—even when the text attributes the event to the combination rather than {head} alone
+4. else if the article mentions {tail} was reported in the percentage of patients because of {head}, and the article explicitly establishes causation (not merely listing adverse events), answer '$'
+5. else if the article mentions '{head} is mediating/attenuating {tail}', answer '~'
+6. else if {head} and {tail} have no relationship, answer '~'.
+DO NOT output any other message.
+```
 
 ### 3.4 An end-to-end workflow for NER to RE
 
-**Motivation.** Sections 3.1–3.2 evaluate NER and CID–RE in isolation (oracle entities for RE). **Task C** chains **Flair sentence NER** (§3.1) into the **CID–RE pipeline** (§3.2) so entity and relation errors compound realistically—mirroring pharmacovigilance mining from raw abstracts.
+The sentence-level NER pipeline from §3.2 is chained into the CID–RE pipeline from §3.3 to form an end-to-end workflow (Fig. S6, **Table S9**): predicted NER entities pass through synonym clustering and alias snapshot, then flow into entity deduplication, hypernym filtering, pair generation, and per-pair verification, with PGM relation-level metric calculation. Unlike oracle-entity RE in §3.3, no pre-annotated entities are provided—only `text`, `labels`, and `gold_relations` are read from CSV, so NER errors propagate into pair generation and verification.
 
-**Workflow.** Shipped runner **`wf_e2e_flair_opt_re`** (Fig. S5 conceptually; **Table S6b**):
+**Fig. S6.** An end-to-end workflow for NER to RE.
 
+**Table S9.** Agent, subgraph, and node specifications for the E2E NER→RE workflow. Subgraphs reused from §3.2–3.3 reference their source tables; only E2E-specific nodes are described in full.
+
+
+| Name (agent / subgraph / node id) | Type    | Description                                                                                           | Inputs                              | Outputs                  |
+| --------------------------------- | ------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------ |
+| `sg_ner_flair_sent`               | Subgraph | Refer to Table S2                                                                                    | `text`, `labels`                    | `entities` (label dict)  |
+| `ner_entities_to_re_format`       | PGM     | Convert Flair label dict to entity list format `[{text, label, id}]`                               | `entities`                          | `entities` (list)        |
+| `e2e_entities_passthrough`        | PGM     | Deduplicate Flair NER entities; use surface text as id when MeSH id is missing                        | `entities`                          | `filtered_entities`      |
+| `e2e_synonym_filter`              | LLM     | Assign entities to synonym clusters (shared id); do not drop entities (Prompt S4)                    | `entities`, `text`                  | `filtered_entities`      |
+| `e2e_entities_assign_group_ids`   | PGM     | Assign shared numeric group ids (1, 2, …) per label to synonym groups                            | `entities`, `filtered_entities`     | `filtered_entities`      |
+| `e2e_entity_aliases_snapshot`     | PGM     | Preserve all synonym surface forms + group ids for metrics lookup (before dedup)                      | `filtered_entities`                 | `entity_aliases`         |
+| `sg_cid_re_verify`                | Subgraph | Refer to Table S5                                                                                    | `filtered_entities`, `text`, … | `relations`              |
+| `eval_metrics_relation`           | PGM     | Normalize surface forms via alias map; compare predicted relations to `gold_relations`                | `relations`, `ground_truth`, … | `metrics`                |
+
+
+**Prompt S4 (`e2e_synonym_filter`).**
+
+System:
 ```
-START → text_sentence_split → ner_sentence_loop (sg_ner_flair_sent)
-      → ner_entities_to_re_format → e2e_entities_passthrough → e2e_synonym_filter
-      → e2e_entities_assign_group_ids → e2e_entity_aliases_snapshot
-      → e2e_entities_dedup_by_id → e2e_hypernym_filter → cid_pair_generate
-      → cid_re_verify_loop (sg_cid_re_verify) → eval_metrics_relation → END
+You are a biomedical entity normalization expert. Do not call tools. Your reply must be ONLY the final JSON array — no reasoning, markdown, or prose.
 ```
 
-**Table S6b.** E2E NER→RE agent chain (`wf_e2e_flair_opt_re`).
+User:
+```
+Text:
+{text}
 
+Entities (JSON array of {{"text", "id", "label"}}):
+{entities}
 
-| Stage | Agent / node | From § | Role |
-| ----- | ------------ | ------ | ---- |
-| NER | `text_sentence_split`, `ner_sentence_loop`, `ner_flair_sent` | 3.1 | Predict Chemical/Disease mentions (no MeSH ids) |
-| Bridge | `ner_entities_to_re_format` | — | Flair label dict → `[{text, label, id:""}]` list |
-| E2E prep | `e2e_entities_passthrough`, `e2e_synonym_filter`, `e2e_entities_assign_group_ids`, `e2e_entity_aliases_snapshot` | — | Synonym clustering, numeric group ids, alias snapshot for metric lookup |
-| RE prep | `e2e_entities_dedup_by_id`, `e2e_hypernym_filter` | 3.2 | Same dedup + contextual filter as oracle RE |
-| RE core | `cid_pair_generate`, `cid_re_verify_loop` (`sg_cid_re_verify`) | 3.2 | Pair enumeration + `$`/`~` verification (**Prompt S4**) |
-| Metrics | `eval_metrics_relation` | — | Normalize surface forms via alias map; compare to `gold_relations` |
+Task: assign each input entity to a synonym CLUSTER. Grouping only — do NOT drop any entity.
 
-**Design notes.**
+A cluster = entities that would map to the same MeSH concept in BC5CDR (same chemical, or same disease), based on this article.
 
-- **No oracle entities** in CSV at run time—only `text`, `labels`, and `gold_relations` for evaluation.
-- NER errors (missed mentions, wrong spans) propagate into pair generation and verification.
-- Optimized RE graph pins verifier **v0013** (dev50-tuned Condition 2 DDI phrasing) on test-500 (`opt_best_20260609_131256_d388be08`; Table S17).
-- Batch test-500 E2E results are merged from segmented runs into experiment **`bffea244`** (**Table S18**, §3.5).
+Same label + same cluster id when:
+- Abbreviation, generic name, or trade name of the same drug/substance.
+- Morphological variant of the same drug (e.g. -related, -associated, -induced).
+- Clinical near-synonyms for the SAME disease event or pathological process in context: e.g. organ injury, organ toxicity, organ inflammation, organ damage, or named syndrome wording that refers to one outcome.
+- One drug-adverse-event narrative in the article → one Disease cluster id for all Disease mentions describing that same reaction (do not split injury vs toxicity vs inflammation vs named disease if they refer to one event).
+- Multi-word disease phrase and its head term → same cluster.
+- Bare temporal/severity/course modifier alone → same cluster id as the disease phrase it modifies in the text, not a separate cluster.
 
-**Comparison baseline.** **`wf_e2e_pubtator_re`** composes subgraph `sg_e2e_pubtator_re` (PubTator3 API NER+RE) with the same `eval_metrics_relation`—listed in **Table S18** for external reference.
+Different cluster ids only when the article clearly denotes distinct chemicals, or distinct unrelated disease conditions/events.
+
+Output — ONE row per INPUT entity (count must match input):
+- text = exact input surface form (preserve casing).
+- id = cluster key shared by all cluster members (stable canonical phrase from the group; no MeSH/CHEBI/DOID codes).
+- label = Chemical or Disease.
+
+CRITICAL:
+- Every input entity exactly once; do NOT omit entities.
+- All members of one cluster use the identical id string.
+- Do not invent ontology codes.
+
+Output ONLY a JSON array:
+[{{"text": "...", "id": "...", "label": "Chemical"|"Disease"}}]
+```
 
 ### 3.5 Full performance evaluation (pharmacovigilance use case)
 
-To address end-to-end system assessment on a realistic pharmacological task, we evaluate NeuraGraph on the **BioCreative V Chemical–Disease Relation (CDR)** corpus under a **pharmacovigilance-oriented use case**: mining **chemical-induced disease (CID)** assertions from biomedical abstracts. Sections 3.1–3.2 define NER and oracle-RE workflows; §3.3 the tuning wizard and report layout; §3.4 the Flair→RE chain. **Section 3.5** reports **frozen-workflow** performance on the **500-article test split**: Task A (NER), Task B (oracle RE), Task C (E2E).
-
 **Use case.** Given PubMed-style title+abstract text, the system (1) tags **Chemical** and **Disease** mentions, (2) verifies which chemical–disease pairs are supported as CID (chemical **induces** disease) in context, and (3) logs micro/macro precision, recall, and F1 with per-article experiment logs for audit.
 
-**Datasets and splits.** Gold annotations use the BC5CDR PubTator release (`test.txt` and `dev.txt`; 500 articles each). Batch CSVs are generated with the built-in CID dataset builder. **Table S14** summarizes splits; **no test-set tuning**—dev-only wizard steps (§3.3); **Tables S16–S18** use frozen workflows saved before test batch runs.
-
-**Table S14.** Performance evaluation — datasets and splits.
-
-
-| Split                  | Source         | # Articles      | Role                                       | Batch CSV                              |
-| ---------------------- | -------------- | --------------- | ------------------------------------------ | -------------------------------------- |
-| Test (primary)         | CDR `test.txt` | 500             | Final micro/macro metrics (Tables S16–S18) | `cdr_test_500.csv`                     |
-| Dev — tuning (50)      | CDR `dev.txt`  | 50 (stratified) | Task B tuning + refiner (§3.3, Tables S15B, S16b) | `cid_dev_tuning_stratified_50.csv`     |
-| Dev — tuning (20)      | CDR `dev.txt`  | 20 (stratified) | Legacy wizard example (§3.3, Table S11)           | `cid_dev_tuning_stratified.csv`        |
-| Dev — tuning remain    | CDR `dev.txt`  | 480             | Internal validation; optional              | `cid_dev_test_remain.csv`              |
-| Dev — small held-out   | CDR `dev.txt`  | 5 (seed 42)     | Optimization smoke test (Table S11)        | `cid_dev_test_custom_sample_5_s42.csv` |
-| Illustrative RE subset | CDR `dev.txt`  | 20              | Per-article Table S10 (§3.2)                      | `cid_dev_test_custom.csv` (subset)     |
-
+**Datasets and splits.** Gold annotations use the BC5CDR PubTator release (`test.txt` and `dev.txt`; 500/50 articles each); dataset statistics are summarized in **Table S1** (§3.1). Batch CSVs are generated with the built-in CID dataset builder. **No test-set tuning**—dev-only wizard steps (§3.3); **Tables S11–S15** use frozen workflows saved before test batch runs.
 
 **Evaluation protocol.**
 
-1. **NER (Task A).** Run `wf_doc_ner_flair_sent_eval` (§3.1) and `wf_doc_ner_llm_eval` on `cdr_test_500.csv`. Metrics: entity-level micro/macro P/R/F1 (**Table S16**).
-2. **CID–RE (Task B).** Run `wf_cid_re_llm_linear` with **oracle entities** in CSV (upper bound for the relation module, §3.2). Report baseline (`678a855f`) and prior optimized graph (`wf_cid_re_llm_linear_opt_20260604`, **Table S17**).
-3. **CID–RE, end-to-end (Task C).** Chain **`wf_e2e_flair_opt_re`** (§3.4): Flair NER predictions → same RE stack as Task B → `eval_metrics_relation`. Merged test-500 run **`bffea244`** (**Table S18**). LLM NER is **not** chained into Task C.
+1. **NER (Task A).** Run `wf_doc_ner_flair_sent_eval` (§3.2) and `wf_doc_ner_llm_eval` on `cdr_test_500.csv`. Metrics: entity-level micro/macro P/R/F1 (**Table S12**).
+2. **CID–RE (Task B).** Run `wf_cid_re_llm_linear` with **oracle entities** in CSV (upper bound for the relation module, §3.3). Report baseline (`678a855f`) and optimized workflow (`wf_cid_re_llm_linear_opt_*`, **Table S14**).
+3. **CID–RE, end-to-end (Task C).** Chain **`wf_e2e_flair_opt_re`** (§3.4): Flair NER predictions → same RE stack as Task B → `eval_metrics_relation`. Merged test-500 run **`bffea244`** (**Table S15**). LLM NER is **not** chained into Task C.
 
-**Reproducibility.** Batch experiments are designed so a completed run can be audited and repeated under the same configuration. The platform stores the workflow that was executed, a snapshot of each agent and tool definition as it stood when the workflow was saved (so later edits in the visual editor do not change what an old experiment actually ran), and per-article logs of inputs, intermediate outputs, predictions, and evaluation metrics. Re-running or reviewing an experiment therefore uses the stored workflow and agent snapshots rather than whatever happens to be loaded in the editor at review time. LLM-based steps are inherently stochastic; repeats are comparable only when the same model, endpoint, and sampling settings are kept and recorded alongside the run.
-
-**Table S15.** Experiment registry (BC5CDR test 500).
+**Table S10.** Experiment registry (BC5CDR test 500).
 
 
-| Task | Method                                    | Runner                                                      | Experiment id                          |
-| ---- | ----------------------------------------- | ----------------------------------------------------------- | -------------------------------------- |
-| A    | NeuraGraph Flair NER                      | `wf_doc_ner_flair_sent_eval`                                | `064f47ac-2d08-4e9a-85e3-2ca2e564c7da` |
-| A    | NeuraGraph LLM NER                        | `wf_doc_ner_llm_eval`                                       | `aba808f2-46ad-4585-984f-633955729315` |
-| B    | NeuraGraph RE (test 500 + dev50 wizard)    | `wf_cid_re_llm_linear`                                      | `678a855f-1f8a-492e-9d39-be37df122795` |
-| B    | NeuraGraph RE (optimized, test 500, v0013) | `wf_cid_re_llm_linear_opt_20260609_131256`                  | `opt_best_20260609_131256_d388be08`    |
-| B    | NeuraGraph RE (optimized, test 500, legacy) | `wf_cid_re_llm_linear_opt_20260604`                         | `f860e6d3-51fd-4b24-aa51-3d0fb9c88907` |
-| C    | NeuraGraph E2E (Flair NER → optimized RE) | `wf_e2e_flair_opt_re`                                       | `bffea244-c3dd-4b97-98f2-9ed4d7bb895a` |
+| Task | Method                              | Runner / script                    | Experiment id                          |
+| ---- | ----------------------------------- | ---------------------------------- | -------------------------------------- |
+| A    | Flair NER                           | `wf_doc_ner_flair_sent_eval`       | `064f47ac-2d08-4e9a-85e3-2ca2e564c7da` |
+| A    | LLM NER\*1                          | `wf_doc_ner_llm_eval`              | `aba808f2-46ad-4585-984f-633955729315` |
+| B    | LLM RE (baseline)                   | `wf_cid_re_llm_linear`             | `678a855f-1f8a-492e-9d39-be37df122795` |
+| B    | LLM RE (optimized)                  | `wf_cid_re_llm_linear_opt_*`       | `opt_best_20260609_131256_d388be08`    |
+| C    | E2E (Flair NER to optimized RE)     | `wf_e2e_flair_opt_re`              | `bffea244-c3dd-4b97-98f2-9ed4d7bb895a` |
+| C    | E2E (PubTator3)\*2                  | `wf_e2e_pubtator_re`               | `5c3bad58-a7ea-4236-ae95-e8956b736e7e` |
 
 
-**Table S15B.** Dev50 tuning sub-experiments under test-500 parent `678a855f` (oracle entities, n=50). In the UI, open **http://127.0.0.1:5001/exp/678a855f-1f8a-492e-9d39-be37df122795** → wizard **Tab 3 (Tuning & Optimize)** to view tuning baseline report, accepted refinement metrics, and optimize-loop summary; sub-run ids are linked from that page.
+\*1 `wf_doc_ner_llm_eval` replaces the Flair sentence loop with a single document-level LLM NER call, serving as an LLM-only NER baseline for comparison with the hybrid Flair pipeline (§3.2, Table S2).
+
+\*2 `wf_e2e_pubtator_re` composes subgraph `sg_e2e_pubtator_re` (PubTator3 API for NER + RE) with the same `eval_metrics_relation` node, providing an external E2E baseline against the NeuraGraph pipeline (§3.4, Table S9).
+
+**Table S11.** Dev50 tuning sub-experiments under test-500 parent `678a855f` (oracle entities, n=50). In the UI, open **http://127.0.0.1:5001/exp/678a855f-1f8a-492e-9d39-be37df122795** → wizard **Tab 3 (Tuning & Optimize)** to view tuning baseline report, accepted refinement metrics, and optimize-loop summary; sub-run ids are linked from that page.
 
 
 | Stage | Parent / sub-exp | Workflow / agent pin | Effective agents | Experiment id |
@@ -415,7 +377,7 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 | Optimized test (test 500) | sub | `wf_cid_re_llm_linear_opt_20260609_131256` | v0013; v0003 | `opt_best_20260609_131256_d388be08` |
 
 
-**Table S16.** NER on BC5CDR test (n=500). Entity-level metrics; gold = `gold_entities` in CSV.
+**Table S12.** NER on BC5CDR test (n=500). Entity-level metrics; gold = `gold_entities` in CSV.
 
 
 | Method                                    | Micro-P | Micro-R | Micro-F1 | Macro-P | Macro-R | Macro-F1 |
@@ -424,15 +386,15 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 | NeuraGraph (`wf_doc_ner_llm_eval`)        | 0.640   | 0.673   | 0.656    | 0.672   | 0.690   | 0.667    |
 
 
-*Table S16 (Flair row): batch run on `cdr_test_500.csv` (experiment `064f47ac-2d08-4e9a-85e3-2ca2e564c7da`, completed 2026-06-03). Micro: aggregate TP/FP/FN over 500 articles; macro: mean of per-article P/R/F1.*
+*Table S12 (Flair row): batch run on `cdr_test_500.csv` (experiment `064f47ac-2d08-4e9a-85e3-2ca2e564c7da`, completed 2026-06-03). Micro: aggregate TP/FP/FN over 500 articles; macro: mean of per-article P/R/F1.*
 
-*Table S16 (LLM row): `scripts/run_perf_ner_test500.py --runner wf_doc_ner_llm_eval` (experiment `aba808f2-46ad-4585-984f-633955729315`, completed 2026-06-04). Same metric protocol as Flair row.*
+*Table S12 (LLM row): `scripts/run_perf_ner_test500.py --runner wf_doc_ner_llm_eval` (experiment `aba808f2-46ad-4585-984f-633955729315`, completed 2026-06-04). Same metric protocol as Flair row.*
 
-**RE tuning on dev50 (Task B).** Pharmacovigilance CID–RE was tuned on a **stratified 50-article** subset of CDR `dev.txt` (`cid_dev_tuning_stratified_50.csv`). Oracle **gold entities** in CSV include multiple surface strings per MeSH id; evaluation maps relation endpoints to **head MeSH id | tail MeSH id**. The baseline workflow `wf_cid_re_llm_linear` uses **`e2e_entities_dedup_by_id`**, **`e2e_hypernym_filter`** (**Prompt S3**), and **`relation_verify_llm` v0010** (**Prompt S4**) before tuning (§3.2).
+**RE tuning on dev50 (Task B).** Pharmacovigilance CID–RE was tuned on a **stratified 50-article** subset of CDR `dev.txt` (`cid_dev_tuning_stratified_50.csv`). Oracle **gold entities** in CSV include multiple surface strings per MeSH id; evaluation maps relation endpoints to **head MeSH id | tail MeSH id**. The baseline workflow `wf_cid_re_llm_linear` uses **`e2e_entities_dedup_by_id`**, **`e2e_hypernym_filter`** (**Prompt S2**), and **`relation_verify_llm` v0010** (**Prompt S3**).
 
-**Protocol (phases 1–4).** All steps are launched from the test-500 parent experiment **`678a855f-1f8a-492e-9d39-be37df122795`** (wizard Tab 1: baseline test on `cdr_test_500.csv`; Tab 3: tuning on `cid_dev_tuning_stratified_50.csv`; Tab 4: optimized test). (1) **Tuning baseline** — sub-exp `opt_base_tune_81781d50` (`relation_verify_llm` v0010 + `relation_result_to_id_pair` v0003). (2) **Tuning report** — LLM report on FP/FN exemplars (`result/opt_base_tune_81781d50/report_tuning_baseline.md`). (3) **`agent_refiner`** — biomedical semantic edits to the LLM verifier; kept only if macro-averaged tuning F1 rose. Accepted change: refine **Condition 2** with drug–drug interaction clinical phrasing → `relation_verify_llm` **v0013** (sub-exp `opt_cand_ddi_c2_8cb2b66e`). (4) **Optimized test** — frozen graph `wf_cid_re_llm_linear_opt_20260609_131256` on `cdr_test_500.csv` (exp `opt_best_20260609_131256_d388be08`; **Table S17**).
+**Protocol (phases 1–4).** All steps are launched from the test-500 parent experiment **`678a855f-1f8a-492e-9d39-be37df122795`** (wizard Tab 1: baseline test on `cdr_test_500.csv`; Tab 3: tuning on `cid_dev_tuning_stratified_50.csv`; Tab 4: optimized test). (1) **Tuning baseline** — sub-exp `opt_base_tune_81781d50` (`relation_verify_llm` v0010 + `relation_result_to_id_pair` v0003). (2) **Tuning report** — LLM report on FP/FN exemplars (`result/opt_base_tune_81781d50/report_tuning_baseline.md`). (3) **`agent_refiner`** — biomedical semantic edits to the LLM verifier; kept only if macro-averaged tuning F1 rose. Accepted change: refine **Condition 2** with drug–drug interaction clinical phrasing → `relation_verify_llm` **v0013** (sub-exp `opt_cand_ddi_c2_8cb2b66e`). (4) **Optimized test** — frozen graph `wf_cid_re_llm_linear_opt_20260609_131256` on `cdr_test_500.csv` (exp `opt_best_20260609_131256_d388be08`; **Table S14**).
 
-**Table S16b.** Dev50 tuning — baseline and accepted refinement (oracle entities, n=50). **Micro** = corpus-level P/R/F1 from summed TP/FP/FN; **macro** = mean of per-article P/R/F1. Sub-experiments are nested under parent `678a855f` (Table S15B).
+**Table S13.** Dev50 tuning — baseline and accepted refinement (oracle entities, n=50). **Micro** = corpus-level P/R/F1 from summed TP/FP/FN; **macro** = mean of per-article P/R/F1. Sub-experiments are nested under parent `678a855f` (Table S11).
 
 
 | Stage | Workflow / agent | Micro-P | Micro-R | Micro-F1 | Macro-P | Macro-R | Macro-F1 | TP | FP | FN | ΔMacro-F1 |
@@ -447,17 +409,16 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 
 **Accepted refinement.** `agent_refiner` was rewritten to propose **biomedical semantic** edits to the LLM verifier only (no PGM/process patches). Offline ablation on dev50 identified one positive change: refine **Condition 2** with drug–drug interaction clinical phrasing (`{head}-{other drug} interaction`, `{other drug}-{head} interaction`, `co-administration of {head}`). Sub-exp `opt_cand_ddi_c2_8cb2b66e` → macro-F1 **0.666** (Δ **+0.024**), micro-F1 **0.673** (Δ **+0.017**); TP +2, FP −7, FN −2. Saved as `relation_verify_llm` **v0013**. Artifact: `result/opt_base_tune_81781d50/surgical_variant_test.json`.
 
-**Table S17.** CID relation extraction on BC5CDR test (n=500) — **oracle entities** (gold entities in CSV). Relation type: Chemical-induces-Disease (MeSH id pairs).
+**Table S14.** CID relation extraction on BC5CDR test (n=500) — **oracle entities** (gold entities in CSV). Relation type: Chemical-induces-Disease (MeSH id pairs).
 
 
 | Method                                                                    | Micro-P | Micro-R | Micro-F1 | Macro-P | Macro-R | Macro-F1 | TP  | FP    | FN  |
 | ------------------------------------------------------------------------- | ------- | ------- | -------- | ------- | ------- | -------- | --- | ----- | --- |
 | NeuraGraph RE (baseline, `wf_cid_re_llm_linear`)                          | 0.489   | 0.853   | 0.622    | 0.573   | 0.869   | 0.647    | 909 | 949   | 157 |
 | NeuraGraph RE (optimized, `wf_cid_re_llm_linear_opt_20260609_131256`, v0013) | 0.494   | 0.857   | 0.627    | 0.581   | 0.866   | 0.651    | 914 | 936   | 152 |
-| NeuraGraph RE (optimized, `wf_cid_re_llm_linear_opt_20260604`, legacy)    | 0.505   | 0.668   | 0.575    | 0.575   | 0.766   | 0.608    | 712 | 698   | 354 |
 
 
-*Table S17 (test 500, oracle entities): Baseline exp `678a855f` (`relation_verify_llm` v0010). Optimized (dev50 wizard, v0013): exp `opt_best_20260609_131256_d388be08`, graph `wf_cid_re_llm_linear_opt_20260609_131256` (Δ micro-F1 **+0.005**, Δ macro-F1 **+0.004** vs baseline; TP +5, FP −13, FN −5). Legacy optimized row (`f860e6d3`, earlier tuning protocol) retained for comparison.*
+*Table S14 (test 500, oracle entities): Baseline exp `678a855f` (`relation_verify_llm` v0010). Optimized (dev50 wizard, v0013): exp `opt_best_20260609_131256_d388be08`, graph `wf_cid_re_llm_linear_opt_20260609_131256` (Δ micro-F1 **+0.005**, Δ macro-F1 **+0.004** vs baseline; TP +5, FP −13, FN −5).*
 
 **Baseline test report (exp `678a855f`, §3.3 layout).** Wizard **Tab 1** report (`report_baseline_test.md`) summarizes Task B upper-bound RE on test-500:
 
@@ -467,22 +428,24 @@ To address end-to-end system assessment on a realistic pharmacological task, we 
 | Recall | 0.853 | 0.869 |
 | F1 | **0.622** | **0.647** |
 
-Error totals: TP=909, FP=949, FN=157. **Dominant FP pattern:** multi-drug regimen articles where Condition 3 of **Prompt S4** marks every chemical×adverse-event pair as `$` (e.g. samples 132, 453, 250). **Dominant FN pattern:** verifier returns `~` on associative or treatment-emergent wording; PGM negation guard occasionally suppresses valid `$`. Section 3 of the report proposes tightening Condition 3 and adjusting the 15-character associative guard—inputs to the dev50 refiner (**Table S16b**).
+Error totals: TP=909, FP=949, FN=157. **Dominant FP pattern:** multi-drug regimen articles where Condition 3 of **Prompt S3** marks every chemical×adverse-event pair as `$` (e.g. samples 132, 453, 250). **Dominant FN pattern:** verifier returns `~` on associative or treatment-emergent wording; PGM negation guard occasionally suppresses valid `$`. Section 3 of the report proposes tightening Condition 3 and adjusting the 15-character associative guard—inputs to the dev50 refiner (**Table S13**).
 
-**Table S18.** CID relation extraction on BC5CDR test (n=500) — **end-to-end** (Flair NER → RE, §3.4).
-
-
-| Method                                               | RE workflow           | Micro-P | Micro-R | Micro-F1 | Macro-F1 |
-| ---------------------------------------------------- | --------------------- | ------- | ------- | -------- | -------- |
-| NeuraGraph Flair NER → optimized RE                  | `wf_e2e_flair_opt_re` | 0.543   | 0.765   | 0.635    | 0.663    |
-| PubTator3 (NER + RE, via PubTator3 API)              | `wf_e2e_pubtator_re`  | 0.396   | 0.627   | 0.485    | 0.498    |
+**Table S15.** CID relation extraction on BC5CDR test (n=500) — **end-to-end** (Flair NER → RE, §3.4). Entity-level metrics; gold = `gold_relations` in CSV. **Micro** = aggregate TP/FP/FN over 500 articles; **macro** = mean of per-article P/R/F1 (same protocol as **Table S12**).
 
 
-*Table S18 (E2E row, n=500): merged experiment `bffea244-c3dd-4b97-98f2-9ed4d7bb895a` (`scripts/merge_e2e_states.py --500` on `cdr_test_500.csv`). Workflow `wf_e2e_flair_opt_re` (§3.4, Table S6b): inline Flair sentence NER → E2E entity prep → CID verify loop → `eval_metrics_relation`. Segment exps: `f859b257` (1–20), `309d1c78` (21–30), `a728966d` (31–50), `576ead7a` (51–100), `031fff5a` (101–199), `68ff0297` (200–500). Micro: TP=724, FP=609, FN=223; macro-F1 0.663. Same relation-pair metric protocol as Table S17.*
+| Method                                               | Micro-P | Micro-R | Micro-F1 | Macro-P | Macro-R | Macro-F1 |
+| ---------------------------------------------------- | ------- | ------- | -------- | ------- | ------- | -------- |
+| NeuraGraph Flair NER → optimized RE (`wf_e2e_flair_opt_re`) | 0.543   | 0.765   | 0.635    | 0.632   | 0.781   | 0.663    |
+| PubTator3 (NER + RE, via PubTator3 API; `wf_e2e_pubtator_re`) | 0.281   | 0.660   | 0.394    | 0.344   | 0.699   | 0.422    |
 
-**Error analysis (summary).** Batch reports (§3.3 layout) drive dev50 refiner rounds; aggregate FP/FN themes are quoted above for test-500 baseline. Section 3.2 **Table S10** remains the **20-article** worked example on dev.
 
-**Relation to sections 3.1–3.4.** Section 3.1 — NER workflows and prompts. Section 3.2 — oracle CID–RE pipeline and **Prompt S4**. Section 3.3 — wizard tabs, report sections, legacy + dev50 tuning. Section 3.4 — E2E Flair→RE chain. **Tables S16–S18** — primary publication metrics on the 500-article test split.
+*Table S15 (Flair→RE row, n=500): merged experiment `bffea244-c3dd-4b97-98f2-9ed4d7bb895a` (`scripts/merge_e2e_states.py --500` on `cdr_test_500.csv`). Workflow `wf_e2e_flair_opt_re` (§3.4, Table S9): inline Flair sentence NER → E2E entity prep → CID verify loop → `eval_metrics_relation`. Segment exps: `f859b257` (1–20), `309d1c78` (21–30), `a728966d` (31–50), `576ead7a` (51–100), `031fff5a` (101–199), `68ff0297` (200–500). Micro: TP=724, FP=609, FN=223. Same relation-pair metric protocol as Table S14.*
+
+*Table S15 (PubTator3 row, n=500): experiment `5c3bad58-a7ea-4236-ae95-e8956b736e7e` (`wf_e2e_pubtator_re`, completed 2026-06-10). Micro P/R/F1 = 0.281/0.660/0.394; macro P/R/F1 = 0.344/0.699/0.422; TP=668, FP=1708, FN=344.*
+
+**Error analysis (summary).** Batch reports (§3.3 layout) drive dev50 refiner rounds; aggregate FP/FN themes are quoted above for test-500 baseline. Per-article metrics are listed in the workflow states.
+
+**Relation to sections 3.1–3.4.** Section 3.1 — dataset preparation and **Table S1**. Section 3.2 — NER workflows and **Prompt S1** (§3.2). Section 3.3 — oracle CID–RE pipeline and **Prompt S3** (§3.3). Section 3.4 — E2E Flair→RE chain (§3.4). **Tables S10–S15** — primary publication metrics on the 500-article test split.
 
 *Task A (LLM NER row): `py -3 scripts/run_perf_ner_test500.py --runner wf_doc_ner_llm_eval`.*
 
@@ -494,7 +457,7 @@ The distribution includes **47** pre-built agents (**21** LLM-based, **26** prog
 
 ### 4.1 Agents (47)
 
-**Table S19. LLM agents (21)**
+**Table S16. LLM agents (21)**
 
 | No. | ID | Name | Description |
 | --- | --- | --- | --- |
@@ -520,7 +483,7 @@ The distribution includes **47** pre-built agents (**21** LLM-based, **26** prog
 | 20 | `text_summarize` | Text Summarization (LLM) | Summarize text into 2-3 sentences |
 | 21 | `text_word_segment` | Word Segmentation (LLM) | English word segmentation |
 
-**Table S20. PGM agents (26)**
+**Table S17. PGM agents (26)**
 
 | No. | ID | Name | Description |
 | --- | --- | --- | --- |
@@ -553,7 +516,7 @@ The distribution includes **47** pre-built agents (**21** LLM-based, **26** prog
 
 ### 4.2 Reusable subgraphs (9)
 
-**Table S21. Reusable subgraphs (9)**
+**Table S18. Reusable subgraphs (9)**
 
 | No. | ID | Name | Description |
 | --- | --- | --- | --- |
@@ -569,7 +532,7 @@ The distribution includes **47** pre-built agents (**21** LLM-based, **26** prog
 
 ### 4.3 Reference workflows (19)
 
-**Table S22. Reference workflows (19)**
+**Table S19. Reference workflows (19)**
 
 | No. | ID | Name | Description |
 | --- | --- | --- | --- |
@@ -581,8 +544,8 @@ The distribution includes **47** pre-built agents (**21** LLM-based, **26** prog
 | 6 | `wf_doc_ner_llm_eval` | Doc NER Eval (LLM) | Split document then LLM NER with metrics. |
 | 7 | `wf_doc_ner_loop_branch` | Doc NER loop + branch | Sentence split → loop Flair NER → 4-way branch → optional LLM → metrics. |
 | 8 | `wf_doc_re_nested_branch` | Doc RE (nested loop + branch) | Outer loop with nested preprocess + NER, 4-way branch, then RE. |
-| 9 | `wf_e2e_flair_opt_re` | E2E Flair NER + Optimized RE | Flair sentence-split NER → optimized CID RE (v0008 prompt) → relation metrics. For Table S18. |
-| 10 | `wf_e2e_pubtator_re` | E2E PubTator3 RE | Compose sg_e2e_pubtator_re (PubTator3 API → relations) → relation metrics vs gold_relations. For Table S18 comparison. |
+| 9 | `wf_e2e_flair_opt_re` | E2E Flair NER + Optimized RE | Flair sentence-split NER → optimized CID RE (v0008 prompt) → relation metrics. For Table S15. |
+| 10 | `wf_e2e_pubtator_re` | E2E PubTator3 RE | Compose sg_e2e_pubtator_re (PubTator3 API → relations) → relation metrics vs gold_relations. For Table S15 comparison. |
 | 11 | `wf_flair_vs_llm_ner` | Flair vs LLM NER Comparison | Sentence split, Flair loop NER, LLM NER, per-path metrics, and ner_comparison_report on the same document. |
 | 12 | `wf_general_report_linear` | Summarize + format | Summarize text and pack into JSON result. |
 | 13 | `wf_kg_flair_full` | KG Build (Flair NER) | Flair doc NER → entity link → triple extract → merge → RDF. |
@@ -595,7 +558,7 @@ The distribution includes **47** pre-built agents (**21** LLM-based, **26** prog
 
 ### 4.4 Callable tools (12)
 
-**Table S23. Callable tools (12)**
+**Table S20. Callable tools (12)**
 
 | No. | ID | Name | Description |
 | --- | --- | --- | --- |
@@ -614,7 +577,7 @@ The distribution includes **47** pre-built agents (**21** LLM-based, **26** prog
 
 ### 4.5 Native dataset parsers
 
-**Table S24. Native dataset parsers (3)**
+**Table S21. Native dataset parsers (3)**
 
 | No. | ID | Name | Description |
 | --- | --- | --- | --- |
@@ -676,11 +639,11 @@ Built-in loaders are selected automatically from dataset folder layout (`data/da
 - Replace Feature 3 with sandbox paragraph (Section 2).
 - Add Feature 4; merge reporting + tuning into Feature 6 (six features total in §2); **Fig. S6** TIFF + **Algorithm S3**.
 - Update Table S2/S6/S6b (loop/subgraph; RE pipeline nodes; E2E chain).
-- Fix caption **Table 3** → **Table S3** in §3.1.
+- Fix caption **Table 3** → **Table S3** in §3.2.
 - Fix **Fig. 4** → **Fig. S4** for RE workflow.
 - Add §3.3 wizard report layout + Prompts S1–S5; Tables S11–S13 (legacy tuning).
-- Add §3.4 E2E NER→RE (`wf_e2e_flair_opt_re`, Table S6b).
-- Add §3.5 performance evaluation (Tables S14–S18; S15B dev50; S16b v0013; baseline report summary).
-- Add §4 pre-built component inventory (Tables S19–S24: No., ID, Name, Description).
+- Add §3.4 E2E NER→RE (`wf_e2e_flair_opt_re`, Table S9).
+- Add §3.5 performance evaluation (Tables S10–S15; S11 dev50; S13 v0013; baseline report summary).
+- Add §4 pre-built component inventory (Tables S16–S21: No., ID, Name, Description).
 - Replace Algorithm 2 table with Algorithm S2 loop version; add **Algorithm S3** (wizard seven steps).
 
