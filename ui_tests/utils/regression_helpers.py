@@ -71,6 +71,13 @@ def api_post_json(url: str, payload: dict, timeout: int = 120) -> Any:
         return json.loads(resp.read().decode("utf-8"))
 
 
+def api_delete_json(url: str, timeout: int = 60) -> Any:
+    req = urllib.request.Request(url, method="DELETE")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        body = resp.read().decode("utf-8")
+        return json.loads(body) if body.strip() else {}
+
+
 def build_two_row_dataset(graph_id: str, *, with_gold: bool) -> tuple[list[str], list[dict[str, Any]]]:
     """Build 2 CSV rows for a graph; strip gold columns when with_gold=False."""
     base = dict(graph_run_params(graph_id))

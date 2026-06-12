@@ -80,11 +80,24 @@ def compute_states(graph_id):
             m = _START_REF.search(expr)
             if m:
                 state.add(m.group(1))
+                continue
+            m = _SIMPLE_REF.search(expr.strip())
+            if m:
+                state.add(m.group(1))
 
     for key in compute_graph_global_inputs(graph_id):
         state.add(key)
 
     for _nid, flow in (g.get("flowNodes") or {}).items():
+        if flow.get("kind") == "branch":
+            state.add("route")
+            for cond in flow.get("conditions") or []:
+                if isinstance(cond, dict):
+                    field = cond.get("field") or cond.get("condition") or ""
+                    if isinstance(field, str) and field.startswith("!"):
+                        field = field[1:].strip()
+                    if field:
+                        state.add(field)
         if flow.get("kind") == "loop":
             lc = flow.get("loopConfig") or {}
             arr = lc.get("array", "")
@@ -94,6 +107,7 @@ def compute_states(graph_id):
                     state.add(m.group(1))
             for field in (lc.get("itemBindings") or {}):
                 state.add(field)
+            state.update(collect_loop_scalar_item_fields(graph_id, _nid))
             state.update(collect_loop_merge_keys(graph_id, _nid))
             for src, dst in (lc.get("mergeAliases") or {}).items():
                 state.add(dst)

@@ -105,12 +105,19 @@ $env:NG_GRAPH_SKIP_UI = "1"
 
 | Phase | Checks |
 | --- | --- |
-| G1 | Backup `meta/graphs` → clear directory |
-| G2 | UI inject → save → JSON + canvas topology diff |
+| G1 | **Simple:** create PGM workflow → run → copy → run copy → delete. **Nested:** L1→L2→L3 loops; **branch + 2 arms inside L3 body** → run → verify `route`/`result` |
+| G2 | Open each graph editor and screenshot |
 | G3 | Branch graphs with ≥3 conditions (UI smoke) |
-| G4 | One graph at a time: `/stream/test` until `[DONE]`; then next |
+| G4 | Each graph × gold / no_gold: Test modal `/stream/test` until complete |
 
-**Not mock:** G4 runs real runners, agents, LLM, and plugins. G2/G3 do not execute LLM logic — only editor round-trip.
+**Not mock:** G1 (PGM run) and G4 run real workflow execution. G2/G3 do not execute LLM logic.
+
+Skip G1 only:
+
+```powershell
+$env:NG_GRAPH_SKIP_G1 = "1"
+.\venv\Scripts\python.exe ui_tests\run_tests.py --suite regression-graph
+```
 
 Graph markdown report: [graph_suite_report_latest.md](../ui_tests/reports/graph_suite_report_latest.md) when a full suite completes.
 
