@@ -8,7 +8,7 @@ from typing import Any
 
 from ui_tests.utils.graph_workflow_json_utils import (
     ROOT,
-    graph_ids_for_testing,
+    discover_graph_ids,
     graph_run_params,
     list_graph_ids,
 )
@@ -29,7 +29,7 @@ def _input_source(graph_id: str) -> str:
 def write_graph_suite_report(
     screenshots_dir: str | Path,
     *,
-    suite_label: str = "graphs",
+    suite_label: str = "regression-graph",
     mock_llm: bool = False,
 ) -> Path:
     screenshots_dir = Path(screenshots_dir)
@@ -38,7 +38,7 @@ def write_graph_suite_report(
     if results_path.is_file():
         payload = json.loads(results_path.read_text(encoding="utf-8"))
 
-    graph_ids = graph_ids_for_testing(from_backup=False)
+    graph_ids = sorted(discover_graph_ids(from_backup=False))
     rows = payload.get("results") or ph.results
     passed = sum(1 for r in rows if r.get("status") == "PASS")
     failed = sum(1 for r in rows if r.get("status") == "FAIL")
@@ -48,9 +48,9 @@ def write_graph_suite_report(
         "# Graph Test Suite Report",
         "",
         f"- Generated: {datetime.now(timezone.utc).isoformat()}",
-        f"- Suite: `{suite_label}` (Playwright `playwright_graph_full_suite.py`)",
+        f"- Suite: `{suite_label}` (Playwright `playwright_regression_graph.py`)",
         f"- Mock LLM: **{'yes' if mock_llm else 'no — G4 uses real /stream/test (LLM + plugins)'}**",
-        f"- Workflows under test: **{len(graph_ids)}** (one per family via `graph_ids_for_testing`)",
+        f"- Workflows under test: **{len(graph_ids)}** (all graphs under `meta/graphs`)",
         f"- On disk (`meta/graphs`): **{len(list_graph_ids(from_backup=False))}** JSON files",
         f"- Playwright cases: **{total}** | PASS **{passed}** | FAIL **{failed}**",
         "",

@@ -1,9 +1,15 @@
 {
   "type": "custom",
-  "api_key": "sk-5d3b5aadaeda4115911c48901e5438f8",
+  "api_key": "sk-49aaaaa5882542faaa3336c8244d464a",
   "base_url": "https://api.deepseek.com/v1",
   "model": "deepseek-chat",
   "max_tokens": 8192,
   "temperature": 0,
-  "created_at": "2026-05-27T13:47:04.333045"
+  "created_at": "2026-05-27T13:47:04.333045",
+  "id": "deepseek",
+  "timeout": 30,
+  "max_retries": 3,
+  "rate_limit": 60,
+  "metadata": {},
+  "updated_at": "2026-06-10T16:49:54.260191"
 }

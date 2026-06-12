@@ -44,10 +44,27 @@ def _resolve_binding_expr(expr: Any, row: dict[str, Any], state: dict[str, Any])
     return state.get(path)
 
 
+def _is_nonempty_gold(value: Any) -> bool:
+    """True when a gold/expected field carries evaluable labels."""
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, (list, tuple, set, dict)):
+        return bool(value)
+    return True
+
+
 def _first_present(mapping: dict[str, Any], keys: tuple[str, ...]) -> Any:
     for key in keys:
-        if key in mapping and mapping[key] is not None:
-            return mapping[key]
+        if key not in mapping:
+            continue
+        value = mapping[key]
+        if value is None:
+            continue
+        if not _is_nonempty_gold(value):
+            continue
+        return value
     return None
 
 
@@ -176,6 +193,8 @@ def compute_workflow_metrics(
             predicted_val = _first_present(state, _PREDICTED_ALIASES)
 
         if expected_val is None or predicted_val is None:
+            continue
+        if not _is_nonempty_gold(expected_val):
             continue
 
         prefix = spec.get("prefix") or ""

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture cid_* 04_results / 05_report screenshots for latest or new NER experiment."""
+"""Capture CID NER experiment screenshots via regression-exp helper."""
 import os
 import sys
 from pathlib import Path
@@ -11,28 +11,25 @@ os.environ.setdefault("PLUGIN_SERVER_URL", "http://127.0.0.1:5002")
 
 from playwright.sync_api import sync_playwright
 
-from ui_tests.suites import playwright_cid_experiment_suite as cid
-from ui_tests.utils.playwright_helpers import goto
+from ui_tests.utils.regression_helpers import run_graph_experiment
 
 SCREENSHOTS = ROOT / "ui_tests" / "screenshots"
 BASE = "http://127.0.0.1:5001"
+NER_RUNNER = "wf_cid_ner_llm_eval"
 
 
 def main():
     SCREENSHOTS.mkdir(parents=True, exist_ok=True)
-    cid.ensure_cid_dataset(ROOT / "tests")
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True)
         page = browser.new_page(viewport={"width": 1920, "height": 1080})
-        exp_id = cid._run_experiment_ui(
+        exp_id = run_graph_experiment(
             page,
             BASE,
             str(SCREENSHOTS),
-            ROOT / "tests",
-            cid.NER_RUNNER,
-            "CID NER Eval (LLM) (wf_cid_ner_llm_eval) - Workflow",
-            "cid_ner_",
+            NER_RUNNER,
+            with_gold=True,
         )
         print("NER exp_id:", exp_id)
         browser.close()

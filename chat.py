@@ -5,7 +5,7 @@ NeuraGraph Chat - Terminal workflow builder (like Kimi Code).
 
 Usage:
     python chat.py                    # Interactive chat mode
-    python chat.py --llm kimi-2.6     # Use specific LLM
+    python chat.py --llm deepseek     # Use specific LLM
     python chat.py --no-unicode       # Disable emoji for Windows CMD/GBK terminals
 """
 
@@ -460,7 +460,7 @@ class LLMCommandParser:
 # Workflow Generation (via autogen)
 # ═══════════════════════════════════════════════════════════════
 
-def generate_workflow(requirement: str, llm_id: str = "kimi-2.6") -> Optional[Dict]:
+def generate_workflow(requirement: str, llm_id: str = "deepseek") -> Optional[Dict]:
     """Use autogen.py to generate workflow from requirement."""
     import autogen
 
@@ -515,7 +515,7 @@ def execute_agent(agent_id: str, inputs: Dict) -> Dict:
 # ═══════════════════════════════════════════════════════════════
 
 class ChatEngine:
-    def __init__(self, llm_id: str = "kimi-2.6", parser: Optional[Any] = None):
+    def __init__(self, llm_id: str = "deepseek", parser: Optional[Any] = None):
         self.llm_id = llm_id
         self.parser = parser
         self.history: List[Dict[str, str]] = []
@@ -1345,7 +1345,7 @@ class ChatEngine:
 
 def main():
     parser = argparse.ArgumentParser(description="NeuraGraph Chat - Terminal Workflow Builder")
-    parser.add_argument("--llm", default="kimi-2.6", help="LLM config ID to use")
+    parser.add_argument("--llm", default="deepseek", help="LLM config ID to use")
     parser.add_argument("--no-unicode", action="store_true", help="Disable emoji/Unicode for Windows CMD/GBK terminals")
     parser.add_argument("--no-color", action="store_true", help="Disable ANSI colors")
     parser.add_argument("--meta-dir", default=str(META_DIR), help="Meta directory path")

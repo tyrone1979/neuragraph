@@ -9,7 +9,7 @@
     "name": "metrics",
     "type": "dict"
   },
-  "process": "calculator=get_plugin('MetricsCalculation')\nexpected = state.get('expected') or state.get('expected_entities')\npredicted = state.get('predicted') or state.get('entities')\nif expected is None:\n    state['error'] = \"Missing 'expected' or 'expected_entities' in state\"\n    __result__ = state\nelif predicted is None:\n    state['error'] = \"Missing 'predicted' or 'entities' in state\"\n    __result__ = state\nelse:\n    __result__=calculator.calculate(expected, predicted)\n",
+  "process": "calculator=get_plugin('MetricsCalculation')\nexpected = state.get('expected') or state.get('expected_entities')\npredicted = state.get('predicted') or state.get('entities')\nif expected is None or predicted is None:\n    __result__ = {}\nelif isinstance(expected, str) and not expected.strip():\n    __result__ = {}\nelif isinstance(expected, (list, dict)) and not expected:\n    __result__ = {}\nelse:\n    __result__=calculator.calculate(expected, predicted)\n",
   "created_at": "2026-01-20T13:20:42.956076",
   "engine": "pgm",
   "description": "Computes NER precision, recall, and F1 by comparing predicted and expected entity sets via MetricsCalculation."

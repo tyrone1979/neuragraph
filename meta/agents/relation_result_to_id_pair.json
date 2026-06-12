@@ -1,4 +1,6 @@
 {
+  "name": "Relation Result -> ID Pair",
+  "description": "Emits head_id/tail_id CID relation lines when verification is positive, with negation and weak-association guards.",
   "type": "PGM",
   "inputs": [
     "result",

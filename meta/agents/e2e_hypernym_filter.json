@@ -9,7 +9,7 @@
     "name": "filtered_entities",
     "type": "list"
   },
-  "model": "kimi-2.6",
+  "model": "deepseek",
   "prompt_template": {
     "description": "Remove hypernyms and standalone modifiers from entity list using article context; keep only the most specific entities per concept.",
     "system": "You are a biomedical entity normalization expert. Do not call tools. Your reply must be ONLY the final JSON array — no reasoning, markdown, or prose.",

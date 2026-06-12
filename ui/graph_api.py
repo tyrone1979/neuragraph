@@ -57,12 +57,21 @@ def load_graph_by_id(graph_id: str):
                 'display': f"{flow_nodes[node].get('name', node)} ({node}) - {fk.title()}",
             }
         elif node in agents:
-            type = agents[node]['type']
+            agent_meta = agents[node]
+            agent_type = agent_meta.get('type', 'agent')
+            agent_name = agent_meta.get('name') or node
+            if agent_type == 'agent':
+                kind_label = 'Agent'
+            elif agent_type == 'PGM':
+                kind_label = 'Code'
+            elif agent_type == 'LLM':
+                kind_label = 'LLM'
+            else:
+                kind_label = 'Workflow'
             display = {
-                'type': type,
+                'type': agent_type,
                 'id': node,
-                'display': f"{agents[node]['name']} ({node}) - Agent" if type == 'agent' else
-                f"{agents[node]['name']} ({node}) - Workflow"
+                'display': f"{agent_name} ({node}) - {kind_label}",
             }
         else:
             display = {

@@ -1,142 +1,132 @@
 {
   "results": [
     {
-      "test": "G1-G3-skip",
+      "test": "REXP-sg_cid_re_verify-gold_test_only",
       "status": "PASS",
-      "detail": "NG_GRAPH_SKIP_UI set \u2014 G4 only"
+      "detail": "eb68df63-2ec1-425e-b6ea-9be3dc01a98d"
     },
     {
-      "test": "G4-ner_flair_sent_loop",
+      "test": "REXP-persist-sg_cid_re_verify-gold_test_only",
       "status": "PASS",
-      "detail": "ok (0s)"
+      "detail": "samples=2"
     },
     {
-      "test": "G4-sg_cid_re_verify",
+      "test": "REXP-metrics-sg_cid_re_verify-gold_test_only",
       "status": "PASS",
-      "detail": "ok (1s)"
+      "detail": "no metrics (gold may be empty)"
     },
     {
-      "test": "G4-sg_ner_flair_sent",
+      "test": "REXP-notuning-sg_cid_re_verify-gold_test_only",
       "status": "PASS",
-      "detail": "ok (1s)"
+      "detail": "test dataset only"
     },
     {
-      "test": "G4-sg_ner_llm_tree",
+      "test": "REXP-sg_cid_re_verify-no_gold_with_tuning",
       "status": "PASS",
-      "detail": "ok (35s)"
+      "detail": "eb3f05c1-4593-4ec6-af56-5c1a6704d6ee"
     },
     {
-      "test": "G4-sg_preprocess_inner",
+      "test": "REXP-persist-sg_cid_re_verify-no_gold_with_tuning",
       "status": "PASS",
-      "detail": "ok (0s)"
+      "detail": "samples=2"
     },
     {
-      "test": "G4-sg_re_preprocess",
+      "test": "REXP-nogold-sg_cid_re_verify-no_gold_with_tuning",
       "status": "PASS",
-      "detail": "ok (2s)"
+      "detail": "completed without gold labels"
     },
     {
-      "test": "G4-sg_re_tree",
+      "test": "REXP-tuning-sg_cid_re_verify-no_gold_with_tuning",
       "status": "PASS",
-      "detail": "ok (10s)"
+      "detail": "tuning=regression_2_no_gold_tuning.csv"
     },
     {
-      "test": "G4-sg_relation_verify",
+      "test": "REXP-sg_e2e_cid_re-gold_test_only",
       "status": "PASS",
-      "detail": "ok (3s)"
+      "detail": "c2a2b5ad-c532-4aaa-82ac-d773f67abb5c"
     },
     {
-      "test": "G4-wf_cid_ner_flair_eval",
+      "test": "REXP-persist-sg_e2e_cid_re-gold_test_only",
       "status": "PASS",
-      "detail": "ok (6s)"
+      "detail": "samples=2"
     },
     {
-      "test": "G4-wf_cid_ner_llm_eval",
+      "test": "REXP-metrics-sg_e2e_cid_re-gold_test_only",
       "status": "PASS",
-      "detail": "ok (2s)"
+      "detail": "no metrics (gold may be empty)"
     },
     {
-      "test": "G4-wf_cid_re_branch",
+      "test": "REXP-notuning-sg_e2e_cid_re-gold_test_only",
       "status": "PASS",
-      "detail": "ok (2s)"
+      "detail": "test dataset only"
     },
     {
-      "test": "G4-wf_cid_re_llm_linear",
+      "test": "REXP-wf_e2e_flair_opt_re-gold_test_only",
       "status": "PASS",
-      "detail": "ok (5s)"
+      "detail": "b5d84965-7a67-48ee-aeeb-3d205d71b969"
     },
     {
-      "test": "G4-wf_cid_re_llm_linear_opt_20260529_143039_r2",
+      "test": "REXP-persist-wf_e2e_flair_opt_re-gold_test_only",
       "status": "PASS",
-      "detail": "ok (5s)"
+      "detail": "samples=2"
     },
     {
-      "test": "G4-wf_doc_ner_flair_eval",
+      "test": "REXP-metrics-wf_e2e_flair_opt_re-gold_test_only",
       "status": "PASS",
-      "detail": "ok (0s)"
+      "detail": "metrics present"
     },
     {
-      "test": "G4-wf_doc_ner_llm_eval",
+      "test": "REXP-notuning-wf_e2e_flair_opt_re-gold_test_only",
       "status": "PASS",
-      "detail": "ok (2s)"
+      "detail": "test dataset only"
     },
     {
-      "test": "G4-wf_doc_ner_loop_branch",
+      "test": "REXP-wf_e2e_flair_opt_re-no_gold_test_only",
       "status": "PASS",
-      "detail": "ok (3s)"
+      "detail": "35bae8bd-a164-4b32-bd66-35a709b4259c"
     },
     {
-      "test": "G4-wf_doc_re_nested_branch",
+      "test": "REXP-persist-wf_e2e_flair_opt_re-no_gold_test_only",
       "status": "PASS",
-      "detail": "ok (2s)"
+      "detail": "samples=2"
     },
     {
-      "test": "G4-wf_flair_vs_llm_ner",
+      "test": "REXP-nogold-wf_e2e_flair_opt_re-no_gold_test_only",
       "status": "PASS",
-      "detail": "ok (25s); labels column in tests/wf_flair_vs_llm_ner/wf_flair_vs_llm_ner_auto5.csv"
+      "detail": "completed without gold labels"
     },
     {
-      "test": "G4-wf_general_report_linear",
+      "test": "REXP-notuning-wf_e2e_flair_opt_re-no_gold_test_only",
       "status": "PASS",
-      "detail": "ok (1s)"
+      "detail": "test dataset only"
     },
     {
-      "test": "G4-wf_kg_flair_full",
+      "test": "REXP-wf_e2e_flair_opt_re-gold_with_tuning",
       "status": "PASS",
-      "detail": "ok (7s)"
+      "detail": "16502552-2b66-4fff-be9e-3ad223f287ec"
     },
     {
-      "test": "G4-wf_kg_llm_full",
+      "test": "REXP-persist-wf_e2e_flair_opt_re-gold_with_tuning",
       "status": "PASS",
-      "detail": "ok (7s)"
+      "detail": "samples=2"
     },
     {
-      "test": "G4-wf_kg_syntax_loop",
+      "test": "REXP-metrics-wf_e2e_flair_opt_re-gold_with_tuning",
       "status": "PASS",
-      "detail": "ok (14s)"
+      "detail": "metrics present"
     },
     {
-      "test": "G4-wf_re_pubtator_dev10",
+      "test": "REXP-tuning-wf_e2e_flair_opt_re-gold_with_tuning",
       "status": "PASS",
-      "detail": "ok (2s)"
+      "detail": "tuning=regression_2_gold_tuning.csv"
     },
     {
-      "test": "G4-wf_re_pubtator_eval",
+      "test": "REXP-summary",
       "status": "PASS",
-      "detail": "ok (1s)"
-    },
-    {
-      "test": "G4-wf_re_verify_llm_loop",
-      "status": "PASS",
-      "detail": "ok (2s)"
-    },
-    {
-      "test": "G4-wf_word_seg_llm_eval",
-      "status": "PASS",
-      "detail": "ok (2s)"
+      "detail": "processed 6 representative run(s)"
     }
   ],
-  "passed": 27,
+  "passed": 25,
   "failed": 0,
   "errors": []
 }

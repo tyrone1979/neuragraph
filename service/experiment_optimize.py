@@ -140,20 +140,35 @@ def _load_rows(runner_id: str, dataset: str) -> list[dict[str, Any]]:
     return [dict(r) for r in rows]
 
 
-def _resolve_dual_datasets(exp_cfg: dict[str, Any]) -> tuple[str, str]:
-    """Resolve (tuning_dataset, test_dataset) with legacy fallback."""
-    tuning = str(exp_cfg.get("tuning_dataset") or "").strip()
+def _configured_tuning_dataset(exp_cfg: dict[str, Any]) -> str:
+    return str(exp_cfg.get("tuning_dataset") or "").strip()
+
+
+def _resolve_test_dataset(exp_cfg: dict[str, Any]) -> str:
     test = str(exp_cfg.get("test_dataset") or "").strip()
     legacy = str(exp_cfg.get("dataset") or "").strip()
-    if not tuning:
-        tuning = legacy or test
-    if not test:
-        test = legacy or tuning
-    if not tuning and test:
-        tuning = test
-    if not test and tuning:
-        test = tuning
+    return test or legacy
+
+
+def _resolve_dual_datasets(exp_cfg: dict[str, Any]) -> tuple[str, str]:
+    """Resolve (tuning_dataset, test_dataset). Tuning may be empty when not configured."""
+    tuning = _configured_tuning_dataset(exp_cfg)
+    test = _resolve_test_dataset(exp_cfg)
     return tuning, test
+
+
+def _tuning_dataset_configured(exp_cfg: dict[str, Any]) -> bool:
+    return bool(_configured_tuning_dataset(exp_cfg))
+
+
+def _require_tuning_dataset(exp_cfg: dict[str, Any]) -> str:
+    tuning = _configured_tuning_dataset(exp_cfg)
+    if not tuning:
+        raise RuntimeError(
+            "tuning_dataset is required for tuning and optimization steps. "
+            "Configure a tuning dataset in Tab 1 or enable auto split."
+        )
+    return tuning
 
 
 def init_optimization_flow_steps() -> list[dict[str, Any]]:
@@ -274,6 +289,7 @@ def optimization_preflight(exp_id: str) -> dict[str, Any]:
         "status": str(exp_cfg.get("status") or ""),
         "tuning_dataset": tuning,
         "test_dataset": test,
+        "tuning_dataset_configured": _tuning_dataset_configured(exp_cfg),
         "baseline_test_metrics": _avg_metrics(exp_id) if ready else {},
         "flow_steps": flow_steps,
     }

@@ -18,7 +18,7 @@
       "name": "triples",
       "type": "list"
     },
-    "model": "kimi-2.6",
+    "model": "gpt-oss_120b",
     "prompt_template": {
       "description": "Biomedical knowledge-graph triple extraction",
       "system": "You are a biomedical knowledge-graph curator. Extract factual subject–predicate–object triples suitable for RDF/KG storage. Output only valid lines, no markdown.",

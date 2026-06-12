@@ -19,13 +19,36 @@ def fail(test: str, detail: str = ""):
     print(f"  [FAIL] {test}: {detail}")
 
 
-def shot(page: Page, screenshots_dir: str, name: str):
-    page.screenshot(path=f"{screenshots_dir}/{name}.png", full_page=True)
+def shot(
+    page: Page,
+    screenshots_dir: str,
+    name: str,
+    *,
+    full_page: bool = True,
+    timeout: int = 120000,
+):
+    page.screenshot(
+        path=f"{screenshots_dir}/{name}.png",
+        full_page=full_page,
+        timeout=timeout,
+        animations="disabled",
+    )
 
 
 def goto(page: Page, base: str, path: str, sleep: float = 3, wait_until: str = "commit", timeout: int = 90000):
-    page.goto(f"{base}{path}", timeout=timeout, wait_until=wait_until)
-    time.sleep(sleep)
+    url = f"{base}{path}"
+    last_err: Exception | None = None
+    for attempt in range(2):
+        try:
+            page.goto(url, timeout=timeout, wait_until=wait_until)
+            time.sleep(sleep)
+            return
+        except Exception as ex:
+            last_err = ex
+            if attempt == 0:
+                time.sleep(2)
+    if last_err:
+        raise last_err
 
 
 def paper_scale(page: Page):

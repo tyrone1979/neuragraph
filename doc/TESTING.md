@@ -12,13 +12,16 @@ From the project root, using the project venv:
 
 ```powershell
 $env:PYTHONPATH = (Get-Location).Path
+.\venv\Scripts\python.exe ui_tests\run_tests.py --suite regression-exp
+.\venv\Scripts\python.exe ui_tests\run_tests.py --suite regression-graph
+.\venv\Scripts\python.exe ui_tests\run_tests.py --suite regression-tool
+.\venv\Scripts\python.exe ui_tests\run_tests.py --suite regression-agent
 .\venv\Scripts\python.exe ui_tests\run_tests.py --suite unit
 .\venv\Scripts\python.exe ui_tests\run_tests.py --suite agents
-.\venv\Scripts\python.exe ui_tests\run_tests.py --suite agents-live
-.\venv\Scripts\python.exe ui_tests\run_tests.py --suite graphs
+.\venv\Scripts\python.exe ui_tests\run_tests.py --suite all
 ```
 
-Prerequisites for Playwright suites (`regression`, `current`, `experiment`, `graphs`): Chromium via Playwright, Flask on port **5001**, plugin sandbox on **5002** (started automatically by `run_tests.py` unless `--external-server`).
+Prerequisites for Playwright suites (`regression-*`): Chromium via Playwright, Flask on port **5001**, plugin sandbox on **5002** (started automatically by `run_tests.py` unless `--external-server`).
 
 ---
 
@@ -26,15 +29,14 @@ Prerequisites for Playwright suites (`regression`, `current`, `experiment`, `gra
 
 | `--suite` | What it runs | Real LLM? |
 | --- | --- | --- |
+| `regression-exp` | Every `meta/graphs/*.json` — batch experiment, 2 articles, **with gold** and **without gold** | **Yes** — `/stream/run` |
+| `regression-graph` | Every graph — G1–G4 (`playwright_regression_graph.py`) | **Yes** — G4 `/stream/test` |
+| `regression-tool` | Every `meta/tools` entry — tool form UI + `/tools/api/run_tool` | Depends on tool |
+| `regression-agent` | Every `meta/agents/*.json` — edit UI + mock-LLM batch invoke | **No** — mock LLM |
 | `unit` | `ui_tests/unit/test_*.py` (unittest) | N/A |
 | `agents` | All meta agents, `tests/<agent_id>/sample.csv` | **No** — mock LLM |
 | `agents-live` | Same as agents | **Yes** — deepseek / gpt-oss_120b only |
-| `graphs` | `playwright_graph_full_suite.py` (G1–G4 per workflow family) | **Yes** — `/stream/test` |
-| `regression` | Stable UI tests 1–14 | UI only |
-| `current` | Newer / flaky UI tests | UI only |
-| `experiment` | Experiment wizard UI | UI + real runs when triggered |
-| `cid-experiment` | CID NER/RE experiment UI smoke | Real workflow when run |
-| `all` | regression + current + experiment + graphs + unit | Mixed |
+| `all` | regression-exp + regression-graph + regression-tool + regression-agent + unit | Mixed |
 
 Direct agent batch (writes reports under `ui_tests/reports/`):
 
@@ -51,24 +53,66 @@ Direct agent batch (writes reports under `ui_tests/reports/`):
 ui_tests/
   run_tests.py              # CLI entry
   suites/                   # Playwright + agent batch
-    playwright_graph_full_suite.py
-    playwright_regression_suite.py
+    playwright_regression_exp.py
+    playwright_regression_graph.py
+    playwright_regression_tool.py
+    playwright_regression_agent.py
     agent_invoke_mock_llm_suite.py
-    ...
   unit/                     # Offline unittest (no server)
     test_graph_workflow_json_utils.py
     test_workflow_family_selection.py
     test_plan_and_triple_parse.py
     ...
-  utils/                    # Fixtures, graph JSON helpers, report writer
+  utils/
+    regression_helpers.py   # shared exp/graph/tool/agent regression helpers
   reports/                  # Committed snapshots (see README there)
-  screenshots/              # Playwright captures + test_results.json
+  screenshots/              # Playwright captures + test_results.json (generated; not committed)
 tests/                      # Per-agent / per-workflow CSV inputs (not scripts)
 ```
 
 ---
 
 ## Suite details
+
+### Regression suites (`regression-exp` / `regression-graph` / `regression-tool` / `regression-agent`)
+
+Full coverage with screenshots under `ui_tests/screenshots/` and aggregated results in `test_results.json`.
+
+| Suite | Scope | Notes |
+| --- | --- | --- |
+| `regression-exp` | All graphs | 2-sample CSV per graph; runs once **with gold**, once **without gold** |
+| `regression-graph` | All graphs | G1–G4 in `playwright_regression_graph.py` |
+| `regression-tool` | All tools | Visits `/tools/{id}` and POSTs `/tools/api/run_tool` with schema/fixture inputs |
+| `regression-agent` | All agents | Edit-page screenshots + in-process mock-LLM invoke (`agent_invoke_mock_llm_suite`) |
+
+Filter to one item (debug):
+
+```powershell
+$env:NG_GRAPH_ONLY = "sg_cid_re_verify"
+$env:NG_REGRESSION_EXP_ONLY = "sg_cid_re_verify"
+$env:NG_REGRESSION_AGENT_ONLY = "relation_verify_llm"
+.\venv\Scripts\python.exe ui_tests\run_tests.py --suite regression-exp
+```
+
+G4-only graph check (skip G1–G3 UI):
+
+```powershell
+$env:NG_GRAPH_SKIP_UI = "1"
+.\venv\Scripts\python.exe ui_tests\run_tests.py --suite regression-graph
+```
+
+### Graph suite phases (`regression-graph`)
+
+| Phase | Checks |
+| --- | --- |
+| G1 | Backup `meta/graphs` → clear directory |
+| G2 | UI inject → save → JSON + canvas topology diff |
+| G3 | Branch graphs with ≥3 conditions (UI smoke) |
+| G4 | One graph at a time: `/stream/test` until `[DONE]`; then next |
+
+**Not mock:** G4 runs real runners, agents, LLM, and plugins. G2/G3 do not execute LLM logic — only editor round-trip.
+
+Graph markdown report: [graph_suite_report_latest.md](../ui_tests/reports/graph_suite_report_latest.md) when a full suite completes.
 
 ### Unit tests (`--suite unit`)
 
@@ -85,25 +129,6 @@ Fast, no browser. Covers parsers, graph backup/diff, workflow family selection, 
 - **Live mode** (`agents-live`): real API calls; use after changing prompts, `parse_as`, or output parsers.
 
 Reports: [agent mock full (43/43)](../ui_tests/reports/agent_test_report_mock_latest.md) · [live fixes (3 LLM agents)](../ui_tests/reports/agent_test_report_live_latest.md)
-
-### Graph suite (`--suite graphs`)
-
-Phases per representative workflow (`graph_ids_for_testing()` — one id per family plus baseline where kept):
-
-| Phase | Checks |
-| --- | --- |
-| G1 | Backup `meta/graphs` → clear directory |
-| G2 | UI inject → save → JSON + canvas topology diff |
-| G3 | Branch graphs with ≥3 conditions (UI smoke) |
-| G4 | One graph at a time: `/stream/test` until `[DONE]` (no socket timeout); print input, output tail, verdict; then next |
-
-**Not mock:** G4 runs real runners, agents, LLM, and plugins. G2/G3 do not execute LLM logic — only editor round-trip.
-
-Playwright aggregate: [ui_tests/screenshots/test_results.json](../ui_tests/screenshots/test_results.json) (CID experiment UI run). Graph markdown report: [graph_suite_report_latest.md](../ui_tests/reports/graph_suite_report_latest.md) when a full suite completes.
-
-### Playwright regression / current / experiment
-
-See `ui_tests/suites/playwright_*_suite.py`. Results append to `ui_tests/screenshots/test_results.json` via `playwright_helpers.write_results()`.
 
 ---
 
@@ -124,21 +149,21 @@ Timestamped runs from local executions may also exist as `agent_test_report_YYYY
 
 If **G4 shows `timed out` for every graph** (including fast `sg_*` subgraphs):
 
-1. **Server wedged** — G2 runs many `saveGraph()` calls; a stuck dialog or slow Flask can leave port 5001 unresponsive. Restart the app, then re-run. The suite now **restores `meta/graphs` from backup before G4** so stream tests use canonical JSON, not broken UI saves.
+1. **Server wedged** — G2 runs many `saveGraph()` calls; a stuck dialog or slow Flask can leave port 5001 unresponsive. Restart the app, then re-run. The suite **restores `meta/graphs` from backup before G4** so stream tests use canonical JSON, not broken UI saves.
 2. **G2c false FAIL** — Editor adds empty `agentVersions` / `flowNodes` while backups omit them; `normalize_graph` now treats those as equivalent.
 3. **Quick G4-only check** (skip G1–G3 UI):
 
    ```powershell
    $env:NG_GRAPH_SKIP_UI = "1"
-   .\venv\Scripts\python.exe -u ui_tests\run_tests.py --suite graphs
+   .\venv\Scripts\python.exe -u ui_tests\run_tests.py --suite regression-graph
    ```
 
-4. **Single graph** (still sequential, no timeout):
+4. **Single graph**:
 
    ```powershell
    $env:NG_GRAPH_ONLY = "sg_cid_re_verify"
    $env:NG_GRAPH_SKIP_UI = "1"
-   .\venv\Scripts\python.exe -u ui_tests\run_tests.py --suite graphs
+   .\venv\Scripts\python.exe -u ui_tests\run_tests.py --suite regression-graph
    ```
 
 Ensure port **5001** responds (`curl http://127.0.0.1:5001/`) and plugin sandbox **5002** is up before G4.
@@ -148,14 +173,14 @@ Ensure port **5001** responds (`curl http://127.0.0.1:5001/`) and plugin sandbox
 ## Regenerating reports
 
 ```powershell
-# Agents (mock) — updates agent_test_report_YYYYMMDD_* and *_latest* if suite writes latest
+# Agents (mock)
 .\venv\Scripts\python.exe ui_tests\suites\agent_invoke_mock_llm_suite.py
 
 # Agents (live)
 .\venv\Scripts\python.exe ui_tests\suites\agent_invoke_mock_llm_suite.py --live-llm
 
 # Graphs (long; restores meta/graphs from backup when finished)
-.\venv\Scripts\python.exe -u ui_tests\run_tests.py --suite graphs
+.\venv\Scripts\python.exe -u ui_tests\run_tests.py --suite regression-graph
 ```
 
 Copy or symlink the newest `agent_test_report_*.md` into `*_latest*` before commit if you want docs to point at a specific run.

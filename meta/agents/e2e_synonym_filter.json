@@ -9,7 +9,7 @@
     "name": "filtered_entities",
     "type": "list"
   },
-  "model": "kimi-2.6",
+  "model": "deepseek",
   "prompt_template": {
     "description": "Assign every input entity to a synonym cluster (shared id); do not drop entities.",
     "system": "You are a biomedical entity normalization expert. Do not call tools. Your reply must be ONLY the final JSON array — no reasoning, markdown, or prose.",

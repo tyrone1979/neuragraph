@@ -137,7 +137,7 @@ Full guide and **report links**: [TESTING.md](TESTING.md) · [ui_tests/reports/R
 | Report constraints | `ui_tests/unit/test_report_regression.py` |
 | All agents (mock LLM) | `--suite agents` → [agent_test_report_mock_latest.md](../ui_tests/reports/agent_test_report_mock_latest.md) |
 | Agents (live LLM) | `--suite agents-live` → [agent_test_report_live_latest.md](../ui_tests/reports/agent_test_report_live_latest.md) |
-| Graph workflows | `--suite graphs` → [graph_suite_report_latest.md](../ui_tests/reports/graph_suite_report_latest.md) |
+| Graph workflows | `--suite regression-graph` → [graph_suite_report_latest.md](../ui_tests/reports/graph_suite_report_latest.md) |
 
 ```powershell
 set PYTHONPATH=%CD%

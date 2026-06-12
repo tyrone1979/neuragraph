@@ -243,14 +243,29 @@ function refreshWizardTabContent(tabId) {
     }
 }
 
+function isTuningDatasetConfigured() {
+    const preflight = window._lastPreflightResp || {};
+    if (typeof preflight.tuning_dataset_configured === 'boolean') {
+        return preflight.tuning_dataset_configured;
+    }
+    const tuning = ($('#tuningDatasetSelect').val() || window._savedTuningFilename || '').trim();
+    if ($('#autoSplitMode').is(':checked')) {
+        return !!($('#splitSourceSelect').val() || '').trim();
+    }
+    return !!tuning;
+}
+
 function updateWizardTabAccess(flowSteps) {
     const steps = flowSteps || window._lastFlowSteps || DEFAULT_OPT_FLOW;
     const byId = Object.fromEntries(steps.map((s) => [s.id, s]));
     const hasExp = !!(getExpId() && getExpId() !== 'Not saved yet');
+    const tuningAvailable = isTuningDatasetConfigured();
     $('#wizard-tab-btn-baseline').prop('disabled', !hasExp);
     const baselineReady = byId.baseline_test_report && byId.baseline_test_report.status === 'done';
-    $('#wizard-tab-btn-tuning').prop('disabled', !baselineReady);
-    const tuningReady = byId.optimize_rounds && (byId.optimize_rounds.status === 'done' || byId.optimize_rounds.status === 'skipped');
+    $('#wizard-tab-btn-tuning').prop('disabled', !baselineReady || !tuningAvailable);
+    const tuningReady = tuningAvailable
+        && byId.optimize_rounds
+        && (byId.optimize_rounds.status === 'done' || byId.optimize_rounds.status === 'skipped');
     $('#wizard-tab-btn-final').prop('disabled', !tuningReady);
 }
 
@@ -317,10 +332,6 @@ function saveConfigForWizard() {
             reject(new Error('Please select Runner and Test Dataset'));
             return;
         }
-        if (!autoSplitEnabled && !formData.tuning_dataset) {
-            reject(new Error('Please select Tuning Dataset'));
-            return;
-        }
         if (autoSplitEnabled && !formData.split_source_dataset) {
             reject(new Error('Please select Auto Split source dataset'));
             return;
@@ -383,6 +394,10 @@ async function runBaselineTabPipeline() {
 }
 
 async function runTuningTabPipeline() {
+    if (!isTuningDatasetConfigured()) {
+        alert('Configure a tuning dataset in Tab 1 (or enable auto split) before running tuning steps.');
+        return;
+    }
     setPipelineRunning(true);
     try {
         for (const stepId of ['baseline_tuning', 'baseline_tuning_report', 'optimize_rounds']) {
@@ -395,6 +410,10 @@ async function runTuningTabPipeline() {
 }
 
 async function runFinalTabPipeline() {
+    if (!isTuningDatasetConfigured()) {
+        alert('Configure a tuning dataset in Tab 1 (or enable auto split) before running the optimized test.');
+        return;
+    }
     setPipelineRunning(true);
     try {
         for (const stepId of ['final_test', 'final_test_report']) {
@@ -1869,11 +1888,19 @@ function clearDownstreamFlowSteps(fromIndex) {
 function updateStepRunButtons(flowSteps) {
     const steps = flowSteps || window._lastFlowSteps || DEFAULT_OPT_FLOW;
     const busy = !!window._pipelineRunning;
-    const globalIndex = Object.fromEntries(steps.map((s, i) => [s.id, i]));
+    const tuningAvailable = isTuningDatasetConfigured();
+    const tuningStepIds = new Set([
+        'baseline_tuning',
+        'baseline_tuning_report',
+        'optimize_rounds',
+        'final_test',
+        'final_test_report',
+    ]);
     steps.forEach((s, i) => {
         const prevDone = i === 0 || steps[i - 1].status === 'done' || steps[i - 1].status === 'skipped';
         const $btn = $(`.opt-flow-run-btn[data-step-run="${s.id}"]`);
-        const canRun = prevDone && !busy && s.status !== 'running';
+        const tuningBlocked = tuningStepIds.has(s.id) && !tuningAvailable;
+        const canRun = prevDone && !busy && s.status !== 'running' && s.status !== 'skipped' && !tuningBlocked;
         $btn.prop('disabled', !canRun);
         if (s.status === 'done' || s.status === 'skipped') {
             $btn.text('Re-run');
@@ -1881,7 +1908,9 @@ function updateStepRunButtons(flowSteps) {
             $btn.text(STEP_RUN_LABELS[s.id] || 'Run');
         }
     });
-    $('#runBaselineTabBtn, #runTuningTabBtn, #runFinalTabBtn').prop('disabled', busy);
+    const tuningBusyBlocked = busy || !tuningAvailable;
+    $('#runBaselineTabBtn').prop('disabled', busy);
+    $('#runTuningTabBtn, #runFinalTabBtn').prop('disabled', tuningBusyBlocked);
     updateWizardTabAccess(steps);
 }
 
@@ -1923,10 +1952,6 @@ function runBaselineTestViaSaveAndStream() {
         const autoSplitEnabled = $('#autoSplitMode').is(':checked');
         if (!formData.runner_id || !formData.test_dataset) {
             reject(new Error('Please select Runner and Test Dataset'));
-            return;
-        }
-        if (!autoSplitEnabled && !formData.tuning_dataset) {
-            reject(new Error('Please select Tuning Dataset'));
             return;
         }
         $.ajax({
@@ -2070,6 +2095,19 @@ function runPipelineStep(stepId, options = {}) {
             refreshOptimizationPreflight();
         }
     };
+
+    const tuningOnlySteps = new Set([
+        'baseline_tuning',
+        'baseline_tuning_report',
+        'optimize_rounds',
+        'final_test',
+        'final_test_report',
+    ]);
+    if (tuningOnlySteps.has(stepId) && !isTuningDatasetConfigured()) {
+        if (manageBusy) setPipelineRunning(false);
+        alert('Configure a tuning dataset in Tab 1 (or enable auto split) before running this step.');
+        return Promise.resolve();
+    }
 
     if (stepId === 'baseline_test') {
         const chain = force && expIdVal && expIdVal !== 'Not saved yet'

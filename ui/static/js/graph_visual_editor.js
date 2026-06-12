@@ -810,9 +810,23 @@ function extractCanvasTopology() {
 
 function syncCurrentGraphFromCanvas() {
     if (!currentGraph) currentGraph = {};
+    // Binding-subgraph workflows keep logical nodes/edges (sg_*); only visualData.layout is canvas-driven.
+    if (hasBindingSubgraphs(currentGraph)) return;
     var topo = extractCanvasTopology();
     if (topo.nodes && topo.nodes.length) currentGraph.nodes = topo.nodes;
     if (topo.edges && topo.edges.length) currentGraph.edges = topo.edges;
+}
+
+function bindingSubgraphLayoutIsComplete(wf, savedLayout) {
+    savedLayout = savedLayout || {};
+    wf = wf || currentGraph || {};
+    var memberMap = getBindingSubgraphMemberMap(wf);
+    var keys = Object.keys(memberMap);
+    if (!keys.length) return false;
+    var saved = keys.filter(function(nid) {
+        return savedLayout[nid] && typeof savedLayout[nid].x === 'number';
+    }).length;
+    return saved >= 2 || saved / keys.length >= 0.15;
 }
 
 /** Snapshot every element position from the live canvas (for save + layout restore). */
@@ -2813,13 +2827,43 @@ function renderWorkflow(wf) {
         orderBindingSubgraphsByFlow(wf).forEach(function(sgId) { _drawSubgraphContainer(sgId); });
         updateSubgraphContainerPositions();
     } else if (useBindingLayout && hasSavedLayout) {
-        getRootLoopIds(wf).forEach(function(lid) { layoutLoopRegion(lid); });
+        var restoreFullLayout = bindingSubgraphLayoutIsComplete(wf, savedLayout);
+        nestedLoopOrder.forEach(function(lid) { layoutLoopRegion(lid); });
+        if (!restoreFullLayout) {
+            var sgOrder = orderBindingSubgraphsByFlow(wf);
+            var curY = 48;
+            var leftX = 48;
+            sgOrder.forEach(function(sgId) {
+                var cntKey = sgId + '_container';
+                var cntPos = savedLayout[cntKey];
+                var ox = leftX;
+                var oy = curY;
+                if (cntPos && typeof cntPos.x === 'number' && typeof cntPos.y === 'number') {
+                    ox = cntPos.x;
+                    oy = cntPos.y;
+                }
+                layoutBindingSubgraphMembers(sgId, ox, oy);
+                _drawSubgraphContainer(sgId);
+                var cnt = graph.getCell(sgId + '_container');
+                if (cnt && !(cntPos && typeof cntPos.x === 'number')) {
+                    var bb = cnt.getBBox();
+                    curY = bb.y + bb.height + 72;
+                }
+            });
+            layoutBindingSubgraphTopLevel(wf);
+            finalizeLoopLayout(wf, { anchor: true });
+        }
         orderBindingSubgraphsByFlow(wf).forEach(function(sgId) { _drawSubgraphContainer(sgId); });
         applyCanvasLayoutPositions(savedLayout, { skipContainerSync: true });
-        getRootLoopIds(wf).forEach(function(lid) {
-            fitLoopShellToContent(lid, { anchor: true, skipReposition: true });
-            repositionLoopChildren(lid);
-        });
+        if (!restoreFullLayout) {
+            nestedLoopOrder.forEach(function(lid) {
+                fitLoopShellToContent(lid, { anchor: true, skipReposition: true });
+                repositionLoopChildren(lid);
+            });
+            finalizeLoopLayout(wf, { anchor: true });
+        } else {
+            reattachLinkPorts();
+        }
         syncNestedLoopShellPositions();
         updateSubgraphContainerPositions();
     } else if (!hasSavedLayout) {

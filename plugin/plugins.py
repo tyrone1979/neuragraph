@@ -512,10 +512,14 @@ class Metrics(Plugin):
                     fp = len(pred_set - gold_set)
                     fn = len(gold_set - pred_set)
 
-                    # 原指标计算逻辑保留
                     y_true, y_pred = flatten_to_binary(gold_set, pred_set)
-                    prec, rec, f1, _ = precision_recall_fscore_support(
-                        y_true, y_pred, average='binary', zero_division=0)
+                    if not y_true:
+                        prec = 0.0 if pred_set else 0.0
+                        rec = 0.0
+                        f1 = 0.0
+                    else:
+                        prec, rec, f1, _ = precision_recall_fscore_support(
+                            y_true, y_pred, average='binary', zero_division=0)
 
                     return {
                         "precision": float(prec),
@@ -547,8 +551,13 @@ class Metrics(Plugin):
                         y_true.extend(y_t)
                         y_pred.extend(y_p)
 
-                    prec, rec, f1, _ = precision_recall_fscore_support(
-                        y_true, y_pred, average='binary', zero_division=0)
+                    if not y_true:
+                        prec = 0.0 if (total_tp + total_fp) else 0.0
+                        rec = 0.0
+                        f1 = 0.0
+                    else:
+                        prec, rec, f1, _ = precision_recall_fscore_support(
+                            y_true, y_pred, average='binary', zero_division=0)
 
                     return {
                         "precision": float(prec),

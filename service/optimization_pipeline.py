@@ -25,6 +25,9 @@ from service.experiment_optimize import (
     _generate_report,
     _now_tag,
     _resolve_dual_datasets,
+    _configured_tuning_dataset,
+    _resolve_test_dataset,
+    _tuning_dataset_configured,
     _restore_agents_after_negative_delta,
     _load_rows,
     _run_experiment,
@@ -384,6 +387,22 @@ def reset_baseline_test(exp_id: str) -> None:
     clear_downstream_optimization(exp_id, "baseline_test")
 
 
+def _resolve_test_only(
+    exp_id: str,
+    *,
+    test_dataset: str = "",
+) -> tuple[dict[str, Any], str]:
+    baseline_cfg = MetaLoader.load("exps", exp_id) or {}
+    baseline_cfg["exp_id"] = exp_id
+    active_test = str(test_dataset or "").strip() or _resolve_test_dataset(baseline_cfg)
+    if not active_test:
+        raise RuntimeError("test_dataset is required.")
+    baseline_cfg["test_dataset"] = active_test
+    baseline_cfg["dataset"] = active_test
+    MetaLoader.dump("exps", exp_id, baseline_cfg)
+    return baseline_cfg, active_test
+
+
 def _resolve_datasets(
     exp_id: str,
     *,
@@ -392,11 +411,15 @@ def _resolve_datasets(
 ) -> tuple[dict[str, Any], str, str]:
     baseline_cfg = MetaLoader.load("exps", exp_id) or {}
     baseline_cfg["exp_id"] = exp_id
-    cfg_tuning, cfg_test = _resolve_dual_datasets(baseline_cfg)
-    active_tuning = str(tuning_dataset or "").strip() or cfg_tuning
-    active_test = str(test_dataset or "").strip() or cfg_test
-    if not active_tuning or not active_test:
-        raise RuntimeError("tuning_dataset and test_dataset are required.")
+    active_tuning = str(tuning_dataset or "").strip() or _configured_tuning_dataset(baseline_cfg)
+    active_test = str(test_dataset or "").strip() or _resolve_test_dataset(baseline_cfg)
+    if not active_test:
+        raise RuntimeError("test_dataset is required.")
+    if not active_tuning:
+        raise RuntimeError(
+            "tuning_dataset is required for tuning and optimization steps. "
+            "Configure a tuning dataset in Tab 1 or enable auto split."
+        )
     baseline_cfg["tuning_dataset"] = active_tuning
     baseline_cfg["test_dataset"] = active_test
     baseline_cfg["dataset"] = active_test
@@ -410,6 +433,22 @@ def _flow_from_context(exp_id: str, exp_cfg: dict[str, Any], tuning: str, test: 
         _set_flow_step(flow_steps, "baseline_test", "done", f"Completed on {test}")
     if _baseline_report_ready(exp_id):
         _set_flow_step(flow_steps, "baseline_test_report", "done", "Baseline test report ready")
+    if not _tuning_dataset_configured(exp_cfg):
+        for step_id in (
+            "baseline_tuning",
+            "baseline_tuning_report",
+            "optimize_rounds",
+            "final_test",
+            "final_test_report",
+        ):
+            _set_flow_step(
+                flow_steps,
+                step_id,
+                "skipped",
+                "Requires tuning dataset (Tab 1)",
+            )
+        _attach_flow_exp_links(flow_steps, load_opt_context(exp_id))
+        return flow_steps
     ctx = load_opt_context(exp_id)
     if _needs_opt_context_recovery(ctx):
         ctx = _recover_opt_context(exp_id, exp_cfg, tuning)
@@ -470,6 +509,7 @@ def optimization_flow_state(exp_id: str) -> dict[str, Any]:
         "status": str(exp_cfg.get("status") or ""),
         "tuning_dataset": tuning,
         "test_dataset": test,
+        "tuning_dataset_configured": _tuning_dataset_configured(exp_cfg),
         "baseline_test_metrics": _avg_metrics(exp_id) if ready else {},
         "baseline_test_micro_metrics": _micro_metrics(exp_id) if ready else {},
         "baseline_tuning_exp_id": tune_id,
@@ -496,9 +536,27 @@ def run_optimization_step(
     if force:
         clear_downstream_optimization(exp_id, step_id)
 
-    baseline_cfg, active_tuning, active_test = _resolve_datasets(
-        exp_id, tuning_dataset=tuning_dataset, test_dataset=test_dataset
-    )
+    tuning_steps = {
+        "baseline_tuning",
+        "baseline_tuning_report",
+        "optimize_rounds",
+        "final_test",
+        "final_test_report",
+    }
+    if step_id in ("baseline_test", "baseline_test_report"):
+        baseline_cfg, active_test = _resolve_test_only(
+            exp_id, test_dataset=test_dataset
+        )
+        active_tuning = _configured_tuning_dataset(baseline_cfg)
+    else:
+        baseline_cfg, active_tuning, active_test = _resolve_datasets(
+            exp_id, tuning_dataset=tuning_dataset, test_dataset=test_dataset
+        )
+    if step_id in tuning_steps and not _tuning_dataset_configured(baseline_cfg):
+        raise RuntimeError(
+            "tuning_dataset is required for tuning and optimization steps. "
+            "Configure a tuning dataset in Tab 1 or enable auto split."
+        )
     ctx = load_opt_context(exp_id)
     flow_steps = _flow_from_context(exp_id, baseline_cfg, active_tuning, active_test)
 

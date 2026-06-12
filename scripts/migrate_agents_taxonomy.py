@@ -167,7 +167,7 @@ def build_agents() -> dict[str, dict]:
         {
             **ner_llm,
             "type": "LLM",
-            "model": ner_llm.get("model", "kimi-2.6"),
+            "model": ner_llm.get("model", "deepseek"),
             "inputs": ["text", "labels"],
             "outputs": {"name": "entities", "type": "dict"},
             **base_meta(
@@ -233,7 +233,7 @@ def build_agents() -> dict[str, dict]:
         {
             **rel_ext,
             "type": "LLM",
-            "model": rel_ext.get("model", "kimi-2.6"),
+            "model": rel_ext.get("model", "deepseek"),
             "inputs": ["text", "entities"],
             "outputs": {"name": "relations", "type": "list"},
             **base_meta("relation", "llm", relation_mode="extract"),

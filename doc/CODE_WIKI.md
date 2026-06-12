@@ -217,8 +217,8 @@ Screenshot capture: `scripts/refresh_manual_screenshots.py` → `doc/images/`.
 
 See **[TESTING.md](TESTING.md)** for suite descriptions, unit tests, and links to committed reports under `ui_tests/reports/`.
 
-- Entry: `ui_tests/run_tests.py` (`--suite regression|current|graphs|agents|agents-live|unit|all`)
-- Playwright: `ui_tests/suites/playwright_*_suite.py` (graphs: `playwright_graph_full_suite.py`)
+- Entry: `ui_tests/run_tests.py` (`--suite regression-exp|regression-graph|regression-tool|regression-agent|agents|agents-live|unit|all`)
+- Playwright: `ui_tests/suites/playwright_regression_*.py` (graph G1–G4: `playwright_regression_graph.py`)
 - Agent batch: mock (`--suite agents`) vs live LLM (`--suite agents-live` / `agent_invoke_mock_llm_suite.py --live-llm`)
 - Unit tests: `ui_tests/unit/test_*.py`
 - Reports: `ui_tests/reports/agent_test_report_*_latest.md`, `graph_suite_report_latest.md`

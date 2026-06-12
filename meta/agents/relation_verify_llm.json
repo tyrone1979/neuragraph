@@ -1,7 +1,7 @@
 {
   "name": "Relation Verification (LLM)",
   "type": "LLM",
-  "model": "kimi-2.6",
+  "model": "deepseek",
   "inputs": [
     "text",
     "head",

@@ -71,6 +71,23 @@ class WorkflowMetricsSuite(unittest.TestCase):
         self.assertEqual(out["tp"], 0)
         self.assertEqual(out["fn"], 0)
 
+    def test_missing_gold_skips_workflow_metrics(self):
+        from utils.workflow_metrics import compute_workflow_metrics
+
+        row = {"text": "sample", "gold_relations": "", "entities": "[]"}
+        state = {"relations": ["D001 | D002"]}
+        out = compute_workflow_metrics("wf_re_pubtator_dev10", row, state)
+        self.assertEqual(out, {})
+
+    def test_empty_entity_dict_metrics_do_not_crash(self):
+        from plugin.plugin_loader import get_plugin
+
+        calc = get_plugin("MetricsCalculation")
+        out = calc.calculate({}, {})
+        self.assertEqual(out["tp"], 0)
+        self.assertEqual(out["fp"], 0)
+        self.assertEqual(out["fn"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -10,7 +10,7 @@ Usage:
     python autogen.py --requirement "Extract chemical and disease entities from biomedical text"
 
     # With specific LLM
-    python autogen.py --llm kimi-k2.5 --requirement "Summarize research papers"
+    python autogen.py --llm deepseek --requirement "Summarize research papers"
 
     # Dry run (generate configs without executing)
     python autogen.py --requirement "..." --dry-run
@@ -408,9 +408,12 @@ class AutoGen:
 
     def _pick_default_llm(self) -> str:
         llms = self.cm.load_all("llms")
+        for preferred in ("deepseek", "gpt-oss_120b"):
+            if preferred in llms:
+                return preferred
         if llms:
             return list(llms.keys())[0]
-        return "kimi-k2.5"
+        return "deepseek"
 
     def generate_single_agent(self, requirement: str, llm_id: str) -> Optional[Dict]:
         """Generate a single agent config from a natural language requirement in ONE LLM call."""
@@ -802,7 +805,7 @@ class AutoGen:
 def main():
     parser = argparse.ArgumentParser(description="NeuraGraph AutoGen - Generate workflows from natural language")
     parser.add_argument("--requirement", "-r", help="Natural language requirement")
-    parser.add_argument("--llm", default="kimi-k2.5", help="LLM config ID to use for generation")
+    parser.add_argument("--llm", default="deepseek", help="LLM config ID to use for generation")
     parser.add_argument("--input", "-i", help="JSON input for workflow execution")
     parser.add_argument("--dry-run", action="store_true", help="Generate configs without executing")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
@@ -819,7 +822,7 @@ def main():
 
     if not llms:
         print("[ERROR] No LLM configs found. Create one first:")
-        print(f"  echo '{{\"id\":\"kimi-k2.5\",\"type\":\"openai\",\"model\":\"kimi-k2.5\",\"base_url\":\"https://api.moonshot.cn/v1\",\"api_key\":\"YOUR_KEY\",\"temperature\":0.7}}' > {META_DIR}/llms/kimi-k2.5.json")
+        print(f"  echo '{{\"id\":\"deepseek\",\"type\":\"openai\",\"model\":\"deepseek-chat\",\"base_url\":\"https://api.deepseek.com/v1\",\"api_key\":\"YOUR_KEY\",\"temperature\":0.7}}' > {META_DIR}/llms/deepseek.json")
         sys.exit(1)
 
     llm_config = llms.get(args.llm)

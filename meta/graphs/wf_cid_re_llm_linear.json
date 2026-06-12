@@ -67,7 +67,7 @@
       "type": "relation_pairs"
     }
   ],
-  "name": "\n                     wf_cid_re_llm_linear \n                ",
+  "name": "CID RE Pipeline (linear)",
   "nodes": [
     "START",
     "cid_pair_generate",

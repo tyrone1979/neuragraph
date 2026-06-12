@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 GRAPHS = ROOT / "meta" / "graphs"
 BACKUP = ROOT / "meta" / "graphs_backup"
 
-SKIP_KEYS = frozenset({"created_at", "id"})
+SKIP_KEYS = frozenset({"created_at", "id", "visualData"})
 # Editor saveGraph() adds these as {}; backups often omit them — treat as equivalent.
 OPTIONAL_OBJECT_KEYS = frozenset({"agentVersions", "flowNodes"})
 
@@ -257,9 +257,74 @@ def _sort_edge(e: list) -> tuple:
     return (json.dumps(s, sort_keys=True), json.dumps(t, sort_keys=True))
 
 
-def normalize_graph(data: dict[str, Any]) -> dict[str, Any]:
-    """Drop volatile keys; sort nodes/edges for stable comparison."""
+def _load_subgraph_json(sg_id: str) -> dict[str, Any]:
+    for from_backup in (True, False):
+        path = (BACKUP if from_backup else GRAPHS) / f"{sg_id}.json"
+        if path.is_file():
+            return json.loads(path.read_text(encoding="utf-8-sig"))
+    return {}
+
+
+def expand_subgraph_topology(data: dict[str, Any]) -> dict[str, Any]:
+    """Expand sg_* nodes to inner agents (matches editor flattening on save/render)."""
     out = json.loads(json.dumps(data, ensure_ascii=False))
+    nodes = list(out.get("nodes") or [])
+    edges = [list(e) for e in (out.get("edges") or [])]
+    bindings = dict(out.get("bindings") or {})
+    flow_nodes = dict(out.get("flowNodes") or {})
+
+    changed = True
+    while changed:
+        changed = False
+        for nid in list(nodes):
+            if not str(nid).startswith("sg_"):
+                continue
+            sg = _load_subgraph_json(nid)
+            if not sg:
+                continue
+            inner_nodes = [n for n in (sg.get("nodes") or []) if n not in ("START", "END")]
+            inner_edges = [list(e) for e in (sg.get("edges") or [])]
+            entries = [e[1] for e in inner_edges if e[0] == "START"]
+            exits = [e[0] for e in inner_edges if e[1] == "END"]
+
+            nodes = [n for n in nodes if n != nid]
+            for inn in inner_nodes:
+                if inn not in nodes:
+                    nodes.append(inn)
+
+            new_edges: list[list[str]] = []
+            for s, t in edges:
+                if t == nid:
+                    for entry in entries:
+                        new_edges.append([s, entry])
+                elif s == nid:
+                    for ex in exits:
+                        new_edges.append([ex, t])
+                else:
+                    new_edges.append([s, t])
+            for e in inner_edges:
+                if e[0] != "START" and e[1] != "END" and e not in new_edges:
+                    new_edges.append(e)
+            edges = new_edges
+
+            bindings.pop(nid, None)
+            for key, val in (sg.get("bindings") or {}).items():
+                bindings[key] = val
+            for key, val in (sg.get("flowNodes") or {}).items():
+                flow_nodes[key] = val
+            changed = True
+            break
+
+    out["nodes"] = nodes
+    out["edges"] = edges
+    out["bindings"] = bindings
+    out["flowNodes"] = flow_nodes
+    return out
+
+
+def normalize_graph(data: dict[str, Any]) -> dict[str, Any]:
+    """Drop volatile keys; expand subgraphs; sort nodes/edges for stable comparison."""
+    out = expand_subgraph_topology(json.loads(json.dumps(data, ensure_ascii=False)))
     for k in list(out.keys()):
         if k in SKIP_KEYS:
             out.pop(k, None)
@@ -334,7 +399,7 @@ def graph_diff_canvas(backup: dict, canvas: dict) -> str:
 
 def load_graph_json(graph_id: str, *, from_backup: bool = False) -> dict:
     base = BACKUP if from_backup else GRAPHS
-    return json.loads((base / f"{graph_id}.json").read_text(encoding="utf-8"))
+    return json.loads((base / f"{graph_id}.json").read_text(encoding="utf-8-sig"))
 
 
 def list_graph_ids(*, from_backup: bool = False) -> list[str]:

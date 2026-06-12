@@ -107,17 +107,12 @@ def _normalize_dataset_name(name: str) -> str:
 
 
 def _resolve_exp_datasets(exp_cfg: dict) -> tuple[str, str]:
+    """Return explicit tuning/test dataset names (tuning may be empty)."""
     tuning = str(exp_cfg.get("tuning_dataset") or "").strip()
     test = str(exp_cfg.get("test_dataset") or "").strip()
     legacy = str(exp_cfg.get("dataset") or "").strip()
-    if not tuning:
-        tuning = legacy or test
     if not test:
-        test = legacy or tuning
-    if not tuning and test:
-        tuning = test
-    if not test and tuning:
-        test = tuning
+        test = legacy
     return tuning, test
 
 
@@ -820,15 +815,14 @@ def experiment_save():
 
         tuning_dataset = _normalize_dataset_name(data.get("tuning_dataset") or "")
         test_dataset = _normalize_dataset_name(data.get("test_dataset") or data.get("dataset") or "")
-        if not tuning_dataset:
-            tuning_dataset = test_dataset
         if not test_dataset:
-            test_dataset = tuning_dataset
-        if not tuning_dataset or not test_dataset:
-            return jsonify({"success": False, "error": "Missing tuning_dataset/test_dataset (or legacy dataset)"}), 400
+            return jsonify({"success": False, "error": "Missing test_dataset (or legacy dataset)"}), 400
 
-        data["tuning_dataset"] = tuning_dataset
         data["test_dataset"] = test_dataset
+        if tuning_dataset:
+            data["tuning_dataset"] = tuning_dataset
+        else:
+            data.pop("tuning_dataset", None)
         # Keep legacy key for old consumers; treat dataset as test dataset.
         data["dataset"] = test_dataset
         try:

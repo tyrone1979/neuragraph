@@ -44,6 +44,51 @@ class GraphWorkflowJsonUtilsTest(unittest.TestCase):
         with_extra = {**base, "agentVersions": {}, "flowNodes": {}}
         self.assertEqual(graph_diff(base, with_extra), "")
 
+    def test_visual_data_ignored_in_diff(self):
+        base = {
+            "nodes": ["START", "ner_llm", "END"],
+            "edges": [["START", "ner_llm"], ["ner_llm", "END"]],
+        }
+        with_layout = {
+            **base,
+            "visualData": {"layout": {"START": {"x": 1, "y": 2}, "ner_llm": {"x": 3, "y": 4}}},
+        }
+        self.assertEqual(graph_diff(base, with_layout), "")
+
+    def test_subgraph_expansion_matches_flattened_editor(self):
+        backup = {
+            "nodes": ["START", "sg_e2e_pubtator_re", "eval_metrics_relation", "END"],
+            "edges": [
+                ["START", "sg_e2e_pubtator_re"],
+                ["sg_e2e_pubtator_re", "eval_metrics_relation"],
+                ["eval_metrics_relation", "END"],
+            ],
+            "bindings": {
+                "eval_metrics_relation": {
+                    "relations": "{{ relations }}",
+                    "ground_truth": "{{ START.gold_relations }}",
+                    "entities": "{{ START.entities }}",
+                },
+            },
+        }
+        flattened = {
+            "nodes": ["START", "relation_extract_pubtator", "eval_metrics_relation", "END"],
+            "edges": [
+                ["START", "relation_extract_pubtator"],
+                ["relation_extract_pubtator", "eval_metrics_relation"],
+                ["eval_metrics_relation", "END"],
+            ],
+            "bindings": {
+                "relation_extract_pubtator": {"text": "{{ text }}", "pmid": "{{ pmid }}"},
+                "eval_metrics_relation": {
+                    "relations": "{{ relations }}",
+                    "ground_truth": "{{ START.gold_relations }}",
+                    "entities": "{{ START.entities }}",
+                },
+            },
+        }
+        self.assertEqual(graph_diff(backup, flattened), "")
+
     def test_self_diff_empty(self):
         ids = discover_graph_ids(from_backup=True)
         self.assertTrue(ids)
