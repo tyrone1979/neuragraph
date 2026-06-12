@@ -31,6 +31,54 @@ def click_nav(page, href: str) -> None:
     page.goto(f"{BASE}{href}", timeout=60000, wait_until="domcontentloaded")
 
 
+def open_wizard_tab(page, tab_id: str, name: str, *, wait: float = 1.0) -> bool:
+    tab = page.locator(f"#{tab_id}")
+    if not tab.count():
+        return False
+    try:
+        page.wait_for_function(
+            f"() => {{ const b = document.getElementById('{tab_id}'); return b && !b.disabled; }}",
+            timeout=8000,
+        )
+    except Exception:
+        return False
+    tab.click()
+    time.sleep(wait)
+    shot(page, name, full_page=False)
+    return True
+
+
+def find_exp_with_final_tab() -> str | None:
+    root = Path(__file__).resolve().parents[1]
+    for ctx_path in sorted((root / "result").glob("*/optimization_context.json"), key=lambda p: p.stat().st_mtime, reverse=True):
+        try:
+            import json
+
+            ctx = json.loads(ctx_path.read_text(encoding="utf-8"))
+            if ctx.get("optimized_test_exp_id") or ctx.get("optimized_test_report_path"):
+                return ctx_path.parent.name
+        except Exception:
+            continue
+    return None
+
+
+def find_completed_exp_id() -> str | None:
+    root = Path(__file__).resolve().parents[1]
+    for exp_path in sorted((root / "meta" / "exps").glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
+        exp_id = exp_path.stem
+        if not (root / "result" / exp_id / "report_baseline_test.md").is_file():
+            continue
+        try:
+            import json
+
+            cfg = json.loads(exp_path.read_text(encoding="utf-8"))
+            if str(cfg.get("status") or "").lower() == "completed":
+                return exp_id
+        except Exception:
+            continue
+    return None
+
+
 def open_chat(page) -> None:
     fab = page.locator("#floatingChatFab")
     if fab.is_visible():
@@ -63,8 +111,16 @@ def main() -> None:
 
         # ── Agents ──
         click_nav(page, "/agents")
+        page.wait_for_selector("#agentGrid, .entity-card", timeout=15000)
         shot(page, "page_agent_list")
-        agents = page.locator("a[href*='/agents/'][href*='/edit'], .entity-card a").first
+        ver_agent = page.locator(".wf-versions-badge").first
+        if ver_agent.count():
+            ver_agent.click()
+            time.sleep(1)
+            shot(page, "page_agent_versions_modal", full_page=False)
+            page.keyboard.press("Escape")
+            time.sleep(0.3)
+        agents = page.locator("a[href*='/agents/'][href*='/edit']").first
         if agents.count():
             agents.click()
             time.sleep(1.5)
@@ -84,8 +140,7 @@ def main() -> None:
         # ── Workflows ──
         click_nav(page, "/graph")
         shot(page, "page_graph_list")
-        # Open versions modal if a badge exists
-        ver_btn = page.locator(".version-badge, .badge-version, [data-versions]").first
+        ver_btn = page.locator(".wf-versions-badge").first
         if ver_btn.count():
             ver_btn.click()
             time.sleep(0.8)
@@ -100,7 +155,7 @@ def main() -> None:
             shot(page, "page_graph_graph_panel")
             shot(page, "page_graph_subgraph")
             shot(page, "page_graph_right_panel")
-            test_wf = page.locator("button:has-text('Test Workflow'), #btnTestWorkflow")
+            test_wf = page.locator("#testWorkflow, button:has-text('Test Workflow')")
             if test_wf.count():
                 test_wf.first.click()
                 time.sleep(1)
@@ -120,7 +175,7 @@ def main() -> None:
                     node,
                 )
                 time.sleep(0.8)
-                test_agent = page.locator("button:has-text('Test Agent'), #btnTestAgent")
+                test_agent = page.locator("button:has-text('Test'), button:has-text('Run Test')")
                 if test_agent.count():
                     test_agent.first.click()
                     time.sleep(1)
@@ -132,34 +187,39 @@ def main() -> None:
         shot(page, "page_exp_list")
         click_nav(page, "/exp/new")
         shot(page, "page_exp_new")
-        # Wizard tabs if present
-        for tab_id, name in [
-            ("wizard-tab-btn-baseline", "page_exp_wizard_baseline"),
-            ("wizard-tab-btn-tuning", "page_exp_wizard_tuning"),
-            ("wizard-tab-btn-final", "page_exp_wizard_final"),
-        ]:
-            tab = page.locator(f"#{tab_id}")
-            if tab.count() and not tab.is_disabled():
-                tab.click()
-                time.sleep(0.5)
-                shot(page, name, full_page=False)
-        page.locator("#wizard-tab-btn-config").click()
-        time.sleep(0.3)
 
-        # Open an existing experiment if any
-        click_nav(page, "/exp")
-        exp_link = page.locator("a[href*='/exp/']").filter(has_not=page.locator("[href='/exp/new']")).first
-        if exp_link.count():
-            exp_link.click()
+        exp_id = find_completed_exp_id()
+        if exp_id:
+            click_nav(page, f"/exp/{exp_id}")
             time.sleep(2)
             shot(page, "page_exp_running")
-            shot(page, "page_exp_completed")
-            baseline_tab = page.locator("#wizard-tab-btn-baseline")
-            if baseline_tab.count():
-                if not baseline_tab.is_disabled():
-                    baseline_tab.click()
-                    time.sleep(0.5)
-                    shot(page, "page_exp_report")
+            open_wizard_tab(page, "wizard-tab-btn-baseline", "page_exp_wizard_baseline")
+            page.wait_for_function(
+                """() => {
+                    const el = document.getElementById('baselineReportMarkdown');
+                    return el && (el.innerText || '').trim().length > 20;
+                }""",
+                timeout=30000,
+            )
+            shot(page, "page_exp_report", full_page=False)
+            open_wizard_tab(page, "wizard-tab-btn-tuning", "page_exp_wizard_tuning", wait=0.8)
+            if not open_wizard_tab(page, "wizard-tab-btn-final", "page_exp_wizard_final", wait=0.8):
+                final_exp = find_exp_with_final_tab()
+                if final_exp:
+                    click_nav(page, f"/exp/{final_exp}")
+                    time.sleep(2)
+                    open_wizard_tab(page, "wizard-tab-btn-final", "page_exp_wizard_final", wait=0.8)
+            shot(page, "page_exp_completed", full_page=False)
+        else:
+            exp_link = page.locator("a[href*='/exp/']").filter(has_not=page.locator("[href='/exp/new']")).first
+            if exp_link.count():
+                click_nav(page, "/exp")
+                exp_link.click()
+                time.sleep(2)
+                shot(page, "page_exp_running")
+                shot(page, "page_exp_completed")
+                open_wizard_tab(page, "wizard-tab-btn-baseline", "page_exp_wizard_baseline")
+                shot(page, "page_exp_report", full_page=False)
 
         # ── Datasets ──
         click_nav(page, "/testset")
@@ -167,15 +227,16 @@ def main() -> None:
 
         # ── Tools ──
         click_nav(page, "/tools")
+        page.wait_for_selector("#toolGrid, .entity-card", timeout=15000)
         shot(page, "page_tools_list")
-        tool_link = page.locator("a[href*='/tools/'][href*='/edit']").first
+        tool_link = page.locator("a[href*='/tools/']:not([href='/tools/new']):not([href^='/tools/api'])").first
         if tool_link.count():
             tool_link.click()
             time.sleep(1.5)
             shot(page, "page_tools_edit")
-        ver_tool = page.locator(".version-badge, [data-versions]").first
+        click_nav(page, "/tools")
+        ver_tool = page.locator(".wf-versions-badge").first
         if ver_tool.count():
-            click_nav(page, "/tools")
             ver_tool.click()
             time.sleep(0.8)
             shot(page, "page_tool_versions_modal", full_page=False)

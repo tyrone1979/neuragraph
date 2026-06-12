@@ -2,7 +2,7 @@
 
 This document merges startup instructions, runtime metadata schema, metrics, experiment operations, and the **optimization pipeline**.
 
-Related: [MANUAL.md](MANUAL.md) (UI walkthrough with screenshots) · [CODE_WIKI.md](CODE_WIKI.md) · [CHAT_COMMANDS.md](CHAT_COMMANDS.md)
+Related: [SUPPLEMENTARY.md](SUPPLEMENTARY.md) · [MANUAL.md](MANUAL.md) (UI walkthrough with screenshots) · [CODE_WIKI.md](CODE_WIKI.md) · [CHAT_COMMANDS.md](CHAT_COMMANDS.md)
 
 ---
 
@@ -304,7 +304,8 @@ Agent: `relation_extract_pubtator`, `agent_refiner`, `eval_metrics_relation`.
 
 ## 8. Related Documents
 
-- [README.md](../README.md) — quick start and meta inventory
+- [README.md](../README.md) — quick start and project layout
+- [SUPPLEMENTARY.md](SUPPLEMENTARY.md) — component inventory and evaluation protocol
 - [MANUAL.md](MANUAL.md) — detailed UI guide with screenshots
 - [CODE_WIKI.md](CODE_WIKI.md) — architecture and coding conventions
 - [CHAT_COMMANDS.md](CHAT_COMMANDS.md) — slash command reference

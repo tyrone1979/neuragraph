@@ -1,6 +1,6 @@
 # NeuraGraph Testing Guide
 
-[README](../README.md) · [MANUAL](MANUAL.md) · [CODE_WIKI](CODE_WIKI.md) · [CHAT_COMMANDS](CHAT_COMMANDS.md)
+[README](../README.md) · [SUPPLEMENTARY](SUPPLEMENTARY.md) · [MANUAL](MANUAL.md) · [CODE_WIKI](CODE_WIKI.md) · [CHAT_COMMANDS](CHAT_COMMANDS.md)
 
 This document describes **automated test suites**, **unit tests**, and where to find **checked-in test reports**.
 

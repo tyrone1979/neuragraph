@@ -2,7 +2,7 @@
 
 Architecture, module map, and coding standards for contributors.
 
-User-facing UI guide: [MANUAL.md](MANUAL.md) · Operations: [EXPERIMENT_GUIDE.md](EXPERIMENT_GUIDE.md)
+User-facing UI guide: [SUPPLEMENTARY.md](SUPPLEMENTARY.md) · [MANUAL.md](MANUAL.md) · Operations: [EXPERIMENT_GUIDE.md](EXPERIMENT_GUIDE.md)
 
 ---
 
@@ -246,8 +246,9 @@ See **[TESTING.md](TESTING.md)** for suite descriptions, unit tests, and links t
 
 | Doc | Audience |
 |-----|----------|
+| [SUPPLEMENTARY.md](SUPPLEMENTARY.md) | Paper supplementary — features, examples, component inventory |
 | [MANUAL.md](MANUAL.md) | End users — UI walkthrough with screenshots |
 | [EXPERIMENT_GUIDE.md](EXPERIMENT_GUIDE.md) | Operators — schema, metrics, optimization |
 | [CHAT_COMMANDS.md](CHAT_COMMANDS.md) | Assistant / terminal command reference |
 | [AUTOGEN_SKILL.md](AUTOGEN_SKILL.md) | LLM agents generating workflows |
-| [README.md](../README.md) | Quick start + inventory |
+| [README.md](../README.md) | Quick start and project layout |

@@ -161,5 +161,6 @@ py -3 ui_tests/run_tests.py --suite agents-live
 ## 7. Related Documents
 
 - [MANUAL.md](MANUAL.md) — full UI guide with screenshots
+- [SUPPLEMENTARY.md](SUPPLEMENTARY.md) — supplementary material and component inventory
 - [EXPERIMENT_GUIDE.md](EXPERIMENT_GUIDE.md) — optimization pipeline details
 - [CODE_WIKI.md](CODE_WIKI.md) — `service/chat/commands.py` module map
