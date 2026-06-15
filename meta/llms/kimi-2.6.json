@@ -1,14 +1,14 @@
-{
-  "api_key": "",
-  "base_url": "https://api.moonshot.cn/v1",
-  "max_tokens": 8000,
-  "model": "kimi-k2.6",
-  "temperature": 0.6,
-  "type": "openai",
-  "extra_body": {
-    "thinking": {
-      "type": "disabled"
-    }
-  },
-  "updated_at": "2026-05-16T15:24:34.177963"
+﻿{
+    "api_key":  "",
+    "base_url":  "https://api.moonshot.cn/v1",
+    "max_tokens":  8000,
+    "model":  "kimi-k2.6",
+    "temperature":  0.6,
+    "type":  "openai",
+    "extra_body":  {
+                       "thinking":  {
+                                        "type":  "disabled"
+                                    }
+                   },
+    "updated_at":  "2026-05-16T15:24:34.177963"
 }
