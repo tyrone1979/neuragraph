@@ -3,10 +3,6 @@ from __future__ import annotations
 
 from typing import Any
 
-# Empty-text branch arm: different output field than report_format_json (avoids concurrent `result` writes).
-EMPTY_BRANCH_AGENT = "e2e_entities_passthrough"
-
-
 def nested_loop_graph_ids(stamp: str) -> dict[str, str]:
     return {
         "l3_body": f"rg_sg_l3_{stamp}",
@@ -23,7 +19,7 @@ def build_nested_loop_graphs(stamp: str) -> tuple[dict[str, dict[str, Any]], dic
       main (L1 outer_loop)
         → l1_body: mid_loop (L2)
             → l2_body: inner_loop (L3)
-                → l3_body: line_branch (2 conditions) → report_format_json | e2e_entities_passthrough
+                → l3_body: line_branch (2 conditions) → report_format_json (both arms)
     """
     ids = nested_loop_graph_ids(stamp)
     l3, l2, l1, main = ids["l3_body"], ids["l2_body"], ids["l1_body"], ids["main"]
@@ -36,15 +32,13 @@ def build_nested_loop_graphs(stamp: str) -> tuple[dict[str, dict[str, Any]], dic
                 "START",
                 "line_branch",
                 "report_format_json",
-                EMPTY_BRANCH_AGENT,
                 "END",
             ],
             "edges": [
                 ["START", "line_branch"],
                 ["line_branch", "report_format_json"],
-                ["line_branch", EMPTY_BRANCH_AGENT],
+                ["line_branch", "report_format_json"],
                 ["report_format_json", "END"],
-                [EMPTY_BRANCH_AGENT, "END"],
             ],
             "flowNodes": {
                 "line_branch": {
@@ -60,9 +54,6 @@ def build_nested_loop_graphs(stamp: str) -> tuple[dict[str, dict[str, Any]], dic
                 "report_format_json": {
                     "text": "{{ text }}",
                     "summary": "{{ route }}",
-                },
-                EMPTY_BRANCH_AGENT: {
-                    "entities": "[]",
                 },
             },
         },

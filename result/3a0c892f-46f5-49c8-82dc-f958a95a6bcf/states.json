@@ -1,0 +1,16 @@
+{
+  "1": {
+    "sentence": "Aspirin may reduce the risk of heart disease.",
+    "tree": "1\tAspirin\taspirin\tPROPN\tNNP\tNumber=Sing\t3\tnsubj\t_\t_\n2\tmay\tmay\tAUX\tMD\tMood=Ind|VerbForm=Fin\t3\taux\t_\t_\n3\treduce\treduce\tVERB\tVB\tMood=Ind|Tense=Pres|VerbForm=Inf\t0\troot\t_\t_\n4\tthe\tthe\tDET\tDT\tDefinite=Def|PronType=Art\t5\tdet\t_\t_\n5\trisk\trisk\tNOUN\tNN\tNumber=Sing\t3\tobj\t_\t_\n6\tof\tof\tADP\tIN\t_\t8\tcase\t_\t_\n7\theart\theart\tNOUN\tNN\tNumber=Sing\t8\tcompound\t_\t_\n8\tdisease\tdisease\tNOUN\tNN\tNumber=Sing\t5\tnmod:of\t_\t_\n9\t.\t.\tPUNCT\t.\t_\t3\tpunct\t_\t_",
+    "triples": [
+      "Aspirin | reduce | risk of heart disease"
+    ]
+  },
+  "2": {
+    "sentence": "Metformin is commonly used to treat type 2 diabetes.",
+    "tree": "1\tMetformin\tmetformin\tPROPN\tPROPN\tNumber=Sing\t4\tnsubj\t_\t_\n2\tis\tbe\tAUX\tAUX\tMood=Ind|Tense=Pres|VerbForm=Fin\t4\taux\t_\t_\n3\tcommonly\tcommonly\tADV\tADV\t_\t4\tadvmod\t_\t_\n4\tused\tuse\tVERB\tVERB\tMood=Ind|Tense=Pres|VerbForm=Fin|Voice=Pass\t0\troot\t_\t_\n5\tto\tto\tPART\tPART\t_\t6\tmark\t_\t_\n6\ttreat\ttreat\tVERB\tVERB\tVerbForm=Inf\t4\txcomp\t_\t_\n7\ttype\ttype\tNOUN\tNOUN\tNumber=Sing\t9\tcompound\t_\t_\n8\t2\t2\tNUM\tNUM\t_\t9\tnummod\t_\t_\n9\tdiabetes\tdiabetes\tNOUN\tNOUN\tNumber=Sing\t6\tobj\t_\t_\n10\t.\t.\tPUNCT\tPUNCT\t_\t4\tpunct\t_\t_",
+    "triples": [
+      "Metformin | used | type 2 diabetes"
+    ]
+  }
+}

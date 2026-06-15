@@ -1,0 +1,61 @@
+{
+  "1": {
+    "entity_aliases": [
+      {
+        "text": "Aspirin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "heart disease",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Aspirin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "heart disease",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "head": "Aspirin",
+    "head_id": "1",
+    "pairs": [
+      {
+        "head": "Aspirin",
+        "tail": "heart disease",
+        "head_id": "1",
+        "tail_id": "1"
+      }
+    ],
+    "relations": null,
+    "result": "$",
+    "tail": "heart disease",
+    "tail_id": "1",
+    "text": "Aspirin may reduce the risk of heart disease."
+  },
+  "2": {
+    "entity_aliases": [
+      {
+        "text": "Metformin",
+        "id": "1",
+        "label": "Chemical"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Metformin",
+        "id": "1",
+        "label": "Chemical"
+      }
+    ],
+    "pairs": [],
+    "text": "Metformin is commonly used to treat type 2 diabetes."
+  }
+}

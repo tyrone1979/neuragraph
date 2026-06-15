@@ -20,7 +20,7 @@ from collections import defaultdict
 # Add parent dir to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from data.data_parser import CIDParser
+from service.dataset.data_parser import CIDParser
 
 
 def parse_pubtator_to_sentences(doc) -> List[Tuple[str, List[dict]]]:

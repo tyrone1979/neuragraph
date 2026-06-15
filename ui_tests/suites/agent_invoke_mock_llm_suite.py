@@ -73,13 +73,13 @@ def _entities_json() -> str:
 def _mock_llm_content(agent_id: str) -> str:
     mocks: dict[str, str | Callable[[], str]] = {
         "agent_refiner": '{"modifications": []}',
-        "kg_triple_extract_llm": '[{"head": "Aspirin", "predicate": "treats", "tail": "heart disease"}]',
+        "kg_triple_extract_llm": "Aspirin | treats | heart disease",
         "ner_comparison_report": "## NER Comparison\n\nFlair and LLM metrics are comparable on the sample.",
         "ner_from_tree_llm": '{"Chemical": ["Aspirin"], "Disease": ["heart disease"]}',
         "ner_llm": '{"Chemical": ["Aspirin"], "Disease": ["heart disease"]}',
         "ontology_entity_link": '{"Aspirin": {"canonical": "Aspirin", "id": "D001241"}}',
         "ontology_hypernym_filter": _entities_json(),
-        "ontology_synonym_resolve": '{"Aspirin": ["acetylsalicylic acid"]}',
+        "ontology_synonym_resolve": "Aspirin|is|acetylsalicylic acid",
         "relation_extract_llm": '["Aspirin | treats | heart disease"]',
         "relation_from_tree_llm": '[{"head": "Aspirin", "predicate": "treats", "tail": "heart disease"}]',
         "relation_verify_llm": "$",
@@ -92,7 +92,12 @@ def _mock_llm_content(agent_id: str) -> str:
         "text_sentence_split": '["Aspirin may reduce the risk of heart disease.", "Lithium carbonate toxicity was reported."]',
         "text_summarize": "Aspirin may reduce heart disease risk; lithium toxicity was reported.",
         "text_word_segment": "| Aspirin | may | reduce | the | risk | of | heart | disease |",
+        "ner_chemdisgene_llm": "Chemical|Aspirin\nDisease|heart disease\nGene|PDE10A",
+        "e2e_hypernym_filter": _entities_json(),
+        "e2e_synonym_filter": _entities_json(),
     }
+    if agent_id.startswith("chemdisgene_re_"):
+        return "11"
     val = mocks.get(agent_id, "mock llm output")
     return val() if callable(val) else val
 
@@ -133,19 +138,44 @@ def _plugin_mock(extra: dict[str, Any]):
 
 
 @contextmanager
-def _cid_builder_mock():
-    class _FakeBuilder:
+def _catalog_builder_mock():
+    class _FakeCatalog:
         @staticmethod
-        def build_tuning(runner_id, **kwargs):  # noqa: ANN001
+        def build_tuning(agent_id, **kwargs):  # noqa: ANN001
             return {
-                "runner_id": runner_id,
+                "agent_id": agent_id,
                 "tuning_output": kwargs.get("tuning_out") or "cid_agent_test_tuning.csv",
-                "tuning_path": f"tests/{runner_id}/cid_agent_test_tuning.csv",
+                "tuning_path": f"tests/{agent_id}/cid_agent_test_tuning.csv",
                 "tuning_count": int(kwargs.get("size") or 2),
                 "summary": {"picked": 2, "source": kwargs.get("source")},
             }
 
-    with _plugin_mock({"CidDatasetBuilder": _FakeBuilder()}):
+        @staticmethod
+        def build_full(agent_id, **kwargs):  # noqa: ANN001
+            out_name = kwargs.get("output_name") or "chemdisgene_agent_test.csv"
+            return {
+                "agent_id": agent_id,
+                "output": out_name,
+                "output_path": f"tests/{agent_id}/{out_name}",
+                "count": 1,
+                "source": kwargs.get("source"),
+            }
+
+    catalog = _FakeCatalog()
+    with _plugin_mock(
+        {
+            "DatasetCatalog": catalog,
+            "CidDatasetBuilder": catalog,
+            "ChemDisGeneDatasetBuilder": catalog,
+        }
+    ):
+        yield
+
+
+@contextmanager
+def _cid_builder_mock():
+    """Backward-compatible alias."""
+    with _catalog_builder_mock():
         yield
 
 
@@ -300,6 +330,9 @@ def _validate_output(meta: dict[str, Any], result: dict[str, Any]) -> tuple[bool
     if out_name == "tuning_result" and isinstance(value, dict) and value.get("error"):
         return False, str(value["error"])
 
+    if out_name == "build_result" and isinstance(value, dict) and value.get("error"):
+        return False, str(value["error"])
+
     if out_name == "filtered_entities" and isinstance(value, list):
         for item in value:
             if isinstance(item, str) and item.strip().lower() in ("type", "text,type,mesh"):
@@ -380,8 +413,8 @@ def run_single_agent(
         if agent_id == "relation_extract_pubtator":
             with _pubtator_plugin_mock():
                 return runner.invoke(inputs, config=config)
-        if agent_id == "dataset_cid_tuning_build":
-            with _cid_builder_mock():
+        if agent_id in ("dataset_cid_tuning_build", "dataset_chemdisgene_build"):
+            with _catalog_builder_mock():
                 return runner.invoke(inputs, config=config)
         return runner.invoke(inputs, config=config)
 

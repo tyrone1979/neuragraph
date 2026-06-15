@@ -1,0 +1,24 @@
+{
+  "agent_id": "dataset_chemdisgene_build",
+  "latest": "v0002",
+  "versions": [
+    {
+      "version": "v0001",
+      "parent_version": null,
+      "created_at": "2026-06-15T08:37:58.297518",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "6f35db672ff19ae5bf87fc8f8b31f7d66fecfbd8a765ee4f31706c154beeeb48"
+    },
+    {
+      "version": "v0002",
+      "parent_version": "v0001",
+      "created_at": "2026-06-15T08:55:26.543729",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "4b6a9bd6a307a204bdc975ae2003d604af1fc2010e9ee2901e27e2307fa2eabc"
+    }
+  ]
+}

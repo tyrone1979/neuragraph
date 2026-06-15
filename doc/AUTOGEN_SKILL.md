@@ -355,7 +355,15 @@ Predicted `relations` after loop: `["D010634 | D004409", ...]`
 
 ---
 
-## 11. Test datasets (`tests/<graph_id>/*.csv`)
+## 11. Test datasets
+
+### 11.1 Per-agent samples (`tests/<agent_id>/sample.csv`)
+
+- Exactly **one row** per agent for regression (`regression-agent`, `agents` suite).
+- Fixtures: `ui_tests/utils/agent_sample_row_fixtures.py`; regenerate with `write_all_agent_sample_csvs()`.
+- Header keys must match agent `inputs` in `meta/agents/<id>.json`.
+
+### 11.2 Per-graph batches (`tests/<graph_id>/*.csv`)
 
 - One row per sample; header = **START input field names**
 - JSON cells must be valid JSON strings

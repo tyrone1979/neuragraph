@@ -1,0 +1,24 @@
+{
+  "agent_id": "cid_entities_dedupe_mesh",
+  "latest": "v0002",
+  "versions": [
+    {
+      "version": "v0001",
+      "parent_version": null,
+      "created_at": "2026-06-15T08:37:51.789234",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "e1a7db061310a3af1f90e82b49a2570c3731e69e869230115f3fa245f36bf82d"
+    },
+    {
+      "version": "v0002",
+      "parent_version": "v0001",
+      "created_at": "2026-06-15T08:55:22.683331",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "b10e4d33b8df3a45bed7914518ed0145ecf1405071decfdf83d25e589f3d02bd"
+    }
+  ]
+}

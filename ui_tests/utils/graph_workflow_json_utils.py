@@ -87,6 +87,14 @@ LEGACY_GRAPH_INPUTS: dict[str, dict[str, Any]] = {
         "head_id": "D001241",
         "tail_id": "D006331",
     },
+    "sg_chemdisgene_re_verify": {
+        "text": "Aspirin may reduce the risk of heart disease.",
+        "head": "Aspirin",
+        "tail": "heart disease",
+        "rel_template": "chem_disease:affects",
+        "entity_type": "Chemical",
+        "gold_relations": "Aspirin | chem_disease:affects | heart disease",
+    },
     "sg_relation_verify": {
         "text": "Aspirin may cause headache.",
         "head": "Aspirin",

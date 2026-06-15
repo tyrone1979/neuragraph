@@ -1,0 +1,186 @@
+{
+  "agentVersions": {},
+  "bindings": {
+    "eval_metrics_relation": {
+      "entities": "{{ entity_aliases }}",
+      "ground_truth": "{{ START.gold_relations }}",
+      "relations": "{{ relations }}"
+    },
+    "sg_e2e_cid_re": {
+      "entities": "{{ entities }}",
+      "filtered_entities": "{{ filtered_entities }}",
+      "text": "{{ START.text }}"
+    },
+    "sg_e2e_flair_ner": {
+      "labels": "{{ START.labels }}",
+      "text": "{{ START.text }}"
+    }
+  },
+  "created_at": "2026-06-09T10:03:15.681808",
+  "description": "Flair sentence-split NER → optimized CID RE (v0008 prompt) → relation metrics. For Table S18.",
+  "edges": [
+    [
+      "eval_metrics_relation",
+      "END"
+    ],
+    [
+      "cid_re_verify_loop",
+      "eval_metrics_relation"
+    ],
+    [
+      "ner_entities_to_re_format",
+      "e2e_entities_passthrough"
+    ],
+    [
+      "START",
+      "text_sentence_split"
+    ],
+    [
+      "cid_pair_generate",
+      "cid_re_verify_loop"
+    ],
+    [
+      "e2e_hypernym_filter",
+      "cid_pair_generate"
+    ],
+    [
+      "e2e_entities_dedup_by_id",
+      "e2e_hypernym_filter"
+    ],
+    [
+      "e2e_entity_aliases_snapshot",
+      "e2e_entities_dedup_by_id"
+    ],
+    [
+      "e2e_entities_assign_group_ids",
+      "e2e_entity_aliases_snapshot"
+    ],
+    [
+      "e2e_synonym_filter",
+      "e2e_entities_assign_group_ids"
+    ],
+    [
+      "e2e_entities_passthrough",
+      "e2e_synonym_filter"
+    ],
+    [
+      "ner_sentence_loop",
+      "ner_entities_to_re_format"
+    ],
+    [
+      "text_sentence_split",
+      "ner_sentence_loop"
+    ]
+  ],
+  "flowNodes": {},
+  "metrics": [
+    {
+      "expected": {
+        "field": "gold_relations",
+        "from": "input"
+      },
+      "predicted": {
+        "field": "relations",
+        "from": "state"
+      },
+      "type": "relation_pairs"
+    }
+  ],
+  "name": "E2E Flair NER + Optimized RE",
+  "nodes": [
+    "START",
+    "cid_pair_generate",
+    "cid_re_verify_loop",
+    "e2e_entities_assign_group_ids",
+    "e2e_entities_dedup_by_id",
+    "e2e_entities_passthrough",
+    "e2e_entity_aliases_snapshot",
+    "e2e_hypernym_filter",
+    "e2e_synonym_filter",
+    "eval_metrics_relation",
+    "ner_entities_to_re_format",
+    "ner_sentence_loop",
+    "text_sentence_split",
+    "END"
+  ],
+  "visualData": {
+    "layout": {
+      "sg_e2e_flair_ner_container": {
+        "x": -80,
+        "y": 60
+      },
+      "sg_e2e_cid_re_container": {
+        "x": 100,
+        "y": 620
+      },
+      "START": {
+        "x": -230,
+        "y": 190
+      },
+      "cid_pair_generate": {
+        "x": 610,
+        "y": 1000
+      },
+      "e2e_entities_assign_group_ids": {
+        "x": 800,
+        "y": 672
+      },
+      "e2e_entities_dedup_by_id": {
+        "x": 1448,
+        "y": 672
+      },
+      "e2e_entities_passthrough": {
+        "x": 152,
+        "y": 672
+      },
+      "e2e_entity_aliases_snapshot": {
+        "x": 1124,
+        "y": 672
+      },
+      "e2e_hypernym_filter": {
+        "x": 250,
+        "y": 980
+      },
+      "e2e_synonym_filter": {
+        "x": 476,
+        "y": 672
+      },
+      "eval_metrics_relation": {
+        "x": 1840,
+        "y": 990
+      },
+      "ner_entities_to_re_format": {
+        "x": 668,
+        "y": 112
+      },
+      "text_sentence_split": {
+        "x": -28,
+        "y": 112
+      },
+      "END": {
+        "x": 2150,
+        "y": 1080
+      },
+      "ner_sentence_loop": {
+        "x": 296,
+        "y": 112
+      },
+      "cid_re_verify_loop": {
+        "x": 950,
+        "y": 980
+      },
+      "relation_verify_llm": {
+        "x": 974,
+        "y": 1056
+      },
+      "relation_result_to_id_pair": {
+        "x": 1298,
+        "y": 1056
+      },
+      "ner_flair_sent": {
+        "x": 320,
+        "y": 188
+      }
+    }
+  }
+}

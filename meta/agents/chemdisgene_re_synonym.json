@@ -1,0 +1,12 @@
+{
+  "name": "ChemDisGene RE synonym",
+  "type": "LLM",
+  "model": "deepseek",
+  "inputs": ["text", "head", "tail", "entity_type"],
+  "outputs": {"name": "result", "type": "str"},
+  "prompt_template": {
+    "system": "You are a biomedical expert. Answer '$' or '~' only.",
+    "human": "{text}\nrefer to above context,  \nIf {head} is plural form of {tail} , answer '$' \nelse if {tail} is plural form of {head}, answer '$'\nelse if  {head} is the alias {entity_type} name of {tail} and {tail} is the alias {entity_type} name of {head} , answer '$'\nelse if {head} is a abbreviations of {tail}, please answer '$'\nelse if {tail} is a abbreviations of {head}, please answer '$'\nelse if {head} is a short name of {tail} answer '$'.\nelse if {tail} is a short name of {tail} answer '$'.\nelse answer '~'\nDO NOT output any other message."
+  },
+  "created_at": "2026-06-15T10:00:00"
+}

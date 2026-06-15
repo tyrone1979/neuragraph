@@ -1,0 +1,31 @@
+{
+  "runner_type": "graph",
+  "runner_id": "sg_relation_verify",
+  "runner_display": "sg_relation_verify (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "81bd2124-05af-4947-90c6-db58899a5040",
+  "name": "sg_relation_verify_regression_2_gold_test.csv_20260615091603",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:16:03.167865",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:16:09.493523",
+  "last_error": "\"Input to ChatPromptTemplate is missing variables {'other drug'}.  Expected: ['head', 'other drug', 'tail', 'text'] Received: ['text', 'head', 'tail']\\nNote: if you intended {other drug} to be part of the string and not a variable, please escape it with double curly braces like: '{{other drug}}'.\\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/INVALID_PROMPT_INPUT \"",
+  "failed_at_sample": 1,
+  "history": [
+    {
+      "idx": 1,
+      "timestamp": "2026-06-15T09:16:07.468009",
+      "status": "failed",
+      "error": "\"Input to ChatPromptTemplate is missing variables {'other drug'}.  Expected: ['head', 'other drug', 'tail', 'text'] Received: ['text', 'head', 'tail']\\nNote: if you intended {other drug} to be part of the string and not a variable, please escape it with double curly braces like: '{{other drug}}'.\\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/INVALID_PROMPT_INPUT \""
+    },
+    {
+      "idx": 1,
+      "timestamp": "2026-06-15T09:16:09.484547",
+      "status": "failed",
+      "error": "\"Input to ChatPromptTemplate is missing variables {'other drug'}.  Expected: ['head', 'other drug', 'tail', 'text'] Received: ['text', 'head', 'tail']\\nNote: if you intended {other drug} to be part of the string and not a variable, please escape it with double curly braces like: '{{other drug}}'.\\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/INVALID_PROMPT_INPUT \""
+    }
+  ]
+}

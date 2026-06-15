@@ -1,0 +1,106 @@
+{
+  "1": {
+    "entities": "[{'text': 'Famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'delirium', 'id': 'D003693', 'label': 'Disease'}, {'text': 'Famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'ulcers', 'id': 'D014456', 'label': 'Disease'}, {'text': 'delirium', 'id': 'D003693', 'label': 'Disease'}, {'text': 'famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'delirium', 'id': 'D003693', 'label': 'Disease'}, {'text': 'famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'famotidine', 'id': 'D015738', 'label': 'Chemical'}]",
+    "filtered_entities": [
+      {
+        "text": "Famotidine",
+        "id": "D015738",
+        "label": "Chemical"
+      },
+      {
+        "text": "delirium",
+        "id": "D003693",
+        "label": "Disease"
+      },
+      {
+        "text": "ulcers",
+        "id": "D014456",
+        "label": "Disease"
+      }
+    ],
+    "head": "Famotidine",
+    "head_id": "D015738",
+    "pairs": [
+      {
+        "head": "Famotidine",
+        "tail": "delirium",
+        "head_id": "D015738",
+        "tail_id": "D003693"
+      },
+      {
+        "head": "Famotidine",
+        "tail": "ulcers",
+        "head_id": "D015738",
+        "tail_id": "D014456"
+      }
+    ],
+    "relations": [
+      "D015738 | D003693",
+      "D015738 | D014456"
+    ],
+    "result": "$",
+    "tail": "ulcers",
+    "tail_id": "D014456",
+    "text": "Aspirin may reduce the risk of heart disease.",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "rel_tp": 1,
+      "rel_fp": 1,
+      "rel_fn": 0
+    }
+  },
+  "2": {
+    "entities": "[{'text': 'Famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'delirium', 'id': 'D003693', 'label': 'Disease'}, {'text': 'Famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'ulcers', 'id': 'D014456', 'label': 'Disease'}, {'text': 'delirium', 'id': 'D003693', 'label': 'Disease'}, {'text': 'famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'delirium', 'id': 'D003693', 'label': 'Disease'}, {'text': 'famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'famotidine', 'id': 'D015738', 'label': 'Chemical'}, {'text': 'famotidine', 'id': 'D015738', 'label': 'Chemical'}]",
+    "filtered_entities": [
+      {
+        "text": "Famotidine",
+        "id": "D015738",
+        "label": "Chemical"
+      },
+      {
+        "text": "delirium",
+        "id": "D003693",
+        "label": "Disease"
+      },
+      {
+        "text": "ulcers",
+        "id": "D014456",
+        "label": "Disease"
+      }
+    ],
+    "head": "Famotidine",
+    "head_id": "D015738",
+    "pairs": [
+      {
+        "head": "Famotidine",
+        "tail": "delirium",
+        "head_id": "D015738",
+        "tail_id": "D003693"
+      },
+      {
+        "head": "Famotidine",
+        "tail": "ulcers",
+        "head_id": "D015738",
+        "tail_id": "D014456"
+      }
+    ],
+    "relations": [
+      "D015738 | D003693",
+      "D015738 | D014456"
+    ],
+    "result": "$",
+    "tail": "ulcers",
+    "tail_id": "D014456",
+    "text": "Metformin is commonly used to treat type 2 diabetes.",
+    "metrics": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "rel_tp": 1,
+      "rel_fp": 1,
+      "rel_fn": 0
+    }
+  }
+}

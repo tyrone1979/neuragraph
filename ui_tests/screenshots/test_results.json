@@ -1,132 +1,357 @@
 {
   "results": [
     {
-      "test": "REXP-sg_cid_re_verify-gold_test_only",
+      "test": "RAGENT-test-ui-chemdisgene_answer_map",
       "status": "PASS",
-      "detail": "eb68df63-2ec1-425e-b6ea-9be3dc01a98d"
+      "detail": "PGM UI test completed"
     },
     {
-      "test": "REXP-persist-sg_cid_re_verify-gold_test_only",
+      "test": "RAGENT-ui-chemdisgene_answer_map",
       "status": "PASS",
-      "detail": "samples=2"
+      "detail": "page ok"
     },
     {
-      "test": "REXP-metrics-sg_cid_re_verify-gold_test_only",
+      "test": "RAGENT-invoke-summary",
       "status": "PASS",
-      "detail": "no metrics (gold may be empty)"
+      "detail": "67/67 pass"
     },
     {
-      "test": "REXP-notuning-sg_cid_re_verify-gold_test_only",
+      "test": "RAGENT-invoke-agent_refiner",
       "status": "PASS",
-      "detail": "test dataset only"
+      "detail": "ok"
     },
     {
-      "test": "REXP-sg_cid_re_verify-no_gold_with_tuning",
+      "test": "RAGENT-invoke-chemdisgene_answer_map",
       "status": "PASS",
-      "detail": "eb3f05c1-4593-4ec6-af56-5c1a6704d6ee"
+      "detail": "ok"
     },
     {
-      "test": "REXP-persist-sg_cid_re_verify-no_gold_with_tuning",
+      "test": "RAGENT-invoke-chemdisgene_ner_parse",
       "status": "PASS",
-      "detail": "samples=2"
+      "detail": "ok"
     },
     {
-      "test": "REXP-nogold-sg_cid_re_verify-no_gold_with_tuning",
+      "test": "RAGENT-invoke-chemdisgene_pair_generate",
       "status": "PASS",
-      "detail": "completed without gold labels"
+      "detail": "ok"
     },
     {
-      "test": "REXP-tuning-sg_cid_re_verify-no_gold_with_tuning",
+      "test": "RAGENT-invoke-chemdisgene_re_chem_disease_affects",
       "status": "PASS",
-      "detail": "tuning=regression_2_no_gold_tuning.csv"
+      "detail": "ok"
     },
     {
-      "test": "REXP-sg_e2e_cid_re-gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_chem_gene_activity",
       "status": "PASS",
-      "detail": "c2a2b5ad-c532-4aaa-82ac-d773f67abb5c"
+      "detail": "ok"
     },
     {
-      "test": "REXP-persist-sg_e2e_cid_re-gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_chem_gene_aff_bind",
       "status": "PASS",
-      "detail": "samples=2"
+      "detail": "ok"
     },
     {
-      "test": "REXP-metrics-sg_e2e_cid_re-gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_chem_gene_aff_expr",
       "status": "PASS",
-      "detail": "no metrics (gold may be empty)"
+      "detail": "ok"
     },
     {
-      "test": "REXP-notuning-sg_e2e_cid_re-gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_chem_gene_aff_local",
       "status": "PASS",
-      "detail": "test dataset only"
+      "detail": "ok"
     },
     {
-      "test": "REXP-wf_e2e_flair_opt_re-gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_chem_gene_dec_metab",
       "status": "PASS",
-      "detail": "b5d84965-7a67-48ee-aeeb-3d205d71b969"
+      "detail": "ok"
     },
     {
-      "test": "REXP-persist-wf_e2e_flair_opt_re-gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_chem_gene_expression",
       "status": "PASS",
-      "detail": "samples=2"
+      "detail": "ok"
     },
     {
-      "test": "REXP-metrics-wf_e2e_flair_opt_re-gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_chem_gene_inc_activity",
       "status": "PASS",
-      "detail": "metrics present"
+      "detail": "ok"
     },
     {
-      "test": "REXP-notuning-wf_e2e_flair_opt_re-gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_chem_gene_inc_metab",
       "status": "PASS",
-      "detail": "test dataset only"
+      "detail": "ok"
     },
     {
-      "test": "REXP-wf_e2e_flair_opt_re-no_gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_chem_gene_transport",
       "status": "PASS",
-      "detail": "35bae8bd-a164-4b32-bd66-35a709b4259c"
+      "detail": "ok"
     },
     {
-      "test": "REXP-persist-wf_e2e_flair_opt_re-no_gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_gene_disease_marker",
       "status": "PASS",
-      "detail": "samples=2"
+      "detail": "ok"
     },
     {
-      "test": "REXP-nogold-wf_e2e_flair_opt_re-no_gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_gene_disease_therapeutic",
       "status": "PASS",
-      "detail": "completed without gold labels"
+      "detail": "ok"
     },
     {
-      "test": "REXP-notuning-wf_e2e_flair_opt_re-no_gold_test_only",
+      "test": "RAGENT-invoke-chemdisgene_re_hypernyms",
       "status": "PASS",
-      "detail": "test dataset only"
+      "detail": "ok"
     },
     {
-      "test": "REXP-wf_e2e_flair_opt_re-gold_with_tuning",
+      "test": "RAGENT-invoke-chemdisgene_re_synonym",
       "status": "PASS",
-      "detail": "16502552-2b66-4fff-be9e-3ad223f287ec"
+      "detail": "ok"
     },
     {
-      "test": "REXP-persist-wf_e2e_flair_opt_re-gold_with_tuning",
+      "test": "RAGENT-invoke-chemdisgene_result_to_relation",
       "status": "PASS",
-      "detail": "samples=2"
+      "detail": "ok"
     },
     {
-      "test": "REXP-metrics-wf_e2e_flair_opt_re-gold_with_tuning",
+      "test": "RAGENT-invoke-cid_entities_dedupe_mesh",
       "status": "PASS",
-      "detail": "metrics present"
+      "detail": "ok"
     },
     {
-      "test": "REXP-tuning-wf_e2e_flair_opt_re-gold_with_tuning",
+      "test": "RAGENT-invoke-cid_pair_generate",
       "status": "PASS",
-      "detail": "tuning=regression_2_gold_tuning.csv"
+      "detail": "ok"
     },
     {
-      "test": "REXP-summary",
+      "test": "RAGENT-invoke-dataset_chemdisgene_build",
       "status": "PASS",
-      "detail": "processed 6 representative run(s)"
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-dataset_cid_tuning_build",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-e2e_entities_assign_group_ids",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-e2e_entities_dedup_by_id",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-e2e_entities_passthrough",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-e2e_entity_aliases_snapshot",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-e2e_hypernym_filter",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-e2e_synonym_filter",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-eval_flair",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-eval_llm",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-eval_metrics",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-eval_metrics_relation",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-eval_metrics_segment",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-eval_pair_generate",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-kg_rdf_export",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-kg_triple_extract_llm",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-kg_triple_merge",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-kg_triple_persist",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-llm_link_bulk_update",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-merge_metrics",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ner_chemdisgene_llm",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ner_comparison_report",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ner_entities_to_re_format",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ner_flair_aggregate",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ner_flair_doc",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ner_flair_sent",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ner_from_tree_llm",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ner_llm",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ontology_entity_link",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ontology_hypernym_filter",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-ontology_synonym_resolve",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-relation_extract_llm",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-relation_extract_pubtator",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-relation_from_tree_llm",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-relation_result_to_id_pair",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-relation_verify_llm",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-relation_verify_to_pair",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-report_comparator",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-report_experiment",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-report_experiment_tool",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-report_format_json",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-syntax_dep_parse",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-text_coreference",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-text_sentence_split",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-text_summarize",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "test": "RAGENT-invoke-text_word_segment",
+      "status": "PASS",
+      "detail": "ok"
     }
   ],
-  "passed": 25,
+  "passed": 70,
   "failed": 0,
   "errors": []
 }

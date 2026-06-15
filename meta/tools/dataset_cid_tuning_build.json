@@ -1,15 +1,23 @@
 {
   "name": "CID Tuning Dataset Builder",
-  "description": "Build a stratified CID tuning CSV (and optional test-remain set) from PubTator gold dev.txt.",
+  "description": "Build a stratified tuning CSV from a raw gold file into tests/<agent_id>/.",
   "parameters": {
     "properties": {
+      "agent_id": {
+        "type": "string",
+        "description": "Target folder under tests/ (workflow/agent id)."
+      },
       "runner_id": {
         "type": "string",
-        "description": "Target runner folder under tests/, default wf_cid_re_llm_linear."
+        "description": "Alias for agent_id (backward compatible)."
+      },
+      "format": {
+        "type": "string",
+        "description": "CSV row format: re | ner | pubtator, default re."
       },
       "source": {
         "type": "string",
-        "description": "PubTator gold source file, default dev.txt."
+        "description": "Raw gold source path, default data/raw/dev.txt."
       },
       "size": {
         "type": "integer",
@@ -27,12 +35,16 @@
         "type": "boolean",
         "description": "Also write remaining docs as test CSV, default true."
       },
-      "mirror_ner": {
-        "type": "boolean",
-        "description": "Mirror outputs to wf_cid_ner_llm_eval, default true."
+      "mirror_agent_id": {
+        "type": "string",
+        "description": "Optional second agent folder to mirror outputs."
+      },
+      "mirror_format": {
+        "type": "string",
+        "description": "Format for mirror output, default ner."
       }
     },
     "required": []
   },
-  "code": "def func(runner_id: str = 'wf_cid_re_llm_linear', source: str = 'data/raw/dev.txt', size: int = 20, tuning_out: str = '', test_out: str = '', write_test_remain: bool = True, mirror_ner: bool = True):\n    from service.tools.analysis_tools import dataset_cid_tuning_build\n    return dataset_cid_tuning_build(runner_id=runner_id, source=source, size=size, tuning_out=tuning_out, test_out=test_out, write_test_remain=write_test_remain, mirror_ner=mirror_ner)"
+  "code": "def func(runner_id: str = 'wf_cid_re_llm_linear', agent_id: str = '', format: str = 're', source: str = 'data/raw/dev.txt', size: int = 20, tuning_out: str = '', test_out: str = '', write_test_remain: bool = True, mirror_agent_id: str = '', mirror_format: str = 'ner'):\n    from service.tools.analysis_tools import dataset_cid_tuning_build\n    return dataset_cid_tuning_build(runner_id=runner_id, agent_id=agent_id, format=format, source=source, size=size, tuning_out=tuning_out, test_out=test_out, write_test_remain=write_test_remain, mirror_agent_id=mirror_agent_id, mirror_format=mirror_format)"
 }

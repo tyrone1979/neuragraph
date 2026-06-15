@@ -31,6 +31,69 @@ TWO_SAMPLE_TEXTS = (
     "Metformin is commonly used to treat type 2 diabetes.",
 )
 
+# Per-graph 2-row fixtures when generic text-only rows miss required bindings.
+GRAPH_TWO_ROW_TEMPLATES: dict[str, list[dict[str, Any]]] = {
+    "sg_relation_verify": [
+        {
+            "text": "Aspirin may cause headache.",
+            "head": "Aspirin",
+            "tail": "headache",
+            "entity_link": json.dumps({"Aspirin": "Aspirin", "headache": "headache"}, ensure_ascii=False),
+        },
+        {
+            "text": "Metformin is commonly used to treat type 2 diabetes.",
+            "head": "Metformin",
+            "tail": "type 2 diabetes",
+            "entity_link": json.dumps(
+                {"Metformin": "Metformin", "type 2 diabetes": "type 2 diabetes"},
+                ensure_ascii=False,
+            ),
+        },
+    ],
+    "sg_chemdisgene_re_verify": [
+        {
+            "text": TWO_SAMPLE_TEXTS[0],
+            "head": "Aspirin",
+            "tail": "heart disease",
+            "rel_template": "chem_disease:affects",
+            "entity_type": "Chemical",
+            "gold_relations": "Aspirin | chem_disease:affects | heart disease",
+        },
+        {
+            "text": TWO_SAMPLE_TEXTS[1],
+            "head": "Metformin",
+            "tail": "type 2 diabetes",
+            "rel_template": "chem_disease:affects",
+            "entity_type": "Chemical",
+            "gold_relations": "Metformin | chem_disease:affects | type 2 diabetes",
+        },
+    ],
+    "wf_chemdisgene_re_llm_linear": [
+        {
+            "text": TWO_SAMPLE_TEXTS[0],
+            "entities": json.dumps(
+                [
+                    {"text": "Aspirin", "id": "MESH:D001241", "label": "Chemical"},
+                    {"text": "heart disease", "id": "MESH:D006331", "label": "Disease"},
+                ],
+                ensure_ascii=False,
+            ),
+            "gold_relations": "Aspirin | chem_disease:affects | heart disease",
+        },
+        {
+            "text": TWO_SAMPLE_TEXTS[1],
+            "entities": json.dumps(
+                [
+                    {"text": "Metformin", "id": "MESH:D008687", "label": "Chemical"},
+                    {"text": "type 2 diabetes", "id": "MESH:D003924", "label": "Disease"},
+                ],
+                ensure_ascii=False,
+            ),
+            "gold_relations": "Metformin | chem_disease:therapeutic | type 2 diabetes",
+        },
+    ],
+}
+
 
 def safe_name(value: str, max_len: int = 80) -> str:
     slug = re.sub(r"[^a-zA-Z0-9._-]+", "_", str(value or "item")).strip("_")
@@ -80,8 +143,21 @@ def api_delete_json(url: str, timeout: int = 60) -> Any:
 
 def build_two_row_dataset(graph_id: str, *, with_gold: bool) -> tuple[list[str], list[dict[str, Any]]]:
     """Build 2 CSV rows for a graph; strip gold columns when with_gold=False."""
+    templates = GRAPH_TWO_ROW_TEMPLATES.get(graph_id)
+    if templates:
+        rows: list[dict[str, Any]] = []
+        for tpl in templates[:2]:
+            row = dict(tpl)
+            if not with_gold:
+                for key in list(row.keys()):
+                    if key in GOLD_FIELD_NAMES or key.startswith("gold_"):
+                        row.pop(key, None)
+            rows.append(row)
+        fields = sorted({k for row in rows for k in row.keys()})
+        return fields, rows
+
     base = dict(graph_run_params(graph_id))
-    rows: list[dict[str, Any]] = []
+    rows = []
     for idx, text in enumerate(TWO_SAMPLE_TEXTS):
         row = dict(base)
         if "text" in row or "sentence" in row:
@@ -296,7 +372,16 @@ def run_graph_experiment(
     if tuning_file:
         save_payload["tuning_dataset"] = tuning_file
 
-    page.on("dialog", lambda d: d.accept())
+    if not getattr(page, "_ng_dialog_handler", False):
+
+        def _safe_accept_dialog(d) -> None:
+            try:
+                d.accept()
+            except Exception:
+                pass
+
+        page.on("dialog", _safe_accept_dialog)
+        page._ng_dialog_handler = True
     save_json = api_post_json(f"{base.rstrip('/')}/exp/api/save", save_payload)
     if not save_json.get("success"):
         fail(f"REXP-save-{graph_id}-{variant}", str(save_json)[:200])

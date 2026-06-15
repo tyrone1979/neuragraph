@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "sg_chemdisgene_re_verify",
+  "runner_display": "sg_chemdisgene_re_verify (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "9da3028b-6cd7-4b38-a9ca-e2f3251d9509",
+  "name": "sg_chemdisgene_re_verify_regression_2_gold_test.csv_20260615092432",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:24:32.440391",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:24:41.745826",
+  "last_error": "",
+  "failed_at_sample": null
+}

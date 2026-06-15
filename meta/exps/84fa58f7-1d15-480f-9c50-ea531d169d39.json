@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "sg_e2e_flair_ner",
+  "runner_display": "sg_e2e_flair_ner (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "84fa58f7-1d15-480f-9c50-ea531d169d39",
+  "name": "sg_e2e_flair_ner_regression_2_gold_test.csv_20260612092351",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-12T09:23:51.570285",
+  "updated_at": "2026-06-12T09:23:54.915868",
+  "last_error": "",
+  "failed_at_sample": null,
+  "tuning_dataset": "regression_2_gold_test.csv"
+}

@@ -1,0 +1,25 @@
+{
+  "1": {
+    "metrics": {},
+    "relations": [
+      "D000068799 | CID | D054058",
+      "D000069552 | CID | D050197",
+      "D001241 | CID | D054058",
+      "D000069552 | CID | D054058",
+      "D000068799 | CID | D002545",
+      "D000077144 | CID | D054058"
+    ],
+    "text": "Aspirin may reduce the risk of heart disease."
+  },
+  "2": {
+    "metrics": {},
+    "relations": [
+      "C529054 | CID | D051436",
+      "C020269 | CID | D051436",
+      "C529054 | CID | D007328",
+      "C529054 | CID | D003924",
+      "C529054 | CID | D003920"
+    ],
+    "text": "Metformin is commonly used to treat type 2 diabetes."
+  }
+}

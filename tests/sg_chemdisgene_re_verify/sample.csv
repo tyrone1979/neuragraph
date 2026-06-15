@@ -1,0 +1,2 @@
+text,head,tail,rel_template,entity_type,gold_relations
+Aspirin may reduce the risk of heart disease.,Aspirin,heart disease,chem_disease:affects,Chemical,Aspirin | chem_disease:affects | heart disease

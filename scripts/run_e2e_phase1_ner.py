@@ -26,11 +26,14 @@ def _bar(cur: int, total: int, w: int = 50) -> str:
 
 
 def build_csv():
-    from service.dataset_cid import NER_FIELDS, load_source_articles, ner_row
+    from service.dataset.parsers import load_articles_from_source, row_options_for_source
+    from service.dataset.rows import FORMAT_FIELDS, row_ner
     from service.entity.test import TestLoader
-    articles = load_source_articles(SOURCE)
-    rows = [ner_row(a) for a in articles]
-    path = TestLoader.save_csv_rows(RUNNER, DATASET, NER_FIELDS, rows)
+
+    opts = row_options_for_source(SOURCE)
+    articles = load_articles_from_source(SOURCE)
+    rows = [row_ner(a, **opts) for a in articles]
+    path = TestLoader.save_csv_rows(RUNNER, DATASET, FORMAT_FIELDS["ner"], rows)
     print(f"Built {path} ({len(rows)} rows)")
 
 

@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "sg_e2e_pubtator_re",
+  "runner_display": "sg_e2e_pubtator_re (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "def7b629-aa04-4f38-ad59-6117384664fd",
+  "name": "sg_e2e_pubtator_re_regression_2_gold_test.csv_20260615091242",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:12:42.327689",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:13:13.279766",
+  "last_error": "",
+  "failed_at_sample": null
+}

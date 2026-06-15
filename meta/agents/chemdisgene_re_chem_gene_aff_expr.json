@@ -1,0 +1,12 @@
+{
+  "name": "ChemDisGene RE chem_gene:affects^expression",
+  "type": "LLM",
+  "model": "deepseek",
+  "inputs": ["text", "head", "tail"],
+  "outputs": {"name": "result", "type": "str"},
+  "prompt_template": {
+    "system": "You are a biomedical expert. Output answer code only.",
+    "human": "{text}\nYou are biomedical expert, refer to above biomedical article, please give answer based on below conditions, and give your reason\nATTENTION: the relationship MUST be between {head} and {tail}\nConditions:\nE0. if {head} does not affect {tail}, answer E0.\nE1. else if {head} upregulated {tail}, answer E1\nE2. else if {head} downregulate {tail},answer E2.\nE3. else if {head} inhibited {tail} ,answer E3.\n-------------------------------------------------------\n1. else if{head} regulates/ disruption in the mRNA expression of {tail}(unknown upregulate or downregluate),answer 1\n2. else if {tail} was regulated by {head} with fold changes ranging from ..., answer 2\n3. else if  {head} affected {tail} mRNA expression,answer 3\n4. else if {head} alters the relative expression of {tail}, answer 4\n5. else if the expression levels of {tail} were affected by the intake of {tail}, answer 5\n---------------------------------------------------------\n99.else if none of above, answer 99\nDO NOT output any other message."
+  },
+  "created_at": "2026-06-15T10:00:00"
+}

@@ -1,2 +1,2 @@
-runner_id,source,size,tuning_out,test_out,write_test_remain,mirror_ner
-wf_cid_re_llm_linear,comparison/data/CDR/dev.txt,2,cid_agent_test_tuning.csv,cid_agent_test_test.csv,false,false
+agent_id,runner_id,format,source,size,tuning_out,test_out,write_test_remain,mirror_agent_id,mirror_format
+wf_cid_re_llm_linear,wf_cid_re_llm_linear,re,comparison/data/CDR/dev.txt,2,cid_agent_test_tuning.csv,cid_agent_test_test.csv,false,,ner

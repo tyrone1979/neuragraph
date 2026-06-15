@@ -12,16 +12,10 @@ from typing import Any, Dict, List, Tuple
 
 from service.entity.test import TestLoader
 from service.meta.loader import MetaLoader
-from service.dataset_cid import (
-    CID_REGISTRY,
-    DEFAULT_RE_RUNNER,
-    build_structured_full,
-    build_tuning_dataset,
-    extract_test_dataset,
-    get_registry_status,
-    load_source_articles,
-    resolve_source_path,
-)
+from service.dataset.registry import get_catalog, require_catalog
+
+DEFAULT_RAW_SOURCE = "data/raw/dev.txt"
+DEFAULT_RE_RUNNER = "wf_cid_re_llm_linear"
 
 
 META_DIR = Path(__file__).resolve().parents[2] / "meta"
@@ -173,81 +167,80 @@ def _resolve_runner_id(raw: str, pins: dict) -> str:
     return (raw or pins.get("graph") or pins.get("runner_id") or DEFAULT_RE_RUNNER).strip()
 
 
+def _source_from_kv(kv: dict[str, str]) -> str:
+    return (kv.get("source") or DEFAULT_RAW_SOURCE).strip()
+
+
 def dataset_registry_view(session: dict | None = None) -> str:
     pins = (session or {}).get("pins") or {}
-    runner_id = _resolve_runner_id("", pins)
+    agent_id = _resolve_runner_id("", pins)
+    source = (pins.get("source_dataset") or pins.get("source") or DEFAULT_RAW_SOURCE).strip()
     try:
-        status = get_registry_status(runner_id)
+        status = require_catalog().registry(source, agent_id=agent_id)
     except Exception as ex:
         return f"Failed to load dataset registry: {ex}"
     src = status["source_raw"]
-    st = status["structured"]
+    files = status.get("test_files") or []
+    file_lines = [f"`{f['name']}` ({f.get('count', '?')} rows)" for f in files[:8]]
+    if len(files) > 8:
+        file_lines.append(f"... +{len(files) - 8} more")
     return md_card(
-        "CID Dataset Registry",
+        "Raw / Test Mapping",
         [
-            ("registry", f"`{status['registry_id']}`"),
-            ("runner", f"`{runner_id}`"),
-            ("source_raw", f"`{src['path']}` ({src['count']} docs)"),
-            (
-                "structured_full",
-                f"`{st['full']['file'] or '(not built)'}`"
-                + (f" ({st['full']['count']} rows)" if st["full"]["count"] is not None else ""),
-            ),
-            (
-                "tuning",
-                f"`{st['tuning']['file'] or pins.get('tuning_dataset') or '(not built)'}`"
-                + (f" ({st['tuning']['count']} rows)" if st["tuning"]["count"] is not None else ""),
-            ),
-            (
-                "test",
-                f"`{st['test']['file'] or pins.get('test_dataset') or pins.get('dataset') or '(not built)'}`"
-                + (f" ({st['test']['count']} rows)" if st["test"]["count"] is not None else ""),
-            ),
+            ("source", f"`{src['path']}` ({src['count']} docs)"),
+            ("agent", f"`{agent_id}`"),
+            ("tests", ", ".join(file_lines) if file_lines else "(no CSV under tests/)"),
         ],
         [
-            "`/dataset build full [runner]` — structured CSV from raw dev.txt",
-            "`/dataset build tuning [runner] size=20` — stratified tuning + test remain",
-            "`/run agent dataset_cid_tuning_build {\"size\":20}` — same via PGM agent",
-            "`/dataset extract test <runner> <out.csv> mode=remain|random|stratified|pmids`",
-            "`/dataset pin raw|tuning|test|full <path>`",
-            "UI: `/testset` (structured) and `/dataset` (raw PubTator)",
+            "`/dataset build full [agent] source=data/raw/dev.txt format=re`",
+            "`/dataset build tuning [agent] size=20`",
+            "`/run agent dataset_cid_tuning_build {\"size\":20}`",
+            "`/dataset extract test <agent> <out.csv> mode=remain|random|stratified|pmids`",
+            "Exp: pick tuning/test CSV from tests/<agent_id>/",
         ],
     )
 
 
+def _format_from_kv(kv: dict[str, str]) -> str:
+    return (kv.get("format") or "re").strip()
+
+
 def dataset_build_full_cmd(runner_id: str, kv: dict[str, str]) -> str:
-    runner_id = _resolve_runner_id(runner_id, {})
-    source = kv.get("source") or CID_REGISTRY["source_raw"]
+    agent_id = _resolve_runner_id(runner_id, {})
+    source = _source_from_kv(kv)
     output = kv.get("out") or kv.get("output") or ""
     try:
-        result = build_structured_full(
-            runner_id,
+        result = require_catalog().build_full(
+            agent_id,
             source=source,
+            format=_format_from_kv(kv),
             output_name=output or None,
         )
     except Exception as ex:
         return f"Failed to build structured full dataset: {ex}"
     lines = [
-        f"Built structured full dataset for `{runner_id}`.",
-        f"- output: `{result['output']}` ({result['count']} rows)",
+        f"Built structured full dataset `{result['output']}` for agent `{agent_id}`.",
+        f"- source: `{result['source']}`",
+        f"- rows: {result['count']}",
     ]
-    if result.get("ner_runner"):
-        lines.append(f"- mirrored to `{result['ner_runner']}`")
+    if result.get("mirror"):
+        lines.append(f"- mirror: {len(result['mirror'])} extra output(s)")
     return "\n".join(lines)
 
 
 def dataset_build_tuning_cmd(runner_id: str, kv: dict[str, str]) -> str:
-    runner_id = _resolve_runner_id(runner_id, {})
-    source = kv.get("source") or CID_REGISTRY["source_raw"]
+    agent_id = _resolve_runner_id(runner_id, {})
+    source = _source_from_kv(kv)
     try:
         size = int(kv.get("size") or 20)
     except ValueError:
         size = 20
     write_remain = kv.get("write_test_remain", "true").lower() not in ("0", "false", "no")
     try:
-        result = build_tuning_dataset(
-            runner_id,
+        result = require_catalog().build_tuning(
+            agent_id,
             source=source,
+            format=_format_from_kv(kv),
             size=size,
             tuning_out=kv.get("tuning_out") or kv.get("out") or None,
             test_out=kv.get("test_out") or None,
@@ -256,7 +249,8 @@ def dataset_build_tuning_cmd(runner_id: str, kv: dict[str, str]) -> str:
     except Exception as ex:
         return f"Failed to build tuning dataset: {ex}"
     lines = [
-        f"Built tuning dataset for `{runner_id}`.",
+        f"Built tuning dataset for agent `{agent_id}`.",
+        f"- source: `{result['source']}`",
         f"- tuning: `{result['tuning_output']}` ({result['tuning_count']} rows)",
     ]
     if result.get("test_output"):
@@ -281,15 +275,16 @@ def dataset_extract_test_cmd(runner_id: str, output_name: str, kv: dict[str, str
     except ValueError:
         seed = 42
     try:
-        result = extract_test_dataset(
+        result = require_catalog().extract_test(
             runner_id,
             _normalize_dataset_name(output_name),
-            source=kv.get("source") or CID_REGISTRY["source_raw"],
+            source=_source_from_kv(kv),
+            format=_format_from_kv(kv),
             mode=mode,
             size=size,
             pmids=pmids or None,
             exclude_tuning_file=kv.get("exclude_tuning") or kv.get("exclude") or None,
-            exclude_tuning_runner=kv.get("exclude_runner") or runner_id,
+            exclude_tuning_agent=kv.get("exclude_agent") or kv.get("exclude_runner") or runner_id,
             seed=seed,
         )
     except Exception as ex:
@@ -301,8 +296,8 @@ def dataset_extract_test_cmd(runner_id: str, output_name: str, kv: dict[str, str
     ]
     if result.get("exclude_tuning_file"):
         lines.append(f"- excluded tuning: `{result['exclude_tuning_file']}`")
-    if result.get("ner_runner"):
-        lines.append(f"- mirrored to `{result['ner_runner']}`")
+    if result.get("mirror"):
+        lines.append(f"- mirror: {len(result['mirror'])} extra output(s)")
     return "\n".join(lines)
 
 
@@ -358,8 +353,10 @@ def handle_dataset_command(parts: list[str], session: dict) -> str:
         for t in tests:
             lines.append(f"- `{t['name']}` ({t.get('count', 0)} rows)")
         try:
-            src = resolve_source_path(pins.get("source_dataset") or CID_REGISTRY["source_raw"])
-            arts = load_source_articles(src)
+            catalog = require_catalog()
+            src_path = pins.get("source_dataset") or pins.get("source") or DEFAULT_RAW_SOURCE
+            src = catalog.resolve_source(src_path)
+            arts = catalog.load_articles(src_path)
             lines.insert(1, f"- `[raw]` `{src.name}` ({len(arts)} docs)")
         except Exception:
             pass

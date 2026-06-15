@@ -4,9 +4,10 @@ import html as html_lib
 
 from pathlib import Path
 
-from data.data_load import load_parser, load_datasets, RAW_UPLOAD_DATASET, RAW_DIR
+from service.dataset.parsers import RAW_DIR, RAW_UPLOAD_DATASET, load_datasets
+from service.dataset.registry import load_parser
 
-from service.dataset_cid import DEFAULT_RE_RUNNER
+DEFAULT_RE_RUNNER = "wf_cid_re_llm_linear"
 
 
 

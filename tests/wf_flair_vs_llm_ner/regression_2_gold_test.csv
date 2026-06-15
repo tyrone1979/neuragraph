@@ -1,0 +1,3 @@
+entities,gold_relations,labels,text
+"[{'text': 'Aspirin', 'id': 'D001241', 'label': 'Chemical'}, {'text': 'influenza', 'id': 'D007251', 'label': 'Disease'}]",D001241 | D007251,"Chemical,Disease",Aspirin may reduce the risk of heart disease.
+"[{'text': 'Aspirin', 'id': 'D001241', 'label': 'Chemical'}, {'text': 'influenza', 'id': 'D007251', 'label': 'Disease'}]",D001241 | D007251,"Chemical,Disease",Metformin is commonly used to treat type 2 diabetes.

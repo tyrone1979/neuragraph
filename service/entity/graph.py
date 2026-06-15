@@ -28,6 +28,82 @@ from utils.bindings import (
 )
 logger = getLogger(__name__)
 
+
+def _branch_merge_target(targets: list[str], edges: list) -> str | None:
+    """Common next node when all branch arms share one successor."""
+    successors: set[str] | None = None
+    target_set = set(targets)
+    for src, tgt in edges:
+        if src not in target_set:
+            continue
+        if successors is None:
+            successors = {tgt}
+        else:
+            successors &= {tgt}
+    if successors and len(successors) == 1:
+        return next(iter(successors))
+    return None
+
+
+def _wire_graph_edges(sg: StateGraph, meta: dict, token_map: dict) -> None:
+    """Wire edges; branch nodes with multiple targets use conditional routing on `route`."""
+    flow_nodes = meta.get("flowNodes") or {}
+    edges = meta.get("edges") or []
+    outgoing: dict[str, list[str]] = {}
+    for src, tgt in edges:
+        if isinstance(src, str):
+            outgoing.setdefault(src, []).append(tgt)
+
+    branch_conditional: set[str] = set()
+    conditional_maps: dict[str, dict[str, str]] = {}
+    skip_key = "__skip__"
+
+    for branch_id, flow in flow_nodes.items():
+        if flow.get("kind") != "branch":
+            continue
+        targets = outgoing.get(branch_id, [])
+        if len(targets) <= 1:
+            continue
+        conditions = flow.get("conditions") or []
+        path_map: dict[str, str] = {}
+        for i, cond in enumerate(conditions):
+            label = cond.get("label", f"branch_{i}") if isinstance(cond, dict) else str(cond)
+            if i < len(targets):
+                path_map[label] = targets[i]
+        merge = _branch_merge_target(targets, edges)
+        if merge:
+            path_map[skip_key] = merge
+        else:
+            path_map[skip_key] = "END"
+        branch_conditional.add(branch_id)
+        conditional_maps[branch_id] = path_map
+
+    for src, tgt in edges:
+        if src in branch_conditional:
+            continue
+        src_key = token_map.get(src, src) if isinstance(src, str) else [token_map.get(s, s) for s in src]
+        tgt_key = token_map.get(tgt, tgt)
+        sg.add_edge(src_key, tgt_key)
+
+    for branch_id, path_map in conditional_maps.items():
+
+        def make_router(pm: dict[str, str]):
+            def router(state):
+                route = state.get("route") or "skip"
+                if route in pm:
+                    return route
+                return skip_key
+
+            return router
+
+        mapped = {k: token_map.get(v, v) for k, v in path_map.items()}
+        sg.add_conditional_edges(
+            token_map.get(branch_id, branch_id),
+            make_router(path_map),
+            mapped,
+        )
+
+
 class GraphEntity(Entity):
     def __init__(self,  meta: Dict[str, Any],checkpointer: Checkpointer=None):
         super().__init__(meta,checkpointer)
@@ -37,11 +113,7 @@ class GraphEntity(Entity):
         sg = StateGraph(StateDict)
         for n in meta["nodes"]:
             sg.add_node(n, _call_agent(n, meta))
-        # 3. 画边（token 替换）
-        for src, tgt in meta["edges"]:
-            src_key = token_map.get(src, src) if isinstance(src, str) else [token_map.get(s, s) for s in src]
-            tgt_key = token_map.get(tgt, tgt)
-            sg.add_edge(src_key, tgt_key)
+        _wire_graph_edges(sg, meta, token_map)
 
         self.compiled_graph = sg.compile(checkpointer=checkpointer)
 

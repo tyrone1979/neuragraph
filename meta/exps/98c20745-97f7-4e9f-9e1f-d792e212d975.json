@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "wf_re_verify_llm_loop",
+  "runner_display": "wf_re_verify_llm_loop (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "98c20745-97f7-4e9f-9e1f-d792e212d975",
+  "name": "wf_re_verify_llm_loop_regression_2_gold_test.csv_20260615093735",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:37:35.389112",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:37:41.054197",
+  "last_error": "",
+  "failed_at_sample": null
+}

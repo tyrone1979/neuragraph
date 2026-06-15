@@ -1,0 +1,32 @@
+{
+  "1": {
+    "entity_type": "Chemical",
+    "head": "Aspirin",
+    "rel_template": "chem_disease:affects",
+    "rel_types": [
+      "chem_disease:therapeutic"
+    ],
+    "relations": [
+      "Aspirin | chem_disease:therapeutic | heart disease"
+    ],
+    "result": "11",
+    "route": "chem_disease:affects",
+    "tail": "heart disease",
+    "text": "Aspirin may reduce the risk of heart disease."
+  },
+  "2": {
+    "entity_type": "Chemical",
+    "head": "Metformin",
+    "rel_template": "chem_disease:affects",
+    "rel_types": [
+      "chem_disease:therapeutic"
+    ],
+    "relations": [
+      "Metformin | chem_disease:therapeutic | type 2 diabetes"
+    ],
+    "result": "11",
+    "route": "chem_disease:affects",
+    "tail": "type 2 diabetes",
+    "text": "Metformin is commonly used to treat type 2 diabetes."
+  }
+}

@@ -8,13 +8,9 @@ from ui.components.paginated_api import get_paginated_data
 
 from service.entity.test import TestLoader, TEST_DIR
 
-from service.dataset_cid import (
-    DEFAULT_RE_RUNNER,
-    build_tuning_dataset,
-    list_raw_sources,
-    list_split_outputs,
-    sample_agent_csv_dataset,
-)
+from service.dataset.registry import get_catalog, require_catalog
+
+DEFAULT_RE_RUNNER = "wf_cid_re_llm_linear"
 
 testset_bp = Blueprint('testset', __name__, url_prefix='/testset')
 
@@ -96,8 +92,9 @@ def list_tests():
 
 
 
-    raw_sources = list_raw_sources()
-    split_outputs = list_split_outputs(runner_id)
+    catalog = get_catalog()
+    raw_sources = catalog.list_raw_sources() if catalog else []
+    split_outputs = catalog.list_split_outputs(runner_id) if catalog else []
     agent_datasets = [
         {"name": t["name"], "count": t.get("count", 0)}
         for t in TestLoader.get_by_agent(runner_id)
@@ -394,11 +391,13 @@ def api_split_raw():
 
     try:
 
-        result = build_tuning_dataset(
+        result = require_catalog().build_tuning(
 
             runner_id,
 
-            source=source,
+            source=source or "data/raw/dev.txt",
+
+            format=str(data.get('format') or 're').strip(),
 
             size=size,
 
@@ -436,7 +435,7 @@ def api_sample_csv():
     stem = Path(source_file).stem
     output_file = str(data.get('output') or data.get('output_file') or f'{stem}_sample_{size}_s{seed}.csv').strip()
     try:
-        result = sample_agent_csv_dataset(
+        result = require_catalog().sample_csv(
             runner_id,
             source_file,
             output_file,

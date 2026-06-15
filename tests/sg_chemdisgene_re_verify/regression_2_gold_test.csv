@@ -1,0 +1,3 @@
+entity_type,gold_relations,head,rel_template,tail,text
+Chemical,Aspirin | chem_disease:affects | heart disease,Aspirin,chem_disease:affects,heart disease,Aspirin may reduce the risk of heart disease.
+Chemical,Metformin | chem_disease:affects | type 2 diabetes,Metformin,chem_disease:affects,type 2 diabetes,Metformin is commonly used to treat type 2 diabetes.

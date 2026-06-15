@@ -33,12 +33,14 @@ def step(tag: str, msg: str) -> None:
 
 
 def build_tuning_csv() -> None:
-    from service.dataset_cid import RE_FIELDS, load_source_articles, re_row
+    from service.dataset.parsers import load_articles_from_source, row_options_for_source
+    from service.dataset.rows import FORMAT_FIELDS, row_re
     from service.entity.test import TestLoader
 
-    articles = load_source_articles(DEV_SOURCE)
-    rows = [re_row(a) for a in articles]
-    path = TestLoader.save_csv_rows(RUNNER_ID, TUNING_CSV, RE_FIELDS, rows)
+    opts = row_options_for_source(DEV_SOURCE)
+    articles = load_articles_from_source(DEV_SOURCE)
+    rows = [row_re(a, **opts) for a in articles]
+    path = TestLoader.save_csv_rows(RUNNER_ID, TUNING_CSV, FORMAT_FIELDS["re"], rows)
     step("1/4", f"Built {path} ({len(rows)} articles from dev.txt)")
 
 

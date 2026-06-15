@@ -12,7 +12,18 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from service.dataset_cid import NER_FIELDS, load_source_articles, ner_row
+from service.dataset.parsers import load_articles_from_source, row_options_for_source
+from service.dataset.rows import FORMAT_FIELDS, row_ner
+
+NER_FIELDS = FORMAT_FIELDS["ner"]
+
+
+def load_source_articles(source):
+    return load_articles_from_source(source)
+
+
+def ner_row(art, source):
+    return row_ner(art, **row_options_for_source(source))
 from service.entity.test import TestLoader
 
 DATASET = "cdr_test_500.csv"
@@ -128,7 +139,7 @@ def _aggregate_ner(states_path: Path) -> dict:
 
 def build_csvs() -> None:
     articles = load_source_articles(SOURCE)
-    rows = [ner_row(a) for a in articles]
+    rows = [ner_row(a, SOURCE) for a in articles]
     for runner_id in RUNNERS:
         path = TestLoader.save_csv_rows(runner_id, DATASET, NER_FIELDS, rows)
         print(f"Wrote {path} ({len(rows)} rows) for {runner_id}")

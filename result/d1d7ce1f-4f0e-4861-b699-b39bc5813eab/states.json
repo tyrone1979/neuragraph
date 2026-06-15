@@ -1,0 +1,54 @@
+{
+  "1": {
+    "entities": "[{'text': 'UMB24', 'id': 'C519696', 'label': 'Chemical'}, {'text': 'SM 21', 'id': 'C107044', 'label': 'Chemical'}, {'text': 'cocaine', 'id': 'D003042', 'label': 'Chemical'}, {'text': 'convulsive', 'id': 'D012640', 'label': 'Disease'}, {'text': 'cocaine', 'id': 'D003042', 'label': 'Chemical'}, {'text': 'UMB24', 'id': 'C519696', 'label': 'Chemical'}, {'text': '1-(2-phenethyl)-4-(2-pyridyl)-piperazine', 'id': 'C519696', 'label': 'Chemical'}, {'text': 'SM 21', 'id': 'C107044', 'label': 'Chemical'}, {'text': '3alpha-tropanyl-2-(4-chorophenoxy)butyrate', 'id': 'C107044', 'label': 'Chemical'}, {'text': 'UMB24', 'id': 'C519696', 'label': 'Chemical'}, {'text': 'SM 21', 'id': 'C107044', 'label': 'Chemical'}, {'text': 'UMB24', 'id': 'C519696', 'label': 'Chemical'}, {'text': 'SM 21', 'id': 'C107044', 'label': 'Chemical'}, {'text': 'cocaine', 'id': 'D003042', 'label': 'Chemical'}, {'text': 'convulsions', 'id': 'D012640', 'label': 'Disease'}, {'text': 'SM 21', 'id': 'C107044', 'label': 'Chemical'}, {'text': 'UMB24', 'id': 'C519696', 'label': 'Chemical'}, {'text': 'cocaine', 'id': 'D003042', 'label': 'Chemical'}]",
+    "filtered_entities": [],
+    "pairs": [],
+    "text": "Aspirin may reduce the risk of heart disease.",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 0,
+      "rel_fn": 1
+    }
+  },
+  "2": {
+    "entities": "[{'text': 'UMB24', 'id': 'C519696', 'label': 'Chemical'}, {'text': 'SM 21', 'id': 'C107044', 'label': 'Chemical'}, {'text': 'cocaine', 'id': 'D003042', 'label': 'Chemical'}, {'text': 'convulsive', 'id': 'D012640', 'label': 'Disease'}, {'text': 'cocaine', 'id': 'D003042', 'label': 'Chemical'}, {'text': 'UMB24', 'id': 'C519696', 'label': 'Chemical'}, {'text': '1-(2-phenethyl)-4-(2-pyridyl)-piperazine', 'id': 'C519696', 'label': 'Chemical'}, {'text': 'SM 21', 'id': 'C107044', 'label': 'Chemical'}, {'text': '3alpha-tropanyl-2-(4-chorophenoxy)butyrate', 'id': 'C107044', 'label': 'Chemical'}, {'text': 'UMB24', 'id': 'C519696', 'label': 'Chemical'}, {'text': 'SM 21', 'id': 'C107044', 'label': 'Chemical'}, {'text': 'UMB24', 'id': 'C519696', 'label': 'Chemical'}, {'text': 'SM 21', 'id': 'C107044', 'label': 'Chemical'}, {'text': 'cocaine', 'id': 'D003042', 'label': 'Chemical'}, {'text': 'convulsions', 'id': 'D012640', 'label': 'Disease'}, {'text': 'SM 21', 'id': 'C107044', 'label': 'Chemical'}, {'text': 'UMB24', 'id': 'C519696', 'label': 'Chemical'}, {'text': 'cocaine', 'id': 'D003042', 'label': 'Chemical'}]",
+    "filtered_entities": [
+      {
+        "text": "Metformin",
+        "id": "CHEBI:6801",
+        "label": "Chemical"
+      },
+      {
+        "text": "type 2 diabetes",
+        "id": "MESH:D003924",
+        "label": "Disease"
+      }
+    ],
+    "head": "Metformin",
+    "head_id": "CHEBI:6801",
+    "pairs": [
+      {
+        "head": "Metformin",
+        "tail": "type 2 diabetes",
+        "head_id": "CHEBI:6801",
+        "tail_id": "MESH:D003924"
+      }
+    ],
+    "relations": null,
+    "result": "~",
+    "tail": "type 2 diabetes",
+    "tail_id": "MESH:D003924",
+    "text": "Metformin is commonly used to treat type 2 diabetes.",
+    "metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "rel_tp": 0,
+      "rel_fp": 0,
+      "rel_fn": 1
+    }
+  }
+}

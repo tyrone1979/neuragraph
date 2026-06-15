@@ -5,34 +5,57 @@ from logging import getLogger
 import csv
 import json
 from pathlib import Path
-from data.data_parser import CIDParser
+from service.dataset.parsers import RAW_UPLOAD_DATASET
+from service.dataset.registry import load_parser
+from service.dataset.data_parser import CIDParser
 from service.entity.entity import EntityLoader
 
 TEST_DIR = Path(__file__).resolve().parent.parent.parent  / "tests"
 logger = getLogger(__name__)
 
 
+def _mesh_to_text_map(entities: list) -> dict[str, str]:
+    mesh_to_text: dict[str, str] = {}
+    for ent in entities:
+        if isinstance(ent, dict):
+            mesh = str(ent.get("mesh") or ent.get("id") or ent.get("identifier") or "").strip()
+            text = str(ent.get("text") or ent.get("name") or "").strip()
+        else:
+            mesh = str(getattr(ent, "mesh", "") or "").strip()
+            text = str(getattr(ent, "text", "") or "").strip()
+        if mesh:
+            mesh_to_text[mesh] = text or mesh
+    return mesh_to_text
+
+
 def _enrich_cdr_txt_row(row: dict[str, Any]) -> dict[str, Any]:
     """Add CSV-style gold_* aliases when loading CDR PubTator .txt rows."""
     out = dict(row)
     entities = out.get("entities") or []
-    mesh_to_text: dict[str, str] = {}
-    for ent in entities:
-        if not isinstance(ent, dict):
-            continue
-        mesh = str(ent.get("mesh") or ent.get("id") or ent.get("identifier") or "").strip()
-        text = str(ent.get("text") or ent.get("name") or "").strip()
-        if mesh:
-            mesh_to_text[mesh] = text or mesh
+    mesh_to_text = _mesh_to_text_map(entities)
 
     if not out.get("gold_relations"):
         rel_lines: list[str] = []
-        for pair in out.get("expected_relations") or []:
-            if isinstance(pair, (list, tuple)) and len(pair) >= 2:
-                head_mesh, tail_mesh = str(pair[0]), str(pair[1])
-                head = mesh_to_text.get(head_mesh, head_mesh)
-                tail = mesh_to_text.get(tail_mesh, tail_mesh)
-                rel_lines.append(f"{head} | CID | {tail}")
+        for rel in out.get("res") or []:
+            if hasattr(rel, "head_mesh"):
+                head_mesh, tail_mesh = rel.head_mesh, rel.tail_mesh
+                rel_type = getattr(rel, "relation", "CID") or "CID"
+            elif isinstance(rel, dict):
+                head_mesh = rel.get("head_mesh") or rel.get("head_id") or ""
+                tail_mesh = rel.get("tail_mesh") or rel.get("tail_id") or ""
+                rel_type = rel.get("relation") or rel.get("relationship") or "CID"
+            else:
+                continue
+            head = mesh_to_text.get(str(head_mesh), str(head_mesh))
+            tail = mesh_to_text.get(str(tail_mesh), str(tail_mesh))
+            rel_lines.append(f"{head} | {rel_type} | {tail}")
+        if not rel_lines:
+            for pair in out.get("expected_relations") or []:
+                if isinstance(pair, (list, tuple)) and len(pair) >= 2:
+                    head_mesh, tail_mesh = str(pair[0]), str(pair[1])
+                    head = mesh_to_text.get(head_mesh, head_mesh)
+                    tail = mesh_to_text.get(tail_mesh, tail_mesh)
+                    rel_lines.append(f"{head} | CID | {tail}")
         out["gold_relations"] = "\n".join(rel_lines)
 
     if not out.get("gold_entities") and out.get("expected_entities") is not None:
@@ -157,7 +180,9 @@ class TestLoader(EntityLoader):
                     return [], []
                 return list(rows[0].keys()), rows
         elif '.txt' in file:
-            parser=CIDParser(test_file.read_text(encoding='utf-8'))
+            parser = load_parser(RAW_UPLOAD_DATASET, test_file.name)
+            if parser is None:
+                parser = CIDParser(test_file.read_text(encoding='utf-8'))
             articles = parser.get_articles()
             field_names = list(articles[0].__dataclass_fields__.keys()) if articles else []
             articles = [_enrich_cdr_txt_row(asdict(art)) for art in articles]
@@ -305,8 +330,9 @@ class TestLoader(EntityLoader):
         size: int,
         seed: int = 42,
     ) -> dict[str, Any]:
-        from service.dataset_cid import sample_agent_csv_dataset
-        return sample_agent_csv_dataset(
+        from service.dataset.registry import require_catalog
+
+        return require_catalog().sample_csv(
             agent_id, source_file, output_file, size=size, seed=seed
         )
 

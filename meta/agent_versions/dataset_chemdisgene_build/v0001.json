@@ -1,0 +1,29 @@
+{
+  "agent_id": "dataset_chemdisgene_build",
+  "version": "v0001",
+  "parent_version": null,
+  "created_at": "2026-06-15T08:37:58.297518",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "6f35db672ff19ae5bf87fc8f8b31f7d66fecfbd8a765ee4f31706c154beeeb48",
+  "content": {
+    "name": "ChemDisGene Dataset Builder (PGM)",
+    "type": "PGM",
+    "inputs": [
+      "agent_id",
+      "runner_id",
+      "format",
+      "source",
+      "output_name",
+      "mirror_agent_id",
+      "mirror_format"
+    ],
+    "outputs": {
+      "name": "build_result",
+      "type": "dict"
+    },
+    "process": "catalog = get_plugin('DatasetCatalog')\nagent_id = (state.get('agent_id') or state.get('runner_id') or 'wf_chemdisgene_re_llm_linear').strip()\nfmt = (state.get('format') or 're').strip()\nsource = (state.get('source') or 'data/raw/chemdisgene.txt').strip()\noutput_name = (state.get('output_name') or '').strip() or None\nmirror_agent = (state.get('mirror_agent_id') or '').strip()\nmirror_fmt = (state.get('mirror_format') or 'ner').strip()\nmirror = [{'agent_id': mirror_agent, 'format': mirror_fmt}] if mirror_agent else None\nif not catalog:\n    __result__ = {'error': 'DatasetCatalog plugin unavailable'}\nelse:\n    try:\n        __result__ = catalog.build_full(\n            agent_id,\n            source=source,\n            format=fmt,\n            output_name=output_name,\n            mirror=mirror,\n        )\n    except Exception as e:\n        __result__ = {'error': str(e), 'agent_id': agent_id, 'source': source}",
+    "created_at": "2026-06-15T08:37:58.294505"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "wf_general_report_linear",
+  "runner_display": "wf_general_report_linear (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "52b122f4-b16e-4501-b407-4dde65b20f1f",
+  "name": "wf_general_report_linear_regression_2_gold_test.csv_20260615093322",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:33:22.072577",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:33:27.897908",
+  "last_error": "",
+  "failed_at_sample": null
+}

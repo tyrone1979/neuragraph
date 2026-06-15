@@ -1,0 +1,18 @@
+{
+  "1": {
+    "entity_link": "{'Aspirin': 'Aspirin', 'headache': 'headache'}",
+    "expected_entities": "{'Chemical': ['Aspirin'], 'Disease': ['headache']}",
+    "expected_relations": "Aspirin|causes|headache",
+    "metrics": {},
+    "pairs": [],
+    "text": "Aspirin may reduce the risk of heart disease."
+  },
+  "2": {
+    "entity_link": "{'Aspirin': 'Aspirin', 'headache': 'headache'}",
+    "expected_entities": "{'Chemical': ['Aspirin'], 'Disease': ['headache']}",
+    "expected_relations": "Aspirin|causes|headache",
+    "metrics": {},
+    "pairs": [],
+    "text": "Metformin is commonly used to treat type 2 diabetes."
+  }
+}

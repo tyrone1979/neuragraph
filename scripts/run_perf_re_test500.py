@@ -12,7 +12,18 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from service.dataset_cid import RE_FIELDS, load_source_articles, re_row
+from service.dataset.parsers import load_articles_from_source, row_options_for_source
+from service.dataset.rows import FORMAT_FIELDS, row_re
+
+RE_FIELDS = FORMAT_FIELDS["re"]
+
+
+def load_source_articles(source):
+    return load_articles_from_source(source)
+
+
+def re_row(art, source):
+    return row_re(art, **row_options_for_source(source))
 from service.entity.test import TEST_DIR, TestLoader
 from service.meta.loader import MetaLoader
 
@@ -109,13 +120,13 @@ def build_csv(
     src = source or (DEV_SOURCE if dev_stratified_50 else SOURCE)
     articles = load_source_articles(src)
     if dev_stratified_50:
-        from service.dataset_cid import stratified_pick
+        from service.dataset.core import stratified_pick
 
         picked, _ = stratified_pick(articles, 50)
-        rows = [re_row(a) for a in picked]
+        rows = [re_row(a, src) for a in picked]
         out_name = dataset
     else:
-        rows = [re_row(a) for a in articles]
+        rows = [re_row(a, src) for a in articles]
         out_name = dataset
     path = TestLoader.save_csv_rows(runner_id, out_name, RE_FIELDS, rows)
     print(f"Wrote {path} ({len(rows)} rows) from {src.name}")

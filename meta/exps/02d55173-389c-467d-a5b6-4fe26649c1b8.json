@@ -1,0 +1,31 @@
+{
+  "runner_type": "graph",
+  "runner_id": "sg_chemdisgene_re_verify",
+  "runner_display": "sg_chemdisgene_re_verify (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "02d55173-389c-467d-a5b6-4fe26649c1b8",
+  "name": "sg_chemdisgene_re_verify_regression_2_gold_test.csv_20260615091042",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:10:42.848279",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:10:51.927185",
+  "last_error": "\"Input to ChatPromptTemplate is missing variables {'tail', 'head'}.  Expected: ['head', 'tail', 'text'] Received: ['text']\\nNote: if you intended {tail} to be part of the string and not a variable, please escape it with double curly braces like: '{{tail}}'.\\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/INVALID_PROMPT_INPUT \"",
+  "failed_at_sample": 1,
+  "history": [
+    {
+      "idx": 1,
+      "timestamp": "2026-06-15T09:10:49.979185",
+      "status": "failed",
+      "error": "\"Input to ChatPromptTemplate is missing variables {'tail', 'head'}.  Expected: ['head', 'tail', 'text'] Received: ['text']\\nNote: if you intended {tail} to be part of the string and not a variable, please escape it with double curly braces like: '{{tail}}'.\\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/INVALID_PROMPT_INPUT \""
+    },
+    {
+      "idx": 1,
+      "timestamp": "2026-06-15T09:10:51.913225",
+      "status": "failed",
+      "error": "\"Input to ChatPromptTemplate is missing variables {'tail', 'head'}.  Expected: ['head', 'tail', 'text'] Received: ['text']\\nNote: if you intended {tail} to be part of the string and not a variable, please escape it with double curly braces like: '{{tail}}'.\\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/INVALID_PROMPT_INPUT \""
+    }
+  ]
+}

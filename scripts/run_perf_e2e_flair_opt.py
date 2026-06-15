@@ -22,12 +22,15 @@ def _bar(cur: int, total: int, w: int = 50) -> str:
 
 
 def build_csv():
-    from service.dataset_cid import load_source_articles, ner_row
+    from service.dataset.parsers import load_articles_from_source, row_options_for_source
+    from service.dataset.rows import row_ner
     from service.entity.test import TestLoader
-    articles = load_source_articles(SOURCE)
+
+    opts = row_options_for_source(SOURCE)
+    articles = load_articles_from_source(SOURCE)
     rows = []
     for a in articles:
-        nr = ner_row(a)
+        nr = row_ner(a, **opts)
         rows.append({"text": nr["text"], "labels": nr["labels"],
                      "gold_relations": nr["gold_relations"]})
     path = TestLoader.save_csv_rows(RUNNER, DATASET, FIELDS, rows)

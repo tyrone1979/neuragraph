@@ -1,0 +1,36 @@
+{
+  "runner_id": "wf_e2e_flair_opt_re",
+  "label": "1_100",
+  "article_range": [
+    1,
+    100
+  ],
+  "n_samples": 100,
+  "aggregate": {
+    "n_samples": 100,
+    "micro": [
+      0.573,
+      0.764,
+      0.655
+    ],
+    "macro": [
+      0.661,
+      0.788,
+      0.686
+    ],
+    "metric_keys": [
+      "f1",
+      "fn",
+      "fp",
+      "precision",
+      "recall",
+      "rel_f1",
+      "rel_fn",
+      "rel_fp",
+      "rel_precision",
+      "rel_recall",
+      "rel_tp",
+      "tp"
+    ]
+  }
+}

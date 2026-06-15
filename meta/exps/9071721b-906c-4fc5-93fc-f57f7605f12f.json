@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "wf_chemdisgene_ner_llm_eval",
+  "runner_display": "wf_chemdisgene_ner_llm_eval (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "9071721b-906c-4fc5-93fc-f57f7605f12f",
+  "name": "wf_chemdisgene_ner_llm_eval_regression_2_gold_test.csv_20260615091630",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:16:30.506986",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:16:45.855214",
+  "last_error": "",
+  "failed_at_sample": null
+}

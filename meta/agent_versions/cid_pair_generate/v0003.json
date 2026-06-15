@@ -1,0 +1,23 @@
+{
+  "agent_id": "cid_pair_generate",
+  "version": "v0003",
+  "parent_version": "v0002",
+  "created_at": "2026-06-15T08:55:24.759660",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "653b911f9cfe337f5ba57dd2ad27beda64477c5f37e6fbb45c8b63cb2b8c3c08",
+  "content": {
+    "name": "CID Pair Generator (PGM)",
+    "type": "PGM",
+    "inputs": [
+      "filtered_entities"
+    ],
+    "outputs": {
+      "name": "pairs",
+      "type": "list"
+    },
+    "process": "raw = state.get('filtered_entities') or []\nif isinstance(raw, str):\n    raw = []\nchem = {}\ndis = {}\nfor e in raw:\n    if not isinstance(e, dict):\n        continue\n    lbl = e.get('label') or e.get('type') or ''\n    eid = e.get('id') or e.get('mesh') or ''\n    txt = e.get('text') or ''\n    if not eid or not txt:\n        continue\n    if lbl == 'Chemical':\n        if eid not in chem:\n            chem[eid] = txt\n    elif lbl == 'Disease':\n        if eid not in dis:\n            dis[eid] = txt\npairs = []\nfor hid, htxt in chem.items():\n    for tid, ttxt in dis.items():\n        pairs.append({'head': htxt, 'tail': ttxt, 'head_id': hid, 'tail_id': tid})\n__result__ = pairs",
+    "created_at": "2026-06-15T08:55:24.755669"
+  }
+}

@@ -48,7 +48,7 @@ from typing import Dict, List
 from collections import defaultdict
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from data.data_parser import CIDParser
+from service.dataset.data_parser import CIDParser
 
 
 def parse_document_entities(doc: Dict) -> Dict:

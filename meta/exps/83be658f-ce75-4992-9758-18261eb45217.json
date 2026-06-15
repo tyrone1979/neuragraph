@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "wf_e2e_pubtator_re",
+  "runner_display": "wf_e2e_pubtator_re (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "83be658f-ce75-4992-9758-18261eb45217",
+  "name": "wf_e2e_pubtator_re_regression_2_gold_test.csv_20260615093059",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:30:59.331074",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:31:38.476326",
+  "last_error": "",
+  "failed_at_sample": null
+}

@@ -1,0 +1,36 @@
+{
+  "1": {
+    "entities": {
+      "Disease": [
+        "heart disease"
+      ],
+      "Chemical": [
+        "Aspirin"
+      ]
+    },
+    "result": {
+      "original": "Aspirin may reduce the risk of heart disease.",
+      "summary": "Aspirin may reduce the risk of heart disease.",
+      "original_length": 45,
+      "summary_length": 45
+    },
+    "text": "Aspirin may reduce the risk of heart disease."
+  },
+  "2": {
+    "entities": {
+      "Disease": [
+        "type 2 diabetes"
+      ],
+      "Chemical": [
+        "Metformin"
+      ]
+    },
+    "result": {
+      "original": "Metformin is commonly used to treat type 2 diabetes.",
+      "summary": "Metformin is commonly used to treat type 2 diabetes.",
+      "original_length": 52,
+      "summary_length": 52
+    },
+    "text": "Metformin is commonly used to treat type 2 diabetes."
+  }
+}

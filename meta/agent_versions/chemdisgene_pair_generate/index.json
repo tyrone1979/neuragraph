@@ -1,0 +1,24 @@
+{
+  "agent_id": "chemdisgene_pair_generate",
+  "latest": "v0002",
+  "versions": [
+    {
+      "version": "v0001",
+      "parent_version": null,
+      "created_at": "2026-06-15T08:37:03.551064",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "90144f1f84beddd47700f97e91b4715cf3ef282ff70b80d5e39bb52a67a76174"
+    },
+    {
+      "version": "v0002",
+      "parent_version": "v0001",
+      "created_at": "2026-06-15T08:54:54.518411",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "e5cd95f89802b4bade426a07f1f7f5ac7d90ec1f4ee650f965310e4a0a20456c"
+    }
+  ]
+}

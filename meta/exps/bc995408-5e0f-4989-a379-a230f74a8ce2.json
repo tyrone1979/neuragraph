@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "wf_doc_ner_flair_sent_eval",
+  "runner_display": "wf_doc_ner_flair_sent_eval (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "bc995408-5e0f-4989-a379-a230f74a8ce2",
+  "name": "wf_doc_ner_flair_sent_eval_regression_2_gold_test.csv_20260615092108",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:21:08.683336",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:21:17.230971",
+  "last_error": "",
+  "failed_at_sample": null
+}

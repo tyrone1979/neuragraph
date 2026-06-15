@@ -1,0 +1,37 @@
+{
+  "name": "ChemDisGene NER Eval (LLM)",
+  "description": "ChemDisGene NER with type|entity prompt and entity dict metrics.",
+  "nodes": [
+    "START",
+    "ner_chemdisgene_llm",
+    "chemdisgene_ner_parse",
+    "eval_metrics",
+    "END"
+  ],
+  "edges": [
+    ["START", "ner_chemdisgene_llm"],
+    ["ner_chemdisgene_llm", "chemdisgene_ner_parse"],
+    ["chemdisgene_ner_parse", "eval_metrics"],
+    ["eval_metrics", "END"]
+  ],
+  "bindings": {
+    "ner_chemdisgene_llm": {
+      "text": "{{ START.text }}"
+    },
+    "chemdisgene_ner_parse": {
+      "entities_raw": "{{ ner_chemdisgene_llm.entities_raw }}",
+      "text": "{{ START.text }}"
+    },
+    "eval_metrics": {
+      "expected": "{{ START.gold_entities }}",
+      "predicted": "{{ chemdisgene_ner_parse.entities }}"
+    }
+  },
+  "metrics": [
+    {
+      "type": "entity_dict",
+      "expected": {"from": "input", "field": "gold_entities"},
+      "predicted": {"from": "state", "field": "entities"}
+    }
+  ]
+}

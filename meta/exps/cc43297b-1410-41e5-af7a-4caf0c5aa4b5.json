@@ -1,0 +1,14 @@
+{
+  "runner_type": "graph",
+  "runner_id": "sg_cid_re_verify",
+  "runner_display": "sg_cid_re_verify (regression gold_with_tuning)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "tuning_dataset": "regression_2_gold_tuning.csv",
+  "samples": 2,
+  "exp_id": "cc43297b-1410-41e5-af7a-4caf0c5aa4b5",
+  "name": "sg_cid_re_verify_regression_2_gold_test.csv_20260612092703",
+  "status": "pending",
+  "progress": 0,
+  "created_at": "2026-06-12T09:27:03.251491"
+}

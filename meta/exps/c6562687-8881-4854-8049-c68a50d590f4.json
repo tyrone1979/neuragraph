@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "sg_preprocess_inner",
+  "runner_display": "sg_preprocess_inner (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "c6562687-8881-4854-8049-c68a50d590f4",
+  "name": "sg_preprocess_inner_regression_2_gold_test.csv_20260615091352",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:13:52.567482",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:13:57.922032",
+  "last_error": "",
+  "failed_at_sample": null
+}

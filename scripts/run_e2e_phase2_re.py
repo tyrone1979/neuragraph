@@ -28,11 +28,11 @@ def _bar(cur: int, total: int, w: int = 50) -> str:
 
 
 def build_csv():
-    from service.dataset_cid import load_source_articles
+    from service.dataset.parsers import load_articles_from_source
     from service.entity.test import TestLoader
 
     entities_all = json.loads(NER_ENTITIES.read_text(encoding="utf-8"))
-    articles = load_source_articles(SOURCE)
+    articles = load_articles_from_source(SOURCE)
     rows = []
     for idx, art in enumerate(articles, start=1):
         flair_entities = entities_all.get(str(idx), {})

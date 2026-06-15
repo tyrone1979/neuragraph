@@ -1,0 +1,12 @@
+{
+  "name": "ChemDisGene RE chem_gene:expression",
+  "type": "LLM",
+  "model": "deepseek",
+  "inputs": ["text", "head", "tail"],
+  "outputs": {"name": "result", "type": "str"},
+  "prompt_template": {
+    "system": "You are a biomedical expert. Output answer code only.",
+    "human": "{text}\nYou are biomedical expert, refer to above biomedical article, please give answer based on below conditions:\nATTENTION: the relationship MUST be between {head} and {tail}.\nConditions:\n1. if found that {head}/combined {head} upregulated {tail} mRNA expression, answer 1\n2. else if {head} caused a reduction/downregulate of {tail} mRNA expression, answer 2.\n3. else if {tail} was regulated by {head} with fold changes ranging from ..., or {head} regulates the mRNA expression of {tail} ...,answer 3.\n4.else if We found that {head} inhibited {tail} in a time,answer 4.\n8.else if Induction of {head} resulted in a time- and dose-dependent increase of {tail} gene expression and transporter protein levels, answer 8.\n9.else if {head} exposure resulted in a sustained increase in mRNA expression for {tail}, answer 9.\n10.else if {head} treatment induced damage-associated genes {tail},answer 10.\n99.else if none of above, answer 99\nDO NOT output any other message."
+  },
+  "created_at": "2026-06-15T10:00:00"
+}

@@ -67,3 +67,6 @@ data/*
 !data/.gitkeep
 
 models/*
+
+# Local LLM credentials (keep locally; do not sync API keys)
+meta/llms/deepseek.json

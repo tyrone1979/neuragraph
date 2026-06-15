@@ -127,6 +127,21 @@ function getLoopFlowMeta(loopNid, wf) {
     return null;
 }
 
+/** Branch flow metadata from workflow or any loaded subgraph JSON. */
+function getBranchFlowMeta(branchId, wf) {
+    wf = wf || currentGraph || {};
+    var fn = getGraphFlowNodes(wf)[branchId];
+    if (fn && fn.kind === 'branch') return fn;
+    var gid;
+    for (gid in (graphsById || {})) {
+        var g = graphsById[gid];
+        if (!g || !g.flowNodes) continue;
+        fn = g.flowNodes[branchId];
+        if (fn && fn.kind === 'branch') return fn;
+    }
+    return null;
+}
+
 /** Inner loops first, then outer (for expand + layout). */
 function discoverNestedLoops(wf) {
     wf = wf || currentGraph || {};
@@ -1564,7 +1579,10 @@ function resolveLinkEndpoint(cellOrId, side, preferredPortId) {
 function refreshLinkEndpointGeometry(link) {
     var src = link.get('source'), tgt = link.get('target');
     if (!src || !tgt || !src.id || !tgt.id) return;
-    var opts = inferLinkPorts(src.id, tgt.id);
+    var linkHint = {};
+    if (src.port) linkHint.sourcePort = src.port;
+    if (tgt.port) linkHint.targetPort = tgt.port;
+    var opts = inferLinkPorts(src.id, tgt.id, linkHint);
     link.source(resolveLinkEndpoint(src.id, 'out', opts.sourcePort || src.port));
     link.target(resolveLinkEndpoint(tgt.id, 'in', opts.targetPort || tgt.port));
 }
@@ -2039,11 +2057,15 @@ function initJointJS() {
         sorting: joint.dia.Paper.sorting.APPROX,
         viewport: function(v) { return v.model.get('type') !== 'link-tools'; },
         interactive: function(cellView) {
-            if (cellView.model.get('subgraph')) {
+            var model = cellView.model;
+            if (model.get('subgraph')) {
                 return { elementMove: true, labelMove: false };
             }
-            if (cellView.model.get('parentLoop')) {
-                return { elementMove: false, labelMove: false };
+            if (model.get('parentLoop')) {
+                return {
+                    linkMove: false, elementMove: true, arrowheadMove: false,
+                    vertexMove: false, vertexAdd: false, vertexRemove: false
+                };
             }
             return {
                 linkMove: false, elementMove: true, arrowheadMove: false,
@@ -2124,9 +2146,14 @@ function initJointJS() {
             collectLoopMemberPositions(m.id, loopDragState.inners);
             return;
         }
-        if (!m.get('parentLoop') && m.id !== 'START' && m.id !== 'END') {
+        if (!m.get('subgraph') && m.id !== 'START' && m.id !== 'END' && !m.get('isLoopShell')) {
             var np = m.position();
-            nodeDragState = { id: m.id, ox: np.x, oy: np.y };
+            nodeDragState = {
+                id: m.id,
+                ox: np.x,
+                oy: np.y,
+                parentLoop: m.get('parentLoop') || null
+            };
         }
     });
     paper.on('element:pointermove', function(ev) {
@@ -2156,6 +2183,9 @@ function initJointJS() {
     paper.on('element:pointerup', function(ev) {
         if (nodeDragState && ev.model && ev.model.id === nodeDragState.id) {
             enforceNodeSubgraphMembership(nodeDragState.id, nodeDragState);
+            if (nodeDragState.parentLoop) {
+                fitLoopShellToContent(nodeDragState.parentLoop, { anchor: true, skipReposition: true });
+            }
         }
         nodeDragState = null;
         loopDragState = null;
@@ -2707,20 +2737,76 @@ function reattachLinkPorts() {
 
 function inferBranchSourcePort(sourceId, targetId) {
     var srcCfg = agentsData[sourceId] || {};
+    var flowFn = getBranchFlowMeta(sourceId);
+    if ((!srcCfg.flowKind || srcCfg.flowKind !== 'branch') && flowFn) {
+        srcCfg = Object.assign({}, srcCfg, {
+            flowKind: 'branch',
+            type: 'branch',
+            conditions: flowFn.conditions || srcCfg.conditions
+        });
+    }
     if (srcCfg.flowKind !== 'branch' && srcCfg.type !== 'branch') return null;
-    var conds = srcCfg.conditions || [];
+    var conds = (srcCfg.conditions || []).map(normalizeBranchCondition);
     if (!conds.length) return null;
-    var wf = currentGraph || {};
-    var outs = [];
-    (wf.edges || []).forEach(function(e) {
-        var s = Array.isArray(e[0]) ? e[0][0] : e[0];
-        var t = Array.isArray(e[1]) ? e[1][0] : e[1];
-        if (s === sourceId) outs.push(t);
-    });
+
+    var outs = collectBranchOutgoingTargets(sourceId);
     var idx = outs.indexOf(targetId);
-    if (idx < 0) idx = 0;
-    var c = conds[idx] || conds[0];
-    return 'out_' + sanitizePortId(c.label);
+    if (idx >= 0 && idx < conds.length) {
+        return 'out_' + sanitizePortId(conds[idx].label);
+    }
+
+    var ti;
+    for (ti = 0; ti < conds.length; ti++) {
+        var slug = sanitizePortId(conds[ti].label).toLowerCase();
+        var valSlug = sanitizePortId(conds[ti].value || conds[ti].label).toLowerCase();
+        var tSlug = String(targetId).toLowerCase();
+        if (tSlug.indexOf(slug) >= 0 || (valSlug && tSlug.indexOf(valSlug) >= 0)) {
+            return 'out_' + sanitizePortId(conds[ti].label);
+        }
+    }
+
+    if (idx >= 0) {
+        var c = conds[Math.min(idx, conds.length - 1)];
+        return 'out_' + sanitizePortId(c.label);
+    }
+    return 'out_' + sanitizePortId(conds[0].label);
+}
+
+/** Outgoing targets from branch node, preserving subgraph edge order when available. */
+function collectBranchOutgoingTargets(sourceId) {
+    var ordered = [];
+    var seen = {};
+    function addTarget(t) {
+        if (!t || t === 'END' || seen[t]) return;
+        seen[t] = true;
+        ordered.push(t);
+    }
+    function scanEdges(edges) {
+        (edges || []).forEach(function(e) {
+            var s = Array.isArray(e[0]) ? e[0][0] : e[0];
+            var t = Array.isArray(e[1]) ? e[1][0] : e[1];
+            if (s === sourceId) addTarget(t);
+        });
+    }
+    var ownerGraph = null;
+    Object.keys(graphsById || {}).forEach(function(gid) {
+        var g = graphsById[gid];
+        if (g && g.nodes && g.nodes.indexOf(sourceId) >= 0) ownerGraph = g;
+    });
+    if (ownerGraph) scanEdges(ownerGraph.edges);
+    if (!ordered.length) {
+        var wf = currentGraph || {};
+        scanEdges(wf.edges);
+        Object.keys(subgraphRanges || {}).forEach(function(rid) {
+            scanEdges(subgraphRanges[rid].edges);
+        });
+    }
+    if (!ordered.length) {
+        Object.keys(graphsById || {}).forEach(function(gid) {
+            scanEdges((graphsById[gid] || {}).edges);
+        });
+    }
+    return ordered;
 }
 
 function inferLinkPorts(sourceId, targetId, linkHint) {

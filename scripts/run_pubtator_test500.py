@@ -9,8 +9,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from service.dataset_cid import PUBTATOR_FIELDS, load_source_articles, pubtator_row
+from service.dataset.parsers import load_articles_from_source, row_options_for_source
+from service.dataset.rows import FORMAT_FIELDS, row_pubtator
 from service.entity.test import TestLoader
+
+PUBTATOR_FIELDS = FORMAT_FIELDS["pubtator"]
+
+
+def load_source_articles(source):
+    return load_articles_from_source(source)
+
+
+def pubtator_row(art, source):
+    return row_pubtator(art, rel_label=row_options_for_source(source)["rel_label"])
 
 RUNNER = "wf_re_pubtator_dev10"
 DATASET = "cdr_test_500.csv"
@@ -25,7 +36,7 @@ def _progress_bar(cur: int, total: int, width: int = 50) -> str:
 
 def build_csv() -> None:
     articles = load_source_articles(SOURCE)
-    rows = [pubtator_row(a) for a in articles]
+    rows = [pubtator_row(a, SOURCE) for a in articles]
     path = TestLoader.save_csv_rows(RUNNER, DATASET, PUBTATOR_FIELDS, rows)
     print(f"Built {path} ({len(rows)} rows)")
 

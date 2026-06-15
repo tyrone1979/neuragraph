@@ -1,0 +1,61 @@
+{
+  "name": "E2E CID RE (subgraph)",
+  "description": "Subgraph: passthrough → synonym → assign ids → alias snapshot → dedup → hypernym → pair gen → verify loop.",
+  "nodes": [
+    "START",
+    "e2e_entities_passthrough",
+    "e2e_synonym_filter",
+    "e2e_entities_assign_group_ids",
+    "e2e_entity_aliases_snapshot",
+    "e2e_entities_dedup_by_id",
+    "e2e_hypernym_filter",
+    "cid_pair_generate",
+    "cid_re_verify_loop",
+    "END"
+  ],
+  "edges": [
+    ["START", "e2e_entities_passthrough"],
+    ["e2e_entities_passthrough", "e2e_synonym_filter"],
+    ["e2e_synonym_filter", "e2e_entities_assign_group_ids"],
+    ["e2e_entities_assign_group_ids", "e2e_entity_aliases_snapshot"],
+    ["e2e_entity_aliases_snapshot", "e2e_entities_dedup_by_id"],
+    ["e2e_entities_dedup_by_id", "e2e_hypernym_filter"],
+    ["e2e_hypernym_filter", "cid_pair_generate"],
+    ["cid_pair_generate", "cid_re_verify_loop"],
+    ["cid_re_verify_loop", "END"]
+  ],
+  "flowNodes": {
+    "cid_re_verify_loop": {
+      "kind": "loop",
+      "name": "Verify each Chemical-Disease pair",
+      "subgraphId": "sg_cid_re_verify",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ pairs }}",
+        "itemBindings": {
+          "text": "{{ text }}",
+          "head": "{{ head }}",
+          "tail": "{{ tail }}",
+          "head_id": "{{ head_id }}",
+          "tail_id": "{{ tail_id }}"
+        }
+      }
+    }
+  },
+  "bindings": {
+    "e2e_entities_passthrough": { "entities": "{{ entities }}" },
+    "e2e_synonym_filter": { "entities": "{{ filtered_entities }}", "text": "{{ text }}" },
+    "e2e_entities_assign_group_ids": {
+      "entities": "{{ entities }}",
+      "filtered_entities": "{{ filtered_entities }}"
+    },
+    "e2e_entity_aliases_snapshot": { "filtered_entities": "{{ filtered_entities }}" },
+    "e2e_entities_dedup_by_id": { "entities": "{{ filtered_entities }}" },
+    "e2e_hypernym_filter": { "entities": "{{ filtered_entities }}", "text": "{{ text }}" },
+    "cid_pair_generate": { "filtered_entities": "{{ filtered_entities }}" }
+  },
+  "agentVersions": {
+    "relation_verify_llm": "v0010",
+    "relation_result_to_id_pair": "v0003"
+  }
+}

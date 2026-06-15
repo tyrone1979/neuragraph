@@ -1,0 +1,21 @@
+{
+  "name": "ChemDisGene RE chem_gene:activity",
+  "type": "LLM",
+  "inputs": [
+    "text",
+    "head",
+    "tail"
+  ],
+  "outputs": {
+    "name": "result",
+    "type": "str"
+  },
+  "model": "deepseek",
+  "prompt_template": {
+    "description": "",
+    "system": "You are a biomedical expert. Output answer code only.",
+    "human": "{text}\nYou are biomedical expert, refer to above biomedical article, pleas based on below conditions and gave the sentence as evidence.\nATTENTION: the relationship MUST be between{head} and {tail}.\nConditions:\nE2.1 {head}reduces the mRNA level of {tail},answer E2.1\nE2.2 {head} derivatives(not {head}) are inhibitors of {tail}, answer E2.2\nE2.3 {head} decreased other genes activity and expression of {tail}, answer E2.3\nE2.4 another chemical reversed the inhibition of{head} on {tail} expression, answer E2.4\nE2.5 {tail} GABA receptor subunit reduces the potency of {head}/ inhibiting {head} binding, answer E2.5\nE2.6 Inhibitors of MRP1 ({head})  completely reversed the {tail}-associated resistance to..., answer E2.6\nE2.8 {head} has a high affinity for {tail}, answer E2.8.\nE3.1 {tail} is blocked by pretreatment with {head}, answer E3.1\nE3.2 {head}treatment effectively lowered the serum levels of. {tail}, answer E3.2\nE3.3 {head} suppressed protein levels of {tail}..., answer E3.3\n-------------------------------------------------------\n1.else if {tail} activity was elevated by {head}, answer 1\n2.else if {head} is a inhibitor of {tail},answer 2\n3.else if {head} blocked {tail}, answer 3\n4.else if {head} modulate {tail} activity with not direction,answer 4\n5.else if {head} acts through {tail}, answer 5.\n-------------------------------------------------------\nE0. If there is no direct relationship between {head} and {tail}, answer E0\nE2.7 The {tail} receptor inhibitor {head} inhibited {tail}-induced X expression..., answer E2.7\nPlease output answer code only\nDO NOT output any other message"
+  },
+  "tools": [],
+  "created_at": "2026-06-15T08:34:06.580729"
+}

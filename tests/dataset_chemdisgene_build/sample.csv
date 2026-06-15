@@ -1,0 +1,2 @@
+agent_id,runner_id,format,source,output_name,mirror_agent_id,mirror_format
+wf_chemdisgene_re_llm_linear,wf_chemdisgene_re_llm_linear,re,data/raw/chemdisgene.txt,chemdisgene_agent_test.csv,ner_chemdisgene_llm,ner

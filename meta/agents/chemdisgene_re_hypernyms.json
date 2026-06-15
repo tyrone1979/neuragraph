@@ -1,0 +1,12 @@
+{
+  "name": "ChemDisGene RE hypernyms",
+  "type": "LLM",
+  "model": "deepseek",
+  "inputs": ["text", "head", "tail", "entity_type"],
+  "outputs": {"name": "result", "type": "str"},
+  "prompt_template": {
+    "system": "You are a biomedical expert. Answer '$' or '~' only.",
+    "human": "{text}\nYou are an expert of biomedical domain, above article is a biomedical paper.\nRefer to above biomedical article, you need review the entire article to judge:\n1. {head} and {tail} are different {entity_type}, answer '~'\n2. {head} and {tail} are same {entity_type}, {head} is a narrower concept than {tail}, answer '~'\n3. {head} and {tail} are same {entity_type},{head} is a broader concept than {tail}, answer '$'\nDo not output any other message"
+  },
+  "created_at": "2026-06-15T10:00:00"
+}

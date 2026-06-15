@@ -1,0 +1,24 @@
+{
+  "agent_id": "chemdisgene_ner_parse",
+  "version": "v0002",
+  "parent_version": "v0001",
+  "created_at": "2026-06-15T08:54:52.775022",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "1af1ce0b00c6a826b512f49e6b5a2a0d76556cd383dab139604cb2127997e579",
+  "content": {
+    "name": "ChemDisGene NER Parse (PGM)",
+    "type": "PGM",
+    "inputs": [
+      "entities_raw",
+      "text"
+    ],
+    "outputs": {
+      "name": "entities",
+      "type": "dict"
+    },
+    "process": "raw = state.get('entities_raw') or ''\ntext = state.get('text') or ''\nout = {}\nfor line in str(raw).splitlines():\n    line = line.strip()\n    if not line or line.upper() == 'NONE' or '|' not in line:\n        continue\n    etype, name = line.split('|', 1)\n    etype = etype.strip()\n    name = name.strip()\n    if not etype or not name or name.upper() == 'NONE':\n        continue\n    if name not in text:\n        continue\n    out.setdefault(etype, [])\n    if name not in out[etype]:\n        out[etype].append(name)\n__result__ = out",
+    "created_at": "2026-06-15T08:54:52.772032"
+  }
+}

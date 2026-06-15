@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "wf_cid_ner_llm_eval",
+  "runner_display": "wf_cid_ner_llm_eval (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "44a9de4d-4215-471b-939d-049e8508d24a",
+  "name": "wf_cid_ner_llm_eval_regression_2_gold_test.csv_20260615091805",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:18:05.496397",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:18:11.540897",
+  "last_error": "",
+  "failed_at_sample": null
+}

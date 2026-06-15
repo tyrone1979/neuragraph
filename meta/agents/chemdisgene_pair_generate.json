@@ -1,0 +1,14 @@
+{
+  "name": "ChemDisGene Pair Generator (PGM)",
+  "type": "PGM",
+  "inputs": [
+    "entities",
+    "text"
+  ],
+  "outputs": {
+    "name": "pairs",
+    "type": "list"
+  },
+  "process": "entities = state.get('entities') or {}\nif isinstance(entities, str):\n    entities = {}\ntext = state.get('text') or ''\nby_type = {}\nfor etype, names in entities.items():\n    if not isinstance(names, list):\n        continue\n    seen = set()\n    for name in names:\n        n = str(name).strip()\n        if not n or n in seen:\n            continue\n        seen.add(n)\n        by_type.setdefault(etype, []).append(n)\ntemplates = {\n    ('Chemical', 'Disease'): ['chem_disease:affects'],\n    ('Gene', 'Disease'): ['gene_disease:marker/mechanism', 'gene_disease:therapeutic'],\n    ('Chemical', 'Gene'): [\n        'chem_gene:expression', 'chem_gene:affects^expression',\n        'chem_gene:increases^activity', 'chem_gene:activity', 'chem_gene:transport',\n        'chem_gene:affects^localization', 'chem_gene:affects^binding',\n        'chem_gene:increases^metabolic_processing', 'chem_gene:decreases^metabolic_processing'\n    ],\n}\npairs = []\nfor (ht, tt), tpls in templates.items():\n    heads = by_type.get(ht) or []\n    tails = by_type.get(tt) or []\n    for h in heads:\n        for t in tails:\n            for tpl in tpls:\n                pairs.append({\n                    'head': h, 'tail': t, 'head_type': ht, 'tail_type': tt,\n                    'rel_template': tpl, 'entity_type': ht, 'text': text\n                })\nfor etype, names in by_type.items():\n    for i, h in enumerate(names):\n        for t in names[i + 1:]:\n            pairs.append({\n                'head': h, 'tail': t, 'head_type': etype, 'tail_type': etype,\n                'rel_template': 'synonym', 'entity_type': etype, 'text': text\n            })\n            pairs.append({\n                'head': h, 'tail': t, 'head_type': etype, 'tail_type': etype,\n                'rel_template': 'hypernyms', 'entity_type': etype, 'text': text\n            })\n__result__ = pairs",
+  "created_at": "2026-06-15T08:54:54.511687"
+}

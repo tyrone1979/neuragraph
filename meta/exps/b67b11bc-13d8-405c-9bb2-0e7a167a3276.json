@@ -1,0 +1,26 @@
+{
+  "dataset": "test.txt",
+  "test_dataset": "test.txt",
+  "tuning_dataset": "test.txt",
+  "runner_type": "graph",
+  "runner_id": "wf_e2e_pubtator_re",
+  "runner_display": "E2E PubTator3 RE (wf_e2e_pubtator_re) - Workflow",
+  "samples": 500,
+  "exp_id": "b67b11bc-13d8-405c-9bb2-0e7a167a3276",
+  "name": "wf_e2e_pubtator_re_test.txt_20260610151605",
+  "status": "paused",
+  "progress": 18,
+  "created_at": "2026-06-10T15:16:05.168800",
+  "updated_at": "2026-06-10T15:34:32.545559",
+  "last_error": "persistence: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required.",
+  "failed_at_sample": 1,
+  "history": [
+    {
+      "idx": 1,
+      "timestamp": "2026-06-10T15:16:14.622584",
+      "status": "failed",
+      "error": "persistence: Found empty input array (e.g., `y_true` or `y_pred`) while a minimum of 1 sample is required."
+    }
+  ],
+  "id": "b67b11bc-13d8-405c-9bb2-0e7a167a3276"
+}

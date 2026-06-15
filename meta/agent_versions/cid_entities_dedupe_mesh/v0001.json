@@ -1,0 +1,23 @@
+{
+  "agent_id": "cid_entities_dedupe_mesh",
+  "version": "v0001",
+  "parent_version": null,
+  "created_at": "2026-06-15T08:37:51.789234",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "e1a7db061310a3af1f90e82b49a2570c3731e69e869230115f3fa245f36bf82d",
+  "content": {
+    "name": "CID Entities Dedupe (MeSH id)",
+    "type": "PGM",
+    "inputs": [
+      "entities"
+    ],
+    "outputs": {
+      "name": "entities",
+      "type": "list"
+    },
+    "process": "raw = state.get('entities') or []\nif isinstance(raw, str):\n    try:\n        raw = json.loads(raw)\n    except Exception:\n        raw = []\n\nents = parse_entities_raw(raw)\nby_id: dict[str, dict] = {}\nfor e in ents:\n    txt = str(e.get('text') or '').strip()\n    lbl = str(e.get('label') or e.get('type') or '').strip()\n    eid = canonical_mesh_id(str(e.get('id') or e.get('identifier') or ''))\n    if not txt or not lbl:\n        continue\n    if not eid:\n        key = f\"{lbl}:{txt.lower()}\"\n        if key not in by_id:\n            by_id[key] = {\"text\": txt, \"id\": \"\", \"label\": lbl}\n        continue\n    if eid not in by_id or len(txt) < len(str(by_id[eid].get('text') or '')):\n        by_id[eid] = {\"text\": txt, \"id\": eid, \"label\": lbl}\n\n__result__ = list(by_id.values())",
+    "created_at": "2026-06-15T08:37:51.785245"
+  }
+}

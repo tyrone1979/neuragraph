@@ -1,0 +1,12 @@
+{
+  "name": "ChemDisGene RE chem_gene:transport",
+  "type": "LLM",
+  "model": "deepseek",
+  "inputs": ["text", "head", "tail"],
+  "outputs": {"name": "result", "type": "str"},
+  "prompt_template": {
+    "system": "You are a biomedical expert. Output answer code only.",
+    "human": "{text}\nYou are biomedical expert, refer to above biomedical article, pleas based on below conditions\nATTENTION: \nthe relationship MUST be {head} increase transport of {tail}. transport includes secretion, export, uptake, import, release\nConditions:\nE0 if your conclude is indirect inference of answer 1 or 3, answer E0\nE1 else if the article does not provide  evidence for \"{head} ... increasing/potentiate transport/secretion/x-induced {tail} release\" nor  \"{tail} was involved the transport of {head}\", answer E1\nE2 else if {head} produced a significant increase in X in keeping with {head} stimulation, answer E2\nE3 else if {head} increases the expression/fiber density/activity of {tail}, or significant {tail} activation after inhalation of {head}, answer E3\nE4 else if {head} reduces the increase in {tail} concentrations, answer E4\nE5 else if {head} induced an accumulation of nuclear {tail}, answer E5\nE6 else if {head} stimulates {tail} activity, answer E6\nE7 else if Increased urinary excretion of {tail} correlates with chronic sensitization to {head}, answer E7\nE8.else if {head} decrease the transport function of {tail}, answer E8\nE9.else if {head} facilitates {tail} nuclear translocation, answer E9\n------------------------------------------\n1. else if {head} increase/enhance the transport(not expression/activity/excretion) function of {tail},answer 1\n2.else if {head} produced a significant increase in efflux ratios (Er)  values, which indicates an increase in the transport function of {tail}, answer 2\n3 else if {tail} was involved in the transport of {head}, The efflux ratios (Er) of {head} in {tail} cells were also higher ..., answer 3\n4 else if {tail} cells had significantly higher efflux ratios (Er) values for {head}, answer 4\n-------------------------------------------\nnone of above, answer 99\nPlease output answer code only\nDO NOT output any other message\n"
+  },
+  "created_at": "2026-06-15T10:00:00"
+}

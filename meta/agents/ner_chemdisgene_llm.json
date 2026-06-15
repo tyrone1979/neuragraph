@@ -1,0 +1,18 @@
+{
+  "name": "NER (ChemDisGene)",
+  "type": "LLM",
+  "model": "deepseek",
+  "inputs": [
+    "text"
+  ],
+  "outputs": {
+    "name": "entities_raw",
+    "type": "str"
+  },
+  "prompt_template": {
+    "description": "ChemDisGene NER: type|entity per line",
+    "system": "You are a biomedical NER expert. Output only type|entity lines. No other text.",
+    "human": "{text}\nplease extract entities from above context by below types:\nDisease: Disease/Abnormal names such as [toxicity,tremor,cancer,cardiac hypertrophy,hyperplasia,sagittal and left transverse sinus thrombosis,neutropenia,gastrointestinal haemorrhage]. Symptom names such as [death,catalepsy,cough,abdominal pain,weight loss,fever]. Adjectives for diseases such as [hypoxic,nephrotic,hepatotoxic]. Disease abbreviations such as [AIDS,MI,NS,AZT,ARF,DM,KA].\nWhen an organ name ahead of disease name, please include the organ, such as [forestomach carcinogenesis, epithelial hyperplasi, arterial occlusion, brain damage, Renal function significantly deteriorated]. Exclude ['ECG','EEG', 'AAS', 'perfusion defect(s)','A','disease','deficit(s)','inability','adverse events','confused','syndrome','memory','cold'], and exclude only organ name without disease name such as ['kidney']\nGene: GENE name, include full name such as [beta 2-adrenoceptor,insulin], abbreviations name,such as [PDE10A]\nChemical: Chemicals/Drugs/antigen names, such as [superoxide,citrate, alcohol, oxygen, serotonin, creatinine, 5-HT, anthracycline, benzodiazepines, norepinephrine], Chemical abbreviations such as [NO,ISO,BHA,MC],excluding Gene, excluding [DNA, RNA, GAD, SNPs], excluding all [antagonist,receptor,blocker, ligand]\nTreat: Treatment name such as 'bone marrow transplantation'\nPhysiology: Physiology such as blood pressure\nImmune: immune status such as Rubella nonimmunity\nOutput format: type|entity name or 'NONE' for none.\nAttention: the terms must be appeared in the text.\none term one line,no other message"
+  },
+  "created_at": "2026-06-15T10:00:00"
+}

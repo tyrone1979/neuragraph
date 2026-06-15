@@ -1,0 +1,8 @@
+{
+  "1": {
+    "entity_link": "{\"Aspirin\": \"Aspirin\", \"headache\": \"headache\"}",
+    "head": "Aspirin",
+    "tail": "headache",
+    "text": "Aspirin may reduce the risk of heart disease."
+  }
+}

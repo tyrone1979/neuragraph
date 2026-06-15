@@ -1,0 +1,26 @@
+{
+  "agent_id": "chemdisgene_answer_map",
+  "version": "v0001",
+  "parent_version": null,
+  "created_at": "2026-06-15T08:29:34.894343",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "95c2b734e20108f610d5c08e8ec90868827630ef3300c2cadd036c08bb2a306b",
+  "content": {
+    "name": "ChemDisGene Answer Map (PGM)",
+    "type": "PGM",
+    "inputs": [
+      "result",
+      "rel_template",
+      "head",
+      "tail"
+    ],
+    "outputs": {
+      "name": "rel_types",
+      "type": "list"
+    },
+    "process": "result = str(state.get('result') or '').strip()\ntpl = state.get('rel_template') or ''\nif not result:\n    __result__ = []\nelse:\n    code = result.split()[-1].rstrip('.')\n    maps = {\n        'chem_disease:affects': {'11': ['chem_disease:therapeutic'], '1': ['chem_disease:marker/mechanism'], '2': ['chem_disease:marker/mechanism'], '3': ['chem_disease:marker/mechanism'], '4': ['chem_disease:marker/mechanism'], '5': ['chem_disease:marker/mechanism'], '8': ['chem_disease:marker/mechanism']},\n        'gene_disease:marker/mechanism': {str(i): ['gene_disease:marker/mechanism'] for i in range(1, 18)},\n        'gene_disease:therapeutic': {'1': ['gene_disease:therapeutic'], '2': ['gene_disease:therapeutic'], '4': ['gene_disease:therapeutic'], '1.2': ['gene_disease:therapeutic']},\n        'chem_gene:expression': {'1': ['chem_gene:increases^expression'], '2': ['chem_gene:decreases^expression'], '8': ['chem_gene:increases^expression'], '9': ['chem_gene:increases^expression']},\n        'chem_gene:affects^expression': {'1': ['chem_gene:affects^expression'], '2': ['chem_gene:affects^expression'], '3': ['chem_gene:affects^expression'], '4': ['chem_gene:affects^expression'], '5': ['chem_gene:affects^expression']},\n        'chem_gene:increases^activity': {'1': ['chem_gene:increases^activity']},\n        'chem_gene:activity': {'2': ['chem_gene:decreases^activity'], '3': ['chem_gene:decreases^activity']},\n        'chem_gene:transport': {'1': ['chem_gene:increases^transport'], '2': ['chem_gene:increases^transport'], '3': ['chem_gene:increases^transport'], '4': ['chem_gene:increases^transport']},\n        'chem_gene:affects^localization': {'14': ['chem_gene:affects^localization']},\n        'chem_gene:affects^binding': {'1': ['chem_gene:affects^binding'], '2': ['chem_gene:affects^binding']},\n        'chem_gene:increases^metabolic_processing': {str(i): ['chem_gene:increases^metabolic_processing'] for i in range(1, 9)},\n        'chem_gene:decreases^metabolic_processing': {'21': ['chem_gene:decreases^metabolic_processing'], '22': ['chem_gene:decreases^metabolic_processing'], '23': ['chem_gene:decreases^metabolic_processing']},\n        'synonym': {'$': ['synonym']},\n        'hypernyms': {'$': ['hypernyms']},\n    }\n    __result__ = list((maps.get(tpl) or {}).get(code) or [])",
+    "created_at": "2026-06-15T08:29:34.881438"
+  }
+}

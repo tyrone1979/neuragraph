@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "wf_e2e_flair_opt_re",
+  "runner_display": "wf_e2e_flair_opt_re (regression gold_with_tuning)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "tuning_dataset": "regression_2_gold_tuning.csv",
+  "samples": 2,
+  "exp_id": "13e34803-4cba-4314-955b-46d18d22df47",
+  "name": "wf_e2e_flair_opt_re_regression_2_gold_test.csv_20260612093214",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-12T09:32:14.935773",
+  "updated_at": "2026-06-12T09:32:38.258311",
+  "last_error": "",
+  "failed_at_sample": null
+}

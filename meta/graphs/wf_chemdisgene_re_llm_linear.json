@@ -1,0 +1,49 @@
+{
+  "name": "ChemDisGene RE Pipeline (linear)",
+  "description": "Gold entities → pair generation → foreach RE verify (template branch) → relation metrics.",
+  "nodes": [
+    "START",
+    "chemdisgene_pair_generate",
+    "chemdisgene_re_verify_loop",
+    "END"
+  ],
+  "edges": [
+    ["START", "chemdisgene_pair_generate"],
+    ["chemdisgene_pair_generate", "chemdisgene_re_verify_loop"],
+    ["chemdisgene_re_verify_loop", "END"]
+  ],
+  "bindings": {
+    "chemdisgene_pair_generate": {
+      "entities": "{{ START.entities }}",
+      "text": "{{ START.text }}"
+    }
+  },
+  "flowNodes": {
+    "chemdisgene_re_verify_loop": {
+      "kind": "loop",
+      "name": "Verify each ChemDisGene pair",
+      "subgraphId": "sg_chemdisgene_re_verify",
+      "loopConfig": {
+        "loopType": "foreach",
+        "array": "{{ pairs }}",
+        "itemBindings": {
+          "text": "{{ text }}",
+          "head": "{{ head }}",
+          "tail": "{{ tail }}",
+          "rel_template": "{{ rel_template }}",
+          "entity_type": "{{ entity_type }}"
+        },
+        "mergeAliases": {
+          "relations": "relations"
+        }
+      }
+    }
+  },
+  "metrics": [
+    {
+      "type": "relation_pairs",
+      "expected": {"from": "input", "field": "gold_relations"},
+      "predicted": {"from": "state", "field": "relations"}
+    }
+  ]
+}

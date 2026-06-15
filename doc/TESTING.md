@@ -29,10 +29,10 @@ Prerequisites for Playwright suites (`regression-*`): Chromium via Playwright, F
 
 | `--suite` | What it runs | Real LLM? |
 | --- | --- | --- |
-| `regression-exp` | Every `meta/graphs/*.json` — batch experiment, 2 articles, **with gold** and **without gold** | **Yes** — `/stream/run` |
-| `regression-graph` | Every graph — G1–G4 (`playwright_regression_graph.py`) | **Yes** — G4 `/stream/test` |
+| `regression-exp` | Every `meta/graphs/*.json` — batch experiment, **2 articles** per graph, baseline screenshots | **Yes** — `/stream/run` |
+| `regression-graph` | Every graph — G1–G4 (`playwright_regression_graph.py`); G4 = **1 row with gold** per graph | **Yes** — G4 `/stream/test` |
 | `regression-tool` | Every `meta/tools` entry — tool form UI + `/tools/api/run_tool` | Depends on tool |
-| `regression-agent` | Every `meta/agents/*.json` — edit UI + mock-LLM batch invoke | **No** — mock LLM |
+| `regression-agent` | Every `meta/agents/*.json` — edit UI + test panel screenshots + mock-LLM batch invoke | **No** — mock LLM |
 | `unit` | `ui_tests/unit/test_*.py` (unittest) | N/A |
 | `agents` | All meta agents, `tests/<agent_id>/sample.csv` | **No** — mock LLM |
 | `agents-live` | Same as agents | **Yes** — deepseek / gpt-oss_120b only |
@@ -80,10 +80,12 @@ Full coverage with screenshots under `ui_tests/screenshots/` and aggregated resu
 
 | Suite | Scope | Notes |
 | --- | --- | --- |
-| `regression-exp` | All graphs | 2-sample CSV per graph; runs once **with gold**, once **without gold** |
-| `regression-graph` | All graphs | G1–G4 in `playwright_regression_graph.py` |
+| `regression-exp` | **All graphs** (default) | 2-sample CSV per graph; one run with gold (`test_only`). Use `NG_REGRESSION_EXP_REP=1` for the small representative subset; `NG_REGRESSION_EXP_ALL=1` for all gold/no_gold × tuning variants |
+| `regression-graph` | All graphs | G1–G4 in `playwright_regression_graph.py`; G4 runs **one gold row** per graph (`NG_GRAPH_G4_BOTH=1` restores gold+no_gold) |
 | `regression-tool` | All tools | Visits `/tools/{id}` and POSTs `/tools/api/run_tool` with schema/fixture inputs |
-| `regression-agent` | All agents | Edit-page screenshots + in-process mock-LLM invoke (`agent_invoke_mock_llm_suite`) |
+| `regression-agent` | All agents (67) | PGM: UI **Run Test** → `ragent_test_{id}.png` (`#testResult` only); LLM: no UI test shot; then mock-LLM invoke for all agents |
+
+PGM UI timeouts (if `goto` fails mid-suite): auto-accept `alert()` dialogs; wait for Flask after each slow PGM test. Tune: `NG_AGENT_UI_TEST_TIMEOUT` (180s), `NG_AGENT_UI_TEST_TIMEOUT_SLOW` (420s for `ner_flair_*`), `NG_AGENT_GOTO_TIMEOUT` (180s). Optional edit shots: `NG_AGENT_EDIT_SHOT=1`.
 
 Filter to one item (debug):
 
@@ -108,7 +110,7 @@ $env:NG_GRAPH_SKIP_UI = "1"
 | G1 | **Simple:** create PGM workflow → run → copy → run copy → delete. **Nested:** L1→L2→L3 loops; **branch + 2 arms inside L3 body** → run → verify `route`/`result` |
 | G2 | Open each graph editor and screenshot |
 | G3 | Branch graphs with ≥3 conditions (UI smoke) |
-| G4 | Each graph × gold / no_gold: Test modal `/stream/test` until complete |
+| G4 | Each graph × **1 gold row**: Test modal `/stream/test` until complete; screenshot `g4_test_{id}_gold.png` |
 
 **Not mock:** G1 (PGM run) and G4 run real workflow execution. G2/G3 do not execute LLM logic.
 
@@ -131,11 +133,20 @@ Fast, no browser. Covers parsers, graph backup/diff, workflow family selection, 
 
 ### Agent suite (`agents` / `agents-live`)
 
-- Invokes every `meta/agents/*.json` with one row from `tests/<agent_id>/sample.csv`.
+- Invokes every `meta/agents/*.json` with one row from `tests/<agent_id>/sample.csv` (67 agents).
 - **Mock mode** (`agents`): deterministic LLM stubs — good for CI and regressions; can miss prompt/parser bugs.
 - **Live mode** (`agents-live`): real API calls; use after changing prompts, `parse_as`, or output parsers.
 
-Reports: [agent mock full (43/43)](../ui_tests/reports/agent_test_report_mock_latest.md) · [live fixes (3 LLM agents)](../ui_tests/reports/agent_test_report_live_latest.md)
+Reports: [agent mock full](../ui_tests/reports/agent_test_report_latest.md) · [live fixes (3 LLM agents)](../ui_tests/reports/agent_test_report_live_latest.md)
+
+Regenerate agent samples and inventory:
+
+```powershell
+.\venv\Scripts\python.exe -c "from ui_tests.utils.agent_sample_row_fixtures import write_all_agent_sample_csvs; write_all_agent_sample_csvs()"
+.\venv\Scripts\python.exe scripts\gen_meta_inventory.py
+```
+
+Full agent/graph lists: [META_INVENTORY.md](META_INVENTORY.md). Data format: [DATA_FORMAT.md](DATA_FORMAT.md).
 
 ---
 

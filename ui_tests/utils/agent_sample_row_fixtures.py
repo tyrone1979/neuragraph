@@ -51,20 +51,78 @@ EXPERIMENT_PACKAGE = json.dumps(
     ensure_ascii=False,
 )
 DEV_TXT = ROOT / "comparison" / "data" / "CDR" / "dev.txt"
+CHEMDISGENE_ENTITIES_RAW = "Chemical|Aspirin\nDisease|heart disease\nGene|PDE10A"
+CHEMDISGENE_ENTITIES = {
+    "Chemical": ["Aspirin"],
+    "Disease": ["heart disease"],
+    "Gene": ["PDE10A"],
+}
+_CHEMDISGENE_RE_ROW = {"text": TEXT, "head": "Aspirin", "tail": "heart disease"}
+_CHEMDISGENE_RE_ENTITY_TYPE_ROW = {
+    "text": SYNONYM_TEXT,
+    "head": "Aspirin",
+    "tail": "acetylsalicylic acid",
+    "entity_type": "Chemical",
+}
 
 # agent_id -> one CSV row (values may be str, list, dict — serialized on write)
 AGENT_SAMPLE_ROWS: dict[str, dict[str, Any]] = {
     "agent_refiner": {"text": EXPERIMENT_PACKAGE},
     "cid_pair_generate": {"filtered_entities": ENTITIES},
     "dataset_cid_tuning_build": {
+        "agent_id": "wf_cid_re_llm_linear",
         "runner_id": "wf_cid_re_llm_linear",
+        "format": "re",
         "source": "comparison/data/CDR/dev.txt",
         "size": "2",
         "tuning_out": "cid_agent_test_tuning.csv",
         "test_out": "cid_agent_test_test.csv",
         "write_test_remain": "false",
-        "mirror_ner": "false",
+        "mirror_agent_id": "",
+        "mirror_format": "ner",
     },
+    "dataset_chemdisgene_build": {
+        "agent_id": "wf_chemdisgene_re_llm_linear",
+        "runner_id": "wf_chemdisgene_re_llm_linear",
+        "format": "re",
+        "source": "data/raw/chemdisgene.txt",
+        "output_name": "chemdisgene_agent_test.csv",
+        "mirror_agent_id": "ner_chemdisgene_llm",
+        "mirror_format": "ner",
+    },
+    "chemdisgene_answer_map": {
+        "result": "11",
+        "rel_template": "chem_disease:affects",
+        "head": "Aspirin",
+        "tail": "heart disease",
+    },
+    "chemdisgene_ner_parse": {
+        "entities_raw": CHEMDISGENE_ENTITIES_RAW,
+        "text": TEXT,
+    },
+    "chemdisgene_pair_generate": {
+        "entities": CHEMDISGENE_ENTITIES,
+        "text": TEXT,
+    },
+    "chemdisgene_result_to_relation": {
+        "rel_types": ["chem_disease:therapeutic"],
+        "head": "Aspirin",
+        "tail": "heart disease",
+    },
+    "chemdisgene_re_synonym": dict(_CHEMDISGENE_RE_ENTITY_TYPE_ROW),
+    "chemdisgene_re_hypernyms": dict(_CHEMDISGENE_RE_ENTITY_TYPE_ROW),
+    "ner_chemdisgene_llm": {"text": TEXT},
+    "cid_entities_dedupe_mesh": {"entities": ENTITIES},
+    "ner_entities_to_re_format": {"entities": PREDICTED_NER},
+    "e2e_hypernym_filter": {"entities": ENTITIES, "text": TEXT},
+    "e2e_synonym_filter": {"entities": ENTITIES, "text": TEXT},
+    "e2e_entities_dedup_by_id": {"entities": ENTITIES},
+    "e2e_entities_passthrough": {"entities": ENTITIES},
+    "e2e_entities_assign_group_ids": {
+        "entities": ENTITIES,
+        "filtered_entities": ENTITIES,
+    },
+    "e2e_entity_aliases_snapshot": {"filtered_entities": ENTITIES},
     "eval_flair": {"flair_entities": PREDICTED_NER},
     "eval_llm": {"entities": PREDICTED_NER},
     "eval_metrics": {"predicted": PREDICTED_NER, "expected": EXPECTED_NER},
@@ -139,6 +197,23 @@ AGENT_SAMPLE_ROWS: dict[str, dict[str, Any]] = {
         "change_note": "agent test dry run",
     },
 }
+
+_CHEMDISGENE_RE_AGENTS = (
+    "chemdisgene_re_chem_disease_affects",
+    "chemdisgene_re_chem_gene_activity",
+    "chemdisgene_re_chem_gene_aff_bind",
+    "chemdisgene_re_chem_gene_aff_expr",
+    "chemdisgene_re_chem_gene_aff_local",
+    "chemdisgene_re_chem_gene_dec_metab",
+    "chemdisgene_re_chem_gene_expression",
+    "chemdisgene_re_chem_gene_inc_activity",
+    "chemdisgene_re_chem_gene_inc_metab",
+    "chemdisgene_re_chem_gene_transport",
+    "chemdisgene_re_gene_disease_marker",
+    "chemdisgene_re_gene_disease_therapeutic",
+)
+for _agent_id in _CHEMDISGENE_RE_AGENTS:
+    AGENT_SAMPLE_ROWS[_agent_id] = dict(_CHEMDISGENE_RE_ROW)
 
 
 def _cell(value: Any) -> str:

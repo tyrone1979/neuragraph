@@ -285,37 +285,58 @@ WHERE {{
         return {"MeSHLookup": MeSHLookup}
 
 
-class CidDatasetPlugin(Plugin):
-    """Build/extract CID tuning and test CSV datasets from PubTator gold sources."""
+class DatasetCatalogPlugin(Plugin):
+    """Raw gold → CSV builder; parser auto-detect from source path."""
 
     def load(self):
-        class CidDatasetBuilder:
-            @staticmethod
-            def build_full(*args, **kwargs):
-                from service.dataset_cid import build_structured_full
-                return build_structured_full(*args, **kwargs)
+        from service.dataset.core import DatasetCatalog
 
-            @staticmethod
-            def build_tuning(*args, **kwargs):
-                from service.dataset_cid import build_tuning_dataset
-                return build_tuning_dataset(*args, **kwargs)
+        catalog = DatasetCatalog()
+        return {
+            "DatasetCatalog": catalog,
+            # Backward-compatible aliases (same catalog instance).
+            "CidDatasetBuilder": catalog,
+            "ChemDisGeneDatasetBuilder": catalog,
+        }
 
-            @staticmethod
-            def extract_test(*args, **kwargs):
-                from service.dataset_cid import extract_test_dataset
-                return extract_test_dataset(*args, **kwargs)
 
-            @staticmethod
-            def build_pubtator_test(*args, **kwargs):
-                from service.dataset_cid import build_pubtator_test_dataset
-                return build_pubtator_test_dataset(*args, **kwargs)
+class CdrParserPlugin(Plugin):
+    """Native CDR PubTator parser."""
 
-            @staticmethod
-            def registry(*args, **kwargs):
-                from service.dataset_cid import get_registry_status
-                return get_registry_status(*args, **kwargs)
+    def load(self):
+        from service.dataset.parsers import CdrParser
+        return {"parser_cdr": CdrParser}
 
-        return {"CidDatasetBuilder": CidDatasetBuilder}
+
+class ChemDisGeneParserPluginClass(Plugin):
+    """Native ChemDisGene PubTator+TSV parser."""
+
+    def load(self):
+        from service.dataset.parsers import ChemDisGeneTsvParser
+        return {"parser_chemdisgene": ChemDisGeneTsvParser}
+
+
+class PlainTextParserPlugin(Plugin):
+    """Plain-text raw upload parser."""
+
+    def load(self):
+        from service.dataset.parsers import PlainTextParser
+        return {"parser_plain_text": PlainTextParser}
+
+
+class DatasetParserRegistryPlugin(Plugin):
+    """Route dataset/file pairs to native parser plugins."""
+
+    def load(self):
+        from service.dataset import parsers as P
+
+        class DatasetParserRegistry:
+            load_parser = staticmethod(P.load_parser)
+            load_datasets = staticmethod(P.load_datasets)
+            list_parsers = staticmethod(P.list_parsers)
+            article_count = staticmethod(P.article_count)
+
+        return {"DatasetParserRegistry": DatasetParserRegistry}
 
 
 class LlmLinkBulkPlugin(Plugin):

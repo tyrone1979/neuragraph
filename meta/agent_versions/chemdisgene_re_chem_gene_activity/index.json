@@ -1,0 +1,15 @@
+{
+  "agent_id": "chemdisgene_re_chem_gene_activity",
+  "latest": "v0001",
+  "versions": [
+    {
+      "version": "v0001",
+      "parent_version": null,
+      "created_at": "2026-06-15T08:34:06.583722",
+      "created_by": "ui",
+      "change_note": "",
+      "source": "update",
+      "content_hash": "02f444e73c2f0a9f1304c10eb03ee7a96181869ad70eacb9b8bcd8083937bbaf"
+    }
+  ]
+}

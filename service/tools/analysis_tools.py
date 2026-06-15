@@ -570,24 +570,34 @@ def dataset_sampler_stratified(
 def dataset_cid_tuning_build(
     runner_id: str = "wf_cid_re_llm_linear",
     *,
+    agent_id: str = "",
+    format: str = "re",
     source: str = "data/raw/dev.txt",
     size: int = 20,
     tuning_out: str = "",
     test_out: str = "",
     write_test_remain: bool = True,
-    mirror_ner: bool = True,
+    mirror_agent_id: str = "",
+    mirror_format: str = "ner",
 ) -> dict[str, Any]:
-    """Build stratified CID tuning CSV (+ optional test remain) from PubTator gold source."""
-    from service.dataset_cid import build_tuning_dataset
+    """Build stratified tuning CSV (+ optional test remain) from raw gold source."""
+    from service.dataset.registry import require_catalog
 
-    return build_tuning_dataset(
-        runner_id,
-        source=source or None,
+    aid = (agent_id or runner_id).strip()
+    mirror = (
+        [{"agent_id": mirror_agent_id.strip(), "format": mirror_format}]
+        if mirror_agent_id.strip()
+        else None
+    )
+    return require_catalog().build_tuning(
+        aid,
+        source=source or "data/raw/dev.txt",
+        format=format,
         size=int(size or 20),
         tuning_out=tuning_out or None,
         test_out=test_out or None,
         write_test_remain=bool(write_test_remain),
-        mirror_ner=bool(mirror_ner),
+        mirror=mirror,
     )
 
 
@@ -595,34 +605,45 @@ def dataset_cid_test_extract(
     runner_id: str = "wf_cid_re_llm_linear",
     output: str = "",
     *,
+    agent_id: str = "",
+    format: str = "re",
     source: str = "data/raw/dev.txt",
     mode: str = "remain",
     size: int | None = None,
     pmids: list[str] | str | None = None,
     exclude_tuning: str = "",
+    exclude_agent: str = "",
     exclude_runner: str = "",
     seed: int = 42,
-    mirror_ner: bool = True,
+    mirror_agent_id: str = "",
+    mirror_format: str = "ner",
 ) -> dict[str, Any]:
-    """Extract a CID test CSV from PubTator gold source."""
-    from service.dataset_cid import extract_test_dataset
+    """Extract a test CSV from raw gold source into tests/<agent_id>/."""
+    from service.dataset.registry import require_catalog
 
     if not output:
         raise ValueError("output filename is required")
+    aid = (agent_id or runner_id).strip()
     pmid_list = pmids
     if isinstance(pmid_list, str):
         pmid_list = [p.strip() for p in pmid_list.split(",") if p.strip()]
-    return extract_test_dataset(
-        runner_id,
+    mirror = (
+        [{"agent_id": mirror_agent_id.strip(), "format": mirror_format}]
+        if mirror_agent_id.strip()
+        else None
+    )
+    return require_catalog().extract_test(
+        aid,
         output if output.lower().endswith(".csv") else f"{output}.csv",
-        source=source or None,
+        source=source or "data/raw/dev.txt",
+        format=format,
         mode=mode or "remain",
         size=size,
         pmids=pmid_list or None,
         exclude_tuning_file=exclude_tuning or None,
-        exclude_tuning_runner=exclude_runner or runner_id,
+        exclude_tuning_agent=(exclude_agent or exclude_runner or aid),
         seed=int(seed or 42),
-        mirror_ner=bool(mirror_ner),
+        mirror=mirror,
     )
 
 

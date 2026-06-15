@@ -27,12 +27,16 @@ def _progress_bar(current, total, width=50):
     return f"\r  [{'#' * filled}{'.' * (width - filled)}] {current}/{total} ({pct}%)"
 
 def build_csv():
-    from service.dataset_cid import RE_FIELDS, load_source_articles, re_row, stratified_pick, summarize_selection
+    from service.dataset.core import stratified_pick, summarize_selection
+    from service.dataset.parsers import load_articles_from_source, row_options_for_source
+    from service.dataset.rows import FORMAT_FIELDS, row_re
     from service.entity.test import TestLoader
-    articles = load_source_articles(DEV_SOURCE)
+
+    opts = row_options_for_source(DEV_SOURCE)
+    articles = load_articles_from_source(DEV_SOURCE)
     picked_arts, picked_idx = stratified_pick(articles, 50)
-    rows = [re_row(a) for a in picked_arts]
-    path = TestLoader.save_csv_rows(RUNNER_ID, TUNING_CSV, RE_FIELDS, rows)
+    rows = [row_re(a, **opts) for a in picked_arts]
+    path = TestLoader.save_csv_rows(RUNNER_ID, TUNING_CSV, FORMAT_FIELDS["re"], rows)
     summary = summarize_selection(articles, picked_idx)
     step("1/3", f"CSV: {path} ({len(rows)} articles)")
     print(f"  Relation buckets: {summary['relation_buckets']}")

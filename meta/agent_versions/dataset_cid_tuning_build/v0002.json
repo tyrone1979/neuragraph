@@ -1,0 +1,32 @@
+{
+  "agent_id": "dataset_cid_tuning_build",
+  "version": "v0002",
+  "parent_version": "v0001",
+  "created_at": "2026-06-15T08:55:28.941497",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "b7f97dd005474e579bda317a13bff5c50bac42c5671f059b62700d53a033001b",
+  "content": {
+    "name": "CID Tuning Dataset Builder (PGM)",
+    "type": "PGM",
+    "inputs": [
+      "agent_id",
+      "runner_id",
+      "format",
+      "source",
+      "size",
+      "tuning_out",
+      "test_out",
+      "write_test_remain",
+      "mirror_agent_id",
+      "mirror_format"
+    ],
+    "outputs": {
+      "name": "tuning_result",
+      "type": "dict"
+    },
+    "process": "catalog = get_plugin('DatasetCatalog')\nagent_id = (state.get('agent_id') or state.get('runner_id') or 'wf_cid_re_llm_linear').strip()\nfmt = (state.get('format') or 're').strip()\nsource = (state.get('source') or 'data/raw/dev.txt').strip()\ntry:\n    size = int(state.get('size') or 20)\nexcept Exception:\n    size = 20\ntuning_out = (state.get('tuning_out') or '').strip() or None\ntest_out = (state.get('test_out') or '').strip() or None\nwtr = state.get('write_test_remain', True)\nif isinstance(wtr, str):\n    write_test_remain = wtr.strip().lower() not in ('0', 'false', 'no', '')\nelse:\n    write_test_remain = bool(wtr if wtr is not None else True)\nmirror_agent = (state.get('mirror_agent_id') or '').strip()\nmirror_fmt = (state.get('mirror_format') or 'ner').strip()\nmirror = [{'agent_id': mirror_agent, 'format': mirror_fmt}] if mirror_agent else None\nif not catalog:\n    __result__ = {'error': 'DatasetCatalog plugin unavailable'}\nelse:\n    try:\n        __result__ = catalog.build_tuning(\n            agent_id,\n            source=source,\n            format=fmt,\n            size=size,\n            tuning_out=tuning_out,\n            test_out=test_out,\n            write_test_remain=write_test_remain,\n            mirror=mirror,\n        )\n    except Exception as e:\n        __result__ = {'error': str(e), 'agent_id': agent_id, 'source': source, 'size': size}",
+    "created_at": "2026-06-15T08:55:28.934517"
+  }
+}

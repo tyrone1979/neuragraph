@@ -1,0 +1,106 @@
+{
+  "1": {
+    "entities": {
+      "Chemical": [
+        "Aspirin"
+      ],
+      "Disease": [
+        "heart disease"
+      ]
+    },
+    "entity_link": {
+      "Aspirin": {
+        "canonical": "aspirin",
+        "type": "Chemical"
+      },
+      "heart disease": {
+        "canonical": "heart disease",
+        "type": "Disease"
+      }
+    },
+    "graph": {
+      "@context": {
+        "label": "http://schema.org/name"
+      },
+      "nodes": [
+        {
+          "@id": "aspirin",
+          "label": "aspirin"
+        },
+        {
+          "@id": "heart_disease",
+          "label": "heart disease"
+        }
+      ],
+      "edges": [
+        {
+          "@id": "e0",
+          "subject": "aspirin",
+          "predicate": "reduces_risk_of",
+          "object": "heart disease"
+        }
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "text": "Aspirin may reduce the risk of heart disease.",
+    "triples": [
+      {
+        "head": "aspirin",
+        "predicate": "reduces_risk_of",
+        "tail": "heart disease"
+      }
+    ]
+  },
+  "2": {
+    "entities": {
+      "Chemical": [
+        "Metformin"
+      ],
+      "Disease": [
+        "type 2 diabetes"
+      ]
+    },
+    "entity_link": {
+      "Metformin": {
+        "canonical": "metformin",
+        "type": "Chemical"
+      },
+      "type 2 diabetes": {
+        "canonical": "type 2 diabetes",
+        "type": "Disease"
+      }
+    },
+    "graph": {
+      "@context": {
+        "label": "http://schema.org/name"
+      },
+      "nodes": [
+        {
+          "@id": "metformin",
+          "label": "metformin"
+        },
+        {
+          "@id": "type_2_diabetes",
+          "label": "type 2 diabetes"
+        }
+      ],
+      "edges": [
+        {
+          "@id": "e0",
+          "subject": "metformin",
+          "predicate": "treats",
+          "object": "type 2 diabetes"
+        }
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "text": "Metformin is commonly used to treat type 2 diabetes.",
+    "triples": [
+      {
+        "head": "metformin",
+        "predicate": "treats",
+        "tail": "type 2 diabetes"
+      }
+    ]
+  }
+}

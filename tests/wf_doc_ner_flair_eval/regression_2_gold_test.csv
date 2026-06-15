@@ -1,0 +1,3 @@
+expected_entities,labels,text
+"{'Chemical': ['Aspirin'], 'Disease': ['heart disease']}","Chemical,Disease",Aspirin may reduce the risk of heart disease.
+"{'Chemical': ['Aspirin'], 'Disease': ['heart disease']}","Chemical,Disease",Metformin is commonly used to treat type 2 diabetes.

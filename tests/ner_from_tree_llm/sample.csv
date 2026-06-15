@@ -1,5 +1,5 @@
 tree,labels
-"1	Aspirin	aspirin	NN	_	0	head	_	_	_	_
-2	may	may	MD	_	1	advmod	_	_	_	_
-3	reduce	reduce	VB	_	0	root	_	_	_	_
+"1	Aspirin	aspirin	NN	_	2	nsubj	_	_	_	_
+2	treats	treat	VBZ	_	0	root	_	_	_	_
+3	pain	pain	NN	_	2	obj	_	_	_	_
 ","Chemical,Disease"

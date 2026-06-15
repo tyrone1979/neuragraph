@@ -1,0 +1,162 @@
+{
+  "runner_id": "wf_e2e_flair_opt_re",
+  "target_articles": 500,
+  "bundles": {
+    "1_100": {
+      "article_range": [
+        1,
+        100
+      ],
+      "n_samples": 100,
+      "states": "states.json",
+      "summary": "summary_1_100.json",
+      "segments": [
+        {
+          "exp_id": "f859b257-12fa-4c9e-951f-cc8088d9461d",
+          "range": [
+            1,
+            20
+          ],
+          "n": 20
+        },
+        {
+          "exp_id": "309d1c78-acd6-499b-b97f-ed5bcba3ca57",
+          "range": [
+            21,
+            30
+          ],
+          "n": 10
+        },
+        {
+          "exp_id": "a728966d-baea-460b-ab8d-5be74ed4ff31",
+          "range": [
+            31,
+            50
+          ],
+          "n": 20
+        },
+        {
+          "exp_id": "576ead7a-0027-48e4-b2ea-7170a080f157",
+          "range": [
+            51,
+            100
+          ],
+          "n": 50
+        }
+      ],
+      "aggregate": {
+        "n_samples": 100,
+        "micro": [
+          0.573,
+          0.764,
+          0.655
+        ],
+        "macro": [
+          0.661,
+          0.788,
+          0.686
+        ],
+        "metric_keys": [
+          "f1",
+          "fn",
+          "fp",
+          "precision",
+          "recall",
+          "rel_f1",
+          "rel_fn",
+          "rel_fp",
+          "rel_precision",
+          "rel_recall",
+          "rel_tp",
+          "tp"
+        ]
+      }
+    },
+    "1_500": {
+      "article_range": [
+        1,
+        500
+      ],
+      "n_samples": 500,
+      "states": "states.json",
+      "summary": "summary_1_500.json",
+      "segments": [
+        {
+          "exp_id": "f859b257-12fa-4c9e-951f-cc8088d9461d",
+          "range": [
+            1,
+            20
+          ],
+          "n": 20
+        },
+        {
+          "exp_id": "309d1c78-acd6-499b-b97f-ed5bcba3ca57",
+          "range": [
+            21,
+            30
+          ],
+          "n": 10
+        },
+        {
+          "exp_id": "a728966d-baea-460b-ab8d-5be74ed4ff31",
+          "range": [
+            31,
+            50
+          ],
+          "n": 20
+        },
+        {
+          "exp_id": "576ead7a-0027-48e4-b2ea-7170a080f157",
+          "range": [
+            51,
+            100
+          ],
+          "n": 50
+        },
+        {
+          "exp_id": "031fff5a-a91b-48f0-b9cd-9aac3540ce0c",
+          "range": [
+            101,
+            199
+          ],
+          "n": 99
+        },
+        {
+          "exp_id": "68ff0297-e2fe-4c57-84ca-d5b7b390a4c1",
+          "range": [
+            200,
+            500
+          ],
+          "n": 301
+        }
+      ],
+      "aggregate": {
+        "n_samples": 500,
+        "micro": [
+          0.543,
+          0.765,
+          0.635
+        ],
+        "macro": [
+          0.632,
+          0.781,
+          0.663
+        ],
+        "metric_keys": [
+          "f1",
+          "fn",
+          "fp",
+          "precision",
+          "recall",
+          "rel_f1",
+          "rel_fn",
+          "rel_fp",
+          "rel_precision",
+          "rel_recall",
+          "rel_tp",
+          "tp"
+        ]
+      }
+    }
+  }
+}

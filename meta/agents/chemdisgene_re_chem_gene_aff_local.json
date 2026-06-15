@@ -1,0 +1,12 @@
+{
+  "name": "ChemDisGene RE chem_gene:affects^localization",
+  "type": "LLM",
+  "model": "deepseek",
+  "inputs": ["text", "head", "tail"],
+  "outputs": {"name": "result", "type": "str"},
+  "prompt_template": {
+    "system": "You are a biomedical expert. Output answer code only.",
+    "human": "{text}\nYou are biomedical expert, refer to above biomedical article, please give answer code based on below conditions:\nATTENTION:\nThis is about Chemical - Gene relationship extraction.\nThe causal relationship MUST be explicitly stated between Chemical:{head} and Gene:{tail}\n[head] must exactly be {head}, [tail] must exactly be {tail}.\nDo not infer the answer by a similar gene name or similar disease name.\nConditions:\n11. if {head} increase/enhance the biochemical alteration of {tail} molecule's structure, answer 11.\n12.else if {head} decrease/reduce the metabolic processing of {tail}, answer 12.\n13.else if {head} affects the metabolic processing of {tail}, answer 13.\n14.else if {head} affects the part of the cell where {tail} molecule resides, answer 14.\n15.else if {head} affects the {tail} molecular interaction, answer 15.\n16.else if {head} does not affect/increase/decrease {tail}, answer 16.\n---------------------------------------------------------------------\nE0. if it does not describe a direct causal relationship between {head} and {tail}, answer E0\nE1. else if there is no perfect match, answer E1.\nnone of above, answer 99\nPlease output answer code only.\nDO NOT output any other message."
+  },
+  "created_at": "2026-06-15T10:00:00"
+}

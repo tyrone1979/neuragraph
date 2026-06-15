@@ -4,7 +4,7 @@ Playwright regression: all workflow graphs under meta/graphs/ (G1–G4).
   G1  Simple lifecycle + 3-level nested loops with inner branch (create → run → verify)
   G2  Open each graph editor (/graph/{id}/edit) and screenshot (g2_editor_{id}.png)
   G3  Branch graphs with ≥3 conditions (JSON + optional UI snapshot)
-  G4  Test modal — each graph × gold / no_gold, run workflow, screenshot (g4_test_{id}_{tag}.png)
+  G4  Test modal — each graph × 1 sample row (gold), run workflow, screenshot (g4_test_{id}_gold.png)
 """
 from __future__ import annotations
 
@@ -555,6 +555,13 @@ def _run_graph_test_modal(
     return False
 
 
+def _g4_variants() -> list[bool]:
+    """Default: one row with gold labels. Set NG_GRAPH_G4_BOTH=1 for gold + no_gold."""
+    if os.environ.get("NG_GRAPH_G4_BOTH", "").strip().lower() in ("1", "true", "yes"):
+        return [True, False]
+    return [True]
+
+
 def _run_test_modal_suite(page: Page, base: str, screenshots_dir: str, graph_ids: list[str]) -> None:
     on_disk = set(list_graph_ids(from_backup=False))
     missing = [g for g in graph_ids if g not in on_disk]
@@ -562,8 +569,13 @@ def _run_test_modal_suite(page: Page, base: str, screenshots_dir: str, graph_ids
         fail("G4-preflight", f"missing on disk: {missing[:5]}")
         return
 
-    total = len(graph_ids) * 2
-    print(f"\n=== G4. TEST MODAL — gold + no_gold ({len(graph_ids)} graphs, {total} runs) ===", flush=True)
+    variants = _g4_variants()
+    total = len(graph_ids) * len(variants)
+    variant_label = "gold+no_gold" if len(variants) > 1 else "1-row gold"
+    print(
+        f"\n=== G4. TEST MODAL — {variant_label} ({len(graph_ids)} graphs, {total} runs) ===",
+        flush=True,
+    )
     passed_n = 0
     failed_n = 0
     shot_timeout = int(os.environ.get("NG_GRAPH_SHOT_TIMEOUT", "120000"))
@@ -572,11 +584,11 @@ def _run_test_modal_suite(page: Page, base: str, screenshots_dir: str, graph_ids
 
     for idx, gid in enumerate(graph_ids, start=1):
         if gid not in on_disk:
-            failed_n += 2
+            failed_n += len(variants)
             fail(f"G4-{gid}", "graph file missing")
             continue
 
-        for with_gold in (True, False):
+        for with_gold in variants:
             run_idx += 1
             tag = "gold" if with_gold else "no_gold"
             params = build_graph_test_params(gid, with_gold=with_gold)

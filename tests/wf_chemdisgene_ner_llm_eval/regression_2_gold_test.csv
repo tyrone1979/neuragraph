@@ -1,0 +1,11 @@
+gold_entities,gold_relations,labels,text
+"{'Chemical': ['Orlistat', 'cholesterol', 'glucose'], 'Disease': ['obesity', 'weight loss', 'obesity', 'malabsorption', 'hyperlipidaemias, type 2 diabetes', 'hypertension', 'sleep apnoea', 'obesity', 'obesity', 'obesity', 'pancreatic lipase enzyme', 'weight loss', 'weight loss', 'obese', 'obese type 2 diabetic'], 'Gene': ['insulin']}","Orlistat | chem_gene:affects^expression | insulin
+Orlistat | chem_disease:therapeutic | obese
+Orlistat | chem_disease:marker/mechanism | weight loss
+Orlistat | chem_disease:therapeutic | obese type 2 diabetic
+Orlistat | chem_disease:therapeutic | weight loss","Chemical,Disease,Gene",Aspirin may reduce the risk of heart disease.
+"{'Chemical': ['Orlistat', 'cholesterol', 'glucose'], 'Disease': ['obesity', 'weight loss', 'obesity', 'malabsorption', 'hyperlipidaemias, type 2 diabetes', 'hypertension', 'sleep apnoea', 'obesity', 'obesity', 'obesity', 'pancreatic lipase enzyme', 'weight loss', 'weight loss', 'obese', 'obese type 2 diabetic'], 'Gene': ['insulin']}","Orlistat | chem_gene:affects^expression | insulin
+Orlistat | chem_disease:therapeutic | obese
+Orlistat | chem_disease:marker/mechanism | weight loss
+Orlistat | chem_disease:therapeutic | obese type 2 diabetic
+Orlistat | chem_disease:therapeutic | weight loss","Chemical,Disease,Gene",Metformin is commonly used to treat type 2 diabetes.

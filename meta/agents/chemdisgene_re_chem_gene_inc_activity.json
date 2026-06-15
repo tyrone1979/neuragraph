@@ -1,0 +1,12 @@
+{
+  "name": "ChemDisGene RE chem_gene:increases^activity",
+  "type": "LLM",
+  "model": "deepseek",
+  "inputs": ["text", "head", "tail"],
+  "outputs": {"name": "result", "type": "str"},
+  "prompt_template": {
+    "system": "You are a biomedical expert. Output answer code only.",
+    "human": "{text}\nYou are biomedical expert, refer to above biomedical article, please give answer code based on below \nATTENTION: the relationship MUST be between {head} and {tail}.\nconditions:\n1. if {tail} activity was elevated by {head}, answer 1\n2.else if {head} is a inhibitor {tail},answer 2\n3.else if {head} blocked {tail}, answer 3\n4.else if {head} modulate {tail} activity with not direction,answer 4\n5.else if {head} acts through {tail}, answer 5.\n-------------------------------------------------------\nE1.1 else if There was also an increase in {tail}protein expression in the {head}-treated cells, answer E1.1\nE1.2 else if {head} increased/upregulated {tail} expression, answer E1.2\nE1.3 else  if Increased excretion of {tail} correlates with {head}, answer E1.3.\nE1.4 else  if {head} generation and {tail} expression were significantly attenuated by treatment with ..., answer E1.4\nE1.5 else  if {tail} might transport {head}, answer E1.5\nE1.6 else  if  {head} in NeuN reduced immunofluorescence for {tail},answer E1.6\nE1.7 else  if The {head} test showed that its receptors are involved in the antinociceptive mechanism of {tail}, answer E1.7\nE1.8 else  if Treatment with {head} in mice...increased {tail} levels, answer E1.8\nE1.9 else  if another chemical reduced {head} and elevated  {tail} activity, answer E1.9\n-------------------------------------------------------\nE0. If there is no direct relationship between {head} and {tail}, answer E0\nPlease output answer code only\nDO NOT output any other message"
+  },
+  "created_at": "2026-06-15T10:00:00"
+}

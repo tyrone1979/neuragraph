@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "wf_doc_ner_loop_branch",
+  "runner_display": "wf_doc_ner_loop_branch (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "16c1db52-18e6-49ec-b148-073799f38cb3",
+  "name": "wf_doc_ner_loop_branch_regression_2_gold_test.csv_20260615092204",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:22:04.467962",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:22:12.914775",
+  "last_error": "",
+  "failed_at_sample": null
+}

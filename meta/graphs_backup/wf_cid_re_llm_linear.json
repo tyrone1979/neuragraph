@@ -1,20 +1,30 @@
 {
-  "name": "CID RE Pipeline (linear)",
-  "description": "Gold entities → hypernym filter → pair list → foreach RE verify → id pairs.",
-  "nodes": [
-    "START",
-    "ontology_hypernym_filter",
-    "cid_pair_generate",
-    "cid_re_verify_loop",
-    "END"
-  ],
+  "agentVersions": {},
+  "bindings": {
+    "cid_pair_generate": {
+      "filtered_entities": "{{ filtered_entities }}"
+    },
+    "e2e_entities_dedup_by_id": {
+      "entities": "{{ START.entities }}"
+    },
+    "e2e_hypernym_filter": {
+      "entities": "{{ filtered_entities }}",
+      "text": "{{ START.text }}"
+    }
+  },
+  "created_at": "2026-06-09T08:52:34.814457",
+  "description": "Gold entities → e2e dedup by id → e2e hypernym filter (with text context) → pair list → foreach RE verify → id pairs. Upgraded from wf_e2e_flair_opt_re agents.",
   "edges": [
     [
       "START",
-      "ontology_hypernym_filter"
+      "e2e_entities_dedup_by_id"
     ],
     [
-      "ontology_hypernym_filter",
+      "e2e_entities_dedup_by_id",
+      "e2e_hypernym_filter"
+    ],
+    [
+      "e2e_hypernym_filter",
       "cid_pair_generate"
     ],
     [
@@ -26,43 +36,80 @@
       "END"
     ]
   ],
-  "metrics": [
-    {
-      "type": "relation_pairs",
-      "expected": {
-        "from": "input",
-        "field": "gold_relations"
-      },
-      "predicted": {
-        "from": "state",
-        "field": "relations"
-      }
-    }
-  ],
   "flowNodes": {
     "cid_re_verify_loop": {
       "kind": "loop",
-      "name": "Verify each Chemical–Disease pair",
-      "subgraphId": "sg_cid_re_verify",
       "loopConfig": {
-        "loopType": "foreach",
         "array": "{{ pairs }}",
         "itemBindings": {
-          "text": "{{ text }}",
           "head": "{{ head }}",
-          "tail": "{{ tail }}",
           "head_id": "{{ head_id }}",
-          "tail_id": "{{ tail_id }}"
-        }
-      }
+          "tail": "{{ tail }}",
+          "tail_id": "{{ tail_id }}",
+          "text": "{{ text }}"
+        },
+        "loopType": "foreach"
+      },
+      "name": "Verify each Chemical-Disease pair",
+      "subgraphId": "sg_cid_re_verify"
     }
   },
-  "bindings": {
-    "ontology_hypernym_filter": {
-      "entities": "{{ START.entities }}"
-    },
-    "cid_pair_generate": {
-      "filtered_entities": "{{ filtered_entities }}"
+  "metrics": [
+    {
+      "expected": {
+        "field": "gold_relations",
+        "from": "input"
+      },
+      "predicted": {
+        "field": "relations",
+        "from": "state"
+      },
+      "type": "relation_pairs"
+    }
+  ],
+  "name": "CID RE Pipeline (linear)",
+  "nodes": [
+    "START",
+    "cid_pair_generate",
+    "cid_re_verify_loop",
+    "e2e_entities_dedup_by_id",
+    "e2e_hypernym_filter",
+    "END"
+  ],
+  "visualData": {
+    "layout": {
+      "START": {
+        "x": 180,
+        "y": 200
+      },
+      "cid_pair_generate": {
+        "x": 1392,
+        "y": 122
+      },
+      "e2e_entities_dedup_by_id": {
+        "x": 376,
+        "y": 122
+      },
+      "e2e_hypernym_filter": {
+        "x": 884,
+        "y": 109
+      },
+      "END": {
+        "x": 1690,
+        "y": 570
+      },
+      "cid_re_verify_loop": {
+        "x": 900,
+        "y": 410
+      },
+      "relation_verify_llm": {
+        "x": 924,
+        "y": 486
+      },
+      "relation_result_to_id_pair": {
+        "x": 1248,
+        "y": 486
+      }
     }
   }
 }

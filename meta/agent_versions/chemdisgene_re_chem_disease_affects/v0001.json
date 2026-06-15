@@ -1,0 +1,31 @@
+{
+  "agent_id": "chemdisgene_re_chem_disease_affects",
+  "version": "v0001",
+  "parent_version": null,
+  "created_at": "2026-06-15T08:33:52.056703",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "11e10ff2badf7d312b3b4080210a669b0abcfa649bf264fda80578df90b5167e",
+  "content": {
+    "name": "ChemDisGene RE chem_disease:affects",
+    "type": "LLM",
+    "inputs": [
+      "text",
+      "head",
+      "tail"
+    ],
+    "outputs": {
+      "name": "result",
+      "type": "str"
+    },
+    "model": "deepseek",
+    "prompt_template": {
+      "description": "",
+      "system": "You are a biomedical expert. Output answer code only.",
+      "human": "{text}\nYou are biomedical expert, refer to above biomedical article, please give answer based on below conditions:\nAssumptions:\n1.1 if 'patient had/exhibited {tail} on the Xth day of {head} treatment', please do not use it and find other reason.\n1.2 if 'difference did not reach statistical significance compared to groups' appeared, please do not use it and find other reason.\nConditions:\n1. if the article gave the conclusion that the interaction between {head} and another induce {tail} or {head} induce {tail}, answer 1\n2. else if the article mentioned '{head} is in development of '{tail}', answer 2\n3. else if the article mentioned {tail} was reported in the percentage of patients because of {head}, answer 3\n4.else if the article mentioned '{head}' increase in resistance to anti-{tail} drugs or drug resistance phenomenon, answer 4\n5.else if the article mentioned '{head} is high or low in {tail}, answer 5.\n6.else if {head} represent a change or oscillations, answer 6.\n7.else if {head} is an extract, answer 7.\n8.else if {head} is {tail} marker, answer 8.\n9.else if {head} and {tail} have no correlation or therapeutic, answer 9.\n10.else if {tail} in this article does not represent a disease but a cell or cell line, answer 10. \n11.else if the article clearly mentioned '{head}' is  mediating/attenuating/treating/therapeutic to '{tail}', answer 11.\nDO NOT output any other message."
+    },
+    "tools": [],
+    "created_at": "2026-06-15T08:33:52.051718"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "1": {
+    "entities": {
+      "Disease": [
+        "heart disease"
+      ],
+      "Chemical": [
+        "Aspirin"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {},
+    "relations": [
+      "Aspirin | CID | heart disease"
+    ],
+    "route": "Has entities",
+    "text": "Aspirin may reduce the risk of heart disease.",
+    "triples": []
+  },
+  "2": {
+    "entities": {
+      "Disease": [
+        "type 2 diabetes"
+      ],
+      "Chemical": [
+        "Metformin"
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "metrics": {},
+    "relations": [
+      "Metformin | CID | type 2 diabetes"
+    ],
+    "route": "Has entities",
+    "text": "Metformin is commonly used to treat type 2 diabetes.",
+    "triples": []
+  }
+}

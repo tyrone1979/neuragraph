@@ -1,0 +1,25 @@
+{
+  "agent_id": "chemdisgene_result_to_relation",
+  "version": "v0001",
+  "parent_version": null,
+  "created_at": "2026-06-15T08:37:48.649509",
+  "created_by": "ui",
+  "change_note": "",
+  "source": "update",
+  "content_hash": "1b94fc4c26279e825fd2e920f35dbd33459bd54f9bf3c4f3f738c905c6aed1fe",
+  "content": {
+    "name": "ChemDisGene Result to Relation (PGM)",
+    "type": "PGM",
+    "inputs": [
+      "rel_types",
+      "head",
+      "tail"
+    ],
+    "outputs": {
+      "name": "relations",
+      "type": "list"
+    },
+    "process": "rels = state.get('rel_types') or []\nhead = state.get('head') or ''\ntail = state.get('tail') or ''\nout = []\nfor r in rels:\n    if head and tail and r:\n        out.append(f'{head} | {r} | {tail}')\n__result__ = out",
+    "created_at": "2026-06-15T08:37:48.645852"
+  }
+}

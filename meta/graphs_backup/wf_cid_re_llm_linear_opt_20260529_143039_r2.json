@@ -1,20 +1,25 @@
 {
   "name": "CID RE Pipeline (linear) [optimized]",
-  "description": "Gold entities → hypernym filter → pair list → foreach RE verify → id pairs.",
+  "description": "Gold entities → e2e dedup by id → e2e hypernym filter (with text context) → pair list → foreach RE verify → id pairs. Upgraded from wf_e2e_flair_opt_re agents.",
   "nodes": [
     "START",
-    "ontology_hypernym_filter",
     "cid_pair_generate",
     "cid_re_verify_loop",
+    "e2e_entities_dedup_by_id",
+    "e2e_hypernym_filter",
     "END"
   ],
   "edges": [
     [
       "START",
-      "ontology_hypernym_filter"
+      "e2e_entities_dedup_by_id"
     ],
     [
-      "ontology_hypernym_filter",
+      "e2e_entities_dedup_by_id",
+      "e2e_hypernym_filter"
+    ],
+    [
+      "e2e_hypernym_filter",
       "cid_pair_generate"
     ],
     [
@@ -42,27 +47,31 @@
   "flowNodes": {
     "cid_re_verify_loop": {
       "kind": "loop",
-      "name": "Verify each Chemical–Disease pair",
+      "name": "Verify each Chemical-Disease pair",
       "subgraphId": "sg_cid_re_verify",
       "loopConfig": {
         "loopType": "foreach",
         "array": "{{ pairs }}",
         "itemBindings": {
-          "text": "{{ text }}",
           "head": "{{ head }}",
-          "tail": "{{ tail }}",
           "head_id": "{{ head_id }}",
-          "tail_id": "{{ tail_id }}"
+          "tail": "{{ tail }}",
+          "tail_id": "{{ tail_id }}",
+          "text": "{{ text }}"
         }
       }
     }
   },
   "bindings": {
-    "ontology_hypernym_filter": {
-      "entities": "{{ START.entities }}"
-    },
     "cid_pair_generate": {
       "filtered_entities": "{{ filtered_entities }}"
+    },
+    "e2e_entities_dedup_by_id": {
+      "entities": "{{ START.entities }}"
+    },
+    "e2e_hypernym_filter": {
+      "entities": "{{ filtered_entities }}",
+      "text": "{{ START.text }}"
     }
   },
   "agentVersions": {

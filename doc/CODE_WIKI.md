@@ -33,7 +33,7 @@ Browser (Bootstrap + JointJS + jQuery)
   ├─ Service Layer (service/)
   │     ├─ AgentEntity, GraphEntity, RunnerLoader
   │     ├─ experiment_optimize, optimization_pipeline
-  │     ├─ pubtator_client, relation_normalize, dataset_cid
+  │     ├─ pubtator_client, relation_normalize, dataset/ (catalog + parsers)
   │     └─ chat/commands (shared slash command core)
   │
   ├─ Meta Layer (service/meta/)
@@ -44,7 +44,7 @@ Browser (Bootstrap + JointJS + jQuery)
   │
   └─ Filesystem
         meta/    agents, graphs, llms, tools, exps
-        tests/   per-runner CSV datasets
+        tests/   per-agent sample.csv + per-graph CSV datasets
         result/  experiment states.json + reports
 ```
 
@@ -70,7 +70,12 @@ service/
   optimize_suggestion_filter.py
   pubtator_client.py
   relation_normalize.py
-  dataset_cid.py
+  relation_normalize.py
+  dataset/
+    data_parser.py       CIDParser, ChemDisGeneParser, Article/Entity/Relation
+    core.py              DatasetCatalog (raw gold → CSV)
+    parsers.py           CDR / ChemDisGene / plain-text parsers
+    rows.py              re / ner / pubtator row builders
   chat/commands.py
 ui/
   app.py               Flask app factory
@@ -79,7 +84,7 @@ ui/
   static/js/           graphs.js, experiment.js, chat_widget.js, …
 plugin/
   plugin_loader.py
-  plugins.py           Metrics, Flair, PGM executor
+  plugins.py           Metrics, Flair, PGM executor, DatasetCatalog, parsers
 utils/
   workflow_metrics.py  Post-run metric computation
   graphutils.py        Bindings, agent roster, version resolution
@@ -153,6 +158,18 @@ result/                Experiment outputs
 |--------|------|
 | `service/pubtator_client.py` | API client, entity filters, relation parsing |
 | `relation_extract_pubtator` agent | PubTator-based relation extraction |
+
+### 4.9 Datasets & plugins
+
+| Module | Role |
+|--------|------|
+| `service/dataset/data_parser.py` | `CIDParser`, `ChemDisGeneParser`, `Article` / `Entity` / `Relation` |
+| `service/dataset/core.py` | `DatasetCatalog` — `build_tuning`, `build_full`, `save_structured` |
+| `service/dataset/parsers.py` | Native parsers; `load_articles_from_source` |
+| `plugin/plugins.py` | `DatasetCatalogPlugin`, `CdrParserPlugin`, `ChemDisGeneParserPluginClass` |
+| `ui_tests/utils/agent_sample_row_fixtures.py` | One-row fixtures for all agents |
+| [doc/DATA_FORMAT.md](DATA_FORMAT.md) | Raw gold → CSV conventions |
+| [doc/META_INVENTORY.md](META_INVENTORY.md) | Full agent/graph list (auto-generated) |
 
 ---
 

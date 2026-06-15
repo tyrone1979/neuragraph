@@ -1,0 +1,14 @@
+{
+  "runner_type": "graph",
+  "runner_id": "wf_e2e_flair_opt_re",
+  "runner_display": "wf_e2e_flair_opt_re (regression no_gold_test_only)",
+  "test_dataset": "regression_2_no_gold_test.csv",
+  "dataset": "regression_2_no_gold_test.csv",
+  "samples": 2,
+  "exp_id": "40a964c8-96c3-4d44-8daa-c49e4b433558",
+  "name": "wf_e2e_flair_opt_re_regression_2_no_gold_test.csv_20260612093206",
+  "status": "pending",
+  "progress": 0,
+  "created_at": "2026-06-12T09:32:06.236523",
+  "tuning_dataset": "regression_2_no_gold_test.csv"
+}

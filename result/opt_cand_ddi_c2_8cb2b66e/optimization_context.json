@@ -38,5 +38,8 @@
   ],
   "cumulative_version_map": {
     "relation_verify_llm": "v0013"
-  }
+  },
+  "final_graph_id": "wf_cid_re_llm_linear_opt_20260609_131256",
+  "optimized_test_exp_id": "opt_best_20260609_131256_d388be08",
+  "optimized_test_report_path": "/root/neuragraph/result/opt_best_20260609_131256_d388be08/report_optimized_test.md"
 }

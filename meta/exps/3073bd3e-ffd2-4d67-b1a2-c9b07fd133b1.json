@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "wf_cid_re_llm_linear_opt_20260604",
+  "runner_display": "wf_cid_re_llm_linear_opt_20260604 (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "3073bd3e-ffd2-4d67-b1a2-c9b07fd133b1",
+  "name": "wf_cid_re_llm_linear_opt_20260604_regression_2_gold_test.csv_20260615092014",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:20:14.439113",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:20:24.517898",
+  "last_error": "",
+  "failed_at_sample": null
+}

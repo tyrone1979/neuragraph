@@ -1,0 +1,22 @@
+{
+  "1": {
+    "head": "Aspirin",
+    "head_id": "D001241",
+    "relations": [],
+    "result": "$",
+    "tail": "heart disease",
+    "tail_id": "D006331",
+    "text": "Aspirin may reduce the risk of heart disease."
+  },
+  "2": {
+    "head": "Aspirin",
+    "head_id": "D001241",
+    "relations": [
+      "D001241 | D006331"
+    ],
+    "result": "$",
+    "tail": "heart disease",
+    "tail_id": "D006331",
+    "text": "Metformin is commonly used to treat type 2 diabetes."
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "1": {
+    "entities": {
+      "Disease": [
+        "heart disease"
+      ],
+      "Chemical": [
+        "Aspirin"
+      ]
+    },
+    "entity_link": {
+      "heart disease": {
+        "canonical": "heart disease",
+        "type": "Disease"
+      },
+      "Aspirin": {
+        "canonical": "aspirin",
+        "type": "Chemical"
+      }
+    },
+    "graph": {
+      "@context": {
+        "label": "http://schema.org/name"
+      },
+      "nodes": [
+        {
+          "@id": "aspirin",
+          "label": "aspirin"
+        },
+        {
+          "@id": "heart_disease",
+          "label": "heart disease"
+        }
+      ],
+      "edges": [
+        {
+          "@id": "e0",
+          "subject": "aspirin",
+          "predicate": "CID",
+          "object": "heart disease"
+        }
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "relations": [
+      "Aspirin | CID | heart disease"
+    ],
+    "text": "Aspirin may reduce the risk of heart disease.",
+    "triples": [
+      {
+        "head": "aspirin",
+        "predicate": "CID",
+        "tail": "heart disease"
+      }
+    ]
+  },
+  "2": {
+    "entities": {
+      "Disease": [
+        "type 2 diabetes"
+      ],
+      "Chemical": [
+        "Metformin"
+      ]
+    },
+    "entity_link": {
+      "type 2 diabetes": {
+        "canonical": "type 2 diabetes",
+        "type": "Disease"
+      },
+      "Metformin": {
+        "canonical": "metformin",
+        "type": "Chemical"
+      }
+    },
+    "graph": {
+      "@context": {
+        "label": "http://schema.org/name"
+      },
+      "nodes": [
+        {
+          "@id": "metformin",
+          "label": "metformin"
+        },
+        {
+          "@id": "type_2_diabetes",
+          "label": "type 2 diabetes"
+        }
+      ],
+      "edges": [
+        {
+          "@id": "e0",
+          "subject": "metformin",
+          "predicate": "CID",
+          "object": "type 2 diabetes"
+        }
+      ]
+    },
+    "labels": "Chemical,Disease",
+    "relations": [
+      "Metformin | CID | type 2 diabetes"
+    ],
+    "text": "Metformin is commonly used to treat type 2 diabetes.",
+    "triples": [
+      {
+        "head": "metformin",
+        "predicate": "CID",
+        "tail": "type 2 diabetes"
+      }
+    ]
+  }
+}

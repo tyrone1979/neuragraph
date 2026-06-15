@@ -1,0 +1,61 @@
+{
+  "1": {
+    "entities": [],
+    "entity_aliases": [
+      {
+        "text": "Aspirin",
+        "id": "1",
+        "label": "Chemical"
+      },
+      {
+        "text": "heart disease",
+        "id": "1",
+        "label": "Disease"
+      }
+    ],
+    "filtered_entities": [],
+    "labels": "Chemical,Disease",
+    "metrics": {},
+    "pairs": [],
+    "sentences": [
+      "Aspirin may reduce the risk of heart disease."
+    ],
+    "text": "Aspirin may reduce the risk of heart disease."
+  },
+  "2": {
+    "entities": [],
+    "entity_aliases": [
+      {
+        "text": "Metformin",
+        "id": "1",
+        "label": "Chemical"
+      }
+    ],
+    "filtered_entities": [
+      {
+        "text": "Metformin",
+        "id": "CHEBI:6801",
+        "label": "Chemical"
+      },
+      {
+        "text": "type 2 diabetes",
+        "id": "MESH:D003924",
+        "label": "Disease"
+      }
+    ],
+    "labels": "Chemical,Disease",
+    "metrics": {},
+    "pairs": [
+      {
+        "head": "Metformin",
+        "tail": "type 2 diabetes",
+        "head_id": "CHEBI:6801",
+        "tail_id": "MESH:D003924"
+      }
+    ],
+    "sentences": [
+      "Metformin is commonly used to treat type 2 diabetes."
+    ],
+    "text": "Metformin is commonly used to treat type 2 diabetes."
+  }
+}

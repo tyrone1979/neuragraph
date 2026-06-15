@@ -1,6 +1,6 @@
 
 from langchain_core.prompts import ChatPromptTemplate
-from data.data_load import load_parser
+from service.dataset.parsers import load_parser
 from comparison.metrics import MetricsCalculation
 import json
 

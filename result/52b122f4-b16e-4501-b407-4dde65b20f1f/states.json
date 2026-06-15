@@ -1,0 +1,22 @@
+{
+  "1": {
+    "result": {
+      "original": "Aspirin may reduce the risk of heart disease.",
+      "summary": "Aspirin may lower the risk of heart disease.",
+      "original_length": 45,
+      "summary_length": 44
+    },
+    "summary": "Aspirin may lower the risk of heart disease.",
+    "text": "Aspirin may reduce the risk of heart disease."
+  },
+  "2": {
+    "result": {
+      "original": "Metformin is commonly used to treat type 2 diabetes.",
+      "summary": "Metformin is a widely prescribed medication for managing type 2 diabetes.",
+      "original_length": 52,
+      "summary_length": 73
+    },
+    "summary": "Metformin is a widely prescribed medication for managing type 2 diabetes.",
+    "text": "Metformin is commonly used to treat type 2 diabetes."
+  }
+}

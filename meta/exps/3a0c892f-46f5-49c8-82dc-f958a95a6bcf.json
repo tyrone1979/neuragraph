@@ -1,0 +1,17 @@
+{
+  "runner_type": "graph",
+  "runner_id": "sg_re_tree",
+  "runner_display": "sg_re_tree (regression gold_test_only)",
+  "test_dataset": "regression_2_gold_test.csv",
+  "dataset": "regression_2_gold_test.csv",
+  "samples": 2,
+  "exp_id": "3a0c892f-46f5-49c8-82dc-f958a95a6bcf",
+  "name": "sg_re_tree_regression_2_gold_test.csv_20260615091437",
+  "status": "completed",
+  "progress": 100,
+  "created_at": "2026-06-15T09:14:37.864775",
+  "tuning_dataset": "regression_2_gold_test.csv",
+  "updated_at": "2026-06-15T09:15:45.008456",
+  "last_error": "",
+  "failed_at_sample": null
+}

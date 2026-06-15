@@ -1,0 +1,3 @@
+entity_link,expected_entities,expected_relations,text
+"{'Aspirin': 'Aspirin', 'headache': 'headache'}","{'Chemical': ['Aspirin'], 'Disease': ['headache']}",Aspirin|causes|headache,Aspirin may reduce the risk of heart disease.
+"{'Aspirin': 'Aspirin', 'headache': 'headache'}","{'Chemical': ['Aspirin'], 'Disease': ['headache']}",Aspirin|causes|headache,Metformin is commonly used to treat type 2 diabetes.
