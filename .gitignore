@@ -68,5 +68,5 @@ data/*
 
 models/*
 
-# Local LLM credentials (keep locally; do not sync API keys)
-meta/llms/deepseek.json
+# Local LLM secrets backup (full api_key); injected only when pushing to Gitee
+meta/llms/.secrets/
