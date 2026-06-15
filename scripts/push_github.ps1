@@ -18,4 +18,5 @@ if ($status) {
 }
 
 git push github "HEAD:${Branch}"
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Write-Host "Pushed sanitized branch to github:${Branch}" -ForegroundColor Green

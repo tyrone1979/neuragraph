@@ -33,6 +33,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 git push origin "HEAD:${Branch}"
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Write-Host "Pushed to origin:${Branch}" -ForegroundColor Green
 
 if ($committed) {
