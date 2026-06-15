@@ -1,5 +1,5 @@
 {
-  "api_key": "sk-mlLFs7AOFYB5LoW9lwRsJOki0pRxCukxynFCQ4SWbkgj63Ss",
+  "api_key": "",
   "base_url": "https://api.moonshot.cn/v1",
   "max_tokens": 8000,
   "model": "kimi-k2.6",

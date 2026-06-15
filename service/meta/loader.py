@@ -22,6 +22,10 @@ class MetaLoader:
             cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
             # 确保配置中有id字段
             cfg["id"] = id
+            if name == "llms":
+                from service.meta.llm_secrets import resolve_llm_api_key
+
+                cfg = resolve_llm_api_key(cfg, id)
             return cfg
         except FileNotFoundError as e:
             return None
@@ -34,6 +38,10 @@ class MetaLoader:
             for file in path.glob("*.json"):
                 cfg = json.loads(file.read_text(encoding="utf-8"))
                 cfg['id'] = file.stem
+                if name == "llms":
+                    from service.meta.llm_secrets import resolve_llm_api_key
+
+                    cfg = resolve_llm_api_key(cfg, file.stem)
                 cfgs.append(cfg)
             return cfgs
         except FileNotFoundError as e:

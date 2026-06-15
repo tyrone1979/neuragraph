@@ -195,12 +195,10 @@ class ConfigManager:
             for f in d.glob("*.json"):
                 cfg = json.loads(f.read_text(encoding='utf-8'))
                 cfg["id"] = f.stem
-                if subdir == "llms" and not str(cfg.get("api_key") or "").strip():
-                    env_key = os.environ.get(f"{f.stem.upper().replace('-', '_')}_API_KEY", "")
-                    if not env_key and f.stem == "deepseek":
-                        env_key = os.environ.get("DEEPSEEK_API_KEY", "")
-                    if env_key:
-                        cfg["api_key"] = env_key
+                if subdir == "llms":
+                    from service.meta.llm_secrets import resolve_llm_api_key
+
+                    cfg = resolve_llm_api_key(cfg, f.stem)
                 result[f.stem] = cfg
         return result
 

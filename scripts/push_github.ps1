@@ -1,4 +1,4 @@
-# Push to GitHub with a redacted deepseek.json (no api_key).
+# Push to GitHub with redacted LLM configs (no api_key in tracked files).
 # Usage: .\scripts\push_github.ps1 [-Branch 2.0]
 
 param(
@@ -8,13 +8,21 @@ param(
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
-$deepseek = "meta/llms/deepseek.json"
-& "$PSScriptRoot\_sanitize_deepseek.ps1" -TargetPath $deepseek
+$secretsDir = "meta/llms/.secrets"
+$changed = @()
+Get-ChildItem $secretsDir -Filter "*.json" | ForEach-Object {
+    $target = "meta/llms/$($_.Name)"
+    if (-not (Test-Path $target)) { return }
+    & "$PSScriptRoot\_sanitize_deepseek.ps1" -TargetPath $target
+    $changed += $target
+}
 
-git add $deepseek .gitignore
-$status = git status --porcelain $deepseek
-if ($status) {
-    git commit -m "chore: keep deepseek.json without api_key for GitHub"
+if ($changed.Count -gt 0) {
+    git add @changed
+    git diff --cached --quiet
+    if ($LASTEXITCODE -ne 0) {
+        git commit -m "chore: redact LLM api_key fields for GitHub"
+    }
 }
 
 git push github "HEAD:${Branch}"
